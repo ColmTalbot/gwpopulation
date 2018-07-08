@@ -35,38 +35,3 @@ class RateLikelihood(HyperparameterLikelihood):
         log_l -= models.norm_vt(self.parameters) * self.parameters['rate'] * self.analysis_time
         return np.nan_to_num(log_l)
 
-
-class Model(object):
-    """
-    Population model
-
-    This should take population parameters and return the probability.
-    """
-
-    def __init__(self, model_functions=None):
-        """
-        Parameters
-        ----------
-        model_functions: list
-            List of functions to compute.
-        """
-        self.models = model_functions
-
-        self.parameters = dict()
-        for function in self.models:
-            for key in function.func_code.co_varnames[1:function.func_code.co_argcount]:
-                self.parameters[key] = None
-
-    def prob(self, data):
-        if isinstance(data, dict):
-            probability = np.ones_like(data.values()[0])
-        else:
-            probability = np.ones_like(data.values())
-        for function in self.models:
-            probability *= function(data, **self._get_function_parameters(function))
-        return probability
-
-    def _get_function_parameters(self, function):
-        parameters = {key: self.parameters[key] for key in
-                      function.func_code.co_varnames[1:function.func_code.co_argcount]}
-        return parameters

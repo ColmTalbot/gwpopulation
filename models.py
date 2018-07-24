@@ -257,13 +257,12 @@ def extract_mass_parameters(parameters):
         return [parameters[key] for key in keys]
 
 
-vt_array = deepdish.io.load('vt.h5')
-# vt_frame = pd.read_csv('/home/colm.talbot/O2/population/mass-population/data/early_high_interped.dat', sep='\t')
-# vt_array = dict()
-# for key in ['q', 'm1', 'vt', 'm2']:
-#     vt_array[key] = np.reshape(vt_frame[key].values, (500, 1000))
+try:
+    vt_array = deepdish.io.load('vt.h5')
 
-m1s = np.unique(vt_array['m1'])
-qs = np.unique(vt_array['q'])
-dm = m1s[1] - m1s[0]
-dq = qs[1] - qs[0]
+    m1s = np.unique(vt_array['m1'])
+    qs = np.unique(vt_array['q'])
+    dm = m1s[1] - m1s[0]
+    dq = qs[1] - qs[0]
+except IOError:
+    print('Cannot find data for VT estimation')

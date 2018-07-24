@@ -266,3 +266,14 @@ try:
     dq = qs[1] - qs[0]
 except IOError:
     print('Cannot find data for VT estimation')
+    print('Setting VT(m)=1')
+
+    m1s = np.linspace(3, 100, 1000)
+    qs = np.linspace(0.1, 1, 500)
+    dm = m1s[1] - m1s[0]
+    dq = qs[1] - qs[0]
+
+    vt_array = dict()
+    vt_array['m1'] = np.einsum('i,j->ij', m1s, np.ones_like(qs))
+    vt_array['q'] = np.einsum('i,j->ij', np.ones_like(m1s), qs)
+    vt_array['vt'] = np.ones_like(vt_array['m1'])

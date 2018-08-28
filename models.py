@@ -3,6 +3,24 @@ from scipy.special import erf, gamma
 import deepdish
 
 
+def iid_spin(dataset, xi, sigma_spin, amax, alpha_spin, beta_spin):
+    """
+    Independently and identically distributed spins.
+    """
+    prior = (1 - xi) / 4\
+        + xi * 2 / np.pi / sigma_spin / sigma_spin\
+        * np.exp(-(dataset['costilt1']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)\
+        * np.exp(-(dataset['costilt2']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)
+    prior *= dataset['a1']**(alpha_spin - 1) * (amax - dataset['a1'])**(beta_spin - 1)\
+        * gamma(alpha_spin + beta_spin) / gamma(alpha_spin) / gamma(beta_spin)\
+        / amax**(alpha_spin + beta_spin - 1)\
+        * dataset['a2']**(alpha_spin - 1) * (amax - dataset['a2'])**(beta_spin - 1)\
+        * gamma(alpha_spin + beta_spin) / gamma(alpha_spin) / gamma(beta_spin)\
+        / amax**(alpha_spin + beta_spin - 1)
+    prior[(dataset['a1'] > amax) | (dataset['a2'] > amax)] = 0
+    return prior
+
+
 def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
     """A mixture model of spin orientations with isotropic and normally
     distributed components.
@@ -126,6 +144,18 @@ def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta, d
     qnorms = qnorms_[dataset['arg_m1s']]
     probability = pmodel2d(dataset['m1_source'], dataset['q'], parameters, pow_norm, pp_norm, qnorms)
     probability *= dataset['vt']
+    return probability
+
+
+def iid_mass(dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
+    parameters = dict(
+        alpha=alpha, mmin=mmin, mmax=mmax, lam=lam, mpp=mpp,
+        sigpp=sigpp, delta_m=delta_m, beta=0)
+    pow_norm = norm_ppow(parameters)
+    pp_norm = norm_pnorm(parameters)
+    probability = pmodel1d(dataset['m1_source'], parameters, pow_norm, pp_norm)
+    probability *= pmodel1d(dataset['m2_source'], parameters, pow_norm, pp_norm)
+    probability *= dataset['vt'] * 2
     return probability
 
 
@@ -274,6 +304,6 @@ except IOError:
     dq = qs[1] - qs[0]
 
     vt_array = dict()
-    vt_array['m1'] = np.einsum('i,j->ij', m1s, np.ones_like(qs))
-    vt_array['q'] = np.einsum('i,j->ij', np.ones_like(m1s), qs)
+    vt_array['m1'] = np.einsum('i,j->ji', m1s, np.ones_like(qs))
+    vt_array['q'] = np.einsum('i,j->ji', np.ones_like(m1s), qs)
     vt_array['vt'] = np.ones_like(vt_array['m1'])

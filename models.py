@@ -146,6 +146,7 @@ def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta, d
 
 
 def iid_mass(dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
+    """Identically and independently masses following p(m1) in T&T 2018"""
     parameters = dict(
         alpha=alpha, mmin=mmin, mmax=mmax, lam=lam, mpp=mpp,
         sigpp=sigpp, delta_m=delta_m, beta=0)
@@ -159,7 +160,7 @@ def iid_mass(dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
 
 def norms(parameters):
     """
-    Calculate normalisation factors for the model.
+    Calculate normalisation factors for the model in T&T 2018.
 
     Since our model doesn't have an anlaytic integral we must normalise numerically.
     Every value of m_1 has a unique normalisation for q.
@@ -184,14 +185,14 @@ def norms(parameters):
 
 
 def pmodel2d(ms, qs, parameters, pow_norm, pp_norm, qnorms, vt_fac=1.):
-    """2d mass model likelihood"""
+    """2d mass model from T&T 2018"""
     p_norm_no_vt = pmodel1d(ms, parameters, pow_norm, pp_norm)*pq(qs, ms, parameters) / qnorms
     p_norm = p_norm_no_vt / vt_fac
     return p_norm
 
 
 def pmodel1d(ms, parameters, pow_norm, pp_norm):
-    """normalised m1 pdf"""
+    """normalised m1 pdf from T&T 2018"""
     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
     # al, mx, mn, lam, mp, sp, bt, delta_m = parameters
     p_pow = ppow(ms, parameters) / pow_norm
@@ -242,7 +243,6 @@ def norm_vt(parameters):
     qnorms[qnorms == 0] = 1.
     p_norm_no_vt = pmodel1d(vt_array['m1'], parameters, pow_norm, pp_norm)\
         * pq(vt_array['q'], vt_array['m1'], parameters) / qnorms
-    # WARNING: this factor of qnorms should be checked
     vt_fac = dm * dq * np.sum(p_norm_no_vt * vt_array['vt'])
     return vt_fac
 

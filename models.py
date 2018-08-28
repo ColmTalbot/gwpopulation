@@ -107,7 +107,6 @@ def mass_distribution(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta, delta_m
     vt_fac = norm_vt(parameters)
     probability = pmodel2d(dataset['m1_source'], dataset['q'], parameters,
                            pow_norm, pp_norm, qnorms, vt_fac)
-    probability *= dataset['vt']
     return probability
 
 
@@ -143,7 +142,6 @@ def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta, d
     pow_norm, pp_norm, qnorms_ = norms(parameters)
     qnorms = qnorms_[dataset['arg_m1s']]
     probability = pmodel2d(dataset['m1_source'], dataset['q'], parameters, pow_norm, pp_norm, qnorms)
-    probability *= dataset['vt']
     return probability
 
 
@@ -155,7 +153,7 @@ def iid_mass(dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
     pp_norm = norm_pnorm(parameters)
     probability = pmodel1d(dataset['m1_source'], parameters, pow_norm, pp_norm)
     probability *= pmodel1d(dataset['m2_source'], parameters, pow_norm, pp_norm)
-    probability *= dataset['vt'] * 2
+    probability *= 2
     return probability
 
 

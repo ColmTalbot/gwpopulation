@@ -3,7 +3,7 @@ from scipy.special import erf, gamma
 import deepdish
 
 
-def iid_spin(dataset, xi, sigma_spin, amax, alpha_spin, beta_spin):
+def iid_spin(dataset, xi, sigma_spin, amax, alpha_chi, beta_chi):
     """
     Independently and identically distributed spins.
     """
@@ -11,12 +11,22 @@ def iid_spin(dataset, xi, sigma_spin, amax, alpha_spin, beta_spin):
         + xi * 2 / np.pi / sigma_spin / sigma_spin\
         * np.exp(-(dataset['costilt1']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)\
         * np.exp(-(dataset['costilt2']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)
-    prior *= dataset['a1']**(alpha_spin - 1) * (amax - dataset['a1'])**(beta_spin - 1)\
-        * gamma(alpha_spin + beta_spin) / gamma(alpha_spin) / gamma(beta_spin)\
-        / amax**(alpha_spin + beta_spin - 1)\
-        * dataset['a2']**(alpha_spin - 1) * (amax - dataset['a2'])**(beta_spin - 1)\
-        * gamma(alpha_spin + beta_spin) / gamma(alpha_spin) / gamma(beta_spin)\
-        / amax**(alpha_spin + beta_spin - 1)
+    prior *= iid_spin_magnitude(dataset, amax, alpha_chi, beta_chi)
+    return prior
+
+
+def iid_spin_magnitude(dataset, amax=1, alpha_chi=1, beta_chi=1):
+    """
+    Independently and identically distributed spin magnitudes.
+    """
+    if alpha_chi < 1 or beta_chi < 1:
+        return np.nan_to_num(-np.inf)
+    prior = dataset['a1']**(alpha_chi - 1) * (amax - dataset['a1'])**(beta_chi - 1)\
+        * gamma(alpha_chi + beta_chi) / gamma(alpha_chi) / gamma(beta_chi)\
+        / amax**(alpha_chi + beta_chi - 1)\
+        * dataset['a2']**(alpha_chi - 1) * (amax - dataset['a2'])**(beta_chi - 1)\
+        * gamma(alpha_chi + beta_chi) / gamma(alpha_chi) / gamma(beta_chi)\
+        / amax**(alpha_chi + beta_chi - 1)
     prior[(dataset['a1'] > amax) | (dataset['a2'] > amax)] = 0
     return prior
 

@@ -20,7 +20,7 @@ def iid_spin_magnitude(dataset, amax=1, alpha_chi=1, beta_chi=1):
     Independently and identically distributed spin magnitudes.
     """
     if alpha_chi < 1 or beta_chi < 1:
-        return np.nan_to_num(-np.inf)
+        return 0
     prior = dataset['a1']**(alpha_chi - 1) * (amax - dataset['a1'])**(beta_chi - 1)\
         * gamma(alpha_chi + beta_chi) / gamma(alpha_chi) / gamma(beta_chi)\
         / amax**(alpha_chi + beta_chi - 1)\

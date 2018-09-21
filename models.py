@@ -1,5 +1,7 @@
 import numpy as np
-from scipy.special import erf, gamma
+from scipy.special import erf
+from scipy.stats import beta as beta_dist
+from scipy.stats import truncnorm
 import deepdish
 
 
@@ -7,28 +9,28 @@ def iid_spin(dataset, xi, sigma_spin, amax, alpha_chi, beta_chi):
     """
     Independently and identically distributed spins.
     """
-    prior = (1 - xi) / 4\
-        + xi * 2 / np.pi / sigma_spin / sigma_spin\
-        * np.exp(-(dataset['costilt1']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)\
-        * np.exp(-(dataset['costilt2']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)
-    prior *= iid_spin_magnitude(dataset, amax, alpha_chi, beta_chi)
+    # prior = (1 - xi) / 4\
+    #     + xi * 2 / np.pi / sigma_spin / sigma_spin\
+    #     * np.exp(-(dataset['costilt1']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)\
+    #     * np.exp(-(dataset['costilt2']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)
+    prior = spin_orientation_likelihood(dataset, xi, sigma_spin) *\
+        iid_spin_magnitude(dataset, amax, alpha_chi, beta_chi)
     return prior
+
+
+def iid_spin_orientation(dataset, xi, sigma_spin):
+    """
+    Independently and identically distributed spin orientations.
+    """
+    return spin_orientation_likelihood(dataset, xi, sigma_spin, sigma_spin)
 
 
 def iid_spin_magnitude(dataset, amax=1, alpha_chi=1, beta_chi=1):
     """
     Independently and identically distributed spin magnitudes.
     """
-    if alpha_chi < 1 or beta_chi < 1:
-        return 0
-    prior = dataset['a1']**(alpha_chi - 1) * (amax - dataset['a1'])**(beta_chi - 1)\
-        * gamma(alpha_chi + beta_chi) / gamma(alpha_chi) / gamma(beta_chi)\
-        / amax**(alpha_chi + beta_chi - 1)\
-        * dataset['a2']**(alpha_chi - 1) * (amax - dataset['a2'])**(beta_chi - 1)\
-        * gamma(alpha_chi + beta_chi) / gamma(alpha_chi) / gamma(beta_chi)\
-        / amax**(alpha_chi + beta_chi - 1)
-    prior[(dataset['a1'] > amax) | (dataset['a2'] > amax)] = 0
-    return prior
+    return spin_magnitude_beta_likelihood(
+        dataset, alpha_chi, alpha_chi, beta_chi, beta_chi, amax, amax)
 
 
 def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
@@ -48,11 +50,23 @@ def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
     sigma_2: float
         Width of preferentially aligned component for the less massive black hole.
     """
+    # prior = (1 - xi) / 4\
+    #     + xi * 2 / np.pi / sigma_1 / sigma_2\
+    #     * truncnorm_wrapper(dataset['costilt1'], 1, sigma_1, -1, 1)\
+    #     * truncnorm_wrapper(dataset['costilt2'], 1, sigma_2, -1, 1)
     prior = (1 - xi) / 4\
         + xi * 2 / np.pi / sigma_1 / sigma_2\
         * np.exp(-(dataset['costilt1']-1)**2/(2*sigma_1**2)) / erf(2**0.5 / sigma_1)\
         * np.exp(-(dataset['costilt2']-1)**2/(2*sigma_2**2)) / erf(2**0.5 / sigma_2)
+    prior *= (abs(dataset['costilt1']) <= 1) & (abs(dataset['costilt2']) <= 1)
     return prior
+
+
+def truncnorm_wrapper(xx, mean, sigma, min_, max_):
+    """Wrapper to scipy truncnorm"""
+    aa = (min_ - mean) / sigma
+    bb = (max_ - mean) / sigma
+    return truncnorm.pdf(xx, aa, bb, loc=mean, scale=sigma)
 
 
 def spin_magnitude_beta_likelihood(dataset, alpha_1, alpha_2, beta_1, beta_2,
@@ -73,13 +87,10 @@ def spin_magnitude_beta_likelihood(dataset, alpha_1, alpha_2, beta_1, beta_2,
     amax_1, amax_2: float
         Maximum spin of the more/less massive black hole.
     """
-    prior = dataset['a1']**(alpha_1 - 1) * (amax_1 - dataset['a1'])**(beta_1 - 1)\
-        * gamma(alpha_1 + beta_1) / gamma(alpha_1) / gamma(beta_1)\
-        / amax_1**(alpha_1 + beta_1 - 1)\
-        * dataset['a2']**(alpha_2 - 1) * (amax_2 - dataset['a2'])**(beta_2 - 1)\
-        * gamma(alpha_2 + beta_2) / gamma(alpha_2) / gamma(beta_2)\
-        / amax_2**(alpha_2 + beta_2 - 1)
-    prior[(dataset['a1'] > amax_1) | (dataset['a2'] > amax_2)] = 0
+    if alpha_1 < 1 or beta_1 < 1 or alpha_2 < 1 or beta_2 < 1:
+        return 0
+    prior = beta_dist.pdf(dataset['a1'], alpha_1, beta_1, scale=amax_1) *\
+        beta_dist.pdf(dataset['a2'], alpha_2, beta_2, scale=amax_2)
     return prior
 
 

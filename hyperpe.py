@@ -14,8 +14,8 @@ class RateLikelihood(HyperparameterLikelihood):
     Parameters
     ----------
     posteriors: list
-        An list of pandas data frames of samples sets of samples. Each set may have
-        a different size.
+        An list of pandas data frames of samples sets of samples. Each set
+        may have a different size.
     hyper_prior: func
         Function which calculates the new prior probability for the data.
     sampling_prior: func
@@ -37,7 +37,8 @@ class RateLikelihood(HyperparameterLikelihood):
         self.parameters, added_keys = self.conversion_function(self.parameters)
         log_l = HyperparameterLikelihood.log_likelihood(self)
         log_l += self.n_posteriors * np.log(self.parameters['rate'])
-        log_l -= models.norm_vt(self.parameters) * self.parameters['rate'] * self.analysis_time
+        log_l -= models.norm_vt(self.parameters) * self.parameters['rate'] *\
+            self.analysis_time
         for key in added_keys:
             self.parameters.pop(key)
         return np.nan_to_num(log_l)

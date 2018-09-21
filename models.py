@@ -13,7 +13,7 @@ def iid_spin(dataset, xi, sigma_spin, amax, alpha_chi, beta_chi):
     #     + xi * 2 / np.pi / sigma_spin / sigma_spin\
     #     * np.exp(-(dataset['costilt1']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)\
     #     * np.exp(-(dataset['costilt2']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)
-    prior = spin_orientation_likelihood(dataset, xi, sigma_spin) *\
+    prior = iid_spin_orientation(dataset, xi, sigma_spin) *\
         iid_spin_magnitude(dataset, amax, alpha_chi, beta_chi)
     return prior
 

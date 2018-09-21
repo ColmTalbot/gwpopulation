@@ -9,10 +9,6 @@ def iid_spin(dataset, xi, sigma_spin, amax, alpha_chi, beta_chi):
     """
     Independently and identically distributed spins.
     """
-    # prior = (1 - xi) / 4\
-    #     + xi * 2 / np.pi / sigma_spin / sigma_spin\
-    #     * np.exp(-(dataset['costilt1']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)\
-    #     * np.exp(-(dataset['costilt2']-1)**2/(2*sigma_spin**2)) / erf(2**0.5 / sigma_spin)
     prior = iid_spin_orientation(dataset, xi, sigma_spin) *\
         iid_spin_magnitude(dataset, amax, alpha_chi, beta_chi)
     return prior
@@ -46,9 +42,11 @@ def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
     xi: float
         Fraction of black holes in preferentially aligned component.
     sigma_1: float
-        Width of preferentially aligned component for the more massive black hole.
+        Width of preferentially aligned component for the more
+        massive black hole.
     sigma_2: float
-        Width of preferentially aligned component for the less massive black hole.
+        Width of preferentially aligned component for the less
+        massive black hole.
     """
     # prior = (1 - xi) / 4\
     #     + xi * 2 / np.pi / sigma_1 / sigma_2\
@@ -56,8 +54,10 @@ def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
     #     * truncnorm_wrapper(dataset['costilt2'], 1, sigma_2, -1, 1)
     prior = (1 - xi) / 4\
         + xi * 2 / np.pi / sigma_1 / sigma_2\
-        * np.exp(-(dataset['costilt1']-1)**2/(2*sigma_1**2)) / erf(2**0.5 / sigma_1)\
-        * np.exp(-(dataset['costilt2']-1)**2/(2*sigma_2**2)) / erf(2**0.5 / sigma_2)
+        * np.exp(-(dataset['costilt1']-1)**2/(2*sigma_1**2))\
+        / erf(2**0.5 / sigma_1)\
+        * np.exp(-(dataset['costilt2']-1)**2/(2*sigma_2**2))\
+        / erf(2**0.5 / sigma_2)
     prior *= (abs(dataset['costilt1']) <= 1) & (abs(dataset['costilt2']) <= 1)
     return prior
 
@@ -94,7 +94,8 @@ def spin_magnitude_beta_likelihood(dataset, alpha_1, alpha_2, beta_1, beta_2,
     return prior
 
 
-def mass_distribution(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta, delta_m):
+def mass_distribution(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta,
+                      delta_m):
     """ Powerlaw + peak model for two-dimensional mass distribution adjusted
     for sensitive volume.
 
@@ -131,7 +132,8 @@ def mass_distribution(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta, delta_m
     return probability
 
 
-def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta, delta_m):
+def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta,
+                            delta_m):
     """ Powerlaw + peak model for two-dimensional mass distribution not adjusted
     for sensitive volume.
 
@@ -162,7 +164,8 @@ def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta, d
     parameters = [alpha, mmin, mmax, lam, mpp, sigpp, beta, delta_m]
     pow_norm, pp_norm, qnorms_ = norms(parameters)
     qnorms = qnorms_[dataset['arg_m1s']]
-    probability = pmodel2d(dataset['m1_source'], dataset['q'], parameters, pow_norm, pp_norm, qnorms)
+    probability = pmodel2d(dataset['m1_source'], dataset['q'], parameters,
+                           pow_norm, pp_norm, qnorms)
     return probability
 
 
@@ -183,8 +186,8 @@ def norms(parameters):
     """
     Calculate normalisation factors for the model in T&T 2018.
 
-    Since our model doesn't have an anlaytic integral we must normalise numerically.
-    Every value of m_1 has a unique normalisation for q.
+    Since our model doesn't have an anlaytic integral we must normalise
+    numerically. Every value of m_1 has a unique normalisation for q.
 
     Parameters
     ----------
@@ -207,7 +210,8 @@ def norms(parameters):
 
 def pmodel2d(ms, qs, parameters, pow_norm, pp_norm, qnorms, vt_fac=1.):
     """2d mass model from T&T 2018"""
-    p_norm_no_vt = pmodel1d(ms, parameters, pow_norm, pp_norm)*pq(qs, ms, parameters) / qnorms
+    p_norm_no_vt = pmodel1d(ms, parameters, pow_norm, pp_norm) *\
+        pq(qs, ms, parameters) / qnorms
     p_norm = p_norm_no_vt / vt_fac
     return p_norm
 
@@ -289,7 +293,8 @@ def window(ms, mn, mx, delta_m=0.):
     ms_arr = np.array(ms)
     sel_p = (ms_arr >= mn) & (ms_arr <= (mn + delta_m * dM))
     ms_p = ms_arr[sel_p]-mn
-    Zp = np.nan_to_num(2 * delta_m * (1 / (2 * ms_p / dM) + 1/(2 * ms_p / dM - 2 * delta_m)))
+    Zp = np.nan_to_num(2 * delta_m * (1 / (2 * ms_p / dM) +
+                       1 / (2 * ms_p / dM - 2 * delta_m)))
     window = np.ones_like(ms)
     window[(ms_arr < mn) | (ms_arr > mx)] = 0
     window[sel_p] = 1 / (np.exp(Zp) + 1)
@@ -302,7 +307,8 @@ def extract_mass_parameters(parameters):
     if isinstance(parameters, list):
         return parameters
     elif isinstance(parameters, dict):
-        keys = ['alpha', 'mmin', 'mmax', 'lam', 'mpp', 'sigpp', 'beta', 'delta_m']
+        keys = ['alpha', 'mmin', 'mmax', 'lam', 'mpp',
+                'sigpp', 'beta', 'delta_m']
         return [parameters[key] for key in keys]
 
 

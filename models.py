@@ -87,7 +87,7 @@ def spin_magnitude_beta_likelihood(dataset, alpha_1, alpha_2, beta_1, beta_2,
     amax_1, amax_2: float
         Maximum spin of the more/less massive black hole.
     """
-    if alpha_1 < 1 or beta_1 < 1 or alpha_2 < 1 or beta_2 < 1:
+    if alpha_1 < 0 or beta_1 < 0 or alpha_2 < 0 or beta_2 < 0:
         return 0
     prior = beta_dist.pdf(dataset['a1'], alpha_1, beta_1, scale=amax_1) *\
         beta_dist.pdf(dataset['a2'], alpha_2, beta_2, scale=amax_2)

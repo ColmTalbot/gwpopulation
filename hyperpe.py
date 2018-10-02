@@ -1,5 +1,5 @@
 from __future__ import division, print_function
-from tupak.hyper.likelihood import HyperparameterLikelihood
+from bilby.hyper.likelihood import HyperparameterLikelihood
 import numpy as np
 import models
 

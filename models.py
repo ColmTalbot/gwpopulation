@@ -2,7 +2,6 @@ import numpy as np
 from scipy.special import erf
 from scipy.stats import beta as beta_dist
 from scipy.stats import truncnorm
-# import deepdish
 
 
 def iid_spin(dataset, xi, sigma_spin, amax, alpha_chi, beta_chi):
@@ -170,7 +169,24 @@ def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta,
 
 
 def iid_mass(dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
-    """Identically and independently masses following p(m1) in T&T 2018"""
+    """
+    Identically and independently masses following p(m1) in T&T 2018
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary containing NxM arrays, m1_source and m2_source
+    alpha, mmin, mmax, lam, mpp, sigpp, delta_m: see mass_distribution
+
+    Returns
+    -------
+    probability: array-like
+        Probability of m1, m2 in dataset, shape=(NxM)
+
+    Notes
+    -----
+    The factor of 2 comes from requiring m1>m2
+    """
     parameters = dict(
         alpha=alpha, mmin=mmin, mmax=mmax, lam=lam, mpp=mpp,
         sigpp=sigpp, delta_m=delta_m, beta=0)
@@ -191,7 +207,7 @@ def norms(parameters):
 
     Parameters
     ----------
-    parameters: array
+    parameters: array-like
         Rescaled sample from the prior distribution.
 
     Return
@@ -200,6 +216,8 @@ def norms(parameters):
         Normalisation factor for the smoothed power law distribution.
     pp_norm: float
         Normalisation factor for the smoothed Gaussian distribution.
+    qnorms: array-like
+        Normalisation factor for each value of m1 in norm_array
     """
     pow_norm = norm_ppow(parameters)
     pp_norm = norm_pnorm(parameters)
@@ -219,7 +237,6 @@ def pmodel2d(ms, qs, parameters, pow_norm, pp_norm, qnorms, vt_fac=1.):
 def pmodel1d(ms, parameters, pow_norm, pp_norm):
     """normalised m1 pdf from T&T 2018"""
     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
-    # al, mx, mn, lam, mp, sp, bt, delta_m = parameters
     p_pow = ppow(ms, parameters) / pow_norm
     p_norm = pnorm(ms, parameters) / pp_norm
     return (1 - lam) * p_pow + lam * p_norm
@@ -228,7 +245,6 @@ def pmodel1d(ms, parameters, pow_norm, pp_norm):
 def ppow(ms, parameters):
     """1d unnormalised powerlaw mass probability with smoothed low-mass end"""
     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
-    # al, mx, mn, lam, mp, sp, bt, delta_m = parameters
     return ms**(-al) * window(ms, mn, mx, delta_m)
 
 
@@ -266,16 +282,18 @@ def norm_vt(parameters):
     pp_norm = norm_pnorm(parameters)
     qnorms = np.einsum('i,j->ji', norm_pq(parameters), np.ones_like(qs))
     qnorms[qnorms == 0] = 1.
-    p_norm_no_vt = pmodel1d(vt_array['m1'], parameters, pow_norm, pp_norm)\
-        * pq(vt_array['q'], vt_array['m1'], parameters) / qnorms
-    vt_fac = dm * dq * np.sum(p_norm_no_vt * vt_array['vt'])
+    p_norm_no_vt = pmodel1d(norm_array['m1'], parameters, pow_norm, pp_norm)\
+        * pq(norm_array['q'], norm_array['m1'], parameters) / qnorms
+    vt_fac = dm * dq * np.sum(p_norm_no_vt * norm_array['vt'])
     return vt_fac
 
 
 def norm_pq(parameters):
     """normalise pq, requires m1s, an array of m values, and dm, the spacing of
     that array"""
-    return dq * np.sum(pq(vt_array['q'], vt_array['m1'], parameters), axis=0)
+    norm = dq * np.sum(pq(norm_array['q'], norm_array['m1'], parameters),
+                       axis=0)
+    return norm
 
 
 def window(ms, mn, mx, delta_m=0.):
@@ -312,32 +330,30 @@ def extract_mass_parameters(parameters):
         return [parameters[key] for key in keys]
 
 
-def set_vt(vt_array_):
-    global dm, dq, m1s, qs, vt_array
-    vt_array = vt_array_
-    m1s = np.unique(vt_array['m1'])
-    qs = np.unique(vt_array['q'])
+def set_vt(vt_array):
+    """
+    Set up normalisation arrays, including VT(m)
+
+    Parameters
+    ----------
+    vt_array: dict
+        Dictionary containing arrays in m1, q and VT to use for normalisation
+    """
+    global dm, dq, m1s, qs, norm_array
+    norm_array = vt_array
+    m1s = np.unique(norm_array['m1'])
+    qs = np.unique(norm_array['q'])
     dm = m1s[1] - m1s[0]
     dq = qs[1] - qs[0]
 
 
-# try:
-#     vt_array = deepdish.io.load('vt.h5')
-#
-#     m1s = np.unique(vt_array['m1'])
-#     qs = np.unique(vt_array['q'])
-#     dm = m1s[1] - m1s[0]
-#     dq = qs[1] - qs[0]
-# except IOError:
-#     print('Cannot find data for VT estimation')
-#     print('Setting VT(m)=1')
-#
-#     m1s = np.linspace(3, 100, 1000)
-#     qs = np.linspace(0.1, 1, 500)
-#     dm = m1s[1] - m1s[0]
-#     dq = qs[1] - qs[0]
-#
-#     vt_array = dict()
-#     vt_array['m1'] = np.einsum('i,j->ji', m1s, np.ones_like(qs))
-#     vt_array['q'] = np.einsum('i,j->ji', np.ones_like(m1s), qs)
-#     vt_array['vt'] = np.ones_like(vt_array['m1'])
+# set up arrays for numerical normalisation
+# this doesn't include VT(m)
+m1s = np.linspace(3, 100, 1000)
+qs = np.linspace(0.1, 1, 500)
+dm = m1s[1] - m1s[0]
+dq = qs[1] - qs[0]
+
+norm_array = dict()
+norm_array['m1'] = np.einsum('i,j->ji', m1s, np.ones_like(qs))
+norm_array['q'] = np.einsum('i,j->ji', np.ones_like(m1s), qs)

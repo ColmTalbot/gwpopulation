@@ -2,7 +2,7 @@ import numpy as np
 from scipy.special import erf
 from scipy.stats import beta as beta_dist
 from scipy.stats import truncnorm
-import deepdish
+# import deepdish
 
 
 def iid_spin(dataset, xi, sigma_spin, amax, alpha_chi, beta_chi):
@@ -312,23 +312,32 @@ def extract_mass_parameters(parameters):
         return [parameters[key] for key in keys]
 
 
-try:
-    vt_array = deepdish.io.load('vt.h5')
-
+def set_vt(vt_array_):
+    global dm, dq, m1s, qs, vt_array
+    vt_array = vt_array_
     m1s = np.unique(vt_array['m1'])
     qs = np.unique(vt_array['q'])
     dm = m1s[1] - m1s[0]
     dq = qs[1] - qs[0]
-except IOError:
-    print('Cannot find data for VT estimation')
-    print('Setting VT(m)=1')
 
-    m1s = np.linspace(3, 100, 1000)
-    qs = np.linspace(0.1, 1, 500)
-    dm = m1s[1] - m1s[0]
-    dq = qs[1] - qs[0]
 
-    vt_array = dict()
-    vt_array['m1'] = np.einsum('i,j->ji', m1s, np.ones_like(qs))
-    vt_array['q'] = np.einsum('i,j->ji', np.ones_like(m1s), qs)
-    vt_array['vt'] = np.ones_like(vt_array['m1'])
+# try:
+#     vt_array = deepdish.io.load('vt.h5')
+#
+#     m1s = np.unique(vt_array['m1'])
+#     qs = np.unique(vt_array['q'])
+#     dm = m1s[1] - m1s[0]
+#     dq = qs[1] - qs[0]
+# except IOError:
+#     print('Cannot find data for VT estimation')
+#     print('Setting VT(m)=1')
+#
+#     m1s = np.linspace(3, 100, 1000)
+#     qs = np.linspace(0.1, 1, 500)
+#     dm = m1s[1] - m1s[0]
+#     dq = qs[1] - qs[0]
+#
+#     vt_array = dict()
+#     vt_array['m1'] = np.einsum('i,j->ji', m1s, np.ones_like(qs))
+#     vt_array['q'] = np.einsum('i,j->ji', np.ones_like(m1s), qs)
+#     vt_array['vt'] = np.ones_like(vt_array['m1'])

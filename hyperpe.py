@@ -26,16 +26,18 @@ class RateLikelihood(HyperparameterLikelihood):
     """
 
     def __init__(self, posteriors, hyper_prior, sampling_prior,
-                 max_samples=1e100, analysis_time=1,
+                 log_evidences=None, max_samples=1e100, analysis_time=1,
                  conversion_function=lambda args: (args, None)):
-        super(RateLikelihood, self).__init__(posteriors, hyper_prior,
-                                             sampling_prior, max_samples)
+        super(RateLikelihood, self).__init__(
+                posteriors=posteriors, hyper_prior=hyper_prior,
+                sampling_prior=sampling_prior, log_evidences=log_evidences,
+                max_samples=max_samples)
         self.analysis_time = analysis_time
         self.conversion_function = conversion_function
 
-    def log_likelihood(self):
+    def log_likelihood_ratio(self):
         self.parameters, added_keys = self.conversion_function(self.parameters)
-        log_l = HyperparameterLikelihood.log_likelihood(self)
+        log_l = HyperparameterLikelihood.log_likelihood_ratio(self)
         log_l += self.n_posteriors * np.log(self.parameters['rate'])
         log_l -= models.norm_vt(self.parameters) * self.parameters['rate'] *\
             self.analysis_time

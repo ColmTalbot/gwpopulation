@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 from scipy.special import erf
 from scipy.stats import beta as beta_dist

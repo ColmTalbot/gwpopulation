@@ -1,7 +1,9 @@
 from __future__ import division, print_function
-from bilby.hyper.likelihood import HyperparameterLikelihood
 import numpy as np
-import models
+
+from bilby.hyper.likelihood import HyperparameterLikelihood
+
+from . import models
 
 
 class RateLikelihood(HyperparameterLikelihood):

@@ -1,4 +1,5 @@
 import unittest
+import os
 
 import numpy as np
 
@@ -18,7 +19,8 @@ class TestMassModel(unittest.TestCase):
         self.test_params = dict(
             alpha=1, mmin=9, mmax=40, lam=0, mpp=50, sigpp=1,
             beta=3, delta_m=0)
-        self.prior = PriorSet('./test.prior')
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        self.prior = PriorSet('{}/test.prior'.format(current_dir))
         self.vt_array = dict(
             m1=models.norm_array['m1'], q=models.norm_array['q'],
             vt=models.norm_array['m1']**0 * 2)

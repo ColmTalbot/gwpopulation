@@ -17,6 +17,7 @@ stages:
 testing:
   stage: test
   image: bilbydev/bilby
+  script:
     - python setup.py install
     # Run tests without finding coverage
     - flake8 .

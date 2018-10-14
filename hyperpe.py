@@ -29,9 +29,9 @@ class RateLikelihood(HyperparameterLikelihood):
                  log_evidences=None, max_samples=1e100, analysis_time=1,
                  conversion_function=lambda args: (args, None)):
         super(RateLikelihood, self).__init__(
-                posteriors=posteriors, hyper_prior=hyper_prior,
-                sampling_prior=sampling_prior, log_evidences=log_evidences,
-                max_samples=max_samples)
+            posteriors=posteriors, hyper_prior=hyper_prior,
+            sampling_prior=sampling_prior, log_evidences=log_evidences,
+            max_samples=max_samples)
         self.analysis_time = analysis_time
         self.conversion_function = conversion_function
 

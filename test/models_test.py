@@ -96,6 +96,20 @@ class TestMassModel(unittest.TestCase):
     #             models.m1s))
     #     self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0)
 
+    def test_marginal_powerlaw_scaling(self):
+        for key in ['lam', 'mpp', 'sigpp', 'delta_m', 'xi', 'sigma_1',
+                    'sigma_2', 'amax', 'alpha_chi', 'beta_chi', 'rate']:
+            self.prior.pop(key)
+        ratios = list()
+        for ii in range(100):
+            parameters = self.prior.sample()
+            p_pop = np.trapz(np.nan_to_num(
+                models.mass_distribution_no_vt(
+                    self.test_data, **parameters)).T, models.qs)
+            ratios.append((p_pop[200] / p_pop[100]) * (models.m1s[200] /
+                          models.m1s[100])**parameters['alpha'])
+        self.assertAlmostEqual(max(abs(np.array(ratios) - 1)), 0)
+
 
 class TestSpinOrientation(unittest.TestCase):
 

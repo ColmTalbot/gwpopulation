@@ -253,7 +253,7 @@ def ppow(ms, parameters):
 def norm_ppow(parameters):
     """normalise ppow, requires m1s, an array of m values, and dm, the spacing of
     that array"""
-    return dm * sum(ppow(m1s, parameters))
+    return np.trapz(ppow(m1s, parameters), m1s)
 
 
 def pnorm(ms, parameters):
@@ -265,7 +265,7 @@ def pnorm(ms, parameters):
 def norm_pnorm(parameters):
     """normalise pnorm, requires m1s, an array of m values, and dm, the spacing of
     that array"""
-    return dm * sum(pnorm(m1s, parameters))
+    return np.trapz(pnorm(m1s, parameters), m1s)
 
 
 def pq(qs, ms, parameters):
@@ -293,8 +293,8 @@ def norm_vt(parameters):
 def norm_pq(parameters):
     """normalise pq, requires m1s, an array of m values, and dm, the spacing of
     that array"""
-    norm = dq * np.sum(pq(norm_array['q'], norm_array['m1'], parameters),
-                       axis=0)
+    norm = np.trapz(pq(norm_array['q'], norm_array['m1'], parameters),
+                    qs, axis=0)
     return norm
 
 

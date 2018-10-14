@@ -44,11 +44,12 @@ class TestMassModel(unittest.TestCase):
         for ii in range(100):
             parameters = self.prior.sample()
             pow_norm, pp_norm, qnorms = models.norms(parameters)
-            temp = models.pmodel2d(self.test_data['m1_source'], self.test_data['q'],
-                                   parameters, pow_norm, pp_norm, qnorms)
+            temp = models.pmodel2d(
+                self.test_data['m1_source'], self.test_data['q'],
+                parameters, pow_norm, pp_norm, qnorms)
             norms.append(np.trapz(np.trapz(temp, models.m1s), models.qs))
         self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0)
-        
+
     def test_mass_distribution_no_vt_normalised(self):
         norms = list()
         for ii in range(100):
@@ -79,7 +80,7 @@ class TestMassModel(unittest.TestCase):
         self.vt_array['vt'] = np.ones_like(self.vt_array['q']) * 1
         models.set_vt(self.vt_array)
         self.assertAlmostEqual(max(abs(np.array(norms))), 2)
-        
+
     # def test_iid_mass_normalised(self):
     #     norms = list()
     #     for ii in range(100):
@@ -89,36 +90,41 @@ class TestMassModel(unittest.TestCase):
     #             parameters.pop(key)
     #         temp = models.iid_mass(self.test_data, **parameters)
     #         norms.append(np.trapz(np.trapz(
-    #             temp.T * self.test_data['m1_source'].T, models.qs), models.m1s))
+    #             temp.T * self.test_data['m1_source'].T, models.qs),
+    #             models.m1s))
     #     self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0)
 
 
 class TestSpinOrientation(unittest.TestCase):
-    
+
     def setUp(self):
         self.costilts = np.linspace(-1, 1, 1000)
         self.test_data = dict(
-            costilt1=np.einsum('i,j->ij', self.costilts, np.ones_like(self.costilts)),
-            costilt2=np.einsum('i,j->ji', self.costilts, np.ones_like(self.costilts)))
+            costilt1=np.einsum('i,j->ij', self.costilts,
+                               np.ones_like(self.costilts)),
+            costilt2=np.einsum('i,j->ji', self.costilts,
+                               np.ones_like(self.costilts)))
         self.prior = PriorSet(
-            dict(xi=Uniform(0, 1), sigma_1=Uniform(0, 4), sigma_2=Uniform(0, 4)))
-    
+            dict(xi=Uniform(0, 1), sigma_1=Uniform(0, 4),
+                 sigma_2=Uniform(0, 4)))
+
     def tearDown(self):
         del self.test_data
         del self.prior
         del self.costilts
-        
+
     def test_spin_orientation_normalised(self):
         norms = list()
         for ii in range(100):
             parameters = self.prior.sample()
-            temp = models.spin_orientation_likelihood(self.test_data, **parameters)
+            temp = models.spin_orientation_likelihood(
+                self.test_data, **parameters)
             norms.append(np.trapz(np.trapz(temp, self.costilts), self.costilts))
         self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0, 5)
 
 
 class TestSpinMagnitude(unittest.TestCase):
-    
+
     def setUp(self):
         self.a_array = np.linspace(1e-5, 1 - 1e-5, 1000)
         self.test_data = dict(
@@ -127,12 +133,12 @@ class TestSpinMagnitude(unittest.TestCase):
         self.prior = PriorSet(
             dict(amax=Uniform(0, 1), alpha_chi=LogUniform(1, 1e5),
                  beta_chi=LogUniform(1, 1e5)))
-    
+
     def tearDown(self):
         del self.test_data
         del self.prior
         del self.a_array
-        
+
     def test_spin_magnitude_normalised(self):
         norms = list()
         for ii in range(100):

@@ -55,9 +55,9 @@ def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
     #     * truncnorm_wrapper(dataset['costilt2'], 1, sigma_2, -1, 1)
     prior = (1 - xi) / 4\
         + xi * 2 / np.pi / sigma_1 / sigma_2\
-        * np.exp(-(dataset['costilt1']-1)**2/(2*sigma_1**2))\
+        * np.exp(-(dataset['costilt1'] - 1)**2 / (2 * sigma_1**2))\
         / erf(2**0.5 / sigma_1)\
-        * np.exp(-(dataset['costilt2']-1)**2/(2*sigma_2**2))\
+        * np.exp(-(dataset['costilt2'] - 1)**2 / (2 * sigma_2**2))\
         / erf(2**0.5 / sigma_2)
     prior *= (abs(dataset['costilt1']) <= 1) & (abs(dataset['costilt2']) <= 1)
     return prior
@@ -286,7 +286,7 @@ def norm_vt(parameters):
     qnorms[qnorms == 0] = 1.
     p_norm_no_vt = pmodel1d(norm_array['m1'], parameters, pow_norm, pp_norm)\
         * pq(norm_array['q'], norm_array['m1'], parameters) / qnorms
-    vt_fac = dm * dq * np.sum(p_norm_no_vt * norm_array['vt'])
+    vt_fac = np.trapz(np.trapz(p_norm_no_vt * norm_array['vt'], m1s), qs)
     return vt_fac
 
 
@@ -312,7 +312,7 @@ def window(ms, mn, mx, delta_m=0.):
     # some versions of numpy can't deal with pandas columns indexing an array
     ms_arr = np.array(ms)
     sel_p = (ms_arr >= mn) & (ms_arr <= (mn + delta_m * dM))
-    ms_p = ms_arr[sel_p]-mn
+    ms_p = ms_arr[sel_p] - mn
     Zp = np.nan_to_num(2 * delta_m * (1 / (2 * ms_p / dM) +
                        1 / (2 * ms_p / dM - 2 * delta_m)))
     window = np.ones_like(ms)

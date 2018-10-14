@@ -27,16 +27,16 @@ testing:
     - coverage-badge -o coverage_badge.svg -f
 
     # Make the documentation
-    # - cd docs
-    # - conda install -y make
-    # - make clean
-    # - make html
+    - cd docs
+    - conda install -y make
+    - make clean
+    - make html
 
   artifacts:
     paths:
       - htmlcov/
       - coverage_badge.svg
-      # - docs/_build/html/
+      - docs/_build/html/
 
 pages:
   stage: deploy
@@ -46,6 +46,7 @@ pages:
     - mkdir public/
     - mv htmlcov/ public/
     - mv /builds/colm.talbot/population/coverage_badge.svg public/
+    - mv docs/_build/html/* public/
   artifacts:
     paths:
       - public

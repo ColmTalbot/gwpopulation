@@ -224,7 +224,7 @@ def norms(parameters):
     pow_norm = norm_ppow(parameters)
     pp_norm = norm_pnorm(parameters)
     qnorms = norm_pq(parameters)
-    qnorms[qnorms < 2e-3] = 1.
+    qnorms[qnorms == 0] = 1.
     return [pow_norm, pp_norm, qnorms]
 
 

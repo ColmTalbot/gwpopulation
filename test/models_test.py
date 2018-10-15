@@ -131,6 +131,20 @@ class TestMassModel(unittest.TestCase):
                     (models.qs[-1] / models.qs[200])**parameters['beta'])
         self.assertAlmostEqual(max(abs(np.array(ratios) - 1)), 0)
 
+    def test_mass_distribution_no_vt_non_negative(self):
+        models.set_vt(self.vt_array)
+        parameters = dict()
+        for key in ['xi', 'sigma_1', 'sigma_2', 'amax',
+                    'alpha_chi', 'beta_chi', 'rate']:
+            self.prior.pop(key)
+        minima = list()
+        for ii in range(self.n_test):
+            parameters.update(self.prior.sample())
+            p_pop = np.nan_to_num(models.mass_distribution_no_vt(
+                self.test_data, **parameters))
+            minima.append(np.min(p_pop))
+        self.assertGreaterEqual(min(minima), 0)
+
     def test_mass_distribution_no_vt_returns_zero_below_mmin(self):
         parameters = dict()
         for key in ['xi', 'sigma_1', 'sigma_2', 'amax',
@@ -159,6 +173,20 @@ class TestMassModel(unittest.TestCase):
                 (self.test_data['m1_source'] > parameters['mmax'])]))
         self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
 
+    def test_mass_distribution_non_negative(self):
+        models.set_vt(self.vt_array)
+        parameters = dict()
+        for key in ['xi', 'sigma_1', 'sigma_2', 'amax',
+                    'alpha_chi', 'beta_chi', 'rate']:
+            self.prior.pop(key)
+        minima = list()
+        for ii in range(self.n_test):
+            parameters.update(self.prior.sample())
+            p_pop = np.nan_to_num(models.mass_distribution(
+                self.test_data, **parameters))
+            minima.append(np.min(p_pop))
+        self.assertGreaterEqual(min(minima), 0)
+
     def test_mass_distribution_returns_zero_below_mmin(self):
         models.set_vt(self.vt_array)
         parameters = dict()
@@ -173,7 +201,7 @@ class TestMassModel(unittest.TestCase):
             max_out_of_bounds.append(np.max(p_pop[
                 (self.test_data['m2_source'] < parameters['mmin'])]))
         self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
-
+        
     def test_powerlaw_mass_distribution_returns_zero_above_mmax(self):
         parameters = dict(lam=0.0)
         for key in ['lam', 'xi', 'sigma_1', 'sigma_2', 'amax',

@@ -3,7 +3,7 @@ import os
 
 import numpy as np
 
-from bilby.core.prior import PriorSet, Uniform, LogUniform
+from bilby.core.prior import PriorSet, Uniform
 from population import models
 
 
@@ -250,13 +250,13 @@ class TestSpinOrientation(unittest.TestCase):
 class TestSpinMagnitude(unittest.TestCase):
 
     def setUp(self):
-        self.a_array = np.linspace(1e-5, 1 - 1e-5, 1000)
+        self.a_array = np.linspace(0, 1, 1000)
         self.test_data = dict(
             a1=np.einsum('i,j->ij', self.a_array, np.ones_like(self.a_array)),
             a2=np.einsum('i,j->ji', self.a_array, np.ones_like(self.a_array)))
         self.prior = PriorSet(
-            dict(amax=Uniform(0, 1), alpha_chi=LogUniform(1, 1e5),
-                 beta_chi=LogUniform(1, 1e5)))
+            dict(amax=Uniform(0.3, 1), alpha_chi=Uniform(1, 4),
+                 beta_chi=Uniform(1, 4)))
         self.n_test = 100
 
     def tearDown(self):
@@ -265,13 +265,13 @@ class TestSpinMagnitude(unittest.TestCase):
         del self.a_array
         del self.n_test
 
-    # def test_spin_magnitude_normalised(self):
-    #     norms = list()
-    #     for ii in range(100):
-    #         parameters = self.prior.sample()
-    #         temp = models.iid_spin_magnitude(self.test_data, **parameters)
-    #         norms.append(np.trapz(np.trapz(temp, self.a_array), self.a_array))
-    #     self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0)
+    def test_spin_magnitude_normalised(self):
+        norms = list()
+        for ii in range(self.n_test):
+            parameters = self.prior.sample()
+            temp = models.iid_spin_magnitude(self.test_data, **parameters)
+            norms.append(np.trapz(np.trapz(temp, self.a_array), self.a_array))
+        self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0, 2)
 
 
 if __name__ == '__main__':

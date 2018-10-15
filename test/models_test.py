@@ -97,12 +97,13 @@ class TestMassModel(unittest.TestCase):
     #     self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0)
 
     def test_marginal_powerlaw_scaling(self):
+        parameters = dict(lam=0, mpp=35, sigpp=1, delta_m=0)
         for key in ['lam', 'mpp', 'sigpp', 'delta_m', 'xi', 'sigma_1',
                     'sigma_2', 'amax', 'alpha_chi', 'beta_chi', 'rate']:
             self.prior.pop(key)
         ratios = list()
         for ii in range(100):
-            parameters = self.prior.sample()
+            parameters.update(self.prior.sample())
             p_pop = np.trapz(np.nan_to_num(
                 models.mass_distribution_no_vt(
                     self.test_data, **parameters)).T, models.qs)

@@ -196,6 +196,7 @@ def iid_mass(dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
     pp_norm = norm_pnorm(parameters)
     probability = pmodel1d(dataset['m1_source'], parameters, pow_norm, pp_norm)
     probability *= pmodel1d(dataset['m2_source'], parameters, pow_norm, pp_norm)
+    probability[dataset['m1_source'] < dataset['m2_source']] = 0
     probability *= 2
     return probability
 

@@ -24,16 +24,18 @@ class TestMassModel(unittest.TestCase):
         self.vt_array = dict(
             m1=models.norm_array['m1'], q=models.norm_array['q'],
             vt=models.norm_array['m1']**0 * 2)
+        self.n_test = 10
 
     def tearDown(self):
         del self.test_data
         del self.test_params
         del self.prior
         del self.vt_array
+        del self.n_test
 
     def test_p_model_1d_normalised(self):
         norms = list()
-        for ii in range(100):
+        for ii in range(self.n_test):
             parameters = self.prior.sample()
             pow_norm = models.norm_ppow(parameters)
             pp_norm = models.norm_pnorm(parameters)
@@ -43,7 +45,7 @@ class TestMassModel(unittest.TestCase):
 
     def test_p_model_2d_normalised(self):
         norms = list()
-        for ii in range(100):
+        for ii in range(self.n_test):
             parameters = self.prior.sample()
             pow_norm, pp_norm, qnorms = models.norms(parameters)
             temp = models.pmodel2d(
@@ -54,7 +56,7 @@ class TestMassModel(unittest.TestCase):
 
     def test_mass_distribution_no_vt_normalised(self):
         norms = list()
-        for ii in range(100):
+        for ii in range(self.n_test):
             parameters = self.prior.sample()
             parameters = models.extract_mass_parameters(parameters)
             temp = models.mass_distribution_no_vt(self.test_data, *parameters)
@@ -64,7 +66,7 @@ class TestMassModel(unittest.TestCase):
     def test_mass_distribution_vt_normalised(self):
         models.set_vt(self.vt_array)
         norms = list()
-        for ii in range(100):
+        for ii in range(self.n_test):
             parameters = self.prior.sample()
             parameters = models.extract_mass_parameters(parameters)
             temp = models.mass_distribution(self.test_data, *parameters)
@@ -76,7 +78,7 @@ class TestMassModel(unittest.TestCase):
     def test_norm_vt(self):
         models.set_vt(self.vt_array)
         norms = list()
-        for ii in range(100):
+        for ii in range(self.n_test):
             parameters = self.prior.sample()
             norms.append(models.norm_vt(parameters))
         self.vt_array['vt'] = np.ones_like(self.vt_array['q']) * 1
@@ -102,7 +104,7 @@ class TestMassModel(unittest.TestCase):
                     'sigma_2', 'amax', 'alpha_chi', 'beta_chi', 'rate']:
             self.prior.pop(key)
         ratios = list()
-        for ii in range(100):
+        for ii in range(self.n_test):
             parameters.update(self.prior.sample())
             p_pop = np.trapz(np.nan_to_num(
                 models.mass_distribution_no_vt(
@@ -117,7 +119,7 @@ class TestMassModel(unittest.TestCase):
                     'sigma_2', 'amax', 'alpha_chi', 'beta_chi', 'rate']:
             self.prior.pop(key)
         ratios = list()
-        for ii in range(100):
+        for ii in range(self.n_test):
             parameters.update(self.prior.sample())
             p_pop = np.nan_to_num(models.mass_distribution_no_vt(
                 self.test_data, **parameters)).T
@@ -128,6 +130,63 @@ class TestMassModel(unittest.TestCase):
                     (p_pop[ii, -1] / p_pop[ii, 200]) /
                     (models.qs[-1] / models.qs[200])**parameters['beta'])
         self.assertAlmostEqual(max(abs(np.array(ratios) - 1)), 0)
+
+    def test_mass_distribution_no_vt_returns_zero_below_mmin(self):
+        parameters = dict()
+        for key in ['xi', 'sigma_1', 'sigma_2', 'amax',
+                    'alpha_chi', 'beta_chi', 'rate']:
+            self.prior.pop(key)
+        max_out_of_bounds = list()
+        for ii in range(self.n_test):
+            parameters.update(self.prior.sample())
+            p_pop = np.nan_to_num(models.mass_distribution_no_vt(
+                self.test_data, **parameters))
+            max_out_of_bounds.append(np.max(p_pop[
+                (self.test_data['m2_source'] < parameters['mmin'])]))
+        self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
+
+    def test_powerlaw_mass_distribution_no_vt_returns_zero_above_mmax(self):
+        parameters = dict(lam=0.0)
+        for key in ['lam', 'xi', 'sigma_1', 'sigma_2', 'amax',
+                    'alpha_chi', 'beta_chi', 'rate']:
+            self.prior.pop(key)
+        max_out_of_bounds = list()
+        for ii in range(self.n_test):
+            parameters.update(self.prior.sample())
+            p_pop = np.nan_to_num(models.mass_distribution_no_vt(
+                self.test_data, **parameters))
+            max_out_of_bounds.append(np.max(p_pop[
+                (self.test_data['m1_source'] > parameters['mmax'])]))
+        self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
+
+    def test_mass_distribution_returns_zero_below_mmin(self):
+        models.set_vt(self.vt_array)
+        parameters = dict()
+        for key in ['xi', 'sigma_1', 'sigma_2', 'amax',
+                    'alpha_chi', 'beta_chi', 'rate']:
+            self.prior.pop(key)
+        max_out_of_bounds = list()
+        for ii in range(self.n_test):
+            parameters.update(self.prior.sample())
+            p_pop = np.nan_to_num(models.mass_distribution(
+                self.test_data, **parameters))
+            max_out_of_bounds.append(np.max(p_pop[
+                (self.test_data['m2_source'] < parameters['mmin'])]))
+        self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
+
+    def test_powerlaw_mass_distribution_returns_zero_above_mmax(self):
+        parameters = dict(lam=0.0)
+        for key in ['lam', 'xi', 'sigma_1', 'sigma_2', 'amax',
+                    'alpha_chi', 'beta_chi', 'rate']:
+            self.prior.pop(key)
+        max_out_of_bounds = list()
+        for ii in range(self.n_test):
+            parameters.update(self.prior.sample())
+            p_pop = np.nan_to_num(models.mass_distribution(
+                self.test_data, **parameters))
+            max_out_of_bounds.append(np.max(p_pop[
+                (self.test_data['m1_source'] > parameters['mmax'])]))
+        self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
 
 
 class TestSpinOrientation(unittest.TestCase):
@@ -142,15 +201,17 @@ class TestSpinOrientation(unittest.TestCase):
         self.prior = PriorSet(
             dict(xi=Uniform(0, 1), sigma_1=Uniform(0, 4),
                  sigma_2=Uniform(0, 4)))
+        self.n_test = 100
 
     def tearDown(self):
         del self.test_data
         del self.prior
         del self.costilts
+        del self.n_test
 
     def test_spin_orientation_normalised(self):
         norms = list()
-        for ii in range(100):
+        for ii in range(self.n_test):
             parameters = self.prior.sample()
             temp = models.spin_orientation_likelihood(
                 self.test_data, **parameters)
@@ -168,11 +229,13 @@ class TestSpinMagnitude(unittest.TestCase):
         self.prior = PriorSet(
             dict(amax=Uniform(0, 1), alpha_chi=LogUniform(1, 1e5),
                  beta_chi=LogUniform(1, 1e5)))
+        self.n_test = 100
 
     def tearDown(self):
         del self.test_data
         del self.prior
         del self.a_array
+        del self.n_test
 
     # def test_spin_magnitude_normalised(self):
     #     norms = list()

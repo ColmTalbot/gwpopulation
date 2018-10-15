@@ -111,6 +111,24 @@ class TestMassModel(unittest.TestCase):
                           models.m1s[100])**parameters['alpha'])
         self.assertAlmostEqual(max(abs(np.array(ratios) - 1)), 0)
 
+    def test_mass_ratio_scaling(self):
+        parameters = dict(lam=0, mpp=35, sigpp=1, delta_m=0)
+        for key in ['lam', 'mpp', 'sigpp', 'delta_m', 'xi', 'sigma_1',
+                    'sigma_2', 'amax', 'alpha_chi', 'beta_chi', 'rate']:
+            self.prior.pop(key)
+        ratios = list()
+        for ii in range(100):
+            parameters.update(self.prior.sample())
+            p_pop = np.nan_to_num(models.mass_distribution_no_vt(
+                self.test_data, **parameters)).T
+            for ii in range(len(models.qs)):
+                if (p_pop[ii, -1] == 0) or (p_pop[ii, 200] == 0):
+                    continue
+                ratios.append(
+                    (p_pop[ii, -1] / p_pop[ii, 200]) /
+                    (models.qs[-1] / models.qs[200])**parameters['beta'])
+        self.assertAlmostEqual(max(abs(np.array(ratios) - 1)), 0)
+
 
 class TestSpinOrientation(unittest.TestCase):
 

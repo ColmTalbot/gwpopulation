@@ -85,18 +85,19 @@ class TestMassModel(unittest.TestCase):
         models.set_vt(self.vt_array)
         self.assertAlmostEqual(max(abs(np.array(norms))), 2)
 
-    # def test_iid_mass_normalised(self):
-    #     norms = list()
-    #     for ii in range(100):
-    #         parameters = self.prior.sample()
-    #         for key in ['beta', 'xi', 'sigma_1', 'sigma_2',
-    #                     'amax', 'alpha_chi', 'beta_chi', 'rate']:
-    #             parameters.pop(key)
-    #         temp = models.iid_mass(self.test_data, **parameters)
-    #         norms.append(np.trapz(np.trapz(
-    #             temp.T * self.test_data['m1_source'].T, models.qs),
-    #             models.m1s))
-    #     self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0)
+    def test_iid_mass_normalised(self):
+        test_data = dict(
+            m1_source=np.random.uniform(3, 100, 1000000),
+            m2_source=np.random.uniform(3, 100, 1000000))
+        norms = list()
+        for ii in range(self.n_test):
+            parameters = self.prior.sample()
+            for key in ['beta', 'xi', 'sigma_1', 'sigma_2',
+                        'amax', 'alpha_chi', 'beta_chi', 'rate']:
+                parameters.pop(key)
+            temp = models.iid_mass(test_data, **parameters)
+            norms.append(np.mean(temp) * (97**2))
+        self.assertAlmostEqual(np.mean(norms), 1, 2)
 
     def test_marginal_powerlaw_scaling(self):
         parameters = dict(lam=0, mpp=35, sigpp=1, delta_m=0)

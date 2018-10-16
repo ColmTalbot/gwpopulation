@@ -4,6 +4,7 @@ import numpy as np
 from scipy.special import erf
 from scipy.stats import beta as beta_dist
 from scipy.stats import truncnorm
+from scipy.interpolate import interp1d
 
 
 def iid_spin(dataset, xi, sigma_spin, amax, alpha_chi, beta_chi):
@@ -161,10 +162,16 @@ def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta,
         Power law exponent of the mass ratio distribution.
     delta_m: float
         Rise length of the low end of the mass distribution.
+
+    Notes
+    -----
+    The interpolation of the p(q) normalisation has a fill value of
+    the normalisation factor for m_1 = 100.
     """
     parameters = [alpha, mmin, mmax, lam, mpp, sigpp, beta, delta_m]
     pow_norm, pp_norm, qnorms_ = norms(parameters)
-    qnorms = qnorms_[dataset['arg_m1s']]
+    qnorms = interp1d(m1s, qnorms_, bounds_error=False,
+                      fill_value=qnorms_[-1])(dataset['m1_source'])
     probability = pmodel2d(dataset['m1_source'], dataset['q'], parameters,
                            pow_norm, pp_norm, qnorms)
     return probability

@@ -126,11 +126,9 @@ def mass_distribution(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta,
         Rise length of the low end of the mass distribution.
     """
     parameters = [alpha, mmin, mmax, lam, mpp, sigpp, beta, delta_m]
-    pow_norm, pp_norm, qnorms_ = norms(parameters)
-    qnorms = qnorms_[dataset['arg_m1s']]
+    probability = mass_distribution_no_vt(dataset, *parameters)
     vt_fac = norm_vt(parameters)
-    probability = pmodel2d(dataset['m1_source'], dataset['q'], parameters,
-                           pow_norm, pp_norm, qnorms, vt_fac)
+    probability /= vt_fac
     return probability
 
 
@@ -172,6 +170,7 @@ def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta,
     pow_norm, pp_norm, qnorms_ = norms(parameters)
     qnorms = interp1d(m1s, qnorms_, bounds_error=False,
                       fill_value=qnorms_[-1])(dataset['m1_source'])
+    qnorms[qnorms == 0] = 1
     probability = pmodel2d(dataset['m1_source'], dataset['q'], parameters,
                            pow_norm, pp_norm, qnorms)
     return probability
@@ -232,7 +231,6 @@ def norms(parameters):
     pow_norm = norm_ppow(parameters)
     pp_norm = norm_pnorm(parameters)
     qnorms = norm_pq(parameters)
-    qnorms[qnorms == 0] = 1.
     return [pow_norm, pp_norm, qnorms]
 
 
@@ -240,6 +238,8 @@ def pmodel2d(ms, qs, parameters, pow_norm, pp_norm, qnorms, vt_fac=1.):
     """2d mass model from T&T 2018"""
     p_norm_no_vt = pmodel1d(ms, parameters, pow_norm, pp_norm) *\
         pq(qs, ms, parameters) / qnorms
+    if not vt_fac == 1:
+        print('Providing vt_fac to pmodel2d is being deprecated.')
     p_norm = p_norm_no_vt / vt_fac
     return p_norm
 

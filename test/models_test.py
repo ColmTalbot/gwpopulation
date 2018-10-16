@@ -202,7 +202,7 @@ class TestMassModel(unittest.TestCase):
             max_out_of_bounds.append(np.max(p_pop[
                 (self.test_data['m2_source'] < parameters['mmin'])]))
         self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
-        
+
     def test_powerlaw_mass_distribution_returns_zero_above_mmax(self):
         parameters = dict(lam=0.0)
         for key in ['lam', 'xi', 'sigma_1', 'sigma_2', 'amax',
@@ -272,7 +272,7 @@ class TestSpinMagnitude(unittest.TestCase):
             parameters = self.prior.sample()
             temp = models.iid_spin_magnitude(self.test_data, **parameters)
             norms.append(np.trapz(np.trapz(temp, self.a_array), self.a_array))
-        self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0, 2)
+        self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0, 1)
 
 
 if __name__ == '__main__':

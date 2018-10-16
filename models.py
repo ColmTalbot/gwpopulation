@@ -170,7 +170,6 @@ def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta,
     pow_norm, pp_norm, qnorms_ = norms(parameters)
     qnorms = interp1d(m1s, qnorms_, bounds_error=False,
                       fill_value=qnorms_[-1])(dataset['m1_source'])
-    qnorms[qnorms == 0] = 1
     probability = pmodel2d(dataset['m1_source'], dataset['q'], parameters,
                            pow_norm, pp_norm, qnorms)
     return probability
@@ -235,13 +234,19 @@ def norms(parameters):
 
 
 def pmodel2d(ms, qs, parameters, pow_norm, pp_norm, qnorms, vt_fac=1.):
-    """2d mass model from T&T 2018"""
+    """
+    2d mass model from T&T 2018
+
+    Notes
+    -----
+    nan_to_num captures case when qnorms=0.
+    """
     p_norm_no_vt = pmodel1d(ms, parameters, pow_norm, pp_norm) *\
         pq(qs, ms, parameters) / qnorms
     if not vt_fac == 1:
         print('Providing vt_fac to pmodel2d is being deprecated.')
     p_norm = p_norm_no_vt / vt_fac
-    return p_norm
+    return np.nan_to_num(p_norm)
 
 
 def pmodel1d(ms, parameters, pow_norm, pp_norm):

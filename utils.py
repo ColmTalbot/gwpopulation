@@ -7,7 +7,7 @@ except ImportError:
 
 
 def beta_dist(xx, alpha, beta, scale=1):
-    ln_beta = (alpha - 1) * xx + (beta - 1) * (scale - xx)
+    ln_beta = (alpha - 1) * xp.log(xx) + (beta - 1) * xp.log(scale - xx)
     ln_beta -= betaln(alpha, beta)
     ln_beta -= (alpha + beta - 1) * xp.log(scale)
     prob = xp.exp(ln_beta)

@@ -191,15 +191,15 @@ def iid_mass(dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
 # def norms(parameters):
 #     """
 #     Calculate normalisation factors for the model in T&T 2018.
-# 
+#
 #     Since our model doesn't have an anlaytic integral we must normalise
 #     numerically. Every value of m_1 has a unique normalisation for q.
-# 
+#
 #     Parameters
 #     ----------
 #     parameters: array-like
 #         Rescaled sample from the prior distribution.
-# 
+#
 #     Return
 #     ------
 #     pow_norm: float
@@ -246,8 +246,10 @@ def ppow(ms, parameters):
 
 
 # def norm_ppow(parameters):
-#     """normalise ppow, requires m1s, an array of m values, and dm, the spacing of
-#     that array"""
+#     """
+#     normalise ppow, requires m1s, an array of m values, and dm, the spacing
+#     of that array
+#     """
 #     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
 #     if delta_m == 0:
 #         norm = (1 - al) / (mx**(1 - al) - mn**(1 - al))
@@ -265,8 +267,10 @@ def pnorm(ms, parameters):
 
 
 # def norm_pnorm(parameters):
-#     """normalise pnorm, requires m1s, an array of m values, and dm, the spacing of
-#     that array"""
+#     """
+#     normalise pnorm, requires m1s, an array of m values, and dm, the spacing
+#     of that array
+#     """
 #     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
 #     if delta_m == 0:
 #         # FIXME - add erf factors
@@ -322,12 +326,12 @@ def iid_norm_vt(parameters):
 
 # def window(ms, mn, mx, delta_m=0.):
 #     """Apply a one sided window between mmin and mmin+dm to the mass pdf.
-# 
+#
 #     The upper cut off is a step function,
 #     the lower cutoff is a logistic rise over delta_m solar masses.
-# 
+#
 #     See T&T18 Eq
-# 
+#
 #     """
 #     dM = mx - mn
 #     delta_m /= dM

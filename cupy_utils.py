@@ -64,14 +64,14 @@ def trapz(y, x=None, dx=1.0, axis=-1):
         if x.ndim == 1:
             d = diff(x)
             # reshape to correct shape
-            shape = [1]*y.ndim
+            shape = [1] * y.ndim
             shape[axis] = d.shape[0]
             d = d.reshape(shape)
         else:
             d = diff(x, axis=axis)
     nd = y.ndim
-    slice1 = [slice(None)]*nd
-    slice2 = [slice(None)]*nd
+    slice1 = [slice(None)] * nd
+    slice2 = [slice(None)] * nd
     slice1[axis] = slice(1, None)
     slice2[axis] = slice(None, -1)
     try:
@@ -80,7 +80,7 @@ def trapz(y, x=None, dx=1.0, axis=-1):
         # Operations didn't work, cast to ndarray
         d = cp.asarray(d)
         y = cp.asarray(y)
-        ret = add.reduce(d * (y[tuple(slice1)]+y[tuple(slice2)])/2.0, axis)
+        ret = add.reduce(d * (y[tuple(slice1)] + y[tuple(slice2)]) / 2.0, axis)
     return ret
 
 
@@ -172,7 +172,7 @@ def diff(a, n=1, axis=-1):
 
 
 # class interp1d(object):
-# 
+#
 #     def __init__(self, xx, yy, bounds_error=False, fill_value=cp.nan):
 #         self.input_len = len(xx)
 #         if len(xx) != len(yy):
@@ -188,7 +188,7 @@ def diff(a, n=1, axis=-1):
 #             self.y_sorted[1:] - self.y_sorted[:-1], cp.asarray([cp.nan])))
 #         self.bounds_error = bounds_error
 #         self.fill_value = fill_value
-# 
+#
 #     def __call__(self, x_values):
 #         idxs_low = self._find_idx_below(x_values)
 #         idxs_high = idxs_low + 1
@@ -203,7 +203,7 @@ def diff(a, n=1, axis=-1):
 #             else:
 #                 output[bad_idxs] = self.fill_value
 #         return output
-#     
+#    
 #     def _find_idx_below(self, values):
 #         val_shape = values.shape
 #         vals_flat = values.flatten()

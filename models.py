@@ -2,13 +2,13 @@ from __future__ import division
 
 try:
     import cupy as xp
-    from cupy_utils import trapz
+    from .cupy_utils import trapz
     CUPY_LOADED = True
 except ImportError:
     import numpy as xp
     from numpy import trapz
     CUPY_LOADED = False
-from utils import beta_dist, powerlaw, truncnorm
+from .utils import beta_dist, powerlaw, truncnorm
 
 
 def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
@@ -60,8 +60,8 @@ def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
     return prior
 
 
-def spin_magnitude_beta_likelihood(dataset, alpha_1, alpha_2, beta_1, beta_2,
-                                   amax_1, amax_2):
+def spin_magnitude_beta_likelihood(dataset, alpha_chi_1, alpha_chi_2,
+                                   beta_chi_1, beta_chi_2, amax_1, amax_2):
     """ Independent beta distributions for both spin magnitudes.
 
     https://arxiv.org/abs/1805.06442 Eq. (10)
@@ -71,17 +71,17 @@ def spin_magnitude_beta_likelihood(dataset, alpha_1, alpha_2, beta_1, beta_2,
     ----------
     dataset: dict
         Dictionary of numpy arrays containing 'a_1' and 'a_2'.
-    alpha_1, beta_1: float
+    alpha_chi_1, beta_chi_1: float
         Parameters of Beta distribution for more massive black hole.
-    alpha_2, beta_2: float
+    alpha_chi_2, beta_chi_2: float
         Parameters of Beta distribution for less massive black hole.
     amax_1, amax_2: float
         Maximum spin of the more/less massive black hole.
     """
-    if alpha_1 < 0 or beta_1 < 0 or alpha_2 < 0 or beta_2 < 0:
+    if alpha_chi_1 < 0 or beta_chi_1 < 0 or alpha_chi_2 < 0 or beta_chi_2 < 0:
         return 0
-    prior = beta_dist(dataset['a_1'], alpha_1, beta_1, scale=amax_1) *\
-        beta_dist(dataset['a_2'], alpha_2, beta_2, scale=amax_2)
+    prior = beta_dist(dataset['a_1'], alpha_chi_1, beta_chi_1, scale=amax_1) *\
+        beta_dist(dataset['a_2'], alpha_chi_2, beta_chi_2, scale=amax_2)
     return prior
 
 
@@ -312,6 +312,14 @@ def norm_vt(parameters):
     return vt_fac
 
 
+def iid_norm_vt(parameters):
+    al, mn, mx, lam, mp, sp, bt, dm = extract_mass_parameters(parameters)
+    p_norm_vt = iid_mass(norm_array, al, mn, mx, lam, mp, sp, dm) *\
+        norm_array['vt'] * norm_array['mass_1']
+    vt_fac = trapz(trapz(p_norm_vt, m1s), qs)
+    return vt_fac
+
+
 # def window(ms, mn, mx, delta_m=0.):
 #     """Apply a one sided window between mmin and mmin+dm to the mass pdf.
 # 
@@ -356,7 +364,7 @@ def set_vt(vt_array):
         Dictionary containing arrays in m1, q and VT to use for normalisation
     """
     global dm, dq, m1s, qs, norm_array
-    norm_array = vt_array
+    norm_array = {key: xp.asarray(vt_array[key]) for key in vt_array}
     m1s = xp.unique(norm_array['mass_1'])
     qs = xp.unique(norm_array['mass_ratio'])
     dm = m1s[1] - m1s[0]

@@ -1,4 +1,11 @@
 from __future__ import division, print_function
+
+try:
+    import cupy as xp
+    CUPY_LOADED = True
+except ImportError:
+    import numpy as xp
+    CUPY_LOADED = False
 import numpy as np
 
 from bilby.hyper.likelihood import HyperparameterLikelihood
@@ -28,21 +35,23 @@ class RateLikelihood(HyperparameterLikelihood):
     """
 
     def __init__(self, posteriors, hyper_prior, sampling_prior,
-                 log_evidences=None, max_samples=1e100, analysis_time=1,
-                 conversion_function=lambda args: (args, None)):
+                 ln_evidences=None, max_samples=1e100,
+                 selection_function=lambda args: 1,
+                 conversion_function=lambda args: (args, None), cupy=True):
         super(RateLikelihood, self).__init__(
             posteriors=posteriors, hyper_prior=hyper_prior,
-            sampling_prior=sampling_prior, log_evidences=log_evidences,
-            max_samples=max_samples)
-        self.analysis_time = analysis_time
+            sampling_prior=sampling_prior, log_evidences=ln_evidences,
+            max_samples=max_samples, cupy=cupy)
         self.conversion_function = conversion_function
+        self.selection_function = selection_function
 
     def log_likelihood_ratio(self):
         self.parameters, added_keys = self.conversion_function(self.parameters)
         log_l = HyperparameterLikelihood.log_likelihood_ratio(self)
-        log_l += self.n_posteriors * np.log(self.parameters['rate'])
-        log_l -= models.norm_vt(self.parameters) * self.parameters['rate'] *\
-            self.analysis_time
-        for key in added_keys:
-            self.parameters.pop(key)
-        return np.nan_to_num(log_l)
+        log_l += self.n_posteriors * xp.log(self.parameters['rate'])
+        log_l -= self.selection_function(self.parameters) *\
+            self.parameters['rate']
+        if added_keys is not None:
+            for key in added_keys:
+                self.parameters.pop(key)
+        return float(xp.nan_to_num(log_l))

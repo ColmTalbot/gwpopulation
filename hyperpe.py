@@ -6,11 +6,8 @@ try:
 except ImportError:
     import numpy as xp
     CUPY_LOADED = False
-import numpy as np
 
 from bilby.hyper.likelihood import HyperparameterLikelihood
-
-from . import models
 
 
 class RateLikelihood(HyperparameterLikelihood):

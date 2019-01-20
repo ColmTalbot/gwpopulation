@@ -16,7 +16,8 @@ def convert_to_beta_parameters(parameters, remove=True):
                     converted_parameters['alpha_chi_{}'.format(ii)],\
                         converted_parameters['beta_chi_{}'.format(ii)], _ =\
                         mu_chi_var_chi_max_to_alpha_beta_max(
-                            parameters['mu_chi_{}'.format(ii)], parameters['sigma_chi_{}'.format(ii)],
+                            parameters['mu_chi_{}'.format(ii)],
+                            parameters['sigma_chi_{}'.format(ii)],
                             parameters['amax'])
                     if remove:
                         added_keys.append('alpha_chi_{}'.format(ii))
@@ -28,7 +29,8 @@ def convert_to_beta_parameters(parameters, remove=True):
                     converted_parameters['alpha_chi_{}'.format(ii)],\
                         converted_parameters['beta_chi_{}'.format(ii)], _ =\
                         mu_chi_var_chi_max_to_alpha_beta_max(
-                            parameters['mu_chi_{}'.format(ii)], parameters['sigma_chi_{}'.format(ii)],
+                            parameters['mu_chi_{}'.format(ii)], 
+                            parameters['sigma_chi_{}'.format(ii)],
                             parameters['amax'])
                     if remove:
                         added_keys.append('alpha_chi_{}'.format(ii))

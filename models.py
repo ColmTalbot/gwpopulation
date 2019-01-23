@@ -246,17 +246,12 @@ def ppow(ms, parameters):
 
 
 # def norm_ppow(parameters):
-#     """
-#     normalise ppow, requires m1s, an array of m values, and dm, the spacing
-#     of that array
-#     """
+#     """normalise ppow"""
 #     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
 #     if delta_m == 0:
 #         norm = (1 - al) / (mx**(1 - al) - mn**(1 - al))
-#     elif CUPY_LOADED:
-#         norm = xp.sum(ppow(m1s, parameters)) * dm
 #     else:
-#         norm = xp.trapz(ppow(m1s, parameters), m1s)
+#         norm = trapz(ppow(m1s, parameters), m1s)
 #     return norm
 
 
@@ -267,18 +262,13 @@ def pnorm(ms, parameters):
 
 
 # def norm_pnorm(parameters):
-#     """
-#     normalise pnorm, requires m1s, an array of m values, and dm, the spacing
-#     of that array
-#     """
+#     """normalise pnorm"""
 #     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
 #     if delta_m == 0:
 #         # FIXME - add erf factors
 #         norm = 1 / xp.sqrt(2 * xp.pi) / sp
-#     elif CUPY_LOADED:
-#         norm = xp.sum(pnorm(m1s, parameters)) * dm
 #     else:
-#         norm = xp.trapz(pnorm(m1s, parameters), m1s)
+#         norm = trapz(pnorm(m1s, parameters), m1s)
 #     return norm
 
 
@@ -289,16 +279,12 @@ def pq(qs, ms, parameters):
 
 
 # def norm_pq(parameters):
-#     """normalise pq, requires m1s, an array of m values, and dm, the spacing of
-#     that array"""
+#     """normalise pq"""
 #     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
 #     if delta_m == 0:
 #         norm = (1 + bt) / (1 - xp.power(mn / m1s, 1 + bt))
-#     elif CUPY_LOADED:
-#         norm = xp.sum(pq(norm_array['mass_ratio'], norm_array['mass_1'],
-#                          parameters), axis=0) * dq
 #     else:
-#         norm = xp.trapz(pq(norm_array['mass_ratio'], norm_array['mass_1'],
+#         norm = trapz(pq(norm_array['mass_ratio'], norm_array['mass_1'],
 #                         parameters), qs, axis=0)
 #     return norm
 

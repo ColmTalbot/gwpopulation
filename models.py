@@ -8,7 +8,27 @@ except ImportError:
     import numpy as xp
     from numpy import trapz
     CUPY_LOADED = False
+import numpy as np
 from .utils import beta_dist, powerlaw, truncnorm
+
+from astropy.cosmology import Planck15
+
+zs_ = np.linspace(0, 1, 1000)
+zs = xp.asarray(zs_)
+dvc_dz = xp.asarray(
+    Planck15.differential_comoving_volume(zs_).value *
+    4 * np.pi / 1e9)
+
+
+def fhf_redshift(dataset, lamb):
+    """
+    Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270
+    Note that this is deliberately off by a factor of dVc/dz
+    """
+    p_z = powerlaw(1 + dataset['redshift'], lamb - 1, 1 + zs_[-1], 1)
+    p_z_ = powerlaw(1 + zs, lamb - 1, 1 + zs_[-1], 1)
+    p_z /= trapz(p_z_ * dvc_dz, zs)
+    return p_z
 
 
 def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):

@@ -37,7 +37,7 @@ class RateLikelihood(HyperparameterLikelihood):
                  conversion_function=lambda args: (args, None), cupy=True):
         super(RateLikelihood, self).__init__(
             posteriors=posteriors, hyper_prior=hyper_prior,
-            sampling_prior=sampling_prior, log_evidences=ln_evidences,
+            sampling_prior=sampling_prior, ln_evidences=ln_evidences,
             max_samples=max_samples, cupy=cupy)
         self.conversion_function = conversion_function
         self.selection_function = selection_function

@@ -8,6 +8,34 @@ def convert_to_beta_parameters(parameters, remove=True):
     added_keys = []
     converted_parameters = parameters.copy()
 
+    for ii in [1, 2]:
+        if 'alpha_chi_{}'.format(ii) not in parameters.keys()\
+                or 'beta_chi_{}'.format(ii) not in parameters.keys():
+            if 'mu_chi_{}'.format(ii) in converted_parameters.keys():
+                if 'sigma_chi_{}'.format(ii) in converted_parameters.keys():
+                    converted_parameters['alpha_chi_{}'.format(ii)],\
+                        converted_parameters['beta_chi_{}'.format(ii)], _ =\
+                        mu_chi_var_chi_max_to_alpha_beta_max(
+                            parameters['mu_chi_{}'.format(ii)],
+                            parameters['sigma_chi_{}'.format(ii)],
+                            parameters['amax'])
+                    if remove:
+                        added_keys.append('alpha_chi_{}'.format(ii))
+                        added_keys.append('beta_chi_{}'.format(ii))
+        elif converted_parameters['alpha_chi_{}'.format(ii)] is None or\
+                converted_parameters['beta_chi_{}'.format(ii)] is None:
+            if 'mu_chi_{}'.format(ii) in converted_parameters.keys():
+                if 'sigma_chi_{}'.format(ii) in converted_parameters.keys():
+                    converted_parameters['alpha_chi_{}'.format(ii)],\
+                        converted_parameters['beta_chi_{}'.format(ii)], _ =\
+                        mu_chi_var_chi_max_to_alpha_beta_max(
+                            parameters['mu_chi_{}'.format(ii)], 
+                            parameters['sigma_chi_{}'.format(ii)],
+                            parameters['amax'])
+                    if remove:
+                        added_keys.append('alpha_chi_{}'.format(ii))
+                        added_keys.append('beta_chi_{}'.format(ii))
+
     if 'alpha_chi' not in parameters.keys() or 'beta_chi' not in\
             parameters.keys():
         if 'mu_chi' in converted_parameters.keys():

@@ -3,27 +3,27 @@ import os
 
 import numpy as np
 
-from bilby.core.prior import PriorSet, Uniform
-from population import models
+from bilby.core.prior import PriorDict, Uniform
+import models
 
 
 class TestMassModel(unittest.TestCase):
 
     def setUp(self):
         self.test_data = dict(
-            m1_source=models.norm_array['m1'], q=models.norm_array['q'],
-            arg_m1s=np.einsum('i,j->ji', np.arange(0, len(models.m1s)),
-                              np.ones_like(models.qs)).astype(int))
-        self.test_data['m2_source'] =\
-            self.test_data['m1_source'] * self.test_data['q']
+            mass_1=models.norm_array['mass_1'],
+            mass_ratio=models.norm_array['mass_ratio'])
+        self.test_data['mass_2'] =\
+            self.test_data['mass_1'] * self.test_data['mass_ratio']
         self.test_params = dict(
             alpha=1, mmin=9, mmax=40, lam=0, mpp=50, sigpp=1,
             beta=3, delta_m=0)
         current_dir = os.path.dirname(os.path.realpath(__file__))
-        self.prior = PriorSet('{}/test.prior'.format(current_dir))
+        self.prior = PriorDict('{}/test.prior'.format(current_dir))
         self.vt_array = dict(
-            m1=models.norm_array['m1'], q=models.norm_array['q'],
-            vt=models.norm_array['m1']**0 * 2)
+            mass_1=models.norm_array['mass_1'],
+            mass_ratio=models.norm_array['mass_ratio'],
+            vt=models.norm_array['mass_1']**0 * 2)
         self.n_test = 10
 
     def tearDown(self):
@@ -37,9 +37,7 @@ class TestMassModel(unittest.TestCase):
         norms = list()
         for ii in range(self.n_test):
             parameters = self.prior.sample()
-            pow_norm = models.norm_ppow(parameters)
-            pp_norm = models.norm_pnorm(parameters)
-            temp = models.pmodel1d(models.m1s, parameters, pow_norm, pp_norm)
+            temp = models.pmodel1d(models.m1s, parameters)
             norms.append(np.trapz(temp, models.m1s))
         self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0)
 
@@ -47,10 +45,9 @@ class TestMassModel(unittest.TestCase):
         norms = list()
         for ii in range(self.n_test):
             parameters = self.prior.sample()
-            pow_norm, pp_norm, qnorms = models.norms(parameters)
             temp = models.pmodel2d(
-                self.test_data['m1_source'], self.test_data['q'],
-                parameters, pow_norm, pp_norm, qnorms)
+                self.test_data['mass_1'], self.test_data['mass_ratio'],
+                parameters)
             norms.append(np.trapz(np.trapz(temp, models.m1s), models.qs))
         self.assertAlmostEqual(np.max(abs(1 - np.array(norms))), 0)
 
@@ -71,7 +68,7 @@ class TestMassModel(unittest.TestCase):
             parameters = models.extract_mass_parameters(parameters)
             temp = models.mass_distribution(self.test_data, *parameters)
             norms.append(np.trapz(np.trapz(temp, models.m1s), models.qs))
-        self.vt_array['vt'] = np.ones_like(self.vt_array['q']) * 1
+        self.vt_array['vt'] = np.ones_like(self.vt_array['mass_ratio']) * 1
         models.set_vt(self.vt_array)
         self.assertAlmostEqual(np.max(abs(0.5 - np.array(norms))), 0)
 
@@ -81,14 +78,14 @@ class TestMassModel(unittest.TestCase):
         for ii in range(self.n_test):
             parameters = self.prior.sample()
             norms.append(models.norm_vt(parameters))
-        self.vt_array['vt'] = np.ones_like(self.vt_array['q']) * 1
+        self.vt_array['vt'] = np.ones_like(self.vt_array['mass_ratio']) * 1
         models.set_vt(self.vt_array)
-        self.assertAlmostEqual(max(abs(np.array(norms))), 2)
+        self.assertAlmostEqual(max(abs(np.array(norms) - 2)), 0)
 
     def test_iid_mass_normalised(self):
         test_data = dict(
-            m1_source=np.random.uniform(3, 100, 1000000),
-            m2_source=np.random.uniform(3, 100, 1000000))
+            mass_1=np.random.uniform(3, 100, 1000000),
+            mass_2=np.random.uniform(3, 100, 1000000))
         norms = list()
         for ii in range(self.n_test):
             parameters = self.prior.sample()
@@ -157,7 +154,7 @@ class TestMassModel(unittest.TestCase):
             p_pop = np.nan_to_num(models.mass_distribution_no_vt(
                 self.test_data, **parameters))
             max_out_of_bounds.append(np.max(p_pop[
-                (self.test_data['m2_source'] < parameters['mmin'])]))
+                (self.test_data['mass_2'] < parameters['mmin'])]))
         self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
 
     def test_powerlaw_mass_distribution_no_vt_returns_zero_above_mmax(self):
@@ -171,7 +168,7 @@ class TestMassModel(unittest.TestCase):
             p_pop = np.nan_to_num(models.mass_distribution_no_vt(
                 self.test_data, **parameters))
             max_out_of_bounds.append(np.max(p_pop[
-                (self.test_data['m1_source'] > parameters['mmax'])]))
+                (self.test_data['mass_1'] > parameters['mmax'])]))
         self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
 
     def test_mass_distribution_non_negative(self):
@@ -200,7 +197,7 @@ class TestMassModel(unittest.TestCase):
             p_pop = np.nan_to_num(models.mass_distribution(
                 self.test_data, **parameters))
             max_out_of_bounds.append(np.max(p_pop[
-                (self.test_data['m2_source'] < parameters['mmin'])]))
+                (self.test_data['mass_2'] < parameters['mmin'])]))
         self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
 
     def test_powerlaw_mass_distribution_returns_zero_above_mmax(self):
@@ -214,7 +211,7 @@ class TestMassModel(unittest.TestCase):
             p_pop = np.nan_to_num(models.mass_distribution(
                 self.test_data, **parameters))
             max_out_of_bounds.append(np.max(p_pop[
-                (self.test_data['m1_source'] > parameters['mmax'])]))
+                (self.test_data['mass_1'] > parameters['mmax'])]))
         self.assertEqual(max(abs(np.array(max_out_of_bounds))), 0)
 
 
@@ -223,11 +220,11 @@ class TestSpinOrientation(unittest.TestCase):
     def setUp(self):
         self.costilts = np.linspace(-1, 1, 1000)
         self.test_data = dict(
-            costilt1=np.einsum('i,j->ij', self.costilts,
-                               np.ones_like(self.costilts)),
-            costilt2=np.einsum('i,j->ji', self.costilts,
-                               np.ones_like(self.costilts)))
-        self.prior = PriorSet(
+            cos_tilt_1=np.einsum('i,j->ij', self.costilts,
+                                 np.ones_like(self.costilts)),
+            cos_tilt_2=np.einsum('i,j->ji', self.costilts,
+                                 np.ones_like(self.costilts)))
+        self.prior = PriorDict(
             dict(xi=Uniform(0, 1), sigma_1=Uniform(0, 4),
                  sigma_2=Uniform(0, 4)))
         self.n_test = 100
@@ -253,9 +250,9 @@ class TestSpinMagnitude(unittest.TestCase):
     def setUp(self):
         self.a_array = np.linspace(0, 1, 1000)
         self.test_data = dict(
-            a1=np.einsum('i,j->ij', self.a_array, np.ones_like(self.a_array)),
-            a2=np.einsum('i,j->ji', self.a_array, np.ones_like(self.a_array)))
-        self.prior = PriorSet(
+            a_1=np.einsum('i,j->ij', self.a_array, np.ones_like(self.a_array)),
+            a_2=np.einsum('i,j->ji', self.a_array, np.ones_like(self.a_array)))
+        self.prior = PriorDict(
             dict(amax=Uniform(0.3, 1), alpha_chi=Uniform(1, 4),
                  beta_chi=Uniform(1, 4)))
         self.n_test = 100

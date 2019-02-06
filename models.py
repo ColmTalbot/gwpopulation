@@ -1,17 +1,41 @@
 from __future__ import division
 
+try:
+    import cupy as xp
+    from .cupy_utils import trapz
+    CUPY_LOADED = True
+except ImportError:
+    import numpy as xp
+    from numpy import trapz
+    CUPY_LOADED = False
 import numpy as np
-from scipy.special import erf
-from scipy.stats import beta as beta_dist
-from scipy.stats import truncnorm
-from scipy.interpolate import interp1d
+from .utils import beta_dist, powerlaw, truncnorm
+
+from astropy.cosmology import Planck15
+
+zs_ = np.linspace(0, 1, 1000)
+zs = xp.asarray(zs_)
+dvc_dz = xp.asarray(
+    Planck15.differential_comoving_volume(zs_).value *
+    4 * np.pi / 1e9)
 
 
-def iid_spin(dataset, xi, sigma_spin, amax, alpha_chi, beta_chi):
+def fhf_redshift(dataset, lamb):
+    """
+    Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270
+    Note that this is deliberately off by a factor of dVc/dz
+    """
+    p_z = powerlaw(1 + dataset['redshift'], lamb - 1, 1 + zs_[-1], 1)
+    p_z_ = powerlaw(1 + zs, lamb - 1, 1 + zs_[-1], 1)
+    p_z /= trapz(p_z_ * dvc_dz, zs)
+    return p_z
+
+
+def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
     """
     Independently and identically distributed spins.
     """
-    prior = iid_spin_orientation(dataset, xi, sigma_spin) *\
+    prior = iid_spin_orientation(dataset, xi_spin, sigma_spin) *\
         iid_spin_magnitude(dataset, amax, alpha_chi, beta_chi)
     return prior
 
@@ -40,7 +64,7 @@ def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays for 'costilt1' and 'costilt2'.
+        Dictionary of numpy arrays for 'cos_tilt_1' and 'cos_tilt_2'.
     xi: float
         Fraction of black holes in preferentially aligned component.
     sigma_1: float
@@ -50,29 +74,14 @@ def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
         Width of preferentially aligned component for the less
         massive black hole.
     """
-    # prior = (1 - xi) / 4\
-    #     + xi * 2 / np.pi / sigma_1 / sigma_2\
-    #     * truncnorm_wrapper(dataset['costilt1'], 1, sigma_1, -1, 1)\
-    #     * truncnorm_wrapper(dataset['costilt2'], 1, sigma_2, -1, 1)
-    prior = (1 - xi) / 4\
-        + xi * 2 / np.pi / sigma_1 / sigma_2\
-        * np.exp(-(dataset['costilt1'] - 1)**2 / (2 * sigma_1**2))\
-        / erf(2**0.5 / sigma_1)\
-        * np.exp(-(dataset['costilt2'] - 1)**2 / (2 * sigma_2**2))\
-        / erf(2**0.5 / sigma_2)
-    prior *= (abs(dataset['costilt1']) <= 1) & (abs(dataset['costilt2']) <= 1)
+    prior = (1 - xi) / 4 + xi *\
+        truncnorm(dataset['cos_tilt_1'], 1, sigma_1, 1, -1) *\
+        truncnorm(dataset['cos_tilt_2'], 1, sigma_2, 1, -1)
     return prior
 
 
-def truncnorm_wrapper(xx, mean, sigma, min_, max_):
-    """Wrapper to scipy truncnorm"""
-    aa = (min_ - mean) / sigma
-    bb = (max_ - mean) / sigma
-    return truncnorm.pdf(xx, aa, bb, loc=mean, scale=sigma)
-
-
-def spin_magnitude_beta_likelihood(dataset, alpha_1, alpha_2, beta_1, beta_2,
-                                   amax_1, amax_2):
+def spin_magnitude_beta_likelihood(dataset, alpha_chi_1, alpha_chi_2,
+                                   beta_chi_1, beta_chi_2, amax_1, amax_2):
     """ Independent beta distributions for both spin magnitudes.
 
     https://arxiv.org/abs/1805.06442 Eq. (10)
@@ -81,18 +90,18 @@ def spin_magnitude_beta_likelihood(dataset, alpha_1, alpha_2, beta_1, beta_2,
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays containing 'a1' and 'a2'.
-    alpha_1, beta_1: float
+        Dictionary of numpy arrays containing 'a_1' and 'a_2'.
+    alpha_chi_1, beta_chi_1: float
         Parameters of Beta distribution for more massive black hole.
-    alpha_2, beta_2: float
+    alpha_chi_2, beta_chi_2: float
         Parameters of Beta distribution for less massive black hole.
     amax_1, amax_2: float
         Maximum spin of the more/less massive black hole.
     """
-    if alpha_1 < 0 or beta_1 < 0 or alpha_2 < 0 or beta_2 < 0:
+    if alpha_chi_1 < 0 or beta_chi_1 < 0 or alpha_chi_2 < 0 or beta_chi_2 < 0:
         return 0
-    prior = beta_dist.pdf(dataset['a1'], alpha_1, beta_1, scale=amax_1) *\
-        beta_dist.pdf(dataset['a2'], alpha_2, beta_2, scale=amax_2)
+    prior = beta_dist(dataset['a_1'], alpha_chi_1, beta_chi_1, scale=amax_1) *\
+        beta_dist(dataset['a_2'], alpha_chi_2, beta_chi_2, scale=amax_2)
     return prior
 
 
@@ -106,7 +115,7 @@ def mass_distribution(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta,
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays for 'm1_source' and 'm2_source', also
+        Dictionary of numpy arrays for 'mass_1' and 'mass_2', also
         'arg_m1s'.
     alpha: float
         Powerlaw exponent for more massive black hole.
@@ -142,7 +151,7 @@ def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta,
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays for 'm1_source' and 'm2_source', also
+        Dictionary of numpy arrays for 'mass_1' and 'mass_2', also
         'arg_m1s'.
     alpha: float
         Powerlaw exponent for more massive black hole.
@@ -167,11 +176,7 @@ def mass_distribution_no_vt(dataset, alpha, mmin, mmax, lam, mpp, sigpp, beta,
     the normalisation factor for m_1 = 100.
     """
     parameters = [alpha, mmin, mmax, lam, mpp, sigpp, beta, delta_m]
-    pow_norm, pp_norm, qnorms_ = norms(parameters)
-    qnorms = interp1d(m1s, qnorms_, bounds_error=False,
-                      fill_value=qnorms_[-1])(dataset['m1_source'])
-    probability = pmodel2d(dataset['m1_source'], dataset['q'], parameters,
-                           pow_norm, pp_norm, qnorms)
+    probability = pmodel2d(dataset['mass_1'], dataset['mass_ratio'], parameters)
     return probability
 
 
@@ -181,8 +186,7 @@ def iid_mass(dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
 
     Parameters
     ----------
-    dataset: dict
-        Dictionary containing NxM arrays, m1_source and m2_source
+        Dictionary containing NxM arrays, mass_1 and mass_2
     alpha, mmin, mmax, lam, mpp, sigpp, delta_m: see mass_distribution
 
     Returns
@@ -197,43 +201,41 @@ def iid_mass(dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
     parameters = dict(
         alpha=alpha, mmin=mmin, mmax=mmax, lam=lam, mpp=mpp,
         sigpp=sigpp, delta_m=delta_m, beta=0)
-    pow_norm = norm_ppow(parameters)
-    pp_norm = norm_pnorm(parameters)
-    probability = pmodel1d(dataset['m1_source'], parameters, pow_norm, pp_norm)
-    probability *= pmodel1d(dataset['m2_source'], parameters, pow_norm, pp_norm)
-    probability[dataset['m1_source'] < dataset['m2_source']] = 0
+    probability = pmodel1d(dataset['mass_1'], parameters)
+    probability *= pmodel1d(dataset['mass_2'], parameters)
+    probability[dataset['mass_1'] < dataset['mass_2']] = 0
     probability *= 2
     return probability
 
 
-def norms(parameters):
-    """
-    Calculate normalisation factors for the model in T&T 2018.
+# def norms(parameters):
+#     """
+#     Calculate normalisation factors for the model in T&T 2018.
+#
+#     Since our model doesn't have an anlaytic integral we must normalise
+#     numerically. Every value of m_1 has a unique normalisation for q.
+#
+#     Parameters
+#     ----------
+#     parameters: array-like
+#         Rescaled sample from the prior distribution.
+#
+#     Return
+#     ------
+#     pow_norm: float
+#         Normalisation factor for the smoothed power law distribution.
+#     pp_norm: float
+#         Normalisation factor for the smoothed Gaussian distribution.
+#     qnorms: array-like
+#         Normalisation factor for each value of m1 in norm_array
+#     """
+#     pow_norm = norm_ppow(parameters)
+#     pp_norm = norm_pnorm(parameters)
+#     qnorms = norm_pq(parameters)
+#     return [pow_norm, pp_norm, qnorms]
 
-    Since our model doesn't have an anlaytic integral we must normalise
-    numerically. Every value of m_1 has a unique normalisation for q.
 
-    Parameters
-    ----------
-    parameters: array-like
-        Rescaled sample from the prior distribution.
-
-    Return
-    ------
-    pow_norm: float
-        Normalisation factor for the smoothed power law distribution.
-    pp_norm: float
-        Normalisation factor for the smoothed Gaussian distribution.
-    qnorms: array-like
-        Normalisation factor for each value of m1 in norm_array
-    """
-    pow_norm = norm_ppow(parameters)
-    pp_norm = norm_pnorm(parameters)
-    qnorms = norm_pq(parameters)
-    return [pow_norm, pp_norm, qnorms]
-
-
-def pmodel2d(ms, qs, parameters, pow_norm, pp_norm, qnorms, vt_fac=1.):
+def pmodel2d(ms, qs, parameters, vt_fac=1.):
     """
     2d mass model from T&T 2018
 
@@ -241,50 +243,70 @@ def pmodel2d(ms, qs, parameters, pow_norm, pp_norm, qnorms, vt_fac=1.):
     -----
     nan_to_num captures case when qnorms=0.
     """
-    p_norm_no_vt = pmodel1d(ms, parameters, pow_norm, pp_norm) *\
-        pq(qs, ms, parameters) / qnorms
+    p_norm_no_vt = pmodel1d(ms, parameters) * pq(qs, ms, parameters)
     if not vt_fac == 1:
         print('Providing vt_fac to pmodel2d is being deprecated.')
     p_norm = p_norm_no_vt / vt_fac
-    return np.nan_to_num(p_norm)
+    return p_norm
+    # return xp.nan_to_num(p_norm)
 
 
-def pmodel1d(ms, parameters, pow_norm, pp_norm):
+def pmodel1d(ms, parameters):
     """normalised m1 pdf from T&T 2018"""
     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
-    p_pow = ppow(ms, parameters) / pow_norm
-    p_norm = pnorm(ms, parameters) / pp_norm
+    p_pow = ppow(ms, parameters)
+    p_norm = pnorm(ms, parameters)
     return (1 - lam) * p_pow + lam * p_norm
 
 
 def ppow(ms, parameters):
     """1d unnormalised powerlaw mass probability with smoothed low-mass end"""
     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
-    return ms**(-al) * window(ms, mn, mx, delta_m)
+    return powerlaw(ms, -al, mx, mn)
 
 
-def norm_ppow(parameters):
-    """normalise ppow, requires m1s, an array of m values, and dm, the spacing of
-    that array"""
-    return np.trapz(ppow(m1s, parameters), m1s)
+# def norm_ppow(parameters):
+#     """normalise ppow"""
+#     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
+#     if delta_m == 0:
+#         norm = (1 - al) / (mx**(1 - al) - mn**(1 - al))
+#     else:
+#         norm = trapz(ppow(m1s, parameters), m1s)
+#     return norm
 
 
 def pnorm(ms, parameters):
     """1d unnormalised normal distribution with low-mass smoothing"""
     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
-    return np.exp(-(ms - mp)**2 / (2 * sp**2)) * window(ms, mn, 100., delta_m)
+    return truncnorm(ms, mp, sp, 100, mn)
 
 
-def norm_pnorm(parameters):
-    """normalise pnorm, requires m1s, an array of m values, and dm, the spacing of
-    that array"""
-    return np.trapz(pnorm(m1s, parameters), m1s)
+# def norm_pnorm(parameters):
+#     """normalise pnorm"""
+#     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
+#     if delta_m == 0:
+#         # FIXME - add erf factors
+#         norm = 1 / xp.sqrt(2 * xp.pi) / sp
+#     else:
+#         norm = trapz(pnorm(m1s, parameters), m1s)
+#     return norm
 
 
 def pq(qs, ms, parameters):
     """unnormalised pdf for q, powerlaw + smoothing"""
     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
-    return qs**(bt) * window(qs * ms, mn, 100., delta_m)
+    return powerlaw(qs, bt, 1, mn / ms)
+
+
+# def norm_pq(parameters):
+#     """normalise pq"""
+#     al, mn, mx, lam, mp, sp, bt, delta_m = extract_mass_parameters(parameters)
+#     if delta_m == 0:
+#         norm = (1 + bt) / (1 - xp.power(mn / m1s, 1 + bt))
+#     else:
+#         norm = trapz(pq(norm_array['mass_ratio'], norm_array['mass_1'],
+#                         parameters), qs, axis=0)
+#     return norm
 
 
 def norm_vt(parameters):
@@ -293,45 +315,42 @@ def norm_vt(parameters):
     This is equivalent to Eq. 6 of https://arxiv.org/abs/1805.06442
 
     """
-    pow_norm = norm_ppow(parameters)
-    pp_norm = norm_pnorm(parameters)
-    qnorms = np.einsum('i,j->ji', norm_pq(parameters), np.ones_like(qs))
-    qnorms[qnorms == 0] = 1.
-    p_norm_no_vt = pmodel1d(norm_array['m1'], parameters, pow_norm, pp_norm)\
-        * pq(norm_array['q'], norm_array['m1'], parameters) / qnorms
-    vt_fac = np.trapz(np.trapz(p_norm_no_vt * norm_array['vt'], m1s), qs)
+    p_norm_vt = pmodel1d(norm_array['mass_1'], parameters) *\
+        pq(norm_array['mass_ratio'], norm_array['mass_1'], parameters) *\
+        norm_array['vt']
+    vt_fac = trapz(trapz(p_norm_vt, m1s), qs)
     return vt_fac
 
 
-def norm_pq(parameters):
-    """normalise pq, requires m1s, an array of m values, and dm, the spacing of
-    that array"""
-    norm = np.trapz(pq(norm_array['q'], norm_array['m1'], parameters),
-                    qs, axis=0)
-    return norm
+def iid_norm_vt(parameters):
+    al, mn, mx, lam, mp, sp, bt, dm = extract_mass_parameters(parameters)
+    p_norm_vt = iid_mass(norm_array, al, mn, mx, lam, mp, sp, dm) *\
+        norm_array['vt'] * norm_array['mass_1']
+    vt_fac = trapz(trapz(p_norm_vt, m1s), qs)
+    return vt_fac
 
 
-def window(ms, mn, mx, delta_m=0.):
-    """Apply a one sided window between mmin and mmin+dm to the mass pdf.
-
-    The upper cut off is a step function,
-    the lower cutoff is a logistic rise over delta_m solar masses.
-
-    See T&T18 Eq
-
-    """
-    dM = mx - mn
-    delta_m /= dM
-    # some versions of numpy can't deal with pandas columns indexing an array
-    ms_arr = np.array(ms)
-    sel_p = (ms_arr >= mn) & (ms_arr <= (mn + delta_m * dM))
-    ms_p = ms_arr[sel_p] - mn
-    Zp = np.nan_to_num(2 * delta_m * (1 / (2 * ms_p / dM) +
-                       1 / (2 * ms_p / dM - 2 * delta_m)))
-    window = np.ones_like(ms)
-    window[(ms_arr < mn) | (ms_arr > mx)] = 0
-    window[sel_p] = 1 / (np.exp(Zp) + 1)
-    return window
+# def window(ms, mn, mx, delta_m=0.):
+#     """Apply a one sided window between mmin and mmin+dm to the mass pdf.
+#
+#     The upper cut off is a step function,
+#     the lower cutoff is a logistic rise over delta_m solar masses.
+#
+#     See T&T18 Eq
+#
+#     """
+#     dM = mx - mn
+#     delta_m /= dM
+#     # some versions of numpy can't deal with pandas columns indexing an array
+#     ms_arr = xp.array(ms)
+#     sel_p = (ms_arr >= mn) & (ms_arr <= (mn + delta_m * dM))
+#     ms_p = ms_arr[sel_p] - mn
+#     Zp = xp.nan_to_num(2 * delta_m * (1 / (2 * ms_p / dM) +
+#                        1 / (2 * ms_p / dM - 2 * delta_m)))
+#     window = xp.ones_like(ms)
+#     window[(ms_arr < mn) | (ms_arr > mx)] = 0
+#     window[sel_p] = 1 / (xp.exp(Zp) + 1)
+#     return window
 
 
 def extract_mass_parameters(parameters):
@@ -355,20 +374,21 @@ def set_vt(vt_array):
         Dictionary containing arrays in m1, q and VT to use for normalisation
     """
     global dm, dq, m1s, qs, norm_array
-    norm_array = vt_array
-    m1s = np.unique(norm_array['m1'])
-    qs = np.unique(norm_array['q'])
+    norm_array = {key: xp.asarray(vt_array[key]) for key in vt_array}
+    m1s = xp.unique(norm_array['mass_1'])
+    qs = xp.unique(norm_array['mass_ratio'])
     dm = m1s[1] - m1s[0]
     dq = qs[1] - qs[0]
 
 
 # set up arrays for numerical normalisation
 # this doesn't include VT(m)
-m1s = np.linspace(3, 100, 1000)
-qs = np.linspace(0.1, 1, 500)
+m1s = xp.linspace(3, 100, 1000)
+qs = xp.linspace(0.1, 1, 500)
 dm = m1s[1] - m1s[0]
 dq = qs[1] - qs[0]
 
 norm_array = dict()
-norm_array['m1'] = np.einsum('i,j->ji', m1s, np.ones_like(qs))
-norm_array['q'] = np.einsum('i,j->ji', np.ones_like(m1s), qs)
+norm_array['mass_1'] = xp.einsum('i,j->ji', m1s, xp.ones_like(qs))
+norm_array['mass_ratio'] = xp.einsum('i,j->ji', xp.ones_like(m1s), qs)
+norm_array['vt'] = 1

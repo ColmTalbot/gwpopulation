@@ -1,5 +1,7 @@
 A collection of parametric binary black hole mass/spin population models.
 
+**Warning:** This is under _very_ active development. No guarantee of backward compatibility is guaranteed.
+
 These are formatted to be consistent with the [Bilby](https://git.ligo.org/lscsoft/bilby) [hyper-parameter inference package](https://lscsoft.docs.ligo.org/bilby/hyperparameters.html).
 
 Most of the models implemented are derived from models presented in one of:

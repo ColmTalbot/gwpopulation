@@ -9,6 +9,8 @@
 # parallelization. each stage runs in parallel but must complete
 # before the next stage begins
 
+language: python
+
 stages:
   - test
   - deploy

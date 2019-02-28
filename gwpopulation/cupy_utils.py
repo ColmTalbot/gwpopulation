@@ -80,7 +80,8 @@ def trapz(y, x=None, dx=1.0, axis=-1):
         # Operations didn't work, cast to ndarray
         d = cp.asarray(d)
         y = cp.asarray(y)
-        ret = add.reduce(d * (y[tuple(slice1)] + y[tuple(slice2)]) / 2.0, axis)
+        ret = cp.add.reduce(d * (y[tuple(slice1)] + y[tuple(slice2)]) / 2.0,
+                            axis)
     return ret
 
 
@@ -164,7 +165,7 @@ def diff(a, n=1, axis=-1):
     slice1 = tuple(slice1)
     slice2 = tuple(slice2)
 
-    op = not_equal if a.dtype == cp.bool_ else cp.subtract
+    op = cp.not_equal if a.dtype == cp.bool_ else cp.subtract
     for _ in range(n):
         a = op(a[slice1], a[slice2])
 
@@ -203,7 +204,7 @@ def diff(a, n=1, axis=-1):
 #             else:
 #                 output[bad_idxs] = self.fill_value
 #         return output
-#    
+#
 #     def _find_idx_below(self, values):
 #         val_shape = values.shape
 #         vals_flat = values.flatten()

@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 from bilby.core.prior import PriorDict, Uniform
-import models
+from gwpopulation import models
 
 
 class TestMassModel(unittest.TestCase):

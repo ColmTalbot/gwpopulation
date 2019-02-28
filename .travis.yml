@@ -11,47 +11,14 @@
 
 language: python
 
-stages:
-  - test
-  - deploy
+python:
+  - "2.7"
+  - "3.6"
+  - "3.7"
 
-# test example on python 2
-testing:
-  stage: test
-  image: bilbydev/bilby
-  script:
-    - python setup.py install
-    # Run tests without finding coverage
-    - flake8 .
-    - pytest --cov=population
+cache: pip
 
-    - coverage html
-    - coverage-badge -o coverage_badge.svg -f
+install:
+  - pip install -r requirements.txt
 
-    # Make the documentation
-    - cd docs
-    - conda install -y make
-    - make clean
-    - make html
-
-  artifacts:
-    paths:
-      - htmlcov/
-      - coverage_badge.svg
-      - docs/_build/html/
-
-pages:
-  stage: deploy
-  dependencies:
-    - testing
-  script:
-    - mkdir public/
-    - mv htmlcov/ public/
-    - mv /builds/colm.talbot/population/coverage_badge.svg public/
-    - mv docs/_build/html/* public/
-  artifacts:
-    paths:
-      - public
-    expire_in: 30 days
-  only:
-    - master
+script: test/models_test.py

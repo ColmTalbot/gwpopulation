@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/ColmTalbot/gwpopulation.svg?branch=master)](https://travis-ci.com/ColmTalbot/gwpopulation)
+
 A collection of parametric binary black hole mass/spin population models.
 
 **Warning:** This is under _very_ active development. No guarantee of backward compatibility is guaranteed.

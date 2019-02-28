@@ -21,4 +21,4 @@ cache: pip
 install:
   - pip install -r requirements.txt
 
-script: test/models_test.py
+script: py.test test/models_test.py

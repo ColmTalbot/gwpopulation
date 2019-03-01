@@ -24,6 +24,7 @@ def convert_to_beta_parameters(parameters, remove=True):
 
         if needed:
             if mu in converted.keys() and sigma in converted.keys():
+                done = True
                 converted[alpha], converted[beta], _ =\
                     mu_chi_var_chi_max_to_alpha_beta_max(
                         parameters[mu], parameters[sigma],
@@ -31,14 +32,16 @@ def convert_to_beta_parameters(parameters, remove=True):
                 if remove:
                     added_keys.append(alpha)
                     added_keys.append(beta)
-        return needed
+            else:
+                done = False
+        return done
 
-    used = False
+    done = False
 
     for suffix in ['_1', '_2']:
-        needed = _convert(suffix)
-        used = used or needed
-    if not used:
+        _done = _convert(suffix)
+        done = done or _done
+    if not done:
         _ = _convert('')
 
     return converted, added_keys

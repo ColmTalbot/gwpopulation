@@ -19,7 +19,8 @@ cache: pip
 
 install:
   - pip install -r requirements.txt
-  - pip install flake8 pytest-cov coverage-badge sphinx
+  - pip install -r pages_requirements.txt
+  - pip install flake8 pytest-cov coverage-badge
   - pip install .
 
 script:
@@ -27,12 +28,15 @@ script:
   
   - export PYTHONPATH='.' 
   - pytest --cov=gwpopulation
-  
+    
+after_script:
   - coverage html
   - coverage-badge -o coverage_badge.svg -f
-  
+
+before_deploy:
   - cd docs
   - make clean
+  - make html
 
 deploy:
   provider: pages

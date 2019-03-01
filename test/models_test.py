@@ -321,8 +321,8 @@ class TestIIDSpin(unittest.TestCase):
 
     def test_iid_matches_independent(self):
         params = self.prior.sample()
-        mag_params = {params[key] for key in ['amax', 'alpha_chi', 'beta_chi']}
-        tilt_params = {params[key] for key in ['xi_spin', 'sigma_spin']}
+        mag_params = {key: params[key] for key in ['amax', 'alpha_chi', 'beta_chi']}
+        tilt_params = {key: params[key] for key in ['xi_spin', 'sigma_spin']}
         self.assertEquals(0.0, xp.max(
             models.iid_spin(self.test_data, **params) -
             models.iid_spin_magnitude(self.test_data, **mag_params) *

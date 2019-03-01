@@ -329,5 +329,21 @@ class TestIIDSpin(unittest.TestCase):
             models.iid_spin_orientation(self.test_data, **tilt_params)))
 
 
+class TestFHFRedshift(unittest.TestCase):
+
+    def setUp(self):
+        self.test_data = dict(redshift=models.zs)
+        self.n_test = 100
+
+    def test_fhf_normalised(self):
+        norms = list()
+        for _ in range(self.n_test):
+            lamb = np.random.uniform(-15, 15)
+            p_z = models.fhf_redshift(self.test_data, lamb)
+            p_z *= models.dvc_dz
+            norms.append(trapz(p_z, models.zs))
+        self.assertAlmostEqual(xp.max(xp.abs(xp.asarray(norms) - 1)), 0.0)
+
+
 if __name__ == '__main__':
     unittest.main()

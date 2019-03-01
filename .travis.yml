@@ -32,9 +32,18 @@ script:
   - coverage html
   - coverage-badge -o coverage_badge.svg -f
 
+before_deploy:
+  - cd docs
+  - mv Makefile.gh_pages Makefile
+  - make clean
+  - make html
+  - cd ../
+  - touch _gh-pages/latest/html/.nojekyll
+
 deploy:
   provider: pages
   skip-cleanup: true
+  local_dir: _gh-pages/latest/html
   github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
   keep-history: true
   on:

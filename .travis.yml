@@ -27,3 +27,5 @@ script:
   - flake8 .
   - export PYTHONPATH='.' 
   - pytest --cov=gwpopulation
+  - coverage html
+  - coverage-badge -o coverage_badge.svg -f

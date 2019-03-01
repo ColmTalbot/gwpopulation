@@ -20,12 +20,18 @@ cache: pip
 
 install:
   - pip install -r requirements.txt
-  - pip install flake8 pytest-cov
+  - pip install flake8 pytest-cov coverage-badge
   - pip install .
 
 script:
   - flake8 .
+  
   - export PYTHONPATH='.' 
   - pytest --cov=gwpopulation
+  
   - coverage html
   - coverage-badge -o coverage_badge.svg -f
+  
+  - cd docs
+  - make clean
+  - make html

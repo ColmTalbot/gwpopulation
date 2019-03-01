@@ -144,16 +144,6 @@ class RateLikelihood(HyperparameterLikelihood):
 
     """
 
-    def __init__(self, posteriors, hyper_prior, sampling_prior,
-                 ln_evidences=None, max_samples=1e100,
-                 selection_function=lambda args: 1,
-                 conversion_function=lambda args: (args, None), cupy=True):
-        super(RateLikelihood, self).__init__(
-            posteriors=posteriors, hyper_prior=hyper_prior,
-            sampling_prior=sampling_prior, ln_evidences=ln_evidences,
-            max_samples=max_samples, conversion_function=conversion_function,
-            selection_function=selection_function, cupy=cupy)
-
     def log_likelihood_ratio(self):
         self.parameters, added_keys = self.conversion_function(self.parameters)
         log_l = HyperparameterLikelihood.log_likelihood_ratio(self)

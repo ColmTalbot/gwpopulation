@@ -19,7 +19,8 @@ cache: pip
 
 install:
   - pip install -r requirements.txt
-  - pip install flake8 pytest-cov coverage-badge sphinx
+  - pip install -r pages_requirements.txt
+  - pip install flake8 pytest-cov coverage-badge
   - pip install .
 
 script:

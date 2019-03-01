@@ -57,3 +57,14 @@ class TestBetaConversion(unittest.TestCase):
             print(new_params, full_dict)
             for key in full_dict:
                 self.assertAlmostEqual(new_params[key], full_dict[key])
+
+    def test_convert_to_beta_parameters_with_none(self):
+        params = dict(
+            amax=1, alpha_chi=None, beta_chi=None, mu_chi=0.5, sigma_chi=0.1)
+        new_params, added = convert_to_beta_parameters(params, remove=True)
+        self.assertTrue(len(added) == 2)
+
+    def test_convert_to_beta_parameters_unnecessary(self):
+        params = dict(amax=1, alpha_chi=1, beta_chi=1)
+        new_params, added = convert_to_beta_parameters(params, remove=True)
+        self.assertTrue(len(added) == 0)

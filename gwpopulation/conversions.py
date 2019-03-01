@@ -21,6 +21,7 @@ def convert_to_beta_parameters(parameters, remove=True):
             needed = True
         else:
             needed = False
+            done = True
 
         if needed:
             if mu in converted.keys() and sigma in converted.keys():

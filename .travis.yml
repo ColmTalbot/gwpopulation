@@ -37,6 +37,8 @@ before_deploy:
   - cd docs
   - make clean
   - make html
+  - mv -r _build/html ../
+  - rm README.md
 
 deploy:
   provider: pages

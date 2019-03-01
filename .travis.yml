@@ -32,11 +32,12 @@ script:
   - coverage html
   - coverage-badge -o coverage_badge.svg -f
 
-before-deploy:
+before_deploy:
   - cd docs
   - make clean
   - make html
   - cd ../
+  - mkdir _gh-pages
 
 deploy:
   provider: pages

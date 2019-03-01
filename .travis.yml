@@ -38,6 +38,7 @@ before_deploy:
   - make clean
   - make html
   - cd ../
+  - touch _gh-pages/latest/html/.nojekyll
 
 deploy:
   provider: pages

@@ -79,6 +79,7 @@ class HyperparameterLikelihood(Likelihood):
         self.hyper_prior.parameters.update(self.parameters)
         ln_l = xp.sum(xp.log(xp.sum(self.hyper_prior.prob(self.data) /
                                     self.sampling_prior, axis=-1)))
+        ln_l += self._get_selection_factor()
         ln_l += self.samples_factor
         if added_keys is not None:
             for key in added_keys:
@@ -90,6 +91,9 @@ class HyperparameterLikelihood(Likelihood):
 
     def log_likelihood(self):
         return self.noise_log_likelihood() + self.log_likelihood_ratio()
+
+    def _get_selection_factor(self):
+        return - self.selection_function(self.parameters) * self.n_posteriors
 
     def resample_posteriors(self, posteriors, max_samples=1e300):
         """
@@ -143,14 +147,8 @@ class RateLikelihood(HyperparameterLikelihood):
         Maximum number of samples to use from each set.
 
     """
-
-    def log_likelihood_ratio(self):
-        self.parameters, added_keys = self.conversion_function(self.parameters)
-        log_l = HyperparameterLikelihood.log_likelihood_ratio(self)
-        log_l += self.n_posteriors * xp.log(self.parameters['rate'])
-        log_l -= self.selection_function(self.parameters) *\
+    def _get_selection_factor(self):
+        ln_l = - self.selection_function(self.parameters) *\
             self.parameters['rate']
-        if added_keys is not None:
-            for key in added_keys:
-                self.parameters.pop(key)
-        return float(xp.nan_to_num(log_l))
+        ln_l += self.n_posteriors * xp.log(self.parameters['rate'])
+        return ln_l

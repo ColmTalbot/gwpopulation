@@ -8,7 +8,7 @@ def convert_to_beta_parameters(parameters, remove=True):
     added_keys = list()
     converted = parameters.copy()
 
-    for suffix in ['', '_1', '_2']:
+    def _convert(suffix):
         alpha = 'alpha_chi{}'.format(suffix)
         beta = 'beta_chi{}'.format(suffix)
         mu = 'mu_chi{}'.format(suffix)
@@ -31,6 +31,15 @@ def convert_to_beta_parameters(parameters, remove=True):
                 if remove:
                     added_keys.append(alpha)
                     added_keys.append(beta)
+        return needed
+
+    used = False
+
+    for suffix in ['_1', '_2']:
+        needed = _convert(suffix)
+        used = used or needed
+    if not used:
+        _ = _convert('')
 
     return converted, added_keys
 

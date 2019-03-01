@@ -469,11 +469,11 @@
 <p id="t3" class="stm run hide_run"><span class="key">try</span><span class="op">:</span><span class="strut">&nbsp;</span></p>
 <p id="t4" class="stm run hide_run">    <span class="key">import</span> <span class="nam">cupy</span> <span class="key">as</span> <span class="nam">xp</span><span class="strut">&nbsp;</span></p>
 <p id="t5" class="stm mis">    <span class="key">from</span> <span class="op">.</span><span class="nam">cupy_utils</span> <span class="key">import</span> <span class="nam">trapz</span><span class="strut">&nbsp;</span></p>
-<p id="t6" class="stm mis">    <span class="nam">CUPY_LOADED</span> <span class="op">=</span> <span class="key">True</span><span class="strut">&nbsp;</span></p>
+<p id="t6" class="stm mis">    <span class="nam">CUPY_LOADED</span> <span class="op">=</span> <span class="nam">True</span><span class="strut">&nbsp;</span></p>
 <p id="t7" class="stm run hide_run"><span class="key">except</span> <span class="nam">ImportError</span><span class="op">:</span><span class="strut">&nbsp;</span></p>
 <p id="t8" class="stm run hide_run">    <span class="key">import</span> <span class="nam">numpy</span> <span class="key">as</span> <span class="nam">xp</span><span class="strut">&nbsp;</span></p>
 <p id="t9" class="stm run hide_run">    <span class="key">from</span> <span class="nam">numpy</span> <span class="key">import</span> <span class="nam">trapz</span><span class="strut">&nbsp;</span></p>
-<p id="t10" class="stm run hide_run">    <span class="nam">CUPY_LOADED</span> <span class="op">=</span> <span class="key">False</span><span class="strut">&nbsp;</span></p>
+<p id="t10" class="stm run hide_run">    <span class="nam">CUPY_LOADED</span> <span class="op">=</span> <span class="nam">False</span><span class="strut">&nbsp;</span></p>
 <p id="t11" class="stm run hide_run"><span class="key">import</span> <span class="nam">numpy</span> <span class="key">as</span> <span class="nam">np</span><span class="strut">&nbsp;</span></p>
 <p id="t12" class="stm run hide_run"><span class="key">from</span> <span class="op">.</span><span class="nam">utils</span> <span class="key">import</span> <span class="nam">beta_dist</span><span class="op">,</span> <span class="nam">powerlaw</span><span class="op">,</span> <span class="nam">truncnorm</span><span class="strut">&nbsp;</span></p>
 <p id="t13" class="pln"><span class="strut">&nbsp;</span></p>
@@ -711,7 +711,7 @@
 <p id="t245" class="pln"><span class="str">    """</span><span class="strut">&nbsp;</span></p>
 <p id="t246" class="stm run hide_run">    <span class="nam">p_norm_no_vt</span> <span class="op">=</span> <span class="nam">pmodel1d</span><span class="op">(</span><span class="nam">ms</span><span class="op">,</span> <span class="nam">parameters</span><span class="op">)</span> <span class="op">*</span> <span class="nam">pq</span><span class="op">(</span><span class="nam">qs</span><span class="op">,</span> <span class="nam">ms</span><span class="op">,</span> <span class="nam">parameters</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t247" class="stm run hide_run">    <span class="key">if</span> <span class="key">not</span> <span class="nam">vt_fac</span> <span class="op">==</span> <span class="num">1</span><span class="op">:</span><span class="strut">&nbsp;</span></p>
-<p id="t248" class="stm mis">        <span class="nam">print</span><span class="op">(</span><span class="str">'Providing vt_fac to pmodel2d is being deprecated.'</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
+<p id="t248" class="stm mis">        <span class="key">print</span><span class="op">(</span><span class="str">'Providing vt_fac to pmodel2d is being deprecated.'</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t249" class="stm run hide_run">    <span class="nam">p_norm</span> <span class="op">=</span> <span class="nam">p_norm_no_vt</span> <span class="op">/</span> <span class="nam">vt_fac</span><span class="strut">&nbsp;</span></p>
 <p id="t250" class="stm run hide_run">    <span class="key">return</span> <span class="nam">p_norm</span><span class="strut">&nbsp;</span></p>
 <p id="t251" class="pln">    <span class="com"># return xp.nan_to_num(p_norm)</span><span class="strut">&nbsp;</span></p>

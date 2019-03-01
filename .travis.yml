@@ -20,7 +20,7 @@ cache: pip
 install:
   - pip install -r requirements.txt
   - pip install -r pages_requirements.txt
-  - pip install "coverage<4.4" "pytest-cov<2.5"
+  - pip install "coverage<4.4" "pytest-cov<2.5" codeclimate-test-reporter
   - pip install .
 
 script:

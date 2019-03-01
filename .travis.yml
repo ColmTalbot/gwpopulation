@@ -20,7 +20,7 @@ cache: pip
 
 install:
   - pip install -r requirements.txt
-  - pip install flake8 pytest-cov coverage-badge
+  - pip install flake8 pytest-cov coverage-badge sphinx
   - pip install .
 
 script:

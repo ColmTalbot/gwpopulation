@@ -1,0 +1,6 @@
+jinja2
+sphinx
+pygments
+numpydoc
+nbsphinx
+sphinx_rtd_theme

@@ -1,0 +1,18 @@
+xi = 0
+amax_1 = 1
+amax_2 = 1
+sigma_1 = 100
+sigma_2 = 100
+alpha_1 = 1
+alpha_2 = 1
+beta_1 = 1
+beta_2 = 1
+alpha = Uniform(minimum=-4, maximum=6, name='alpha', latex_label='$\\alpha$')
+mmin = Uniform(minimum=2, maximum=10, name='mmin', latex_label='$m_{\min}$')
+mmax = Uniform(minimum=20, maximum=65, name='mmax', latex_label='$m_{\max}$')
+lam = Uniform(minimum=0, maximum=1, name='lam', latex_label='$\lambda$')
+mpp = Uniform(minimum=20, maximum=60, name='mpp', latex_label='$\mu_{pp}$')
+sigpp = Uniform(minimum=5e-1, maximum=1e1, name='sigpp', latex_label='$\\sigma_{pp}$')
+beta = Uniform(minimum=-4, maximum=6, name='beta', latex_label='$\\beta$')
+delta_m = Uniform(minimum=0, maximum=10, name='delta_m', latex_label='$\delta m$')
+rate = LogUniform(minimum=1e-1, maximum=1e3, name='rate', latex_label='$R$')

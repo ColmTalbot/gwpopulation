@@ -1,0 +1,5 @@
+*.ignore
+build/*
+outdir/*
+logs/*
+__pycache__/*

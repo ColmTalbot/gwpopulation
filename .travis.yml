@@ -20,17 +20,14 @@ cache: pip
 install:
   - pip install -r requirements.txt
   - pip install -r pages_requirements.txt
-  - pip install flake8 pytest-cov coverage-badge
+  - pip install "coverage<4.4" "pytest-cov<2.5" codeclimate-test-reporter
   - pip install .
 
 script:
-  - flake8 .
   
   - export PYTHONPATH='.' 
   - pytest --cov=gwpopulation
-    
-  - coverage html
-  - coverage-badge -o coverage_badge.svg -f
+  - codeclimate-test-reporter --file .coverage
 
 before_deploy:
   - cd docs

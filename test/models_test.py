@@ -16,9 +16,10 @@ from gwpopulation import models
 class TestMassModel(unittest.TestCase):
 
     def setUp(self):
-        self.test_data = dict(
-            mass_1=models.norm_array['mass_1'],
-            mass_ratio=models.norm_array['mass_ratio'])
+        m1s = xp.linspace(3, 100, 1000)
+        qs = xp.linspace(0.1, 1, 500)
+        m1_grid, q_grid = xp.meshgrid(m1s, qs)
+        self.test_data = dict(mass_1=m1_grid, mass_ratio=q_grid)
         self.test_data['mass_2'] =\
             self.test_data['mass_1'] * self.test_data['mass_ratio']
         self.test_params = dict(
@@ -26,10 +27,8 @@ class TestMassModel(unittest.TestCase):
             beta=3, delta_m=0)
         current_dir = os.path.dirname(os.path.realpath(__file__))
         self.prior = PriorDict('{}/test.prior'.format(current_dir))
-        self.vt_array = dict(
-            mass_1=models.norm_array['mass_1'],
-            mass_ratio=models.norm_array['mass_ratio'],
-            vt=models.norm_array['mass_1']**0 * 2)
+        self.vt_array = dict(mass_1=m1_grid, mass_ratio=q_grid,
+                             vt=m1_grid**0 * 2)
         self.n_test = 10
 
     def tearDown(self):
@@ -231,8 +230,7 @@ class TestSpinOrientation(unittest.TestCase):
             cos_tilt_2=xp.einsum('i,j->ji', self.costilts,
                                  xp.ones_like(self.costilts)))
         self.prior = PriorDict(
-            dict(xi_spin=Uniform(0, 1), sigma_1=Uniform(0, 4),
-                 sigma_2=Uniform(0, 4)))
+            dict(xi_spin=Uniform(0, 1), sigma_spin=Uniform(0, 4)))
         self.n_test = 100
 
     def tearDown(self):
@@ -245,7 +243,7 @@ class TestSpinOrientation(unittest.TestCase):
         norms = list()
         for ii in range(self.n_test):
             parameters = self.prior.sample()
-            temp = models.spin_orientation_likelihood(
+            temp = models.spin.iid_spin_orientation_gaussian_isotropic(
                 self.test_data, **parameters)
             norms.append(trapz(trapz(temp, self.costilts), self.costilts))
         self.assertAlmostEqual(float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 5)
@@ -254,8 +252,10 @@ class TestSpinOrientation(unittest.TestCase):
         iid_params = dict(xi_spin=0.5, sigma_spin=0.5)
         ind_params = dict(xi_spin=0.5, sigma_1=0.5, sigma_2=0.5)
         self.assertEquals(0.0, xp.max(
-            models.iid_spin_orientation(self.test_data, **iid_params) -
-            models.spin_orientation_likelihood(self.test_data, **ind_params)))
+            models.spin.iid_spin_orientation_gaussian_isotropic(
+                self.test_data, **iid_params) -
+            models.spin.independent_spin_orientation_gaussian_isotropic(
+                self.test_data, **ind_params)))
 
 
 class TestSpinMagnitude(unittest.TestCase):
@@ -280,16 +280,19 @@ class TestSpinMagnitude(unittest.TestCase):
         norms = list()
         for ii in range(self.n_test):
             parameters = self.prior.sample()
-            temp = models.iid_spin_magnitude(self.test_data, **parameters)
+            temp = models.spin.iid_spin_magnitude_beta(
+                self.test_data, **parameters)
             norms.append(trapz(trapz(temp, self.a_array), self.a_array))
-        self.assertAlmostEqual(float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 1)
+        self.assertAlmostEqual(
+            float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 1)
 
     def test_returns_zero_alpha_beta_less_zero(self):
         parameters = self.prior.sample()
         for key in ['alpha_chi', 'beta_chi']:
             parameters[key] = -1
             self.assertEquals(
-                models.iid_spin_magnitude(self.test_data, **parameters), 0)
+                models.spin.iid_spin_magnitude_beta(
+                    self.test_data, **parameters), 0)
 
     def test_iid_matches_independent_magnitudes(self):
         iid_params = self.prior.sample()
@@ -297,8 +300,8 @@ class TestSpinMagnitude(unittest.TestCase):
         ind_params.update({key + '_1': iid_params[key] for key in iid_params})
         ind_params.update({key + '_2': iid_params[key] for key in iid_params})
         self.assertEquals(0.0, xp.max(
-            models.iid_spin_magnitude(self.test_data, **iid_params) -
-            models.spin_magnitude_beta_likelihood(
+            models.spin.iid_spin_magnitude_beta(self.test_data, **iid_params) -
+            models.spin.independent_spin_magnitude_beta(
                 self.test_data, **ind_params)))
 
 
@@ -324,24 +327,25 @@ class TestIIDSpin(unittest.TestCase):
         mag_params = {key: params[key] for key in ['amax', 'alpha_chi', 'beta_chi']}
         tilt_params = {key: params[key] for key in ['xi_spin', 'sigma_spin']}
         self.assertEquals(0.0, xp.max(
-            models.iid_spin(self.test_data, **params) -
-            models.iid_spin_magnitude(self.test_data, **mag_params) *
-            models.iid_spin_orientation(self.test_data, **tilt_params)))
+            models.spin.iid_spin(self.test_data, **params) -
+            models.spin.iid_spin_magnitude_beta(self.test_data, **mag_params) *
+            models.spin.iid_spin_orientation_gaussian_isotropic(
+                self.test_data, **tilt_params)))
 
 
 class TestFHFRedshift(unittest.TestCase):
 
     def setUp(self):
-        self.test_data = dict(redshift=models.zs)
+        self.zs = xp.linspace(1e-3, 1, 1000)
+        self.test_data = dict(redshift=self.zs)
         self.n_test = 100
 
     def test_fhf_normalised(self):
         norms = list()
         for _ in range(self.n_test):
             lamb = np.random.uniform(-15, 15)
-            p_z = models.fhf_redshift(self.test_data, lamb)
-            p_z *= models.dvc_dz
-            norms.append(trapz(p_z, models.zs))
+            p_z = models.redshift.power_law_redshift(self.test_data, lamb)
+            norms.append(trapz(p_z, self.zs))
         self.assertAlmostEqual(xp.max(xp.abs(xp.asarray(norms) - 1)), 0.0)
 
 

@@ -13,7 +13,7 @@ class PowerLawRedshift(object):
     """
 
     def __init__(self):
-        self.zs_ = np.linspace(0, 1, 1000)
+        self.zs_ = np.linspace(1e-3, 1, 1000)
         self.zs = xp.asarray(self.zs_)
         self.dvc_dz_ = (
             Planck15.differential_comoving_volume(self.zs_).value * 4 * np.pi)
@@ -23,10 +23,10 @@ class PowerLawRedshift(object):
     def __call__(self, dataset, lamb):
         p_z = powerlaw(1 + dataset['redshift'], lamb - 1, 1 + self.zs_[-1], 1)
         try:
-            p_z /= self.cached_dvc_dz
+            p_z *= self.cached_dvc_dz
         except (TypeError, ValueError):
             self._cache_dvc_dz(dataset['redshift'])
-            p_z /= self.cached_dvc_dz
+            p_z *= self.cached_dvc_dz
         p_z /= self.normalisation(lamb)
         return p_z
 

@@ -29,21 +29,14 @@ script:
   - export PYTHONPATH='.' 
   - pytest --cov=gwpopulation
     
-after_script:
   - coverage html
   - coverage-badge -o coverage_badge.svg -f
-
-before_deploy:
-  - cd docs
-  - make clean
-  - make html
-  - mv _build/html/* ../
-  - rm README.md
 
 deploy:
   provider: pages
   skip-cleanup: true
   github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  local_dir: _gh-pages
   keep-history: true
   on:
     branch: master

@@ -27,12 +27,15 @@ script:
   
   - export PYTHONPATH='.' 
   - pytest --cov=gwpopulation
-  
+    
+after_script:
   - coverage html
   - coverage-badge -o coverage_badge.svg -f
-  
+
+before_deploy:
   - cd docs
   - make clean
+  - make html
 
 deploy:
   provider: pages

@@ -179,7 +179,7 @@
 <h1>All of the likelihoods implemented.<a class="headerlink" href="#all-of-the-likelihoods-implemented" title="Permalink to this headline">¶</a></h1>
 <span class="target" id="module-gwpopulation.hyperpe"></span><dl class="class">
 <dt id="gwpopulation.hyperpe.HyperparameterLikelihood">
-<em class="property">class </em><code class="descclassname">gwpopulation.hyperpe.</code><code class="descname">HyperparameterLikelihood</code><span class="sig-paren">(</span><em>posteriors</em>, <em>hyper_prior</em>, <em>sampling_prior</em>, <em>ln_evidences=None</em>, <em>max_samples=1e+100</em>, <em>selection_function=&lt;function &lt;lambda&gt;&gt;</em>, <em>conversion_function=&lt;function &lt;lambda&gt;&gt;</em>, <em>cupy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">gwpopulation.hyperpe.</code><code class="descname">HyperparameterLikelihood</code><span class="sig-paren">(</span><em>posteriors</em>, <em>hyper_prior</em>, <em>sampling_prior</em>, <em>ln_evidences=None</em>, <em>max_samples=1e+100</em>, <em>selection_function=&lt;function HyperparameterLikelihood.&lt;lambda&gt;&gt;</em>, <em>conversion_function=&lt;function HyperparameterLikelihood.&lt;lambda&gt;&gt;</em>, <em>cupy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>A likelihood for inferring hyperparameter posterior distributions with
 including selection effects.</p>
 <p>See Eq. (34) of <a class="reference external" href="https://arxiv.org/abs/1809.02293">https://arxiv.org/abs/1809.02293</a> for a definition.</p>
@@ -304,7 +304,7 @@ There is a key for each shared key in posteriors.</p>
 
 <dl class="class">
 <dt id="gwpopulation.hyperpe.RateLikelihood">
-<em class="property">class </em><code class="descclassname">gwpopulation.hyperpe.</code><code class="descname">RateLikelihood</code><span class="sig-paren">(</span><em>posteriors</em>, <em>hyper_prior</em>, <em>sampling_prior</em>, <em>ln_evidences=None</em>, <em>max_samples=1e+100</em>, <em>selection_function=&lt;function &lt;lambda&gt;&gt;</em>, <em>conversion_function=&lt;function &lt;lambda&gt;&gt;</em>, <em>cupy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">gwpopulation.hyperpe.</code><code class="descname">RateLikelihood</code><span class="sig-paren">(</span><em>posteriors</em>, <em>hyper_prior</em>, <em>sampling_prior</em>, <em>ln_evidences=None</em>, <em>max_samples=1e+100</em>, <em>selection_function=&lt;function HyperparameterLikelihood.&lt;lambda&gt;&gt;</em>, <em>conversion_function=&lt;function HyperparameterLikelihood.&lt;lambda&gt;&gt;</em>, <em>cupy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>A likelihood for infering hyperparameter posterior distributions and
 rate estimates</p>
 <p>See Eq. (1) of <a class="reference external" href="https://arxiv.org/abs/1801.02699">https://arxiv.org/abs/1801.02699</a>, Eq. (4)

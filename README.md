@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/ColmTalbot/gwpopulation.svg?branch=master)](https://travis-ci.com/ColmTalbot/gwpopulation)
+[![Maintainability](https://api.codeclimate.com/v1/badges/579536603e8e06466e63/maintainability)](https://codeclimate.com/github/ColmTalbot/gwpopulation/maintainability)
 
 A collection of parametric binary black hole mass/spin population models.
 

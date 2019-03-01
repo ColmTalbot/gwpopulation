@@ -2,4 +2,8 @@
 build/*
 outdir/*
 logs/*
+*/__pycache__/*
 __pycache__/*
+*/_build/
+*/.ipynb*
+.coverage

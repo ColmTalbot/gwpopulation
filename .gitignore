@@ -7,3 +7,5 @@ __pycache__/*
 */_build/
 */.ipynb*
 .coverage
+venv/
+.idea/

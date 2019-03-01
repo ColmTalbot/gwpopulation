@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="All of the likelihoods implemented." href="likelihood.html" />
     <link rel="prev" title="Welcome to the documentation for GWPopulation!" href="index.html" /> 
 </head>
 
@@ -86,6 +87,7 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">All of the models implemented.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="likelihood.html">All of the likelihoods implemented.</a></li>
 </ul>
 
             
@@ -233,7 +235,7 @@ Note that this is deliberately off by a factor of dVc/dz</p>
 
 <dl class="function">
 <dt id="gwpopulation.models.iid_spin_orientation">
-<code class="descclassname">gwpopulation.models.</code><code class="descname">iid_spin_orientation</code><span class="sig-paren">(</span><em>dataset</em>, <em>xi</em>, <em>sigma_spin</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.iid_spin_orientation" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gwpopulation.models.</code><code class="descname">iid_spin_orientation</code><span class="sig-paren">(</span><em>dataset</em>, <em>xi_spin</em>, <em>sigma_spin</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.iid_spin_orientation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Independently and identically distributed spin orientations.</p>
 </dd></dl>
 
@@ -347,7 +349,7 @@ the normalisation factor for m_1 = 100.</p>
 
 <dl class="function">
 <dt id="gwpopulation.models.pmodel2d">
-<code class="descclassname">gwpopulation.models.</code><code class="descname">pmodel2d</code><span class="sig-paren">(</span><em>ms</em>, <em>qs</em>, <em>parameters</em>, <em>vt_fac=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.pmodel2d" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gwpopulation.models.</code><code class="descname">pmodel2d</code><span class="sig-paren">(</span><em>ms</em>, <em>qs</em>, <em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.pmodel2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>2d mass model from T&amp;T 2018</p>
 <p class="rubric">Notes</p>
 <p>nan_to_num captures case when qnorms=0.</p>
@@ -422,7 +424,7 @@ the normalisation factor for m_1 = 100.</p>
 
 <dl class="function">
 <dt id="gwpopulation.models.spin_orientation_likelihood">
-<code class="descclassname">gwpopulation.models.</code><code class="descname">spin_orientation_likelihood</code><span class="sig-paren">(</span><em>dataset</em>, <em>xi</em>, <em>sigma_1</em>, <em>sigma_2</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.spin_orientation_likelihood" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gwpopulation.models.</code><code class="descname">spin_orientation_likelihood</code><span class="sig-paren">(</span><em>dataset</em>, <em>xi_spin</em>, <em>sigma_1</em>, <em>sigma_2</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.spin_orientation_likelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>A mixture model of spin orientations with isotropic and normally
 distributed components.</p>
 <p><a class="reference external" href="https://arxiv.org/abs/1704.08370">https://arxiv.org/abs/1704.08370</a> Eq. (4)</p>
@@ -461,6 +463,8 @@ massive black hole.</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="likelihood.html" class="btn btn-neutral float-right" title="All of the likelihoods implemented." accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="Welcome to the documentation for GWPopulation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

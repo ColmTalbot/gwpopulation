@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>All of the likelihoods implemented. &mdash; GWPopulation 0.1.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="All of the models implemented." href="models.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> GWPopulation
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="models.html">All of the models implemented.</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">All of the likelihoods implemented.</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GWPopulation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>All of the likelihoods implemented.</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/likelihood.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="all-of-the-likelihoods-implemented">
+<h1>All of the likelihoods implemented.<a class="headerlink" href="#all-of-the-likelihoods-implemented" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-gwpopulation.hyperpe"></span><dl class="class">
+<dt id="gwpopulation.hyperpe.HyperparameterLikelihood">
+<em class="property">class </em><code class="descclassname">gwpopulation.hyperpe.</code><code class="descname">HyperparameterLikelihood</code><span class="sig-paren">(</span><em>posteriors</em>, <em>hyper_prior</em>, <em>sampling_prior</em>, <em>ln_evidences=None</em>, <em>max_samples=1e+100</em>, <em>selection_function=&lt;function &lt;lambda&gt;&gt;</em>, <em>conversion_function=&lt;function &lt;lambda&gt;&gt;</em>, <em>cupy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>A likelihood for inferring hyperparameter posterior distributions with
+including selection effects.</p>
+<p>See Eq. (34) of <a class="reference external" href="https://arxiv.org/abs/1809.02293">https://arxiv.org/abs/1809.02293</a> for a definition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>posteriors: list</strong></dt>
+<dd><p class="first last">An list of pandas data frames of samples sets of samples.
+Each set may have a different size.</p>
+</dd>
+<dt><strong>hyper_prior: `bilby.hyper.model.Model`</strong></dt>
+<dd><p class="first last">The population model, this can alternatively be a function.</p>
+</dd>
+<dt><strong>sampling_prior: `bilby.hyper.model.Model`</strong></dt>
+<dd><p class="first last">The sampling prior, this can alternatively be a function.</p>
+</dd>
+<dt><strong>log_evidences: list, optional</strong></dt>
+<dd><p class="first last">Log evidences for single runs to ensure proper normalisation
+of the hyperparameter likelihood. If not provided, the original
+evidences will be set to 0. This produces a Bayes factor between
+the sampling prior and the hyperparameterised model.</p>
+</dd>
+<dt><strong>max_samples: int, optional</strong></dt>
+<dd><p class="first last">Maximum number of samples to use from each set.</p>
+</dd>
+<dt><strong>cupy: bool</strong></dt>
+<dd><p class="first last">If True and a compatible CUDA environment is available,
+cupy will be used for performance.
+Note: this requires setting up your hyper_prior properly.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood">
+<code class="descname">log_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>float</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio">
+<code class="descname">log_likelihood_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Difference between log likelihood and noise log likelihood</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>float</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood">
+<code class="descname">noise_log_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>float</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors">
+<code class="descname">resample_posteriors</code><span class="sig-paren">(</span><em>posteriors</em>, <em>max_samples=1e+300</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert list of pandas DataFrame object to dict of arrays.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>posteriors: list</strong></dt>
+<dd><p class="first last">List of pandas DataFrame objects.</p>
+</dd>
+<dt><strong>max_samples: int, opt</strong></dt>
+<dd><p class="first last">Maximum number of samples to take from each posterior,
+default is length of shortest posterior chain.</p>
+</dd>
+<dt><strong>Returns</strong></dt>
+<dd></dd>
+<dt><strong>——-</strong></dt>
+<dd></dd>
+<dt><strong>data: dict</strong></dt>
+<dd><p class="first last">Dictionary containing arrays of size (n_posteriors, max_samples)
+There is a key for each shared key in posteriors.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gwpopulation.hyperpe.RateLikelihood">
+<em class="property">class </em><code class="descclassname">gwpopulation.hyperpe.</code><code class="descname">RateLikelihood</code><span class="sig-paren">(</span><em>posteriors</em>, <em>hyper_prior</em>, <em>sampling_prior</em>, <em>ln_evidences=None</em>, <em>max_samples=1e+100</em>, <em>selection_function=&lt;function &lt;lambda&gt;&gt;</em>, <em>conversion_function=&lt;function &lt;lambda&gt;&gt;</em>, <em>cupy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>A likelihood for infering hyperparameter posterior distributions and
+rate estimates</p>
+<p>See Eq. (1) of <a class="reference external" href="https://arxiv.org/abs/1801.02699">https://arxiv.org/abs/1801.02699</a>, Eq. (4)
+<a class="reference external" href="https://arxiv.org/abs/1805.06442">https://arxiv.org/abs/1805.06442</a> for a definition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>posteriors: list</strong></dt>
+<dd><p class="first last">An list of pandas data frames of samples sets of samples. Each set
+may have a different size.</p>
+</dd>
+<dt><strong>hyper_prior: func</strong></dt>
+<dd><p class="first last">Function which calculates the new prior probability for the data.</p>
+</dd>
+<dt><strong>sampling_prior: func</strong></dt>
+<dd><p class="first last">Function which calculates the prior probability used to sample.</p>
+</dd>
+<dt><strong>max_samples: int</strong></dt>
+<dd><p class="first last">Maximum number of samples to use from each set.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="models.html" class="btn btn-neutral float-left" title="All of the models implemented." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Colm Talbot
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

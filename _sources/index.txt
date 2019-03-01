@@ -9,4 +9,5 @@ Welcome to the documentation for GWPopulation!
    :caption: Contents:
 
    models
+   likelihood
 

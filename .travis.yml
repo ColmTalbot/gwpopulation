@@ -34,6 +34,7 @@ script:
 
 before_deploy:
   - cd docs
+  - mv Makefile.gh_pages Makefile
   - make clean
   - make html
   - cd ../

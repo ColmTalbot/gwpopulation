@@ -32,9 +32,16 @@ script:
   - coverage html
   - coverage-badge -o coverage_badge.svg -f
 
+before-deploy:
+  - cd docs
+  - make clean
+  - make html
+  - cd ../
+
 deploy:
   provider: pages
   skip-cleanup: true
+  local_dir: _gh-pages
   github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
   keep-history: true
   on:

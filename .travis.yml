@@ -9,12 +9,13 @@
 # parallelization. each stage runs in parallel but must complete
 # before the next stage begins
 
+TOKEN=https://github.com/settings/tokens/265666177
+
 language: python
 
 python:
   - "2.7"
   - "3.6"
-  - "3.7-dev"
 
 cache: pip
 
@@ -38,6 +39,7 @@ script:
 deploy:
   provider: pages
   skip-cleanup: true
+  github-token: $TOKEN  # Set in the settings page of your repository, as a secure variable
   keep-history: true
   on:
     branch: master

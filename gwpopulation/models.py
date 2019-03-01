@@ -40,11 +40,12 @@ def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
     return prior
 
 
-def iid_spin_orientation(dataset, xi, sigma_spin):
+def iid_spin_orientation(dataset, xi_spin, sigma_spin):
     """
     Independently and identically distributed spin orientations.
     """
-    return spin_orientation_likelihood(dataset, xi, sigma_spin, sigma_spin)
+    return spin_orientation_likelihood(
+        dataset, xi_spin, sigma_spin, sigma_spin)
 
 
 def iid_spin_magnitude(dataset, amax=1, alpha_chi=1, beta_chi=1):
@@ -55,7 +56,7 @@ def iid_spin_magnitude(dataset, amax=1, alpha_chi=1, beta_chi=1):
         dataset, alpha_chi, alpha_chi, beta_chi, beta_chi, amax, amax)
 
 
-def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
+def spin_orientation_likelihood(dataset, xi_spin, sigma_1, sigma_2):
     """A mixture model of spin orientations with isotropic and normally
     distributed components.
 
@@ -74,7 +75,7 @@ def spin_orientation_likelihood(dataset, xi, sigma_1, sigma_2):
         Width of preferentially aligned component for the less
         massive black hole.
     """
-    prior = (1 - xi) / 4 + xi *\
+    prior = (1 - xi_spin) / 4 + xi_spin *\
         truncnorm(dataset['cos_tilt_1'], 1, sigma_1, 1, -1) *\
         truncnorm(dataset['cos_tilt_2'], 1, sigma_2, 1, -1)
     return prior
@@ -235,7 +236,7 @@ def iid_mass(dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
 #     return [pow_norm, pp_norm, qnorms]
 
 
-def pmodel2d(ms, qs, parameters, vt_fac=1.):
+def pmodel2d(ms, qs, parameters):
     """
     2d mass model from T&T 2018
 
@@ -244,11 +245,8 @@ def pmodel2d(ms, qs, parameters, vt_fac=1.):
     nan_to_num captures case when qnorms=0.
     """
     p_norm_no_vt = pmodel1d(ms, parameters) * pq(qs, ms, parameters)
-    if not vt_fac == 1:
-        print('Providing vt_fac to pmodel2d is being deprecated.')
-    p_norm = p_norm_no_vt / vt_fac
+    p_norm = p_norm_no_vt
     return p_norm
-    # return xp.nan_to_num(p_norm)
 
 
 def pmodel1d(ms, parameters):

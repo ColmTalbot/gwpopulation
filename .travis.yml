@@ -14,7 +14,7 @@ language: python
 python:
   - "2.7"
   - "3.6"
-  - "3.7"
+  - "3.7-dev"
 
 cache: pip
 
@@ -34,3 +34,10 @@ script:
   
   - cd docs
   - make clean
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  keep-history: true
+  on:
+    branch: master

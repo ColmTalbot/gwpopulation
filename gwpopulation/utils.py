@@ -1,9 +1,4 @@
-try:
-    import cupy as xp
-    from cupyx.scipy.special import erf, gammaln
-except ImportError:
-    import numpy as xp
-    from scipy.special import erf, gammaln
+from .cupy_utils import erf, gammaln, xp
 
 
 def beta_dist(xx, alpha, beta, scale=1):

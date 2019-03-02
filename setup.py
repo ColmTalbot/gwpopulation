@@ -5,6 +5,6 @@ from distutils.core import setup
 setup(
     name='gwpopulation',
     version='0.1.1',
-    packages=['gwpopulation'],
+    packages=['gwpopulation', 'gwpopulation.models'],
     package_dir={'gwpopulation': './gwpopulation'}
 )

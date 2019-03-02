@@ -30,9 +30,6 @@ script:
   - codeclimate-test-reporter --file .coverage
 
 before_deploy:
-  on:
-    branch: master
-    python: 3.6
   - cd docs
   - mv Makefile.gh_pages Makefile
   - make clean
@@ -48,4 +45,4 @@ deploy:
   keep-history: true
   on:
     branch: master
-    python: 3.6
+    python: "3.6"

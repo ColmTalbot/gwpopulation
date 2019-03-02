@@ -196,13 +196,13 @@ Each set may have a different size.</p>
 <dd><p class="first last">The population model, this can alternatively be a function.</p>
 </dd>
 <dt><strong>sampling_prior: `bilby.hyper.model.Model`</strong></dt>
-<dd><p class="first last">The sampling prior, this can alternatively be a function.</p>
+<dd><p class="first last">The sampling power_prior, this can alternatively be a function.</p>
 </dd>
 <dt><strong>log_evidences: list, optional</strong></dt>
 <dd><p class="first last">Log evidences for single runs to ensure proper normalisation
 of the hyperparameter likelihood. If not provided, the original
 evidences will be set to 0. This produces a Bayes factor between
-the sampling prior and the hyperparameterised model.</p>
+the sampling power_prior and the hyperparameterised model.</p>
 </dd>
 <dt><strong>max_samples: int, optional</strong></dt>
 <dd><p class="first last">Maximum number of samples to use from each set.</p>
@@ -319,10 +319,10 @@ rate estimates</p>
 may have a different size.</p>
 </dd>
 <dt><strong>hyper_prior: func</strong></dt>
-<dd><p class="first last">Function which calculates the new prior probability for the data.</p>
+<dd><p class="first last">Function which calculates the new power_prior probability for the data.</p>
 </dd>
 <dt><strong>sampling_prior: func</strong></dt>
-<dd><p class="first last">Function which calculates the prior probability used to sample.</p>
+<dd><p class="first last">Function which calculates the power_prior probability used to sample.</p>
 </dd>
 <dt><strong>max_samples: int</strong></dt>
 <dd><p class="first last">Maximum number of samples to use from each set.</p>

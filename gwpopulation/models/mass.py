@@ -27,10 +27,14 @@ def power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
         sigpp=1)
 
 
+def _primary_secondary_general(dataset, p_m1, p_m2):
+    return p_m1 * p_m2 * (dataset['mass_1'] >= dataset['mass_2']) * 2
+
+
 def power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):
     """
-    Power law model for two-dimensional mass distribution, modelling the primary
-    and secondary masses as following independent distributions.
+    Power law model for two-dimensional mass distribution, modelling the
+    primary and secondary masses as following independent distributions.
 
     p(m1, m2) = p(m1) * p(m2) : m1 >= m2
 
@@ -49,14 +53,14 @@ def power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):
     """
     p_m1 = powerlaw(dataset['mass_1'], -alpha, mmax, mmin)
     p_m2 = powerlaw(dataset['mass_2'], -beta, mmax, mmin)
-    prob = p_m1 * p_m2 * (dataset['mass_1'] >= dataset['mass_2']) * 2
+    prob = _primary_secondary_general(dataset, p_m1, p_m2)
     return prob
 
 
 def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
     """
-    Power law model for two-dimensional mass distribution, modelling the primary
-    and secondary masses as following independent distributions.
+    Power law model for two-dimensional mass distribution, modelling the
+    primary and secondary masses as following independent distributions.
 
     p(m1, m2) = p(m1) * p(m2) : m1 >= m2
 
@@ -72,7 +76,7 @@ def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
         Maximum black hole mass.
     """
     return power_law_primary_secondary_independent(
-        dataset=dataset, alpha=alpha, mmin=mmin, mmax=mmax)
+        dataset=dataset, alpha=alpha, beta=alpha, mmin=mmin, mmax=mmax)
 
 
 def two_component_single(mass, alpha, mmin, mmax, lam, mpp, sigpp):
@@ -129,8 +133,8 @@ def two_component_primary_mass_ratio(
     sigpp: float
         Standard deviation fo the Gaussian component.
     """
-    p_m1 = two_component_single(dataset['mass_1'], alpha=alpha, mmin=mmin,
-                                mmax=mmax, lam=lam, mpp=mpp, sigpp=sigpp)
+    params = dict(mmin=mmin, mmax=mmax, lam=lam, mpp=mpp, sigpp=sigpp)
+    p_m1 = two_component_single(dataset['mass_1'], alpha=alpha, **params)
     p_q = powerlaw(dataset['mass_ratio'], beta, 1, mmin / dataset['mass_1'])
     prob = p_m1 * p_q
     return prob
@@ -139,8 +143,8 @@ def two_component_primary_mass_ratio(
 def two_component_primary_secondary_independent(
         dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp):
     """
-    Power law model for two-dimensional mass distribution, modelling the primary
-    and secondary masses as following independent distributions.
+    Power law model for two-dimensional mass distribution, modelling the
+    primary and secondary masses as following independent distributions.
 
     p(m1, m2) = p(m1) * p(m2) : m1 >= m2
 
@@ -163,20 +167,19 @@ def two_component_primary_secondary_independent(
     sigpp: float
         Standard deviation fo the Gaussian component.
     """
-    p_m1 = two_component_single(dataset['mass_1'], alpha=alpha, mmin=mmin,
-                                mmax=mmax, lam=lam, mpp=mpp, sigpp=sigpp)
-    p_m2 = two_component_single(dataset['mass_2'], alpha=beta, mmin=mmin,
-                                mmax=mmax, lam=lam, mpp=mpp, sigpp=sigpp)
+    params = dict(mmin=mmin, mmax=mmax, lam=lam, mpp=mpp, sigpp=sigpp)
+    p_m1 = two_component_single(dataset['mass_1'], alpha=alpha, **params)
+    p_m2 = two_component_single(dataset['mass_2'], alpha=beta, **params)
 
-    prob = p_m1 * p_m2 * (dataset['mass_1'] >= dataset['mass_2']) * 2
+    prob = _primary_secondary_general(dataset, p_m1, p_m2)
     return prob
 
 
 def two_component_primary_secondary_identical(
         dataset, alpha, mmin, mmax, lam, mpp, sigpp):
     """
-    Power law model for two-dimensional mass distribution, modelling the primary
-    and secondary masses as following independent distributions.
+    Power law model for two-dimensional mass distribution, modelling the
+    primary and secondary masses as following independent distributions.
 
     p(m1, m2) = p(m1) * p(m2) : m1 >= m2
 
@@ -198,7 +201,7 @@ def two_component_primary_secondary_identical(
         Standard deviation fo the Gaussian component.
     """
     return two_component_primary_secondary_independent(
-        dataset=dataset, alpha=alpha, mmin=mmin, mmax=mmax,
+        dataset=dataset, alpha=alpha, beta=alpha, mmin=mmin, mmax=mmax,
         lam=lam, mpp=mpp, sigpp=sigpp)
 
 
@@ -206,7 +209,7 @@ class SmoothedMassDistribution(object):
 
     def __init__(self):
         self.m1s = xp.linspace(3, 100, 1000)
-        self.qs = xp.linspace(0.01, 1, 500)
+        self.qs = xp.linspace(0.001, 1, 500)
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
@@ -261,20 +264,23 @@ class SmoothedMassDistribution(object):
                               mpp=mpp, sigpp=sigpp, delta_m=delta_m)
         return p_m / norm
 
-    def p_q(self, dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, delta_m):
-        p_q = powerlaw(dataset['mass_ratio'], beta, 1, mmin / dataset['mass_1'])
+    def p_q(self, dataset, beta, mmin, delta_m):
+        p_q = powerlaw(dataset['mass_ratio'], beta, 1,
+                       mmin / dataset['mass_1'])
         p_q *= self.smoothing(
             dataset['mass_1'] * dataset['mass_ratio'], mmin=mmin,
             mmax=dataset['mass_1'], delta_m=delta_m)
         try:
             p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
-        except (TypeError, ValueError):
+        except (AttributeError, TypeError, ValueError):
             self._cache_q_norms(dataset['mass_1'])
             p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
 
-        return p_q
+        return xp.nan_to_num(p_q)
 
     def norm_p_m1(self, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
+        if delta_m == 0.0:
+            return 1
         p_m = two_component_single(self.m1s, alpha=alpha, mmin=mmin,
                                    mmax=mmax, lam=lam, mpp=mpp, sigpp=sigpp)
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
@@ -283,22 +289,27 @@ class SmoothedMassDistribution(object):
         return norm
 
     def norm_p_q(self, beta, mmin, delta_m):
+        if delta_m == 0.0:
+            return 1
         p_q = powerlaw(self.qs_grid, beta, 1, mmin / self.m1s_grid)
-        p_q *= self.smoothing(self.m1s_grid * self.qs_grid, mmin=mmin,
-                              mmax=self.m1s_grid, delta_m=delta_m)
+        p_q *= self.smoothing(100 * self.qs_grid, mmin=mmin,
+                              mmax=100, delta_m=delta_m)
         norms = trapz(p_q, self.qs, axis=0)
 
-        all_norms = (norms[self.n_below] * self.step +
-                     norms[self.n_below + 1] * (1 + self.step))
+        all_norms = (norms[self.n_below] * (1 - self.step) +
+                     norms[self.n_above] * self.step)
 
         return all_norms
 
     def _cache_q_norms(self, masses):
-        self.n_below = xp.zeros_like(masses)
+        self.n_below = xp.zeros_like(masses, dtype=xp.int)
         m_below = xp.zeros_like(masses)
         for mm in self.m1s:
             self.n_below += masses > mm
             m_below[masses > mm] = mm
+        self.n_above = self.n_below + 1
+        max_idx = len(self.m1s)
+        self.n_above[self.n_above == max_idx] = max_idx - 1
         self.step = (masses - m_below) / self.dm
 
     @staticmethod
@@ -310,16 +321,17 @@ class SmoothedMassDistribution(object):
 
         See T&T18 Eq
         """
-        mass_range = mmax - mmin
-        delta_m /= mass_range
-        ms_arr = xp.asarray(masses)
-        sel_p = (ms_arr >= mmin) & (ms_arr <= (mmin + delta_m * mass_range))
-        ms_p = ms_arr[sel_p] - mmin
-        z_p = xp.nan_to_num(2 * delta_m * (1 / (2 * ms_p / mass_range) +
-                            1 / (2 * ms_p / mass_range - 2 * delta_m)))
         window = xp.ones_like(masses)
-        window[(ms_arr < mmin) | (ms_arr > mmax)] = 0
-        window[sel_p] = 1 / (xp.exp(z_p) + 1)
+        if delta_m > 0.0:
+            mass_range = mmax - mmin
+            delta_m /= mass_range
+            sel_p = ((masses >= mmin) &
+                     (masses <= (mmin + delta_m * mass_range)))
+            ms_p = masses - mmin
+            z_p = xp.nan_to_num(2 * delta_m * (1 / (2 * ms_p / mass_range) +
+                                1 / (2 * ms_p / mass_range - 2 * delta_m)))
+            window[sel_p] = 1 / (xp.exp(z_p[sel_p]) + 1)
+        window[(masses < mmin) | (masses > mmax)] = 0
         return window
 
 

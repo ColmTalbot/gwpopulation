@@ -1,4 +1,4 @@
-from .. import trapz, xp
+from ..cupy_utils import trapz, xp
 from ..utils import powerlaw, truncnorm
 
 
@@ -22,7 +22,7 @@ def power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
     beta: float
         Power law exponent of the mass ratio distribution.
     """
-    two_component_primary_mass_ratio(
+    return two_component_primary_mass_ratio(
         dataset, alpha=alpha, beta=beta, mmin=mmin, mmax=mmax, lam=0, mpp=35,
         sigpp=1)
 
@@ -206,7 +206,7 @@ class SmoothedMassDistribution(object):
 
     def __init__(self):
         self.m1s = xp.linspace(3, 100, 1000)
-        self.qs = xp.linspace(0.1, 1, 500)
+        self.qs = xp.linspace(0.01, 1, 500)
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)

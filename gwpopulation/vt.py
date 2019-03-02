@@ -1,6 +1,6 @@
 from bilby.hyper.model import Model
 
-from . import trapz, xp
+from .cupy_utils import trapz, xp
 
 
 class GridVT(object):

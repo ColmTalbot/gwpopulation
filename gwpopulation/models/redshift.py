@@ -1,4 +1,4 @@
-from .. import trapz, xp
+from .. cupy_utils import to_numpy, trapz, xp
 from ..utils import powerlaw
 
 import numpy as np
@@ -21,7 +21,8 @@ class PowerLawRedshift(object):
         self.cached_dvc_dz = None
 
     def __call__(self, dataset, lamb):
-        p_z = powerlaw(1 + dataset['redshift'], lamb - 1, 1 + self.zs_[-1], 1)
+        p_z = powerlaw(1 + dataset['redshift'], alpha=(lamb - 1),
+                       high=(1 + self.zs_[-1]), low=1)
         try:
             p_z *= self.cached_dvc_dz
         except (TypeError, ValueError):
@@ -31,12 +32,16 @@ class PowerLawRedshift(object):
         return p_z
 
     def normalisation(self, lamb):
-        p_z_ = powerlaw(1 + self.zs, lamb - 1, 1 + self.zs_[-1], 1)
+        p_z_ = powerlaw(1 + self.zs, alpha=(lamb - 1),
+                        high=(1 + self.zs_[-1]), low=1)
         norm = trapz(p_z_ * self.dvc_dz, self.zs)
         return norm
 
     def _cache_dvc_dz(self, redshifts):
-        self.cached_dvc_dz = np.interp(self.zs_, self.dvc_dz_, redshifts)
+        self.cached_dvc_dz = np.interp(
+            to_numpy(redshifts), self.zs_, self.dvc_dz_)
+        print(self.zs_)
+        print(self.cached_dvc_dz)
 
 
 power_law_redshift = PowerLawRedshift()

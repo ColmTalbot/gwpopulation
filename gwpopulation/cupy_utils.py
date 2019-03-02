@@ -1,4 +1,19 @@
-import cupy as cp
+try:
+    import cupy as xp
+    from cupyx.scipy.special import erf, gammaln
+    CUPY_LOADED = True
+except ImportError:
+    import numpy as xp
+    from scipy.special import erf, gammaln
+    CUPY_LOADED = False
+
+
+def to_numpy(array):
+    """Cast any array to numpy"""
+    if not CUPY_LOADED:
+        return array
+    else:
+        return xp.asnumpy(array)
 
 
 def trapz(y, x=None, dx=1.0, axis=-1):
@@ -41,26 +56,26 @@ def trapz(y, x=None, dx=1.0, axis=-1):
            http://en.wikipedia.org/wiki/File:Composite_trapezoidal_rule_illustration.png
     Examples
     --------
-    >>> cp.trapz([1,2,3])
+    >>> xp.trapz([1,2,3])
     4.0
-    >>> cp.trapz([1,2,3], x=[4,6,8])
+    >>> xp.trapz([1,2,3], x=[4,6,8])
     8.0
-    >>> cp.trapz([1,2,3], dx=2)
+    >>> xp.trapz([1,2,3], dx=2)
     8.0
-    >>> a = cp.arange(6).reshape(2, 3)
+    >>> a = xp.arange(6).reshape(2, 3)
     >>> a
     array([[0, 1, 2],
            [3, 4, 5]])
-    >>> cp.trapz(a, axis=0)
+    >>> xp.trapz(a, axis=0)
     array([ 1.5,  2.5,  3.5])
-    >>> cp.trapz(a, axis=1)
+    >>> xp.trapz(a, axis=1)
     array([ 2.,  8.])
     """
-    y = cp.asanyarray(y)
+    y = xp.asanyarray(y)
     if x is None:
         d = dx
     else:
-        x = cp.asanyarray(x)
+        x = xp.asanyarray(x)
         if x.ndim == 1:
             d = diff(x)
             # reshape to correct shape
@@ -79,9 +94,9 @@ def trapz(y, x=None, dx=1.0, axis=-1):
         ret = product.sum(axis)
     except ValueError:
         # Operations didn't work, cast to ndarray
-        d = cp.asarray(d)
-        y = cp.asarray(y)
-        ret = cp.add.reduce(product, axis)
+        # d = xp.asarray(d)
+        # y = xp.asarray(y)
+        ret = xp.add.reduce(product, axis)
     return ret
 
 
@@ -121,31 +136,31 @@ def diff(a, n=1, axis=-1):
     For unsigned integer arrays, the results will also be unsigned. This
     should not be surprising, as the result is consistent with
     calculating the difference directly:
-    >>> u8_arr = np.array([1, 0], dtype=np.uint8)
-    >>> np.diff(u8_arr)
+    >>> u8_arr = np.array([1, 0], dtype=xp.uint8)
+    >>> xp.diff(u8_arr)
     array([255], dtype=uint8)
     >>> u8_arr[1,...] - u8_arr[0,...]
     array(255, np.uint8)
     If this is not desirable, then the array should be cast to a larger
     integer type first:
-    >>> i16_arr = u8_arr.astype(np.int16)
-    >>> np.diff(i16_arr)
+    >>> i16_arr = u8_arr.astype(xp.int16)
+    >>> xp.diff(i16_arr)
     array([-1], dtype=int16)
     Examples
     --------
-    >>> x = np.array([1, 2, 4, 7, 0])
-    >>> np.diff(x)
+    >>> x = xp.array([1, 2, 4, 7, 0])
+    >>> xp.diff(x)
     array([ 1,  2,  3, -7])
-    >>> np.diff(x, n=2)
+    >>> xp.diff(x, n=2)
     array([  1,   1, -10])
-    >>> x = np.array([[1, 3, 6, 10], [0, 5, 6, 8]])
-    >>> np.diff(x)
+    >>> x = xp.array([[1, 3, 6, 10], [0, 5, 6, 8]])
+    >>> xp.diff(x)
     array([[2, 3, 4],
            [5, 1, 2]])
-    >>> np.diff(x, axis=0)
+    >>> xp.diff(x, axis=0)
     array([[-1,  2,  0, -2]])
-    >>> x = np.arange('1066-10-13', '1066-10-16', dtype=np.datetime64)
-    >>> np.diff(x)
+    >>> x = xp.arange('1066-10-13', '1066-10-16', dtype=xp.datetime64)
+    >>> xp.diff(x)
     array([1, 1], dtype='timedelta64[D]')
     """
     if n == 0:
@@ -154,9 +169,8 @@ def diff(a, n=1, axis=-1):
         raise ValueError(
             "order must be non-negative but got " + repr(n))
 
-    a = cp.asanyarray(a)
+    a = xp.asanyarray(a)
     nd = a.ndim
-    # axis = normalize_axis_index(axis, nd)
 
     slice1 = [slice(None)] * nd
     slice2 = [slice(None)] * nd
@@ -165,7 +179,7 @@ def diff(a, n=1, axis=-1):
     slice1 = tuple(slice1)
     slice2 = tuple(slice2)
 
-    op = cp.not_equal if a.dtype == cp.bool_ else cp.subtract
+    op = xp.not_equal if a.dtype == xp.bool_ else xp.subtract
     for _ in range(n):
         a = op(a[slice1], a[slice2])
 
@@ -174,19 +188,19 @@ def diff(a, n=1, axis=-1):
 
 # class interp1d(object):
 #
-#     def __init__(self, xx, yy, bounds_error=False, fill_value=cp.nan):
+#     def __init__(self, xx, yy, bounds_error=False, fill_value=xp.nan):
 #         self.input_len = len(xx)
 #         if len(xx) != len(yy):
 #             raise ValueError('Cannot interpolate uneven length arrays.')
-#         xx = cp.concatenate((cp.asarray([-cp.inf]), xx, cp.asarray([cp.inf])))
-#         yy = cp.concatenate((cp.asarray([cp.nan]), yy, cp.asarray([cp.nan])))
-#         sorted_idxs = cp.argsort(xx)
+#         xx = xp.concatenate((xp.asarray([-xp.inf]), xx, xp.asarray([xp.inf])))
+#         yy = xp.concatenate((xp.asarray([xp.nan]), yy, xp.asarray([xp.nan])))
+#         sorted_idxs = xp.argsort(xx)
 #         self.x_sorted = xx[sorted_idxs]
 #         self.y_sorted = yy[sorted_idxs]
-#         self.differential_x = cp.concatenate((
-#             self.x_sorted[1:] - self.x_sorted[:-1], cp.asarray([cp.nan])))
-#         self.differential_y = cp.concatenate((
-#             self.y_sorted[1:] - self.y_sorted[:-1], cp.asarray([cp.nan])))
+#         self.differential_x = xp.concatenate((
+#             self.x_sorted[1:] - self.x_sorted[:-1], xp.asarray([xp.nan])))
+#         self.differential_y = xp.concatenate((
+#             self.y_sorted[1:] - self.y_sorted[:-1], xp.asarray([xp.nan])))
 #         self.bounds_error = bounds_error
 #         self.fill_value = fill_value
 #
@@ -198,7 +212,7 @@ def diff(a, n=1, axis=-1):
 #         output = (self.y_sorted[idxs_low] + self.differential_y[idxs_low] /
 #                   self.differential_x[idxs_low] * diffs)
 #         # import IPython; IPython.embed()
-#         if cp.any(bad_idxs):
+#         if xp.any(bad_idxs):
 #             if self.bounds_error:
 #                 raise ValueError('Values outside interpolation interval.')
 #             else:
@@ -208,7 +222,7 @@ def diff(a, n=1, axis=-1):
 #     def _find_idx_below(self, values):
 #         val_shape = values.shape
 #         vals_flat = values.flatten()
-#         idxs_low = cp.asarray([int(cp.sum(val > self.x_sorted)) - 1
+#         idxs_low = xp.asarray([int(xp.sum(val > self.x_sorted)) - 1
 #                                for val in vals_flat])
 #         idxs_low = idxs_low.reshape(val_shape)
 #         return idxs_low

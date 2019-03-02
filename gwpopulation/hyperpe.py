@@ -1,16 +1,12 @@
 from __future__ import division, print_function
 
 import numpy as np
-try:
-    import cupy as xp
-    CUPY_LOADED = True
-except ImportError:
-    xp = np
-    CUPY_LOADED = False
 
 from bilby.core.utils import logger
 from bilby.core.likelihood import Likelihood
 from bilby.hyper.model import Model
+
+from .cupy_utils import CUPY_LOADED, xp
 
 
 class HyperparameterLikelihood(Likelihood):
@@ -28,12 +24,12 @@ class HyperparameterLikelihood(Likelihood):
     hyper_prior: `bilby.hyper.model.Model`
         The population model, this can alternatively be a function.
     sampling_prior: `bilby.hyper.model.Model`
-        The sampling prior, this can alternatively be a function.
+        The sampling power_prior, this can alternatively be a function.
     log_evidences: list, optional
         Log evidences for single runs to ensure proper normalisation
         of the hyperparameter likelihood. If not provided, the original
         evidences will be set to 0. This produces a Bayes factor between
-        the sampling prior and the hyperparameterised model.
+        the sampling power_prior and the hyperparameterised model.
     max_samples: int, optional
         Maximum number of samples to use from each set.
     cupy: bool
@@ -140,9 +136,9 @@ class RateLikelihood(HyperparameterLikelihood):
         An list of pandas data frames of samples sets of samples. Each set
         may have a different size.
     hyper_prior: func
-        Function which calculates the new prior probability for the data.
+        Function which calculates the new power_prior probability for the data.
     sampling_prior: func
-        Function which calculates the prior probability used to sample.
+        Function which calculates the power_prior probability used to sample.
     max_samples: int
         Maximum number of samples to use from each set.
 

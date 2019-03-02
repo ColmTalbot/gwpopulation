@@ -1,5 +1,7 @@
 from bilby.hyper.model import Model
 
+import numpy as np
+
 from .cupy_utils import trapz, xp
 
 
@@ -14,7 +16,9 @@ class GridVT(object):
             model = Model([model])
         self.model = model
         self.values = {key: xp.unique(self.data[key]) for key in self.data}
-        self.axes = {xp.where(self.data[key].shape == len(xp.unique)): key
+        shape = np.array(list(self.data.values())[0].shape)
+        lens = {key: len(self.values[key]) for key in self.data}
+        self.axes = {int(np.where(shape == lens[key])[0]): key
                      for key in self.data}
         self.ndim = len(self.axes)
 

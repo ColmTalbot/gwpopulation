@@ -13,8 +13,6 @@ class TestPrimaryMassRatio(unittest.TestCase):
     def setUp(self):
         self.m1s = np.linspace(3, 100, 1000)
         self.qs = np.linspace(0.01, 1, 500)
-        self.dm = self.m1s[1] - self.m1s[0]
-        self.dq = self.qs[1] - self.qs[0]
         m1s_grid, qs_grid = xp.meshgrid(self.m1s, self.qs)
         self.dataset = dict(mass_1=m1s_grid, mass_ratio=qs_grid)
         self.power_prior = PriorDict()
@@ -50,17 +48,6 @@ class TestPrimaryMassRatio(unittest.TestCase):
             p_m = mass.two_component_primary_mass_ratio(
                 self.dataset, **parameters)
             self.assertEqual(xp.max(p_m[m2s <= parameters['mmin']]), 0.0)
-
-    def test_power_law_primary_mass_ratio_marginal_scaling(self):
-        scaling = list()
-        for ii in range(self.n_test):
-            parameters = self.power_prior.sample()
-            p_m1 = mass.power_law_primary_mass_ratio(self.dataset, **parameters)
-            p_m1 = trapz(p_m1.T, self.qs)
-            scaling.append(
-                p_m1[300] / p_m1[150] /
-                (self.m1s[150] / self.m1s[300])**parameters['alpha'])
-        self.assertAlmostEqual(_max_abs_difference(scaling, 1), 0.0, 2)
 
 
 class TestPrimarySecondary(unittest.TestCase):

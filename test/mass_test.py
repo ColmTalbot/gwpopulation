@@ -102,7 +102,8 @@ class TestPrimarySecondary(unittest.TestCase):
         for ii in range(self.n_test):
             parameters = self.power_prior.sample()
             parameters.update(self.gauss_prior.sample())
-            p_m = mass.two_component_primary_secondary_independent(
+            del parameters['beta']
+            p_m = mass.two_component_primary_secondary_identical(
                 self.dataset, **parameters)
             self.assertEqual(
                 xp.max(p_m[self.dataset['mass_2'] <= parameters['mmin']]), 0.0)

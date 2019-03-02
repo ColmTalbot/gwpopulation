@@ -279,6 +279,7 @@ class SmoothedMassDistribution(object):
         return xp.nan_to_num(p_q)
 
     def norm_p_m1(self, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
+        """Calculate the normalisation factor for the primary mass"""
         if delta_m == 0.0:
             return 1
         p_m = two_component_single(self.m1s, alpha=alpha, mmin=mmin,
@@ -289,11 +290,12 @@ class SmoothedMassDistribution(object):
         return norm
 
     def norm_p_q(self, beta, mmin, delta_m):
+        """Calculate the mass ratio normalisation by linear interpolation"""
         if delta_m == 0.0:
             return 1
         p_q = powerlaw(self.qs_grid, beta, 1, mmin / self.m1s_grid)
-        p_q *= self.smoothing(100 * self.qs_grid, mmin=mmin,
-                              mmax=100, delta_m=delta_m)
+        p_q *= self.smoothing(self.m1s_grid * self.qs_grid, mmin=mmin,
+                              mmax=self.m1s_grid, delta_m=delta_m)
         norms = trapz(p_q, self.qs, axis=0)
 
         all_norms = (norms[self.n_below] * (1 - self.step) +
@@ -302,19 +304,25 @@ class SmoothedMassDistribution(object):
         return all_norms
 
     def _cache_q_norms(self, masses):
-        self.n_below = xp.zeros_like(masses, dtype=xp.int)
+        """
+        Cache the information necessary for linear interpolation of the mass
+        ratio normalisation
+        """
+        self.n_below = xp.zeros_like(masses, dtype=xp.int) - 1
         m_below = xp.zeros_like(masses)
         for mm in self.m1s:
             self.n_below += masses > mm
             m_below[masses > mm] = mm
         self.n_above = self.n_below + 1
         max_idx = len(self.m1s)
+        self.n_below[self.n_below < 0] = 0
         self.n_above[self.n_above == max_idx] = max_idx - 1
-        self.step = (masses - m_below) / self.dm
+        self.step = xp.minimum((masses - m_below) / self.dm, 1)
 
     @staticmethod
     def smoothing(masses, mmin, mmax, delta_m):
-        """Apply a one sided window between mmin and mmin+dm to the mass pdf.
+        """
+        Apply a one sided window between mmin and mmin+dm to the mass pdf.
 
         The upper cut off is a step function,
         the lower cutoff is a logistic rise over delta_m solar masses.

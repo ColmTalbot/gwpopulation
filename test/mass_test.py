@@ -153,8 +153,6 @@ class TestSmoothedMassDistribution(unittest.TestCase):
             p_m = mass.smoothed_two_component_primary_mass_ratio(
                 self.dataset, **parameters)
             norms.append(trapz(trapz(p_m, self.m1s), self.qs))
-            # print(parameters, norms[-1])
-        print(norms)
         self.assertAlmostEqual(_max_abs_difference(norms, 1.0), 0.0, 2)
 
 

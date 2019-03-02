@@ -1,3 +1,5 @@
+import os
+
 from .cupy_utils import erf, gammaln, xp
 
 
@@ -31,3 +33,12 @@ def truncnorm(xx, mu, sigma, high, low):
     prob *= norm
     prob *= (xx <= high) & (xx >= low)
     return prob
+
+
+def get_version_information():
+    version_file = os.path.join(os.path.dirname(__file__), '.version')
+    try:
+        with open(version_file, 'r') as f:
+            return f.readline().rstrip()
+    except EnvironmentError:
+        print("No version information file '.version' found")

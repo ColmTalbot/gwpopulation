@@ -89,7 +89,7 @@ class HyperparameterLikelihood(Likelihood):
         return self.noise_log_likelihood() + self.log_likelihood_ratio()
 
     def _get_selection_factor(self):
-        return - self.selection_function(self.parameters) * self.n_posteriors
+        return - self.n_posteriors * xp.log(self.selection_function(self.parameters))
 
     def resample_posteriors(self, posteriors, max_samples=1e300):
         """

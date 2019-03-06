@@ -82,7 +82,7 @@ class Likelihoods(unittest.TestCase):
             posteriors=self.data, hyper_prior=self.model,
             sampling_prior=self.sampling_prior)
         like.parameters.update(self.params)
-        self.assertEqual(like.log_likelihood_ratio(), -5.0)
+        self.assertEqual(like.log_likelihood_ratio(), 0.0)
 
     def test_hpe_likelihood_noise_likelihood_ratio(self):
         like = HyperparameterLikelihood(

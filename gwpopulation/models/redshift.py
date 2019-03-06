@@ -38,10 +38,8 @@ class PowerLawRedshift(object):
         return norm
 
     def _cache_dvc_dz(self, redshifts):
-        self.cached_dvc_dz = np.interp(
-            to_numpy(redshifts), self.zs_, self.dvc_dz_)
-        print(self.zs_)
-        print(self.cached_dvc_dz)
+        self.cached_dvc_dz = xp.asarray(np.interp(
+            to_numpy(redshifts), self.zs_, self.dvc_dz_))
 
 
 power_law_redshift = PowerLawRedshift()

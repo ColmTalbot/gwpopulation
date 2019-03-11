@@ -19,6 +19,12 @@ def betaln(alpha, beta):
 
 
 def powerlaw(xx, alpha, high, low):
+    if low < 0:
+        raise ValueError('Parameter low must be greater or equal zero, '
+                         'low={}.'.format(low))
+    if high <= low:
+        raise ValueError('Parameter high must be greater than low, low={}, '
+                         'high={}.'.format(low, high))
     if alpha == -1:
         norm = 1 / xp.log(high / low)
     else:
@@ -30,6 +36,9 @@ def powerlaw(xx, alpha, high, low):
 
 
 def truncnorm(xx, mu, sigma, high, low):
+    if sigma <= 0:
+        raise ValueError(
+            'Sigma must be greater than 0, sigma={}'.format(sigma))
     norm = 2**0.5 / xp.pi**0.5 / sigma
     norm /= erf((high - mu) / 2**0.5 / sigma) + erf((mu - low) / 2**0.5 / sigma)
     prob = xp.exp(-xp.power(xx - mu, 2) / (2 * sigma**2))

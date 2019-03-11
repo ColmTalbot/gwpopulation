@@ -19,7 +19,10 @@ def betaln(alpha, beta):
 
 
 def powerlaw(xx, alpha, high, low):
-    norm = (1 + alpha) / (high**(1 + alpha) - low**(1 + alpha))
+    if alpha == -1:
+        norm = 1 / xp.log(high / low)
+    else:
+        norm = (1 + alpha) / (high**(1 + alpha) - low**(1 + alpha))
     prob = xp.power(xx, alpha)
     prob *= norm
     prob *= (xx <= high) & (xx >= low)

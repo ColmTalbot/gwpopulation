@@ -15,7 +15,7 @@ def beta_dist(xx, alpha, beta, scale=1):
     ln_beta -= (alpha + beta - 1) * xp.log(scale)
     prob = xp.exp(ln_beta)
     prob = xp.nan_to_num(prob)
-    prob *= (xx <= scale)
+    prob *= (xx >= 0) * (xx <= scale)
     return prob
 
 

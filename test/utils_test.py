@@ -31,6 +31,14 @@ class TestBetaDist(unittest.TestCase):
             equal_zero = equal_zero & (vals == 0.0)
         self.assertTrue(equal_zero)
 
+    def test_beta_dist_alpha_below_zero_raises_value_error(self):
+        with self.assertRaises(ValueError):
+            utils.powerlaw(0.5, -1, 0, 1)
+
+    def test_beta_dist_beta_below_zero_raises_value_error(self):
+        with self.assertRaises(ValueError):
+            utils.powerlaw(0.5, 0, -1, 1)
+
 
 class TestPowerLaw(unittest.TestCase):
 

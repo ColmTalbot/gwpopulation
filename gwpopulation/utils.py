@@ -4,6 +4,12 @@ from .cupy_utils import erf, gammaln, xp
 
 
 def beta_dist(xx, alpha, beta, scale=1):
+    if alpha < 0:
+        raise ValueError('Parameter alpha must be greater or equal zero, '
+                         'low={}.'.format(alpha))
+    if beta < 0:
+        raise ValueError('Parameter beta must be greater or equal zero, '
+                         'low={}.'.format(beta))
     ln_beta = (alpha - 1) * xp.log(xx) + (beta - 1) * xp.log(scale - xx)
     ln_beta -= betaln(alpha, beta)
     ln_beta -= (alpha + beta - 1) * xp.log(scale)

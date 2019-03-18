@@ -21,10 +21,12 @@ class HyperparameterLikelihood(Likelihood):
     posteriors: list
         An list of pandas data frames of samples sets of samples.
         Each set may have a different size.
+        These can contain a `prior` column containing the original prior
+        values.
     hyper_prior: `bilby.hyper.model.Model`
         The population model, this can alternatively be a function.
-    sampling_prior: `bilby.hyper.model.Model`
-        The sampling power_prior, this can alternatively be a function.
+    sampling_prior: `bilby.hyper.model.Model` *DEPRECATED*
+        The sampling prior, this can alternatively be a function.
     log_evidences: list, optional
         Log evidences for single runs to ensure proper normalisation
         of the hyperparameter likelihood. If not provided, the original
@@ -38,7 +40,7 @@ class HyperparameterLikelihood(Likelihood):
         Note: this requires setting up your hyper_prior properly.
     """
 
-    def __init__(self, posteriors, hyper_prior, sampling_prior,
+    def __init__(self, posteriors, hyper_prior, sampling_prior=None,
                  ln_evidences=None, max_samples=1e100,
                  selection_function=lambda args: 1,
                  conversion_function=lambda args: (args, None), cupy=True):
@@ -54,9 +56,17 @@ class HyperparameterLikelihood(Likelihood):
         self.hyper_prior = hyper_prior
         Likelihood.__init__(self, hyper_prior.parameters)
 
-        if not isinstance(sampling_prior, Model):
-            sampling_prior = Model([sampling_prior])
-        self.sampling_prior = sampling_prior.prob(self.data)
+        if sampling_prior is not None:
+            logger.warning('Passing a sampling_prior is deprecated. This '
+                           'should be passed as a column in the posteriors.')
+            if not isinstance(sampling_prior, Model):
+                sampling_prior = Model([sampling_prior])
+            self.sampling_prior = sampling_prior.prob(self.data)
+        elif 'prior' in self.data:
+            self.sampling_prior = self.data.pop('prior')
+        else:
+            logger.info('No prior values provided, defaulting to 1.')
+            self.sampling_prior = 1
 
         if ln_evidences is not None:
             self.total_noise_evidence = np.sum(ln_evidences)

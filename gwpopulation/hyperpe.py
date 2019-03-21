@@ -15,35 +15,41 @@ class HyperparameterLikelihood(Likelihood):
     including selection effects.
 
     See Eq. (34) of https://arxiv.org/abs/1809.02293 for a definition.
-
-    Parameters
-    ----------
-    posteriors: list
-        An list of pandas data frames of samples sets of samples.
-        Each set may have a different size.
-        These can contain a `prior` column containing the original prior
-        values.
-    hyper_prior: `bilby.hyper.model.Model`
-        The population model, this can alternatively be a function.
-    sampling_prior: `bilby.hyper.model.Model` *DEPRECATED*
-        The sampling prior, this can alternatively be a function.
-    log_evidences: list, optional
-        Log evidences for single runs to ensure proper normalisation
-        of the hyperparameter likelihood. If not provided, the original
-        evidences will be set to 0. This produces a Bayes factor between
-        the sampling power_prior and the hyperparameterised model.
-    max_samples: int, optional
-        Maximum number of samples to use from each set.
-    cupy: bool
-        If True and a compatible CUDA environment is available,
-        cupy will be used for performance.
-        Note: this requires setting up your hyper_prior properly.
     """
 
     def __init__(self, posteriors, hyper_prior, sampling_prior=None,
                  ln_evidences=None, max_samples=1e100,
                  selection_function=lambda args: 1,
                  conversion_function=lambda args: (args, None), cupy=True):
+        """
+        Parameters
+        ----------
+        posteriors: list
+            An list of pandas data frames of samples sets of samples.
+            Each set may have a different size.
+            These can contain a `prior` column containing the original prior
+            values.
+        hyper_prior: `bilby.hyper.model.Model`
+            The population model, this can alternatively be a function.
+        sampling_prior: `bilby.hyper.model.Model` *DEPRECATED*
+            The sampling prior, this can alternatively be a function.
+        ln_evidences: list, optional
+            Log evidences for single runs to ensure proper normalisation
+            of the hyperparameter likelihood. If not provided, the original
+            evidences will be set to 0. This produces a Bayes factor between
+            the sampling power_prior and the hyperparameterised model.
+        selection_function: func
+            Function which evaluates your population selection function.
+        conversion_function: func
+            Function which converts a dictionary of sampled parameter to a
+            dictionary of parameters of the population model.
+        max_samples: int, optional
+            Maximum number of samples to use from each set.
+        cupy: bool
+            If True and a compatible CUDA environment is available,
+            cupy will be used for performance.
+            Note: this requires setting up your hyper_prior properly.
+        """
         if cupy and not CUPY_LOADED:
             logger.warning('Cannot import cupy, falling back to numpy.')
 
@@ -134,24 +140,11 @@ class HyperparameterLikelihood(Likelihood):
 
 
 class RateLikelihood(HyperparameterLikelihood):
-    """ A likelihood for infering hyperparameter posterior distributions and
-    rate estimates
+    """
+    A likelihood for inferring hyperparameter posterior distributions
+    and estimating rates with including selection effects.
 
-    See Eq. (1) of https://arxiv.org/abs/1801.02699, Eq. (4)
-    https://arxiv.org/abs/1805.06442 for a definition.
-
-    Parameters
-    ----------
-    posteriors: list
-        An list of pandas data frames of samples sets of samples. Each set
-        may have a different size.
-    hyper_prior: func
-        Function which calculates the new power_prior probability for the data.
-    sampling_prior: func
-        Function which calculates the power_prior probability used to sample.
-    max_samples: int
-        Maximum number of samples to use from each set.
-
+    See Eq. (34) of https://arxiv.org/abs/1809.02293 for a definition.
     """
     def _get_selection_factor(self):
         ln_l = - self.selection_function(self.parameters) *\

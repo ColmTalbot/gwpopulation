@@ -183,42 +183,6 @@
 <dd><p>A likelihood for inferring hyperparameter posterior distributions with
 including selection effects.</p>
 <p>See Eq. (34) of <a class="reference external" href="https://arxiv.org/abs/1809.02293">https://arxiv.org/abs/1809.02293</a> for a definition.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>posteriors: list</strong></dt>
-<dd><p class="first last">An list of pandas data frames of samples sets of samples.
-Each set may have a different size.
-These can contain a <cite>prior</cite> column containing the original prior
-values.</p>
-</dd>
-<dt><strong>hyper_prior: `bilby.hyper.model.Model`</strong></dt>
-<dd><p class="first last">The population model, this can alternatively be a function.</p>
-</dd>
-<dt><strong>sampling_prior: `bilby.hyper.model.Model` *DEPRECATED*</strong></dt>
-<dd><p class="first last">The sampling prior, this can alternatively be a function.</p>
-</dd>
-<dt><strong>log_evidences: list, optional</strong></dt>
-<dd><p class="first last">Log evidences for single runs to ensure proper normalisation
-of the hyperparameter likelihood. If not provided, the original
-evidences will be set to 0. This produces a Bayes factor between
-the sampling power_prior and the hyperparameterised model.</p>
-</dd>
-<dt><strong>max_samples: int, optional</strong></dt>
-<dd><p class="first last">Maximum number of samples to use from each set.</p>
-</dd>
-<dt><strong>cupy: bool</strong></dt>
-<dd><p class="first last">If True and a compatible CUDA environment is available,
-cupy will be used for performance.
-Note: this requires setting up your hyper_prior properly.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
 <dl class="method">
 <dt id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood">
 <code class="descname">log_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood" title="Permalink to this definition">¶</a></dt>
@@ -307,33 +271,9 @@ There is a key for each shared key in posteriors.</p>
 <dl class="class">
 <dt id="gwpopulation.hyperpe.RateLikelihood">
 <em class="property">class </em><code class="descclassname">gwpopulation.hyperpe.</code><code class="descname">RateLikelihood</code><span class="sig-paren">(</span><em>posteriors</em>, <em>hyper_prior</em>, <em>sampling_prior=None</em>, <em>ln_evidences=None</em>, <em>max_samples=1e+100</em>, <em>selection_function=&lt;function HyperparameterLikelihood.&lt;lambda&gt;&gt;</em>, <em>conversion_function=&lt;function HyperparameterLikelihood.&lt;lambda&gt;&gt;</em>, <em>cupy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood" title="Permalink to this definition">¶</a></dt>
-<dd><p>A likelihood for infering hyperparameter posterior distributions and
-rate estimates</p>
-<p>See Eq. (1) of <a class="reference external" href="https://arxiv.org/abs/1801.02699">https://arxiv.org/abs/1801.02699</a>, Eq. (4)
-<a class="reference external" href="https://arxiv.org/abs/1805.06442">https://arxiv.org/abs/1805.06442</a> for a definition.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>posteriors: list</strong></dt>
-<dd><p class="first last">An list of pandas data frames of samples sets of samples. Each set
-may have a different size.</p>
-</dd>
-<dt><strong>hyper_prior: func</strong></dt>
-<dd><p class="first last">Function which calculates the new power_prior probability for the data.</p>
-</dd>
-<dt><strong>sampling_prior: func</strong></dt>
-<dd><p class="first last">Function which calculates the power_prior probability used to sample.</p>
-</dd>
-<dt><strong>max_samples: int</strong></dt>
-<dd><p class="first last">Maximum number of samples to use from each set.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
+<dd><p>A likelihood for inferring hyperparameter posterior distributions
+and estimating rates with including selection effects.</p>
+<p>See Eq. (34) of <a class="reference external" href="https://arxiv.org/abs/1809.02293">https://arxiv.org/abs/1809.02293</a> for a definition.</p>
 </dd></dl>
 
 </div>

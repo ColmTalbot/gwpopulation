@@ -185,85 +185,61 @@ including selection effects.</p>
 <p>See Eq. (34) of <a class="reference external" href="https://arxiv.org/abs/1809.02293">https://arxiv.org/abs/1809.02293</a> for a definition.</p>
 <dl class="method">
 <dt id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood">
-<code class="descname">log_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>float</strong></dt>
-<dd></dd>
+<code class="descname">log_likelihood</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio">
-<code class="descname">log_likelihood_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio" title="Permalink to this definition">¶</a></dt>
+<code class="descname">log_likelihood_ratio</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Difference between log likelihood and noise log likelihood</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>float</strong></dt>
-<dd></dd>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood">
-<code class="descname">noise_log_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>float</strong></dt>
-<dd></dd>
+<code class="descname">noise_log_likelihood</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors">
-<code class="descname">resample_posteriors</code><span class="sig-paren">(</span><em>posteriors</em>, <em>max_samples=1e+300</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors" title="Permalink to this definition">¶</a></dt>
+<code class="descname">resample_posteriors</code><span class="sig-paren">(</span><em>self</em>, <em>posteriors</em>, <em>max_samples=1e+300</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert list of pandas DataFrame object to dict of arrays.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>posteriors: list</strong></dt>
-<dd><p class="first last">List of pandas DataFrame objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>posteriors: list</strong></dt><dd><p>List of pandas DataFrame objects.</p>
 </dd>
-<dt><strong>max_samples: int, opt</strong></dt>
-<dd><p class="first last">Maximum number of samples to take from each posterior,
+<dt><strong>max_samples: int, opt</strong></dt><dd><p>Maximum number of samples to take from each posterior,
 default is length of shortest posterior chain.</p>
 </dd>
-<dt><strong>Returns</strong></dt>
-<dd></dd>
-<dt><strong>——-</strong></dt>
-<dd></dd>
-<dt><strong>data: dict</strong></dt>
-<dd><p class="first last">Dictionary containing arrays of size (n_posteriors, max_samples)
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>data: dict</strong></dt><dd><p>Dictionary containing arrays of size (n_posteriors, max_samples)
 There is a key for each shared key in posteriors.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

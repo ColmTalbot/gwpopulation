@@ -183,6 +183,30 @@
 <dd><p>A likelihood for inferring hyperparameter posterior distributions with
 including selection effects.</p>
 <p>See Eq. (34) of <a class="reference external" href="https://arxiv.org/abs/1809.02293">https://arxiv.org/abs/1809.02293</a> for a definition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>posteriors: list</strong></dt><dd><p>An list of pandas data frames of samples sets of samples.
+Each set may have a different size.</p>
+</dd>
+<dt><strong>hyper_prior: `bilby.hyper.model.Model`</strong></dt><dd><p>The population model, this can alternatively be a function.</p>
+</dd>
+<dt><strong>sampling_prior: `bilby.hyper.model.Model`</strong></dt><dd><p>The sampling prior, this can alternatively be a function.</p>
+</dd>
+<dt><strong>log_evidences: list, optional</strong></dt><dd><p>Log evidences for single runs to ensure proper normalisation
+of the hyperparameter likelihood. If not provided, the original
+evidences will be set to 0. This produces a Bayes factor between
+the sampling prior and the hyperparameterised model.</p>
+</dd>
+<dt><strong>max_samples: int, optional</strong></dt><dd><p>Maximum number of samples to use from each set.</p>
+</dd>
+<dt><strong>cupy: bool</strong></dt><dd><p>If True and a compatible CUDA environment is available,
+cupy will be used for performance.
+Note: this requires setting up your hyper_prior properly.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <dl class="method">
 <dt id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood">
 <code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood" title="Permalink to this definition">¶</a></dt>

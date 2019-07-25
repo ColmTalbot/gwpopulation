@@ -33,11 +33,11 @@ class TestBetaDist(unittest.TestCase):
 
     def test_beta_dist_alpha_below_zero_raises_value_error(self):
         with self.assertRaises(ValueError):
-            utils.powerlaw(0.5, -1, 0, 1)
+            utils.beta_dist(xx=0.5, alpha=-1, beta=1, scale=1)
 
     def test_beta_dist_beta_below_zero_raises_value_error(self):
         with self.assertRaises(ValueError):
-            utils.powerlaw(0.5, 0, -1, 1)
+            utils.beta_dist(xx=0.5, alpha=1, beta=-1, scale=1)
 
 
 class TestPowerLaw(unittest.TestCase):
@@ -70,10 +70,6 @@ class TestPowerLaw(unittest.TestCase):
     def test_powerlaw_low_below_zero_raises_value_error(self):
         with self.assertRaises(ValueError):
             utils.powerlaw(0, 3, 10, -4)
-
-    def test_powerlaw_high_below_low_raises_value_error(self):
-        with self.assertRaises(ValueError):
-            utils.powerlaw(10, 3, 10, 20)
 
 
 class TestTruncNorm(unittest.TestCase):

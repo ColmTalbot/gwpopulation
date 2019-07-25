@@ -25,12 +25,9 @@ def betaln(alpha, beta):
 
 
 def powerlaw(xx, alpha, high, low):
-    if low < 0:
+    if xp.any(low < 0):
         raise ValueError('Parameter low must be greater or equal zero, '
                          'low={}.'.format(low))
-    if high <= low:
-        raise ValueError('Parameter high must be greater than low, low={}, '
-                         'high={}.'.format(low, high))
     if alpha == -1:
         norm = 1 / xp.log(high / low)
     else:

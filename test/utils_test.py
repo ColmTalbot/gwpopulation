@@ -69,7 +69,11 @@ class TestPowerLaw(unittest.TestCase):
 
     def test_powerlaw_low_below_zero_raises_value_error(self):
         with self.assertRaises(ValueError):
-            utils.powerlaw(0, 3, 10, -4)
+            utils.powerlaw(xx=0, alpha=3, high=10, low=-4)
+
+    def test_powerlaw_alpha_equal_zero(self):
+        self.assertEqual(utils.powerlaw(xx=1.0, alpha=-1, low=0.5, high=2),
+                         1 / np.log(4))
 
 
 class TestTruncNorm(unittest.TestCase):
@@ -104,5 +108,5 @@ class TestTruncNorm(unittest.TestCase):
 
     def test_truncnorm_sigma_below_zero_raises_value_error(self):
         with self.assertRaises(ValueError):
-            utils.truncnorm(0, 0, -1, 10, -10)
+            utils.truncnorm(xx=0, mu=0, sigma=-1, high=10, low=-10)
 

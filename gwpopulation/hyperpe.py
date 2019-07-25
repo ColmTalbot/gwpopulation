@@ -14,7 +14,7 @@ from bilby.hyper.model import Model
 
 
 class HyperparameterLikelihood(Likelihood):
-    """ 
+    """
     A likelihood for inferring hyperparameter posterior distributions with
     including selection effects.
 
@@ -37,9 +37,9 @@ class HyperparameterLikelihood(Likelihood):
     max_samples: int, optional
         Maximum number of samples to use from each set.
     cupy: bool
-	If True and a compatible CUDA environment is available,
-	cupy will be used for performance.
-	Note: this requires setting up your hyper_prior properly.
+        If True and a compatible CUDA environment is available,
+        cupy will be used for performance.
+        Note: this requires setting up your hyper_prior properly.
     """
 
     def __init__(self, posteriors, hyper_prior, sampling_prior,
@@ -77,8 +77,9 @@ class HyperparameterLikelihood(Likelihood):
     def log_likelihood_ratio(self):
         self.parameters, added_keys = self.conversion_function(self.parameters)
         self.hyper_prior.parameters.update(self.parameters)
-        ln_l = xp.sum(xp.log(xp.sum(self.hyper_prior.prob(self.data) /
-                                     self.sampling_prior, axis=-1)))
+        ln_l = xp.sum(xp.log(xp.sum(
+            self.hyper_prior.prob(self.data) /
+            self.sampling_prior, axis=-1)))
         ln_l += self.samples_factor
         if added_keys is not None:
             for key in added_keys:

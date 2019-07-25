@@ -1,7 +1,7 @@
-Welcome to population!
+Welcome to the documentation for GWPopulation!
 =================================
 
-.. automodule:: population
+.. automodule:: gwpopulation
     :members:
 
 .. toctree::
@@ -9,4 +9,5 @@ Welcome to population!
    :caption: Contents:
 
    models
+   likelihood
 

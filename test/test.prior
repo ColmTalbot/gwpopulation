@@ -7,7 +7,7 @@ lam = Uniform(minimum=0, maximum=1, name='lambda', latex_label='$\\lambda$', uni
 mpp = Uniform(minimum=20, maximum=50, name='mpp', latex_label='$\\mu_{m}$', unit=None)
 sigpp = Uniform(minimum=0.4, maximum=10, name='sigpp', latex_label='$\\sigma_{m}$', unit=None)
 delta_m = Uniform(minimum=0, maximum=10, name='delta_m', latex_label='$\\delta m$', unit=None)
-xi = 0
+xi_spin = 0
 sigma_1 = 1
 sigma_2 = 1
 amax = 1

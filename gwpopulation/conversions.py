@@ -5,63 +5,47 @@ def convert_to_beta_parameters(parameters, remove=True):
     """
     Convert to parameters for standard beta distribution
     """
-    added_keys = []
-    converted_parameters = parameters.copy()
+    added_keys = list()
+    converted = parameters.copy()
 
-    for ii in [1, 2]:
-        if 'alpha_chi_{}'.format(ii) not in parameters.keys()\
-                or 'beta_chi_{}'.format(ii) not in parameters.keys():
-            if 'mu_chi_{}'.format(ii) in converted_parameters.keys():
-                if 'sigma_chi_{}'.format(ii) in converted_parameters.keys():
-                    converted_parameters['alpha_chi_{}'.format(ii)],\
-                        converted_parameters['beta_chi_{}'.format(ii)], _ =\
-                        mu_chi_var_chi_max_to_alpha_beta_max(
-                            parameters['mu_chi_{}'.format(ii)],
-                            parameters['sigma_chi_{}'.format(ii)],
-                            parameters['amax'])
-                    if remove:
-                        added_keys.append('alpha_chi_{}'.format(ii))
-                        added_keys.append('beta_chi_{}'.format(ii))
-        elif converted_parameters['alpha_chi_{}'.format(ii)] is None or\
-                converted_parameters['beta_chi_{}'.format(ii)] is None:
-            if 'mu_chi_{}'.format(ii) in converted_parameters.keys():
-                if 'sigma_chi_{}'.format(ii) in converted_parameters.keys():
-                    converted_parameters['alpha_chi_{}'.format(ii)],\
-                        converted_parameters['beta_chi_{}'.format(ii)], _ =\
-                        mu_chi_var_chi_max_to_alpha_beta_max(
-                            parameters['mu_chi_{}'.format(ii)], 
-                            parameters['sigma_chi_{}'.format(ii)],
-                            parameters['amax'])
-                    if remove:
-                        added_keys.append('alpha_chi_{}'.format(ii))
-                        added_keys.append('beta_chi_{}'.format(ii))
+    def _convert(suffix):
+        alpha = 'alpha_chi{}'.format(suffix)
+        beta = 'beta_chi{}'.format(suffix)
+        mu = 'mu_chi{}'.format(suffix)
+        sigma = 'sigma_chi{}'.format(suffix)
+        amax = 'amax{}'.format(suffix)
 
-    if 'alpha_chi' not in parameters.keys() or 'beta_chi' not in\
-            parameters.keys():
-        if 'mu_chi' in converted_parameters.keys():
-            if 'sigma_chi' in converted_parameters.keys():
-                converted_parameters['alpha_chi'],\
-                    converted_parameters['beta_chi'], _ =\
+        if alpha not in parameters.keys() or beta not in parameters.keys():
+            needed = True
+        elif converted[alpha] is None or converted[beta] is None:
+            needed = True
+        else:
+            needed = False
+            done = True
+
+        if needed:
+            if mu in converted.keys() and sigma in converted.keys():
+                done = True
+                converted[alpha], converted[beta], _ =\
                     mu_chi_var_chi_max_to_alpha_beta_max(
-                        parameters['mu_chi'], parameters['sigma_chi'],
-                        parameters['amax'])
+                        parameters[mu], parameters[sigma],
+                        parameters[amax])
                 if remove:
-                    added_keys.append('alpha_chi')
-                    added_keys.append('beta_chi')
-    elif converted_parameters['alpha_chi'] is None or\
-            converted_parameters['beta_chi'] is None:
-        if 'mu_chi' in converted_parameters.keys():
-            if 'sigma_chi' in converted_parameters.keys():
-                converted_parameters['alpha_chi'],\
-                    converted_parameters['beta_chi'], _ =\
-                    mu_chi_var_chi_max_to_alpha_beta_max(
-                        parameters['mu_chi'], parameters['sigma_chi'],
-                        parameters['amax'])
-                if remove:
-                    added_keys.append('alpha_chi')
-                    added_keys.append('beta_chi')
-    # print(converted_parameters)
-    return converted_parameters, added_keys
+                    added_keys.append(alpha)
+                    added_keys.append(beta)
+            else:
+                done = False
+        return done
+
+    done = False
+
+    for suffix in ['_1', '_2']:
+        _done = _convert(suffix)
+        done = done or _done
+    if not done:
+        _ = _convert('')
+
+    return converted, added_keys
 
 
 def alpha_beta_max_to_mu_chi_var_chi_max(alpha, beta, amax):

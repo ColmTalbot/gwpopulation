@@ -2,23 +2,25 @@ from ..cupy_utils import trapz, xp
 from ..utils import powerlaw, truncnorm
 
 
-def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
+def double_power_law_primary_mass(
+        mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
     prob = xp.zeros_like(mass)
     m_break = mmin + break_fraction * (mmax - mmin)
     correction = (
         powerlaw(m_break, alpha=-alpha_2, low=m_break, high=mmax) /
         powerlaw(m_break, alpha=-alpha_1, low=mmin, high=m_break)
     )
-    low_part = powerlaw(mass[mass < m_break], alpha=-alpha_1, low=mmin, high=m_break)
+    low_part = powerlaw(
+        mass[mass < m_break], alpha=-alpha_1, low=mmin, high=m_break)
     prob[mass < m_break] = low_part * correction
-    high_part = powerlaw(mass[mass >= m_break], alpha=-alpha_2, low=m_break, high=mmax)
+    high_part = powerlaw(
+        mass[mass >= m_break], alpha=-alpha_2, low=m_break, high=mmax)
     prob[mass >= m_break] = high_part
-    # low_part *= correction
     return prob / (1 + correction)
 
 
 def double_power_law_primary_power_law_mass_ratio(
-        dataset, alpha, beta, mmin, mmax, break_fraction):
+        dataset, alpha_1, alpha_2, beta, mmin, mmax, break_fraction):
     """
     Power law model for two-dimensional mass distribution, modelling primary
     mass and conditional mass ratio distribution.
@@ -43,7 +45,8 @@ def double_power_law_primary_power_law_mass_ratio(
         Power law exponent of the mass ratio distribution.
     """
     params = dict(mmin=mmin, mmax=mmax, break_fraction=break_fraction)
-    p_m1 = two_component_single(dataset['mass_1'], alpha=alpha, **params)
+    p_m1 = double_power_law_primary_mass(
+        dataset['mass_1'], alpha_1=alpha_1, alpha_2=alpha_2, **params)
     p_q = powerlaw(dataset['mass_ratio'], beta, 1, mmin / dataset['mass_1'])
     prob = p_m1 * p_q
     return prob

@@ -275,8 +275,7 @@ class SmoothedMassDistribution(object):
         Parameters
         ----------
         dataset: dict
-            Dictionary of numpy arrays for 'mass_1' and 'mass_2', also
-            'arg_m1s'.
+            Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
         alpha: float
             Powerlaw exponent for more massive black hole.
         beta: float

@@ -25,7 +25,7 @@ def betaln(alpha, beta):
 
 
 def powerlaw(xx, alpha, high, low):
-    if xp.any(xp.asarry(low) < 0):
+    if xp.any(xp.asarray(low) < 0):
         raise ValueError('Parameter low must be greater or equal zero, '
                          'low={}.'.format(low))
     if alpha == -1:

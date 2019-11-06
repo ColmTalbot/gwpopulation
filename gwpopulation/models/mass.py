@@ -112,6 +112,9 @@ def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
     Power law model for two-dimensional mass distribution, modelling the
     primary and secondary masses as following independent distributions.
 
+    This is identical to Eq. (2) of
+    Fishach and Holz, https://arxiv.org/abs/1905.12669
+
     p(m1, m2) = p(m1) * p(m2) : m1 >= m2
 
     Parameters

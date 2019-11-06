@@ -110,8 +110,7 @@ class HyperparameterLikelihood(Likelihood):
     def log_likelihood_ratio(self):
         self.parameters, added_keys = self.conversion_function(self.parameters)
         self.hyper_prior.parameters.update(self.parameters)
-        ln_l = xp.sum(xp.log(xp.sum(self.hyper_prior.prob(self.data) /
-                                    self.sampling_prior, axis=-1)))
+        ln_l = xp.sum(self._compute_per_event_ln_bayes_factors())
         ln_l += self._get_selection_factor()
         ln_l += self.samples_factor
         if added_keys is not None:
@@ -124,6 +123,10 @@ class HyperparameterLikelihood(Likelihood):
 
     def log_likelihood(self):
         return self.noise_log_likelihood() + self.log_likelihood_ratio()
+
+    def _compute_per_event_ln_bayes_factors(self):
+        return xp.log(xp.sum(self.hyper_prior.prob(self.data) /
+                             self.sampling_prior, axis=-1))
 
     def _get_selection_factor(self):
         return - self.n_posteriors * xp.log(
@@ -148,8 +151,7 @@ class HyperparameterLikelihood(Likelihood):
         self.parameters.update(sample.copy())
         self.parameters, added_keys = self.conversion_function(self.parameters)
         self.hyper_prior.parameters.update(self.parameters)
-        ln_ls = xp.log(xp.sum(self.hyper_prior.prob(self.data) /
-                              self.sampling_prior, axis=-1))
+        ln_ls = self._compute_per_event_ln_bayes_factors()
         for ii in range(self.n_posteriors):
             sample["ln_bf_{}".format(ii)] = float(ln_ls[ii])
         sample["selection"] = float(self.selection_function(self.parameters))

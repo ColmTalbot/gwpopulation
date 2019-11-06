@@ -141,13 +141,15 @@ class Likelihoods(unittest.TestCase):
         like = HyperparameterLikelihood(
             posteriors=self.data, hyper_prior=self.model,
             selection_function=self.selection_function,
+            conversion_function=self.conversion_function,
             ln_evidences=self.ln_evidences)
+        self.params['bar'] = None
         new_params = like.generate_extra_statistics(sample=self.params.copy())
         expected = {
             'a': 1, 'b': 1, 'c': 1,
             'ln_bf_0': 6.214608098422191, 'ln_bf_1': 6.214608098422191,
             'ln_bf_2': 6.214608098422191, 'ln_bf_3': 6.214608098422191,
-            'ln_bf_4': 6.214608098422191, 'selection': 2.0
+            'ln_bf_4': 6.214608098422191, 'selection': 2.0, 'bar': None
         }
         self.assertDictEqual(expected, new_params)
 

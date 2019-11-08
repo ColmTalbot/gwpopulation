@@ -209,6 +209,26 @@ Note: this requires setting up your hyper_prior properly.</p>
 </dd>
 </dl>
 <dl class="method">
+<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.generate_extra_statistics">
+<code class="sig-name descname">generate_extra_statistics</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">sample</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.generate_extra_statistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an input sample, add extra statistics</p>
+<p>Adds the ln BF for each of the events in the data and the selection
+function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sample: dict</strong></dt><dd><p>Input sample to compute the extra things for.</p>
+</dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>sample: dict</strong></dt><dd><p>The input dict, modified in place.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood">
 <code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">

@@ -1,6 +1,8 @@
 from __future__ import division, print_function
 
 import numpy as np
+import pandas as pd
+from tqdm import tqdm
 
 from bilby.core.utils import logger
 from bilby.core.likelihood import Likelihood
@@ -194,6 +196,50 @@ class HyperparameterLikelihood(Likelihood):
             data[key] = xp.array(data[key])
         return data
 
+    def posterior_predictive_resample(self, samples):
+        """
+        Resample the original single event posteriors to use the PPD from each
+        of the other events as the prior.
+
+        There may be something weird going on with rate.
+
+        Parameters
+        ----------
+        samples: pd.DataFrame, dict, list
+            The samples to do the weighting over, typically the posterior from
+            some run.
+        Returns
+        -------
+        new_samples: dict
+            Dictionary containing the weighted posterior samples for each of
+            the events.
+        """
+        if isinstance(samples, pd.DataFrame):
+            samples = [dict(samples.iloc[ii]) for ii in range(len(samples))]
+        elif isinstance(samples, dict):
+            samples = [samples]
+        weights = xp.ones((self.n_posteriors, self.samples_per_posterior))
+        for sample in tqdm(samples):
+            self.parameters.update(sample.copy())
+            self.parameters, added_keys = self.conversion_function(self.parameters)
+            new_weights = self.hyper_prior.prob(self.data) / self.sampling_prior
+            weights += new_weights / xp.sum(new_weights, axis=-1)
+            if added_keys is not None:
+                for key in added_keys:
+                    self.parameters.pop(key)
+        weights /= xp.sum(weights, axis=-1)
+        new_idxs = xp.asarray([
+            xp.random.choice(
+                range(self.samples_per_posterior),
+                size=self.samples_per_posterior,
+                replace=True, p=weights[ii]
+            ) for ii in range(self.n_posteriors)
+        ])
+        new_samples = {
+            key: self.data[key].sample(weights=new_idxs) for key in self.data
+        }
+        return new_samples
+
 
 class RateLikelihood(HyperparameterLikelihood):
     """
@@ -207,3 +253,6 @@ class RateLikelihood(HyperparameterLikelihood):
             self.parameters['rate']
         ln_l += self.n_posteriors * xp.log(self.parameters['rate'])
         return ln_l
+
+    def generate_rate_posterior_sample(self):
+        pass

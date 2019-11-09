@@ -1,4 +1,6 @@
 numpy
 scipy
+pandas
+tqdm
 astropy
 bilby

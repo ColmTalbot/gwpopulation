@@ -247,7 +247,7 @@ class HyperparameterLikelihood(Likelihood):
         event_weights = list(event_weights)
         logger.info(
             "Resampling done, sum of weights for events are {}".format(
-                " ".join(event_weights))
+                " ".join(["{:.1f}".format(float(weight)) for weight in event_weights]))
         )
         return new_samples
 

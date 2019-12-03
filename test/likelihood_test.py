@@ -10,6 +10,8 @@ try:
 except ImportError:
     xp = np
 
+from bilby.core.prior import PriorDict, Uniform
+
 from gwpopulation.hyperpe import HyperparameterLikelihood, RateLikelihood
 
 
@@ -160,3 +162,18 @@ class Likelihoods(unittest.TestCase):
             ln_evidences=self.ln_evidences)
         with self.assertRaises(NotImplementedError):
             like.generate_rate_posterior_sample()
+
+    def test_resampling_posteriors(self):
+        priors = PriorDict(dict(
+            a=Uniform(0, 2),
+            b=Uniform(0, 2),
+            c=Uniform(0, 2)
+        ))
+        samples = priors.sample(100)
+        like = HyperparameterLikelihood(
+            posteriors=self.data, hyper_prior=self.model,
+            selection_function=self.selection_function,
+            ln_evidences=self.ln_evidences)
+        new_samples = like.posterior_predictive_resample(samples=samples)
+        for key in new_samples:
+            self.assertEqual(new_samples[key].shape, like.data[key].shape)

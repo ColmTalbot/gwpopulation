@@ -19,8 +19,8 @@ class Likelihoods(unittest.TestCase):
 
     def setUp(self):
         self.params = dict(a=1, b=1, c=1)
-        self.model = lambda x, a, b, c: x['a']
-        self.sampling_prior = lambda x: 1
+        self.model = lambda dataset, a, b, c: dataset['a']
+        self.sampling_prior = lambda dataset: 1
         one_data = pd.DataFrame({key: xp.ones(500) for key in self.params})
         self.data = [one_data] * 5
         self.ln_evidences = [0] * 5
@@ -41,7 +41,7 @@ class Likelihoods(unittest.TestCase):
     def test_likelihood_pass_sampling_prior_works(self):
         like = HyperparameterLikelihood(
             posteriors=self.data, hyper_prior=self.model,
-            sampling_prior=lambda x: 5)
+            sampling_prior=lambda dataset: 5)
         self.assertEqual(like.sampling_prior, 5)
 
     def test_prior_in_posteriors(self):

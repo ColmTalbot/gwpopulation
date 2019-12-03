@@ -157,13 +157,13 @@
 /* CSS overrides for sphinx_rtd_theme */
 
 /* 24px margin */
-.nbinput.nblast,
-.nboutput.nblast {
+.nbinput.nblast.container,
+.nboutput.nblast.container {
     margin-bottom: 19px;  /* padding has already 5px */
 }
 
 /* ... except between code cells! */
-.nblast + .nbinput {
+.nblast.container + .nbinput.container {
     margin-top: -19px;
 }
 
@@ -260,6 +260,28 @@ function</p>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><dl class="simple">
 <dt>float</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample">
+<code class="sig-name descname">posterior_predictive_resample</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">samples</em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resample the original single event posteriors to use the PPD from each
+of the other events as the prior.</p>
+<p>There may be something weird going on with rate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>samples: pd.DataFrame, dict, list</strong></dt><dd><p>The samples to do the weighting over, typically the posterior from
+some run.</p>
+</dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>new_samples: dict</strong></dt><dd><p>Dictionary containing the weighted posterior samples for each of
+the events.</p>
+</dd>
 </dl>
 </dd>
 </dl>

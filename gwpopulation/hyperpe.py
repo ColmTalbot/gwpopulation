@@ -222,8 +222,12 @@ class HyperparameterLikelihood(Likelihood):
         event_weights = xp.zeros(self.n_posteriors)
         for sample in tqdm(samples):
             self.parameters.update(sample.copy())
-            self.parameters, added_keys = self.conversion_function(self.parameters)
-            new_weights = self.hyper_prior.prob(self.data) / self.sampling_prior
+            self.parameters, added_keys = self.conversion_function(
+                self.parameters
+            )
+            new_weights = (
+                    self.hyper_prior.prob(self.data) / self.sampling_prior
+            )
             event_weights += xp.mean(new_weights, axis=-1)
             new_weights = (new_weights.T / xp.sum(new_weights, axis=-1)).T
             weights += new_weights
@@ -240,14 +244,19 @@ class HyperparameterLikelihood(Likelihood):
             ))
         new_samples = {
             key: xp.vstack([
-                self.data[key][ii, new_idxs[ii]] for ii in range(self.n_posteriors)
+                self.data[key][ii, new_idxs[ii]]
+                for ii in range(self.n_posteriors)
             ])
             for key in self.data
         }
         event_weights = list(event_weights)
         logger.info(
             "Resampling done, sum of weights for events are {}".format(
-                " ".join(["{:.1f}".format(float(weight)) for weight in event_weights]))
+                " ".join([
+                    "{:.1f}".format(float(weight))
+                    for weight in event_weights
+                ])
+            )
         )
         return new_samples
 

@@ -1,12 +1,14 @@
 from __future__ import division, print_function
 
 import numpy as np
+import pandas as pd
+from tqdm import tqdm
 
 from bilby.core.utils import logger
 from bilby.core.likelihood import Likelihood
 from bilby.hyper.model import Model
 
-from .cupy_utils import CUPY_LOADED, xp
+from .cupy_utils import CUPY_LOADED, to_numpy, xp
 
 
 class HyperparameterLikelihood(Likelihood):
@@ -194,6 +196,70 @@ class HyperparameterLikelihood(Likelihood):
             data[key] = xp.array(data[key])
         return data
 
+    def posterior_predictive_resample(self, samples):
+        """
+        Resample the original single event posteriors to use the PPD from each
+        of the other events as the prior.
+
+        There may be something weird going on with rate.
+
+        Parameters
+        ----------
+        samples: pd.DataFrame, dict, list
+            The samples to do the weighting over, typically the posterior from
+            some run.
+        Returns
+        -------
+        new_samples: dict
+            Dictionary containing the weighted posterior samples for each of
+            the events.
+        """
+        if isinstance(samples, pd.DataFrame):
+            samples = [dict(samples.iloc[ii]) for ii in range(len(samples))]
+        elif isinstance(samples, dict):
+            samples = [samples]
+        weights = xp.zeros((self.n_posteriors, self.samples_per_posterior))
+        event_weights = xp.zeros(self.n_posteriors)
+        for sample in tqdm(samples):
+            self.parameters.update(sample.copy())
+            self.parameters, added_keys = self.conversion_function(
+                self.parameters
+            )
+            new_weights = (
+                    self.hyper_prior.prob(self.data) / self.sampling_prior
+            )
+            event_weights += xp.mean(new_weights, axis=-1)
+            new_weights = (new_weights.T / xp.sum(new_weights, axis=-1)).T
+            weights += new_weights
+            if added_keys is not None:
+                for key in added_keys:
+                    self.parameters.pop(key)
+        weights = (weights.T / xp.sum(weights, axis=-1)).T
+        new_idxs = xp.empty_like(weights, dtype=int)
+        for ii in range(self.n_posteriors):
+            new_idxs[ii] = xp.asarray(np.random.choice(
+                range(self.samples_per_posterior),
+                size=self.samples_per_posterior,
+                replace=True, p=to_numpy(weights[ii])
+            ))
+        new_samples = {
+            key: xp.vstack([
+                self.data[key][ii, new_idxs[ii]]
+                for ii in range(self.n_posteriors)
+            ])
+            for key in self.data
+        }
+        event_weights = list(event_weights)
+        logger.info(
+            "Resampling done, sum of weights for events are {}".format(
+                " ".join([
+                    "{:.1f}".format(float(weight))
+                    for weight in event_weights
+                ])
+            )
+        )
+        return new_samples
+
 
 class RateLikelihood(HyperparameterLikelihood):
     """
@@ -207,3 +273,6 @@ class RateLikelihood(HyperparameterLikelihood):
             self.parameters['rate']
         ln_l += self.n_posteriors * xp.log(self.parameters['rate'])
         return ln_l
+
+    def generate_rate_posterior_sample(self):
+        pass

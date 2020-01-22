@@ -37,7 +37,7 @@ class TestSpinOrientation(unittest.TestCase):
     def test_iid_matches_independent_tilts(self):
         iid_params = dict(xi_spin=0.5, sigma_spin=0.5)
         ind_params = dict(xi_spin=0.5, sigma_1=0.5, sigma_2=0.5)
-        self.assertEquals(0.0, xp.max(
+        self.assertEqual(0.0, xp.max(
             spin.iid_spin_orientation_gaussian_isotropic(
                 self.test_data, **iid_params) -
             spin.independent_spin_orientation_gaussian_isotropic(
@@ -76,7 +76,7 @@ class TestSpinMagnitude(unittest.TestCase):
         parameters = self.prior.sample()
         for key in ['alpha_chi', 'beta_chi']:
             parameters[key] = -1
-            self.assertEquals(
+            self.assertEqual(
                 spin.iid_spin_magnitude_beta(
                     self.test_data, **parameters), 0)
 
@@ -85,7 +85,7 @@ class TestSpinMagnitude(unittest.TestCase):
         ind_params = dict()
         ind_params.update({key + '_1': iid_params[key] for key in iid_params})
         ind_params.update({key + '_2': iid_params[key] for key in iid_params})
-        self.assertEquals(0.0, xp.max(
+        self.assertEqual(0.0, xp.max(
             spin.iid_spin_magnitude_beta(self.test_data, **iid_params) -
             spin.independent_spin_magnitude_beta(
                 self.test_data, **ind_params)))
@@ -112,7 +112,7 @@ class TestIIDSpin(unittest.TestCase):
         params = self.prior.sample()
         mag_params = {key: params[key] for key in ['amax', 'alpha_chi', 'beta_chi']}
         tilt_params = {key: params[key] for key in ['xi_spin', 'sigma_spin']}
-        self.assertEquals(0.0, xp.max(
+        self.assertEqual(0.0, xp.max(
             spin.iid_spin(self.test_data, **params) -
             spin.iid_spin_magnitude_beta(self.test_data, **mag_params) *
             spin.iid_spin_orientation_gaussian_isotropic(

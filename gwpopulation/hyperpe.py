@@ -1,5 +1,3 @@
-from __future__ import division, print_function
-
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -54,8 +52,9 @@ class HyperparameterLikelihood(Likelihood):
             values.
         hyper_prior: `bilby.hyper.model.Model`
             The population model, this can alternatively be a function.
-        sampling_prior: `bilby.hyper.model.Model` *DEPRECATED*
+        sampling_prior: array-like *DEPRECATED*
             The sampling prior, this can alternatively be a function.
+            THIS WILL BE REMOVED IN THE NEXT RELEASE.
         ln_evidences: list, optional
             Log evidences for single runs to ensure proper normalisation
             of the hyperparameter likelihood. If not provided, the original
@@ -86,11 +85,11 @@ class HyperparameterLikelihood(Likelihood):
         Likelihood.__init__(self, hyper_prior.parameters)
 
         if sampling_prior is not None:
-            logger.warning('Passing a sampling_prior is deprecated. This '
-                           'should be passed as a column in the posteriors.')
-            if not isinstance(sampling_prior, Model):
-                sampling_prior = Model([sampling_prior])
-            self.sampling_prior = sampling_prior.prob(self.data)
+            raise ValueError(
+                "Passing a sampling_prior is deprecated and will be removed "
+                "in the next release. This should be passed as a 'prior' "
+                "column in the posteriors."
+            )
         elif 'prior' in self.data:
             self.sampling_prior = self.data.pop('prior')
         else:
@@ -153,7 +152,7 @@ class HyperparameterLikelihood(Likelihood):
         self.hyper_prior.parameters.update(self.parameters)
         ln_ls = self._compute_per_event_ln_bayes_factors()
         for ii in range(self.n_posteriors):
-            sample["ln_bf_{}".format(ii)] = float(ln_ls[ii])
+            sample[f"ln_bf_{ii}"] = float(ln_ls[ii])
         sample["selection"] = float(self.selection_function(self.parameters))
         if added_keys is not None:
             for key in added_keys:
@@ -183,8 +182,7 @@ class HyperparameterLikelihood(Likelihood):
         for posterior in posteriors:
             max_samples = min(len(posterior), max_samples)
         data = {key: [] for key in posteriors[0]}
-        logger.debug('Downsampling to {} samples per posterior.'.format(
-            max_samples))
+        logger.debug(f'Downsampling to {max_samples} samples per posterior.')
         self.samples_per_posterior = max_samples
         for posterior in posteriors:
             temp = posterior.sample(self.samples_per_posterior)
@@ -248,13 +246,11 @@ class HyperparameterLikelihood(Likelihood):
             for key in self.data
         }
         event_weights = list(event_weights)
+        weight_string = " ".join(
+            [f"{float(weight):.1f}"for weight in event_weights]
+        )
         logger.info(
-            "Resampling done, sum of weights for events are {}".format(
-                " ".join([
-                    "{:.1f}".format(float(weight))
-                    for weight in event_weights
-                ])
-            )
+            f"Resampling done, sum of weights for events are {weight_string}"
         )
         return new_samples
 

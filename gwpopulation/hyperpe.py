@@ -41,14 +41,14 @@ class HyperparameterLikelihood(Likelihood):
     """
 
     def __init__(self, posteriors, hyper_prior, sampling_prior=None,
-                 ln_evidences=None, max_samples=1e100,
-                 selection_function=lambda args: 1,
+                 ln_evidences=None, max_samples=1e100, pastro=None,
+                 fiducial_vt=None, selection_function=lambda args: 1,
                  conversion_function=lambda args: (args, None), cupy=True):
         """
         Parameters
         ----------
         posteriors: list
-            An list of pandas data frames of samples sets of samples.
+            A list of pandas data frames of samples sets of samples.
             Each set may have a different size.
             These can contain a `prior` column containing the original prior
             values.
@@ -61,6 +61,11 @@ class HyperparameterLikelihood(Likelihood):
             of the hyperparameter likelihood. If not provided, the original
             evidences will be set to 0. This produces a Bayes factor between
             the sampling power_prior and the hyperparameterised model.
+        pastro: array
+            An array of pastro values corresponding to the event posteriors
+        fiducial_vt: float
+            The visible spacetime volume described by the fiducial model
+            used to calculate pastro.
         selection_function: func
             Function which evaluates your population selection function.
         conversion_function: func
@@ -108,6 +113,19 @@ class HyperparameterLikelihood(Likelihood):
         self.n_posteriors = len(posteriors)
         self.samples_factor =\
             - self.n_posteriors * np.log(self.samples_per_posterior)
+
+        if pastro is not None:
+            if fiducial_vt is not None:
+                logger.info('Fiducial VT set to {}'.format(fiducial_vt))
+                self.fiducial_vt = fiducial_vt 
+            else:
+                logger.info('No fiducial VT provided, defaulting to 0.005')
+                self.fiducial_vt = 0.005
+            if len(pastro) != len(posteriors):
+                raise ValueError(
+                    'Number of pastro values provided are not
+                    equal to the number of posteriors')
+            self.pastro = pastro
 
     def log_likelihood_ratio(self):
         self.parameters, added_keys = self.conversion_function(self.parameters)
@@ -276,3 +294,40 @@ class RateLikelihood(HyperparameterLikelihood):
 
     def generate_rate_posterior_sample(self):
         pass
+
+class PastroLikelihood(HyperparameterLikelihood):
+    """
+    A mixture model likelihood which utlises p_astro for the effective
+    noise likelihood.
+    This likelihood is marginalised over rate.
+
+    See Eq. (40) of https://arxiv.org/abs/1912.09708 for a definition.
+    """
+    def log_likelihood_ratio(self):
+        self.parameters, added_keys = self.conversion_function(self.parameters)
+        self.hyper_prior.parameters.update(self.parameters)
+        ln_l1 = self._compute_per_event_ln_bayes_factors()
+        ln_l1 += self._get_selection_factor
+        ln_l1 += self._get_fiducial_vt_factor()
+
+        if added_keys is not None:
+            for key in added_keys:
+                self.parameters.pop(key)
+
+        ln_l2 = self._get_pastro_factor
+        ln_l2 = xp.nan_to_num(ln_l2)
+
+        ln_l = xp.sum(xp.logaddexp(ln_l1,ln_l2))
+        ln_l += 0.5 * self._get_selection_factor()
+
+        return float(xp.nan_to_num(ln_l))
+
+    def _get_selection_factor(self):
+        return - xp.log(
+            self.selection_function(self.parameters))
+
+    def _get_pastro_factor(self):
+        return xp.log()
+
+    def _get_fiducial_vt_factor(self):
+        return xp.log(self.fiducial_vt)

@@ -115,14 +115,13 @@ class HyperparameterLikelihood(Likelihood):
         if pastro is not None:
             if fiducial_vt is not None:
                 logger.info('Fiducial VT set to {}'.format(fiducial_vt))
-                self.fiducial_vt = fiducial_vt 
+                self.fiducial_vt = fiducial_vt
             else:
                 logger.info('No fiducial VT provided, defaulting to 0.005')
                 self.fiducial_vt = 0.005
             if len(pastro) != len(posteriors):
-                raise ValueError(
-                    'Number of pastro values provided are not
-                    equal to the number of posteriors')
+                raise ValueError('Number of pastro values provided are not '
+                                 'equal to the number of posteriors.')
             self.pastro = pastro
 
     def log_likelihood_ratio(self):
@@ -293,6 +292,7 @@ class RateLikelihood(HyperparameterLikelihood):
     def generate_rate_posterior_sample(self):
         pass
 
+
 class PastroLikelihood(HyperparameterLikelihood):
     """
     A mixture model likelihood which utlises p_astro for the effective
@@ -315,7 +315,7 @@ class PastroLikelihood(HyperparameterLikelihood):
         ln_l2 = self._get_pastro_factor
         ln_l2 = xp.nan_to_num(ln_l2)
 
-        ln_l = xp.sum(xp.logaddexp(ln_l1,ln_l2))
+        ln_l = xp.sum(xp.logaddexp(ln_l1, ln_l2))
         ln_l += 0.5 * self._get_selection_factor()
 
         return float(xp.nan_to_num(ln_l))

@@ -111,8 +111,6 @@ class HyperparameterLikelihood(Likelihood):
         self.selection_function = selection_function
 
         self.n_posteriors = len(posteriors)
-        self.samples_factor =\
-            - self.n_posteriors * np.log(self.samples_per_posterior)
 
         if pastro is not None:
             if fiducial_vt is not None:
@@ -132,7 +130,6 @@ class HyperparameterLikelihood(Likelihood):
         self.hyper_prior.parameters.update(self.parameters)
         ln_l = xp.sum(self._compute_per_event_ln_bayes_factors())
         ln_l += self._get_selection_factor()
-        ln_l += self.samples_factor
         if added_keys is not None:
             for key in added_keys:
                 self.parameters.pop(key)
@@ -145,8 +142,9 @@ class HyperparameterLikelihood(Likelihood):
         return self.noise_log_likelihood() + self.log_likelihood_ratio()
 
     def _compute_per_event_ln_bayes_factors(self):
-        return xp.log(xp.sum(self.hyper_prior.prob(self.data) /
-                             self.sampling_prior, axis=-1))
+        return - np.log(self.samples_per_posterior) + xp.log(
+            xp.sum(self.hyper_prior.prob(self.data) /
+                   self.sampling_prior, axis=-1))
 
     def _get_selection_factor(self):
         return - self.n_posteriors * xp.log(
@@ -244,7 +242,7 @@ class HyperparameterLikelihood(Likelihood):
                 self.parameters
             )
             new_weights = (
-                    self.hyper_prior.prob(self.data) / self.sampling_prior
+                self.hyper_prior.prob(self.data) / self.sampling_prior
             )
             event_weights += xp.mean(new_weights, axis=-1)
             new_weights = (new_weights.T / xp.sum(new_weights, axis=-1)).T

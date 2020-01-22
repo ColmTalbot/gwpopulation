@@ -60,23 +60,24 @@ VERSION = '0.5.0'
 version_file = write_version_file(VERSION)
 long_description = get_long_description()
 
-setup(name='gwpopulation',
-      description='Unified population inference',
-      long_description=long_description,
-      url='https://github.com/ColmTalbot/gwpopulation',
-      author='Colm Talbot',
-      author_email='colm.talbot@monash.edu',
-      license="MIT",
-      version=VERSION,
-      packages=find_packages(exclude=["test", "venv", "priors"]),
-      package_dir={'gwpopulation': 'gwpopulation'},
-      package_data={'gwpopulation': [version_file]},
-      install_requires=['future', 'numpy', 'scipy', 'astropy', 'bilby'],
-      classifiers=[
-          "Programming Language :: Python :: 2.7",
-          "Programming Language :: Python :: 3.6",
-          "Programming Language :: Python :: 3.7",
-          "License :: OSI Approved :: MIT License",
-          "Operating System :: OS Independent"],
-      python_requires=">=3.6"
+setup(
+    name='gwpopulation',
+    description='Unified population inference',
+    long_description=long_description,
+    url='https://github.com/ColmTalbot/gwpopulation',
+    author='Colm Talbot',
+    author_email='colm.talbot@monash.edu',
+    license="MIT",
+    version=VERSION,
+    packages=find_packages(exclude=["test", "venv", "priors"]),
+    package_dir={'gwpopulation': 'gwpopulation'},
+    package_data={'gwpopulation': [version_file]},
+    install_requires=['future', 'numpy', 'scipy', 'astropy', 'bilby'],
+    classifiers=[
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent"],
+    python_requires=">=3.6"
 )

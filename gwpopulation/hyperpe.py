@@ -86,9 +86,9 @@ class HyperparameterLikelihood(Likelihood):
 
         if sampling_prior is not None:
             raise ValueError(
-                "Passing a sampling_prior is deprecated and will be removed in "
-                "the next release. This should be passed as a 'prior' column "
-                "in the posteriors."
+                "Passing a sampling_prior is deprecated and will be removed "
+                "in the next release. This should be passed as a 'prior' "
+                "column in the posteriors."
             )
         elif 'prior' in self.data:
             self.sampling_prior = self.data.pop('prior')

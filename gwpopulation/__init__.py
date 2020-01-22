@@ -14,7 +14,31 @@ This includes:
 
 The code is hosted as github.com/ColmTalbot/gwpopulation.
 """
+import sys
 
+if sys.version_info < (3,):  # noqa
+    raise ImportError(
+        """You are running GWPopulation 0.5.0 or higher on Python 2
+
+GWPopulation 0.5.0 and above are no longer compatible with Python 2, and you
+still ended up with this version installed. That's unfortunate; sorry about
+that. It should not have happened. Make sure you have pip >= 9.0 to avoid this
+kind of issue, as well as setuptools >= 24.2:
+
+ $ pip install pip setuptools --upgrade
+
+Your choices:
+
+- Upgrade to Python 3.
+
+- Install an older version of GWPopulation:
+
+ $ pip install 'gwpopulation<0.5.0'
+
+It would be great if you can figure out how this version ended up being
+installed, and try to check how to prevent that for future users.
+
+""")
 
 from .hyperpe import RateLikelihood
 from . import conversions, cupy_utils, hyperpe, models, utils, vt

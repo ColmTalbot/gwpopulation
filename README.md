@@ -15,3 +15,6 @@ Most of the models implemented are derived from models presented in one of:
 - [Fishbach et al. (2019)](https://arxiv.org/abs/1805.10270)
 
 Automatically generated docs can be found [here](https://colmtalbot.github.io/gwpopulation/).
+
+As of v0.5.0 `GWPopulation` supports only `python >= 3.6`.
+See [the python 3 statement](https://python3statement.org/) for more information.

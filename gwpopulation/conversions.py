@@ -1,6 +1,3 @@
-from __future__ import division
-
-
 def convert_to_beta_parameters(parameters, remove=True):
     """
     Convert to parameters for standard beta distribution
@@ -9,11 +6,11 @@ def convert_to_beta_parameters(parameters, remove=True):
     converted = parameters.copy()
 
     def _convert(suffix):
-        alpha = 'alpha_chi{}'.format(suffix)
-        beta = 'beta_chi{}'.format(suffix)
-        mu = 'mu_chi{}'.format(suffix)
-        sigma = 'sigma_chi{}'.format(suffix)
-        amax = 'amax{}'.format(suffix)
+        alpha = f'alpha_chi{suffix}'
+        beta = f'beta_chi{suffix}'
+        mu = f'mu_chi{suffix}'
+        sigma = f'sigma_chi{suffix}'
+        amax = f'amax{suffix}'
 
         if alpha not in parameters.keys() or beta not in parameters.keys():
             needed = True

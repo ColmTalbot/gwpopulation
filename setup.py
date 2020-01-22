@@ -30,14 +30,13 @@ def write_version_file(version):
         else:
             git_status = '(UNCLEAN) ' + git_log
     except Exception as e:
-        print("Unable to obtain git version information, exception: {}"
-              .format(e))
+        print(f"Unable to obtain git version information, exception: {e}")
         git_status = ''
 
     version_file = '.version'
     if os.path.isfile(version_file) is False:
         with open('gwpopulation/' + version_file, 'w+') as f:
-            f.write('{}: {}'.format(version, git_status))
+            f.write(f'{version}: {git_status}')
 
     return version_file
 
@@ -57,7 +56,7 @@ def readfile(filename):
     return filecontents
 
 
-VERSION = '0.4.1'
+VERSION = '0.5.0'
 version_file = write_version_file(VERSION)
 long_description = get_long_description()
 
@@ -78,4 +77,6 @@ setup(name='gwpopulation',
           "Programming Language :: Python :: 3.6",
           "Programming Language :: Python :: 3.7",
           "License :: OSI Approved :: MIT License",
-          "Operating System :: OS Independent"])
+          "Operating System :: OS Independent"],
+      python_requires=">=3.6"
+)

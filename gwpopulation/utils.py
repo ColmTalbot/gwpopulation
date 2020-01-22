@@ -5,11 +5,13 @@ from .cupy_utils import erf, gammaln, xp
 
 def beta_dist(xx, alpha, beta, scale=1):
     if alpha < 0:
-        raise ValueError('Parameter alpha must be greater or equal zero, '
-                         'low={}.'.format(alpha))
+        raise ValueError(
+            f'Parameter alpha must be greater or equal zero, low={alpha}.'
+        )
     if beta < 0:
-        raise ValueError('Parameter beta must be greater or equal zero, '
-                         'low={}.'.format(beta))
+        raise ValueError(
+            f'Parameter beta must be greater or equal zero, low={beta}.'
+        )
     ln_beta = (alpha - 1) * xp.log(xx) + (beta - 1) * xp.log(scale - xx)
     ln_beta -= betaln(alpha, beta)
     ln_beta -= (alpha + beta - 1) * xp.log(scale)
@@ -26,8 +28,9 @@ def betaln(alpha, beta):
 
 def powerlaw(xx, alpha, high, low):
     if xp.any(xp.asarray(low) < 0):
-        raise ValueError('Parameter low must be greater or equal zero, '
-                         'low={}.'.format(low))
+        raise ValueError(
+            f'Parameter low must be greater or equal zero, low={low}.'
+        )
     if alpha == -1:
         norm = 1 / xp.log(high / low)
     else:
@@ -40,8 +43,7 @@ def powerlaw(xx, alpha, high, low):
 
 def truncnorm(xx, mu, sigma, high, low):
     if sigma <= 0:
-        raise ValueError(
-            'Sigma must be greater than 0, sigma={}'.format(sigma))
+        raise ValueError(f'Sigma must be greater than 0, sigma={sigma}')
     norm = 2**0.5 / xp.pi**0.5 / sigma
     norm /= erf((high - mu) / 2**0.5 / sigma) + erf((mu - low) / 2**0.5 / sigma)
     prob = xp.exp(-xp.power(xx - mu, 2) / (2 * sigma**2))

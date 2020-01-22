@@ -305,7 +305,7 @@ class PastroLikelihood(HyperparameterLikelihood):
         self.parameters, added_keys = self.conversion_function(self.parameters)
         self.hyper_prior.parameters.update(self.parameters)
         ln_l1 = self._compute_per_event_ln_bayes_factors()
-        ln_l1 += self._get_selection_factor
+        ln_l1 += self._get_selection_factor()
         ln_l1 += self._get_fiducial_vt_factor()
 
         if added_keys is not None:

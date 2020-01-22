@@ -325,7 +325,8 @@ class PastroLikelihood(HyperparameterLikelihood):
             self.selection_function(self.parameters))
 
     def _get_pastro_factor(self):
-        return xp.log()
+        pastro_factor = (1.0 - self.pastro)/self.pastro
+        return xp.log(pastro_factor)
 
     def _get_fiducial_vt_factor(self):
         return xp.log(self.fiducial_vt)

@@ -149,9 +149,9 @@ class Likelihoods(unittest.TestCase):
         new_params = like.generate_extra_statistics(sample=self.params.copy())
         expected = {
             'a': 1, 'b': 1, 'c': 1,
-            'ln_bf_0': 6.214608098422191, 'ln_bf_1': 6.214608098422191,
-            'ln_bf_2': 6.214608098422191, 'ln_bf_3': 6.214608098422191,
-            'ln_bf_4': 6.214608098422191, 'selection': 2.0, 'bar': None
+            'ln_bf_0': 0.0, 'ln_bf_1': 0.0,
+            'ln_bf_2': 0.0, 'ln_bf_3': 0.0,
+            'ln_bf_4': 0.0, 'selection': 2.0, 'bar': None
         }
         self.assertDictEqual(expected, new_params)
 

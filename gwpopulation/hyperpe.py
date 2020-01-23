@@ -61,9 +61,6 @@ class HyperparameterLikelihood(Likelihood):
             of the hyperparameter likelihood. If not provided, the original
             evidences will be set to 0. This produces a Bayes factor between
             the sampling power_prior and the hyperparameterised model.
-        fiducial_selection: float
-            The visible spacetime volume described by the fiducial model
-            determined by the sampling prior distribution.
         selection_function: func
             Function which evaluates your population selection function.
         conversion_function: func

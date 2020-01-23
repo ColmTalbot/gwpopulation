@@ -42,7 +42,7 @@ class HyperparameterLikelihood(Likelihood):
 
     def __init__(self, posteriors, hyper_prior, sampling_prior=None,
                  ln_evidences=None, max_samples=1e100, pastro=None,
-                 fiducial_vt=None, selection_function=lambda args: 1,
+                 fiducial_selection=None, selection_function=lambda args: 1,
                  conversion_function=lambda args: (args, None), cupy=True):
         """
         Parameters
@@ -63,7 +63,7 @@ class HyperparameterLikelihood(Likelihood):
             the sampling power_prior and the hyperparameterised model.
         pastro: array
             An array of pastro values corresponding to the event posteriors
-        fiducial_vt: float
+        fiducial_selection: float
             The visible spacetime volume described by the fiducial model
             used to calculate pastro.
         selection_function: func
@@ -113,12 +113,12 @@ class HyperparameterLikelihood(Likelihood):
         self.n_posteriors = len(posteriors)
 
         if pastro is not None:
-            if fiducial_vt is not None:
-                logger.info('Fiducial VT set to {}'.format(fiducial_vt))
-                self.fiducial_vt = fiducial_vt
+            if fiducial_selection is not None:
+                logger.info('Fiducial VT set to {}'.format(fiducial_selection))
+                self.fiducial_selection = fiducial_selection
             else:
                 logger.info('No fiducial VT provided, defaulting to 0.005')
-                self.fiducial_vt = 0.005
+                self.fiducial_selection = 0.005
             if len(pastro) != len(posteriors):
                 raise ValueError('Number of pastro values provided are not '
                                  'equal to the number of posteriors.')
@@ -301,12 +301,18 @@ class PastroLikelihood(HyperparameterLikelihood):
 
     See Eq. (40) of https://arxiv.org/abs/1912.09708 for a definition.
     """
+    def __init__(self, posteriors, hyper_prior, sampling_prior=None,
+                 ln_evidences=None, max_samples=1e100, pastro=None,
+                 fiducial_selection=None, selection_function=lambda args: 1,
+                 conversion_function=lambda args: (args, None), cupy=True):
+
+
     def log_likelihood_ratio(self):
         self.parameters, added_keys = self.conversion_function(self.parameters)
         self.hyper_prior.parameters.update(self.parameters)
         ln_l1 = self._compute_per_event_ln_bayes_factors()
         ln_l1 += self._get_selection_factor()
-        ln_l1 += self._get_fiducial_vt_factor()
+        ln_l1 += self._get_fiducial_selection_factor()
 
         if added_keys is not None:
             for key in added_keys:
@@ -328,5 +334,5 @@ class PastroLikelihood(HyperparameterLikelihood):
         pastro_factor = (1.0 - self.pastro)/self.pastro
         return xp.log(pastro_factor)
 
-    def _get_fiducial_vt_factor(self):
-        return xp.log(self.fiducial_vt)
+    def _get_fiducial_selection_factor(self):
+        return xp.log(self.fiducial_selection)

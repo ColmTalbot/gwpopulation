@@ -1,12 +1,14 @@
 from __future__ import division, print_function
 
 import numpy as np
+import pandas as pd
+from tqdm import tqdm
 
 from bilby.core.utils import logger
 from bilby.core.likelihood import Likelihood
 from bilby.hyper.model import Model
 
-from .cupy_utils import CUPY_LOADED, xp
+from .cupy_utils import CUPY_LOADED, to_numpy, xp
 
 
 class HyperparameterLikelihood(Likelihood):
@@ -104,16 +106,12 @@ class HyperparameterLikelihood(Likelihood):
         self.selection_function = selection_function
 
         self.n_posteriors = len(posteriors)
-        self.samples_factor =\
-            - self.n_posteriors * np.log(self.samples_per_posterior)
 
     def log_likelihood_ratio(self):
         self.parameters, added_keys = self.conversion_function(self.parameters)
         self.hyper_prior.parameters.update(self.parameters)
-        ln_l = xp.sum(xp.log(xp.sum(self.hyper_prior.prob(self.data) /
-                                    self.sampling_prior, axis=-1)))
+        ln_l = xp.sum(self._compute_per_event_ln_bayes_factors())
         ln_l += self._get_selection_factor()
-        ln_l += self.samples_factor
         if added_keys is not None:
             for key in added_keys:
                 self.parameters.pop(key)
@@ -125,9 +123,45 @@ class HyperparameterLikelihood(Likelihood):
     def log_likelihood(self):
         return self.noise_log_likelihood() + self.log_likelihood_ratio()
 
+    def _compute_per_event_ln_bayes_factors(self):
+        return - np.log(self.samples_per_posterior) + xp.log(
+            xp.sum(self.hyper_prior.prob(self.data) /
+                   self.sampling_prior, axis=-1))
+
     def _get_selection_factor(self):
         return - self.n_posteriors * xp.log(
             self.selection_function(self.parameters))
+
+    def generate_extra_statistics(self, sample):
+        """
+        Given an input sample, add extra statistics
+
+        Adds the ln BF for each of the events in the data and the selection
+        function
+
+        Parameters
+        ----------
+        sample: dict
+            Input sample to compute the extra things for.
+        Returns
+        -------
+        sample: dict
+            The input dict, modified in place.
+        """
+        self.parameters.update(sample.copy())
+        self.parameters, added_keys = self.conversion_function(self.parameters)
+        self.hyper_prior.parameters.update(self.parameters)
+        ln_ls = self._compute_per_event_ln_bayes_factors()
+        for ii in range(self.n_posteriors):
+            sample["ln_bf_{}".format(ii)] = float(ln_ls[ii])
+        sample["selection"] = float(self.selection_function(self.parameters))
+        if added_keys is not None:
+            for key in added_keys:
+                self.parameters.pop(key)
+        return sample
+
+    def generate_rate_posterior_sample(self):
+        raise NotImplementedError
 
     def resample_posteriors(self, posteriors, max_samples=1e300):
         """
@@ -160,6 +194,70 @@ class HyperparameterLikelihood(Likelihood):
             data[key] = xp.array(data[key])
         return data
 
+    def posterior_predictive_resample(self, samples):
+        """
+        Resample the original single event posteriors to use the PPD from each
+        of the other events as the prior.
+
+        There may be something weird going on with rate.
+
+        Parameters
+        ----------
+        samples: pd.DataFrame, dict, list
+            The samples to do the weighting over, typically the posterior from
+            some run.
+        Returns
+        -------
+        new_samples: dict
+            Dictionary containing the weighted posterior samples for each of
+            the events.
+        """
+        if isinstance(samples, pd.DataFrame):
+            samples = [dict(samples.iloc[ii]) for ii in range(len(samples))]
+        elif isinstance(samples, dict):
+            samples = [samples]
+        weights = xp.zeros((self.n_posteriors, self.samples_per_posterior))
+        event_weights = xp.zeros(self.n_posteriors)
+        for sample in tqdm(samples):
+            self.parameters.update(sample.copy())
+            self.parameters, added_keys = self.conversion_function(
+                self.parameters
+            )
+            new_weights = (
+                self.hyper_prior.prob(self.data) / self.sampling_prior
+            )
+            event_weights += xp.mean(new_weights, axis=-1)
+            new_weights = (new_weights.T / xp.sum(new_weights, axis=-1)).T
+            weights += new_weights
+            if added_keys is not None:
+                for key in added_keys:
+                    self.parameters.pop(key)
+        weights = (weights.T / xp.sum(weights, axis=-1)).T
+        new_idxs = xp.empty_like(weights, dtype=int)
+        for ii in range(self.n_posteriors):
+            new_idxs[ii] = xp.asarray(np.random.choice(
+                range(self.samples_per_posterior),
+                size=self.samples_per_posterior,
+                replace=True, p=to_numpy(weights[ii])
+            ))
+        new_samples = {
+            key: xp.vstack([
+                self.data[key][ii, new_idxs[ii]]
+                for ii in range(self.n_posteriors)
+            ])
+            for key in self.data
+        }
+        event_weights = list(event_weights)
+        logger.info(
+            "Resampling done, sum of weights for events are {}".format(
+                " ".join([
+                    "{:.1f}".format(float(weight))
+                    for weight in event_weights
+                ])
+            )
+        )
+        return new_samples
+
 
 class RateLikelihood(HyperparameterLikelihood):
     """
@@ -173,3 +271,6 @@ class RateLikelihood(HyperparameterLikelihood):
             self.parameters['rate']
         ln_l += self.n_posteriors * xp.log(self.parameters['rate'])
         return ln_l
+
+    def generate_rate_posterior_sample(self):
+        pass

@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/ColmTalbot/gwpopulation.svg?branch=master)](https://travis-ci.com/ColmTalbot/gwpopulation)
 [![Maintainability](https://api.codeclimate.com/v1/badges/579536603e8e06466e63/maintainability)](https://codeclimate.com/github/ColmTalbot/gwpopulation/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/579536603e8e06466e63/test_coverage)](https://codeclimate.com/github/ColmTalbot/gwpopulation/test_coverage)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/579536603e8e06466e63/test_coverage)](https://codeclimate.com/github/ColmTalbot/gwpopulation/test_coverage) [![Versions](https://img.shields.io/pypi/pyversions/gwpopulation.svg)](https://pypi.org/project/gwpopulation/)
 
 A collection of parametric binary black hole mass/spin population models.
 

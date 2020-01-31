@@ -8,6 +8,38 @@ from gwpopulation.cupy_utils import trapz, xp
 from gwpopulation.models import mass
 
 
+class TestDoublePowerLaw(unittest.TestCase):
+
+    def setUp(self):
+        self.m1s = np.linspace(3, 100, 1000)
+        self.qs = np.linspace(0.01, 1, 500)
+        m1s_grid, qs_grid = xp.meshgrid(self.m1s, self.qs)
+        self.dataset = dict(mass_1=m1s_grid, mass_ratio=qs_grid)
+        self.power_prior = PriorDict()
+        self.power_prior['alpha_1'] = Uniform(minimum=-4, maximum=12)
+        self.power_prior['alpha_2'] = Uniform(minimum=-4, maximum=12)
+        self.power_prior['beta'] = Uniform(minimum=-4, maximum=12)
+        self.power_prior['mmin'] = Uniform(minimum=3, maximum=10)
+        self.power_prior['mmax'] = Uniform(minimum=40, maximum=100)
+        self.power_prior['break_fraction'] = Uniform(minimum=40, maximum=100)
+        self.n_test = 10
+
+    def test_double_power_law_zero_below_mmin(self):
+        for ii in range(self.n_test):
+            parameters = self.power_prior.sample()
+            del parameters['beta']
+            p_m = mass.double_power_law_primary_mass(self.m1s, **parameters)
+            self.assertEqual(xp.max(p_m[self.m1s <= parameters['mmin']]), 0.0)
+
+    def test_power_law_primary_mass_ratio_zero_above_mmax(self):
+        for ii in range(self.n_test):
+            parameters = self.power_prior.sample()
+            p_m = mass.double_power_law_primary_power_law_mass_ratio(
+                self.dataset, **parameters)
+            self.assertEqual(
+                xp.max(p_m[self.dataset['mass_1'] >= parameters['mmax']]), 0.0)
+
+
 class TestPrimaryMassRatio(unittest.TestCase):
 
     def setUp(self):

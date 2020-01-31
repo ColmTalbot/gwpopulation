@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 import subprocess
 import os
 
@@ -57,7 +57,7 @@ def readfile(filename):
     return filecontents
 
 
-VERSION = '0.3.0'
+VERSION = '0.4.1'
 version_file = write_version_file(VERSION)
 long_description = get_long_description()
 
@@ -69,8 +69,8 @@ setup(name='gwpopulation',
       author_email='colm.talbot@monash.edu',
       license="MIT",
       version=VERSION,
-      packages=['gwpopulation', 'gwpopulation.models'],
-      package_dir={'gwpopulation': './gwpopulation'},
+      packages=find_packages(exclude=["test", "venv", "priors"]),
+      package_dir={'gwpopulation': 'gwpopulation'},
       package_data={'gwpopulation': [version_file]},
       install_requires=['future', 'numpy', 'scipy', 'astropy', 'bilby'],
       classifiers=[

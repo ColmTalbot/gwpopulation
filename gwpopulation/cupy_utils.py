@@ -1,10 +1,12 @@
 try:
     import cupy as xp
     from cupyx.scipy.special import erf, gammaln
+
     CUPY_LOADED = True
 except ImportError:
     import numpy as xp
     from scipy.special import erf, gammaln
+
     CUPY_LOADED = False
 
 
@@ -166,8 +168,7 @@ def diff(a, n=1, axis=-1):
     if n == 0:
         return a
     if n < 0:
-        raise ValueError(
-            "order must be non-negative but got " + repr(n))
+        raise ValueError("order must be non-negative but got " + repr(n))
 
     a = xp.asanyarray(a)
     nd = a.ndim

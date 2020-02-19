@@ -6,7 +6,6 @@ from gwpopulation import utils
 
 
 class TestBetaDist(unittest.TestCase):
-
     def setUp(self):
         self.n_test = 100
         self.alphas = np.random.uniform(0, 10, self.n_test)
@@ -17,8 +16,9 @@ class TestBetaDist(unittest.TestCase):
     def test_beta_dist_zero_below_zero(self):
         equal_zero = True
         for ii in range(self.n_test):
-            vals = utils.beta_dist(xx=-1, alpha=self.alphas[ii],
-                                   beta=self.betas[ii], scale=self.scales[ii])
+            vals = utils.beta_dist(
+                xx=-1, alpha=self.alphas[ii], beta=self.betas[ii], scale=self.scales[ii]
+            )
             equal_zero = equal_zero & (vals == 0.0)
         self.assertTrue(equal_zero)
 
@@ -26,8 +26,9 @@ class TestBetaDist(unittest.TestCase):
         equal_zero = True
         for ii in range(self.n_test):
             xx = self.scales[ii] + 1
-            vals = utils.beta_dist(xx=xx, alpha=self.alphas[ii],
-                                   beta=self.betas[ii], scale=self.scales[ii])
+            vals = utils.beta_dist(
+                xx=xx, alpha=self.alphas[ii], beta=self.betas[ii], scale=self.scales[ii]
+            )
             equal_zero = equal_zero & (vals == 0.0)
         self.assertTrue(equal_zero)
 
@@ -41,7 +42,6 @@ class TestBetaDist(unittest.TestCase):
 
 
 class TestPowerLaw(unittest.TestCase):
-
     def setUp(self):
         self.n_test = 100
         self.alphas = np.random.uniform(-10, 10, self.n_test)
@@ -53,8 +53,9 @@ class TestPowerLaw(unittest.TestCase):
         equal_zero = True
         for ii in range(self.n_test):
             xx = self.lows[ii] - 1
-            vals = utils.powerlaw(xx=xx, alpha=self.alphas[ii],
-                                  low=self.lows[ii], high=self.highs[ii])
+            vals = utils.powerlaw(
+                xx=xx, alpha=self.alphas[ii], low=self.lows[ii], high=self.highs[ii]
+            )
             equal_zero = equal_zero & (vals == 0.0)
         self.assertTrue(equal_zero)
 
@@ -62,8 +63,9 @@ class TestPowerLaw(unittest.TestCase):
         equal_zero = True
         for ii in range(self.n_test):
             xx = self.highs[ii] + 1
-            vals = utils.powerlaw(xx=xx, alpha=self.alphas[ii],
-                                  low=self.lows[ii], high=self.highs[ii])
+            vals = utils.powerlaw(
+                xx=xx, alpha=self.alphas[ii], low=self.lows[ii], high=self.highs[ii]
+            )
             equal_zero = equal_zero & (vals == 0.0)
         self.assertTrue(equal_zero)
 
@@ -72,12 +74,12 @@ class TestPowerLaw(unittest.TestCase):
             utils.powerlaw(xx=0, alpha=3, high=10, low=-4)
 
     def test_powerlaw_alpha_equal_zero(self):
-        self.assertEqual(utils.powerlaw(xx=1.0, alpha=-1, low=0.5, high=2),
-                         1 / np.log(4))
+        self.assertEqual(
+            utils.powerlaw(xx=1.0, alpha=-1, low=0.5, high=2), 1 / np.log(4)
+        )
 
 
 class TestTruncNorm(unittest.TestCase):
-
     def setUp(self):
         self.n_test = 100
         self.mus = np.random.uniform(-10, 10, self.n_test)
@@ -91,8 +93,12 @@ class TestTruncNorm(unittest.TestCase):
         for ii in range(self.n_test):
             xx = self.lows[ii] - 1
             vals = utils.truncnorm(
-                xx=xx, mu=self.mus[ii], sigma=self.sigmas[ii],
-                low=self.lows[ii], high=self.highs[ii])
+                xx=xx,
+                mu=self.mus[ii],
+                sigma=self.sigmas[ii],
+                low=self.lows[ii],
+                high=self.highs[ii],
+            )
             equal_zero = equal_zero & (vals == 0.0)
         self.assertTrue(equal_zero)
 
@@ -101,12 +107,15 @@ class TestTruncNorm(unittest.TestCase):
         for ii in range(self.n_test):
             xx = self.highs[ii] + 1
             vals = utils.truncnorm(
-                xx=xx, mu=self.mus[ii], sigma=self.sigmas[ii],
-                low=self.lows[ii], high=self.highs[ii])
+                xx=xx,
+                mu=self.mus[ii],
+                sigma=self.sigmas[ii],
+                low=self.lows[ii],
+                high=self.highs[ii],
+            )
             equal_zero = equal_zero & (vals == 0.0)
         self.assertTrue(equal_zero)
 
     def test_truncnorm_sigma_below_zero_raises_value_error(self):
         with self.assertRaises(ValueError):
             utils.truncnorm(xx=0, mu=0, sigma=-1, high=10, low=-10)
-

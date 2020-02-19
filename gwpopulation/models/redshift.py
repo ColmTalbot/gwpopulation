@@ -19,17 +19,22 @@ class _Redshift(object):
         self.dvc_dz = xp.asarray(self.dvc_dz_)
         self.cached_dvc_dz = None
 
+    def __call__(self, *args, **kwargs):
+        raise NotImplementedError
+
     def _cache_dvc_dz(self, redshifts):
         self.cached_dvc_dz = xp.asarray(
             np.interp(to_numpy(redshifts), self.zs_, self.dvc_dz_)
         )
 
-    def normalisation(self, psi_of_z):
+    def normalisation(self, parameters):
+        psi_of_z = self.psi_of_z(redshift=self.zs, **parameters)
         norm = trapz(psi_of_z * self.dvc_dz / (1 + self.zs), self.zs)
         return norm
 
-    def probabilty_from_psi_of_z(self, psi_of_z, dataset):
-        normalisation = self.normalisation(psi_of_z)
+    def probability(self, dataset, **parameters):
+        psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
+        normalisation = self.normalisation(parameters=parameters)
         p_z = psi_of_z / (1 + dataset["redshift"]) / normalisation
         try:
             p_z *= self.cached_dvc_dz
@@ -37,6 +42,9 @@ class _Redshift(object):
             self._cache_dvc_dz(dataset["redshift"])
             p_z *= self.cached_dvc_dz
         return p_z
+
+    def psi_of_z(self, redshift, **parameters):
+        raise NotImplementedError
 
 
 class PowerLawRedshift(_Redshift):
@@ -50,13 +58,16 @@ class PowerLawRedshift(_Redshift):
     """
 
     def __call__(self, dataset, lamb):
-        psi_of_z = powerlaw(
-            1 + dataset["redshift"], alpha=lamb, high=1 + self.z_max, low=1
+        parameters = dict(lamb=lamb)
+        return self.probability(dataset=dataset, **parameters)
+
+    def psi_of_z(self, redshift, **parameters):
+        return powerlaw(
+            1 + redshift, alpha=parameters["lamb"], high=1 + self.z_max, low=1
         )
-        return self.probabilty_from_psi_of_z(psi_of_z=psi_of_z, dataset=dataset)
 
 
-class MaduaDickinsonRedshift(_Redshift):
+class MadauDickinsonRedshift(_Redshift):
     """
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 (33)
 
@@ -73,11 +84,18 @@ class MaduaDickinsonRedshift(_Redshift):
     """
 
     def __call__(self, dataset, a_z, b_z, z_peak):
-        psi_of_z = powerlaw(1 + self.zs, alpha=a_z, high=1 + self.z_max, low=1)
+        parameters = dict(a_z=a_z, b_z=b_z, z_peak=z_peak)
+        return self.probability(dataset=dataset, **parameters)
+
+    def psi_of_z(self, redshift, **parameters):
+        a_z = parameters["a_z"]
+        b_z = parameters["b_z"]
+        z_peak = parameters["z_peak"]
+        psi_of_z = powerlaw(1 + redshift, alpha=a_z, high=1 + self.z_max, low=1)
         psi_of_z /= 1 + a_z / (b_z - a_z) / (1 + z_peak) ** b_z * powerlaw(
-            1 + self.zs, alpha=b_z, high=1 + self.z_max, low=1
+            1 + redshift, alpha=b_z, high=1 + self.z_max, low=1
         )
-        return self.probabilty_from_psi_of_z(psi_of_z=psi_of_z, dataset=dataset)
+        return psi_of_z
 
 
 power_law_redshift = PowerLawRedshift()

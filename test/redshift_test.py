@@ -28,7 +28,7 @@ class TestRedshift(unittest.TestCase):
         self._run_model(model=model, priors=priors)
 
     def test_madau_dickinson_normalised(self):
-        model = redshift.MaduaDickinsonRedshift()
+        model = redshift.MadauDickinsonRedshift()
         priors = PriorDict()
         priors["a_z"] = Uniform(-15, 15)
         priors["b_z"] = Uniform(-15, 15)

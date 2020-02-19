@@ -67,7 +67,7 @@ class PowerLawRedshift(_Redshift):
         )
 
 
-class MaduaDickinsonRedshift(_Redshift):
+class MadauDickinsonRedshift(_Redshift):
     """
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 (33)
 

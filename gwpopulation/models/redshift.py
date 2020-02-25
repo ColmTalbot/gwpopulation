@@ -58,8 +58,7 @@ class PowerLawRedshift(_Redshift):
     """
 
     def __call__(self, dataset, lamb):
-        parameters = dict(lamb=lamb)
-        return self.probability(dataset=dataset, **parameters)
+        return self.probability(dataset=dataset, lamb=lamb)
 
     def psi_of_z(self, redshift, **parameters):
         return powerlaw(
@@ -71,11 +70,16 @@ class MadauDickinsonRedshift(_Redshift):
     """
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 (33)
 
+    The parameterisation differs a little from there, we use
+
+    $p(z|\gamma, \kappa, z_p) \propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)$
+    $\psi(z|\gamma, \kappa, z_p) = \frac{(1 + z)^\gamma}{1 + (\frac{1 + z}{1 + z_p})^\kappa}$
+
     Parameters
     ----------
-    a_z: float
+    gamma: float
         Slope of the distribution at low redshift
-    b_z: float
+    kappa: float
         Slope of the distribution at high redshift
     z_peak: float
         Redshift at which the distribution peaks.
@@ -83,18 +87,17 @@ class MadauDickinsonRedshift(_Redshift):
         The maximum redshift allowed.
     """
 
-    def __call__(self, dataset, a_z, b_z, z_peak):
-        parameters = dict(a_z=a_z, b_z=b_z, z_peak=z_peak)
-        return self.probability(dataset=dataset, **parameters)
+    def __call__(self, dataset, gamma, kappa, z_peak):
+        return self.probability(
+            dataset=dataset, gamma=gamma, kappa=kappa, z_peak=z_peak
+        )
 
     def psi_of_z(self, redshift, **parameters):
-        a_z = parameters["a_z"]
-        b_z = parameters["b_z"]
+        gamma = parameters["gamma"]
+        kappa = parameters["kappa"]
         z_peak = parameters["z_peak"]
-        psi_of_z = powerlaw(1 + redshift, alpha=a_z, high=1 + self.z_max, low=1)
-        psi_of_z /= 1 + a_z / (b_z - a_z) / (1 + z_peak) ** b_z * powerlaw(
-            1 + redshift, alpha=b_z, high=1 + self.z_max, low=1
-        )
+        psi_of_z = powerlaw(1 + redshift, alpha=gamma, high=1 + self.z_max, low=1)
+        psi_of_z /= 1 + ((1 + redshift) / (1 + z_peak)) ** kappa
         return psi_of_z
 
 

@@ -155,10 +155,11 @@ def two_component_single(mass, alpha, mmin, mmax, lam, mpp, sigpp):
     return prob
 
 
-def three_component_single(mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2):
+def three_component_single(
+        mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2):
     """
-    Parameters 
-    ---------- 
+    Parameters
+    ----------
     mass: array-like
         Array of mass values.
     alpha: float
@@ -167,23 +168,23 @@ def three_component_single(mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, 
         Minimum black hole mass.
     mmax: float
         Maximum black hole mass.
-    lam: float 
+    lam: float
         Fraction of black holes in the Gaussian components.
     lam_1: float
         Fraction of black holes in the lower mass Gaussian component.
-    mpp_1: float 
+    mpp_1: float
         Mean of the lower mass Gaussian component.
     mpp_2: float
         Mean of the upper mass Gaussian component.
     sigpp_1: float
         Standard deviation of the lower mass Gaussian component.
-    sigpp_2: float 
-        Standard deviation of the upper mass Gaussian component. 
+    sigpp_2: float
+        Standard deviation of the upper mass Gaussian component.
     """
     p_pow = powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
     p_norm1 = truncnorm(mass, mu=mpp_1, sigma=sigpp_1, high=100, low=mmin)
     p_norm2 = truncnorm(mass, mu=mpp_2, sigma=sigpp_2, high=100, low=mmin)
-    prob = (1 - lam) * p_pow + lam * lam_1 * p_norm1 + lam * (1 - lam_1) * p_norm2
+    prob = (1-lam) * p_pow + lam * lam_1 * p_norm1 + lam * (1-lam_1) * p_norm2
     return prob
 
 
@@ -513,17 +514,23 @@ class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
         prob = p_m1 * p_q
         return prob
 
-    def p_m1(self, dataset, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
-        p_m = three_component_single(dataset['mass_1'], alpha=alpha, mmin=mmin, mmax=mmax,
-                                     lam=lam, lam_1=lam_1, mpp_1=mpp_1, mpp_2=mpp_2,
-                                     sigpp_1=sigpp_1, sigpp_2=sigpp_2)
+    def p_m1(self, dataset, alpha, mmin, mmax, lam, lam_1,
+             mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
+        p_m = three_component_single(
+            dataset['mass_1'], alpha=alpha, mmin=mmin, mmax=mmax,
+            lam=lam, lam_1=lam_1, mpp_1=mpp_1, mpp_2=mpp_2,
+            sigpp_1=sigpp_1, sigpp_2=sigpp_2
+        )
         p_m *= self.smoothing(
             dataset['mass_1'], mmin=mmin, mmax=100, delta_m=delta_m)
-        norm = self.norm_p_m1(alpha=alpha, mmin=mmin, mmax=mmax, lam=lam, lam_1=lam_1,
-                              mpp_1=mpp_1, mpp_2=mpp_2, sigpp_1=sigpp_1, sigpp_2=sigpp_2)
+        norm = self.norm_p_m1(
+            alpha=alpha, mmin=mmin, mmax=mmax, lam=lam, lam_1=lam_1,
+            mpp_1=mpp_1, mpp_2=mpp_2, sigpp_1=sigpp_1, sigpp_2=sigpp_2
+        )
         return p_m / norm
 
-    def norm_p_m1(self, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
+    def norm_p_m1(self, alpha, mmin, mmax, lam, lam_1,
+                  mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
         if delta_m == 0.0:
             return 1
         p_m = three_component_single(self.m1s, alpha=alpha, mmin=mmin,  mmax=mmax,

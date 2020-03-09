@@ -154,6 +154,7 @@ def two_component_single(mass, alpha, mmin, mmax, lam, mpp, sigpp):
     prob = (1 - lam) * p_pow + lam * p_norm
     return prob
 
+
 def three_component_single(mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2):
     """
     Parameters 
@@ -184,6 +185,7 @@ def three_component_single(mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, 
     p_norm2 = truncnorm(mass, mu=mpp_2, sigma=sigpp_2, high=100, low=mmin)
     prob = (1 - lam) * p_pow + lam * lam_1 * p_norm1 + lam * (1 - lam_1) * p_norm2
     return prob
+
 
 def two_component_primary_mass_ratio(dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp):
     """
@@ -458,4 +460,78 @@ class SmoothedMassDistribution(object):
         return window
 
 
+class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
+
+    def __call__(
+            self, dataset, alpha, beta, mmin, mmax, lam, lam_1,
+            mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
+        """
+        Powerlaw + two peak model for two-dimensional mass distribution with
+        low mass smoothing.
+
+        Parameters
+        ----------
+        dataset: dict
+            Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+        alpha: float
+            Powerlaw exponent for more massive black hole.
+        beta: float
+            Power law exponent of the mass ratio distribution.
+        mmin: float
+            Minimum black hole mass.
+        mmax: float
+            Maximum mass in the powerlaw distributed component.
+        lam: float
+            Fraction of black holes in the Gaussian component.
+        lam_1: float
+            Fraction of black holes in the lower mass Gaussian component.
+        mpp_1: float
+            Mean of the lower mass Gaussian component.
+        mpp_2: float
+            Mean of the upper mass Gaussian component.
+        sigpp_1: float
+            Standard deviation of the lower mass Gaussian component.
+        sigpp_2: float
+            Standard deviation of the upper mass Gaussian component.
+        delta_m: float
+            Rise length of the low end of the mass distribution.
+        """
+        p_m1 = self.p_m1(
+            dataset,
+            alpha=alpha,
+            mmin=mmin,
+            mmax=mmax,
+            lam=lam,
+            lam_1=lam_1,
+            mpp_1=mpp_1,
+            mpp_2=mpp_2,
+            sigpp_1=sigpp_1,
+            sigpp_2=sigpp_2,
+            delta_m=delta_m,
+        )
+        p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
+        prob = p_m1 * p_q
+        return prob
+
+    def p_m1(self, dataset, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
+        p_m = three_component_single(dataset['mass_1'], alpha=alpha, mmin=mmin, mmax=mmax,
+                                     lam=lam, lam_1=lam_1, mpp_1=mpp_1, mpp_2=mpp_2,
+                                     sigpp_1=sigpp_1, sigpp_2=sigpp_2)
+        p_m *= self.smoothing(
+            dataset['mass_1'], mmin=mmin, mmax=100, delta_m=delta_m)
+        norm = self.norm_p_m1(alpha=alpha, mmin=mmin, mmax=mmax, lam=lam, lam_1=lam_1,
+                              mpp_1=mpp_1, mpp_2=mpp_2, sigpp_1=sigpp_1, sigpp_2=sigpp_2)
+        return p_m / norm
+
+    def norm_p_m1(self, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
+        if delta_m == 0.0:
+            return 1
+        p_m = three_component_single(self.m1s, alpha=alpha, mmin=mmin,  mmax=mmax,
+                                     lam=lam, lam_1=lam_1, mpp_1=mpp_1, mpp_2=mpp_2,
+                                     sigpp_1=sigpp_1, sigpp_2=sigpp_2)
+        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
+        norm = trapz(p_m, self.m1s)
+        return norm
+
 smoothed_two_component_primary_mass_ratio = SmoothedMassDistribution()
+smoothed_three_component_primary_mass_ratio = MultiPeakSmoothedMassDistribution()

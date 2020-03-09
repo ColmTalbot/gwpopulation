@@ -517,15 +517,30 @@ class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
     def p_m1(self, dataset, alpha, mmin, mmax, lam, lam_1,
              mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
         p_m = three_component_single(
-            dataset['mass_1'], alpha=alpha, mmin=mmin, mmax=mmax,
-            lam=lam, lam_1=lam_1, mpp_1=mpp_1, mpp_2=mpp_2,
-            sigpp_1=sigpp_1, sigpp_2=sigpp_2
+            dataset['mass_1'],
+            alpha=alpha,
+            mmin=mmin,
+            mmax=mmax,
+            lam=lam,
+            lam_1=lam_1,
+            mpp_1=mpp_1,
+            mpp_2=mpp_2,
+            sigpp_1=sigpp_1,
+            sigpp_2=sigpp_2,
         )
         p_m *= self.smoothing(
             dataset['mass_1'], mmin=mmin, mmax=100, delta_m=delta_m)
         norm = self.norm_p_m1(
-            alpha=alpha, mmin=mmin, mmax=mmax, lam=lam, lam_1=lam_1,
-            mpp_1=mpp_1, mpp_2=mpp_2, sigpp_1=sigpp_1, sigpp_2=sigpp_2
+            alpha=alpha,
+            mmin=mmin,
+            mmax=mmax,
+            lam=lam,
+            lam_1=lam_1,
+            mpp_1=mpp_1,
+            mpp_2=mpp_2,
+            sigpp_1=sigpp_1,
+            sigpp_2=sigpp_2,
+            delta_m=delta_m,
         )
         return p_m / norm
 
@@ -534,9 +549,16 @@ class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
         if delta_m == 0.0:
             return 1
         p_m = three_component_single(
-            self.m1s, alpha=alpha, mmin=mmin,  mmax=mmax,
-            lam=lam, lam_1=lam_1, mpp_1=mpp_1, mpp_2=mpp_2,
-            sigpp_1=sigpp_1, sigpp_2=sigpp_2
+            self.m1s,
+            alpha=alpha,
+            mmin=mmin,
+            mmax=mmax,
+            lam=lam,
+            lam_1=lam_1,
+            mpp_1=mpp_1,
+            mpp_2=mpp_2,
+            sigpp_1=sigpp_1,
+            sigpp_2=sigpp_2,
         )
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
         norm = trapz(p_m, self.m1s)

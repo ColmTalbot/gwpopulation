@@ -147,13 +147,43 @@ def two_component_single(mass, alpha, mmin, mmax, lam, mpp, sigpp):
     mpp: float
         Mean of the Gaussian component.
     sigpp: float
-        Standard deviation fo the Gaussian component.
+        Standard deviation of the Gaussian component.
     """
     p_pow = powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
     p_norm = truncnorm(mass, mu=mpp, sigma=sigpp, high=100, low=mmin)
     prob = (1 - lam) * p_pow + lam * p_norm
     return prob
 
+def three_component_single(mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2):
+    """
+    Parameters 
+    ---------- 
+    mass: array-like
+        Array of mass values.
+    alpha: float
+        Negative power law exponent for the black hole distribution.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum black hole mass.
+    lam: float 
+        Fraction of black holes in the Gaussian components.
+    lam_1: float
+        Fraction of black holes in the lower mass Gaussian component.
+    mpp_1: float 
+        Mean of the lower mass Gaussian component.
+    mpp_2: float
+        Mean of the upper mass Gaussian component.
+    sigpp_1: float
+        Standard deviation of the lower mass Gaussian component.
+    sigpp_2: float 
+        Standard deviation of the upper mass Gaussian component. 
+    """
+    p_pow = powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
+    p_norm1 = truncnorm(mass, mu=mpp_1, sigma=sigpp_1, high=100, low=mmin)
+    p_norm2 = truncnorm(mass, mu=mpp_2, sigma=sigpp_2, high=100, low=mmin)
+    prob = (1 - lam) * p_pow + lam * lam_1 * p_norm1 + lam * (1 - lam_1) * p_norm2
+    return prob
 
 def two_component_primary_mass_ratio(dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp):
     """

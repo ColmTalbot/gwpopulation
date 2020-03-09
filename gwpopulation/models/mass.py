@@ -533,12 +533,15 @@ class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
                   mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
         if delta_m == 0.0:
             return 1
-        p_m = three_component_single(self.m1s, alpha=alpha, mmin=mmin,  mmax=mmax,
-                                     lam=lam, lam_1=lam_1, mpp_1=mpp_1, mpp_2=mpp_2,
-                                     sigpp_1=sigpp_1, sigpp_2=sigpp_2)
+        p_m = three_component_single(
+            self.m1s, alpha=alpha, mmin=mmin,  mmax=mmax,
+            lam=lam, lam_1=lam_1, mpp_1=mpp_1, mpp_2=mpp_2,
+            sigpp_1=sigpp_1, sigpp_2=sigpp_2
+        )
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
         norm = trapz(p_m, self.m1s)
         return norm
 
+
 smoothed_two_component_primary_mass_ratio = SmoothedMassDistribution()
-smoothed_three_component_primary_mass_ratio = MultiPeakSmoothedMassDistribution()
+smooth_three_component_primary_mass_ratio = MultiPeakSmoothedMassDistribution()

@@ -1,3 +1,5 @@
+from warnings import warn
+
 from ..cupy_utils import trapz, xp
 from ..utils import powerlaw, truncnorm
 
@@ -156,7 +158,8 @@ def two_component_single(mass, alpha, mmin, mmax, lam, mpp, sigpp):
 
 
 def three_component_single(
-        mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2):
+    mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2
+):
     """
     Parameters
     ----------
@@ -184,7 +187,7 @@ def three_component_single(
     p_pow = powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
     p_norm1 = truncnorm(mass, mu=mpp_1, sigma=sigpp_1, high=100, low=mmin)
     p_norm2 = truncnorm(mass, mu=mpp_2, sigma=sigpp_2, high=100, low=mmin)
-    prob = (1-lam) * p_pow + lam * lam_1 * p_norm1 + lam * (1-lam_1) * p_norm2
+    prob = (1 - lam) * p_pow + lam * lam_1 * p_norm1 + lam * (1 - lam_1) * p_norm2
     return prob
 
 
@@ -295,7 +298,7 @@ def two_component_primary_secondary_identical(
     )
 
 
-class SmoothedMassDistribution(object):
+class _SmoothedMassDistribution(object):
     def __init__(self):
         self.m1s = xp.linspace(3, 100, 1000)
         self.qs = xp.linspace(0.001, 1, 500)
@@ -303,6 +306,84 @@ class SmoothedMassDistribution(object):
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
 
+    def p_q(self, dataset, beta, mmin, delta_m):
+        p_q = powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
+        p_q *= self.smoothing(
+            dataset["mass_1"] * dataset["mass_ratio"],
+            mmin=mmin,
+            mmax=dataset["mass_1"],
+            delta_m=delta_m,
+        )
+        try:
+            p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
+        except (AttributeError, TypeError, ValueError):
+            self._cache_q_norms(dataset["mass_1"])
+            p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
+
+        return xp.nan_to_num(p_q)
+
+    def norm_p_q(self, beta, mmin, delta_m):
+        """Calculate the mass ratio normalisation by linear interpolation"""
+        if delta_m == 0.0:
+            return 1
+        p_q = powerlaw(self.qs_grid, beta, 1, mmin / self.m1s_grid)
+        p_q *= self.smoothing(
+            self.m1s_grid * self.qs_grid, mmin=mmin, mmax=self.m1s_grid, delta_m=delta_m
+        )
+        norms = trapz(p_q, self.qs, axis=0)
+
+        all_norms = (
+            norms[self.n_below] * (1 - self.step) + norms[self.n_above] * self.step
+        )
+
+        return all_norms
+
+    def _cache_q_norms(self, masses):
+        """
+        Cache the information necessary for linear interpolation of the mass
+        ratio normalisation
+        """
+        self.n_below = xp.zeros_like(masses, dtype=xp.int) - 1
+        m_below = xp.zeros_like(masses)
+        for mm in self.m1s:
+            self.n_below += masses > mm
+            m_below[masses > mm] = mm
+        self.n_above = self.n_below + 1
+        max_idx = len(self.m1s)
+        self.n_below[self.n_below < 0] = 0
+        self.n_above[self.n_above == max_idx] = max_idx - 1
+        self.step = xp.minimum((masses - m_below) / self.dm, 1)
+
+    @staticmethod
+    def smoothing(masses, mmin, mmax, delta_m):
+        """
+        Apply a one sided window between mmin and mmin+dm to the mass pdf.
+
+        The upper cut off is a step function,
+        the lower cutoff is a logistic rise over delta_m solar masses.
+
+        See T&T18 Eq
+        """
+        window = xp.ones_like(masses)
+        if delta_m > 0.0:
+            mass_range = mmax - mmin
+            delta_m /= mass_range
+            sel_p = (masses >= mmin) & (masses <= (mmin + delta_m * mass_range))
+            ms_p = masses - mmin
+            z_p = xp.nan_to_num(
+                2
+                * delta_m
+                * (
+                    1 / (2 * ms_p / mass_range)
+                    + 1 / (2 * ms_p / mass_range - 2 * delta_m)
+                )
+            )
+            window[sel_p] = 1 / (xp.exp(z_p[sel_p]) + 1)
+        window[(masses < mmin) | (masses > mmax)] = 0
+        return window
+
+
+class SinglePeakSmoothedMassDistribution(_SmoothedMassDistribution):
     def __call__(self, dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, delta_m):
         """
         Powerlaw + peak model for two-dimensional mass distribution with low
@@ -372,22 +453,6 @@ class SmoothedMassDistribution(object):
         )
         return p_m / norm
 
-    def p_q(self, dataset, beta, mmin, delta_m):
-        p_q = powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
-        p_q *= self.smoothing(
-            dataset["mass_1"] * dataset["mass_ratio"],
-            mmin=mmin,
-            mmax=dataset["mass_1"],
-            delta_m=delta_m,
-        )
-        try:
-            p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
-        except (AttributeError, TypeError, ValueError):
-            self._cache_q_norms(dataset["mass_1"])
-            p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
-
-        return xp.nan_to_num(p_q)
-
     def norm_p_m1(self, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
         """Calculate the normalisation factor for the primary mass"""
         if delta_m == 0.0:
@@ -400,72 +465,33 @@ class SmoothedMassDistribution(object):
         norm = trapz(p_m, self.m1s)
         return norm
 
-    def norm_p_q(self, beta, mmin, delta_m):
-        """Calculate the mass ratio normalisation by linear interpolation"""
-        if delta_m == 0.0:
-            return 1
-        p_q = powerlaw(self.qs_grid, beta, 1, mmin / self.m1s_grid)
-        p_q *= self.smoothing(
-            self.m1s_grid * self.qs_grid, mmin=mmin, mmax=self.m1s_grid, delta_m=delta_m
+
+class SmoothedMassDistribution(SinglePeakSmoothedMassDistribution):
+    def __init__(self):
+        warn(
+            "SmoothedMassDistribution has been deprecated and will be removed in a "
+            "future release, use SinglePeakSmoothedMassDistribution instead.",
+            DeprecationWarning,
         )
-        norms = trapz(p_q, self.qs, axis=0)
-
-        all_norms = (
-            norms[self.n_below] * (1 - self.step) + norms[self.n_above] * self.step
-        )
-
-        return all_norms
-
-    def _cache_q_norms(self, masses):
-        """
-        Cache the information necessary for linear interpolation of the mass
-        ratio normalisation
-        """
-        self.n_below = xp.zeros_like(masses, dtype=xp.int) - 1
-        m_below = xp.zeros_like(masses)
-        for mm in self.m1s:
-            self.n_below += masses > mm
-            m_below[masses > mm] = mm
-        self.n_above = self.n_below + 1
-        max_idx = len(self.m1s)
-        self.n_below[self.n_below < 0] = 0
-        self.n_above[self.n_above == max_idx] = max_idx - 1
-        self.step = xp.minimum((masses - m_below) / self.dm, 1)
-
-    @staticmethod
-    def smoothing(masses, mmin, mmax, delta_m):
-        """
-        Apply a one sided window between mmin and mmin+dm to the mass pdf.
-
-        The upper cut off is a step function,
-        the lower cutoff is a logistic rise over delta_m solar masses.
-
-        See T&T18 Eq
-        """
-        window = xp.ones_like(masses)
-        if delta_m > 0.0:
-            mass_range = mmax - mmin
-            delta_m /= mass_range
-            sel_p = (masses >= mmin) & (masses <= (mmin + delta_m * mass_range))
-            ms_p = masses - mmin
-            z_p = xp.nan_to_num(
-                2
-                * delta_m
-                * (
-                    1 / (2 * ms_p / mass_range)
-                    + 1 / (2 * ms_p / mass_range - 2 * delta_m)
-                )
-            )
-            window[sel_p] = 1 / (xp.exp(z_p[sel_p]) + 1)
-        window[(masses < mmin) | (masses > mmax)] = 0
-        return window
+        super(SmoothedMassDistribution, self).__init__()
 
 
-class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
-
+class MultiPeakSmoothedMassDistribution(_SmoothedMassDistribution):
     def __call__(
-            self, dataset, alpha, beta, mmin, mmax, lam, lam_1,
-            mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
+        self,
+        dataset,
+        alpha,
+        beta,
+        mmin,
+        mmax,
+        lam,
+        lam_1,
+        mpp_1,
+        sigpp_1,
+        mpp_2,
+        sigpp_2,
+        delta_m,
+    ):
         """
         Powerlaw + two peak model for two-dimensional mass distribution with
         low mass smoothing.
@@ -514,10 +540,22 @@ class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
         prob = p_m1 * p_q
         return prob
 
-    def p_m1(self, dataset, alpha, mmin, mmax, lam, lam_1,
-             mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
+    def p_m1(
+        self,
+        dataset,
+        alpha,
+        mmin,
+        mmax,
+        lam,
+        lam_1,
+        mpp_1,
+        sigpp_1,
+        mpp_2,
+        sigpp_2,
+        delta_m,
+    ):
         p_m = three_component_single(
-            dataset['mass_1'],
+            dataset["mass_1"],
             alpha=alpha,
             mmin=mmin,
             mmax=mmax,
@@ -528,8 +566,7 @@ class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
             sigpp_1=sigpp_1,
             sigpp_2=sigpp_2,
         )
-        p_m *= self.smoothing(
-            dataset['mass_1'], mmin=mmin, mmax=100, delta_m=delta_m)
+        p_m *= self.smoothing(dataset["mass_1"], mmin=mmin, mmax=100, delta_m=delta_m)
         norm = self.norm_p_m1(
             alpha=alpha,
             mmin=mmin,
@@ -544,8 +581,9 @@ class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
         )
         return p_m / norm
 
-    def norm_p_m1(self, alpha, mmin, mmax, lam, lam_1,
-                  mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m):
+    def norm_p_m1(
+        self, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m
+    ):
         if delta_m == 0.0:
             return 1
         p_m = three_component_single(
@@ -563,7 +601,3 @@ class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
         norm = trapz(p_m, self.m1s)
         return norm
-
-
-smoothed_two_component_primary_mass_ratio = SmoothedMassDistribution()
-smooth_three_component_primary_mass_ratio = MultiPeakSmoothedMassDistribution()

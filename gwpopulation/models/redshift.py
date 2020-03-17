@@ -94,6 +94,8 @@ class PowerLawRedshift(_Redshift):
     """
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270
 
+    Note that this is not a normalised probability.
+
     Parameters
     ----------
     z_max: float, optional
@@ -104,9 +106,7 @@ class PowerLawRedshift(_Redshift):
         return self.probability(dataset=dataset, lamb=lamb)
 
     def psi_of_z(self, redshift, **parameters):
-        return powerlaw(
-            1 + redshift, alpha=parameters["lamb"], high=1 + self.z_max, low=1
-        )
+        return (1 + redshift) ** parameters["lamb"]
 
 
 class MadauDickinsonRedshift(_Redshift):
@@ -117,6 +117,8 @@ class MadauDickinsonRedshift(_Redshift):
 
     $p(z|\gamma, \kappa, z_p) \propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)$
     $\psi(z|\gamma, \kappa, z_p) = \frac{(1 + z)^\gamma}{1 + (\frac{1 + z}{1 + z_p})^\kappa}$
+
+    Note that this is not a normalised probability.
 
     Parameters
     ----------
@@ -139,8 +141,9 @@ class MadauDickinsonRedshift(_Redshift):
         gamma = parameters["gamma"]
         kappa = parameters["kappa"]
         z_peak = parameters["z_peak"]
-        psi_of_z = powerlaw(1 + redshift, alpha=gamma, high=1 + self.z_max, low=1)
-        psi_of_z /= 1 + ((1 + redshift) / (1 + z_peak)) ** kappa
+        psi_of_z = (1 + redshift) ** gamma / (
+            1 + ((1 + redshift) / (1 + z_peak)) ** kappa
+        )
         return psi_of_z
 
 

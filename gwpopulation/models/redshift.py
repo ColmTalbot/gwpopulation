@@ -45,9 +45,9 @@ class _Redshift(object):
     def differential_spacetime_volume(self, dataset, **parameters):
         """
         Compute the differential spacetime volume.
-        
+
         d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
-        
+
         Parameters
         ----------
         dataset: dict

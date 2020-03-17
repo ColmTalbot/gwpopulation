@@ -148,32 +148,61 @@ class TestSmoothedMassDistribution(unittest.TestCase):
         self.gauss_prior["lam"] = Uniform(minimum=0, maximum=1)
         self.gauss_prior["mpp"] = Uniform(minimum=20, maximum=60)
         self.gauss_prior["sigpp"] = Uniform(minimum=0, maximum=10)
+        self.double_gauss_prior = PriorDict()
+        self.double_gauss_prior["lam"] = Uniform(minimum=0, maximum=1)
+        self.double_gauss_prior["lam_1"] = Uniform(minimum=0, maximum=1)
+        self.double_gauss_prior["mpp_1"] = Uniform(minimum=20, maximum=60)
+        self.double_gauss_prior["mpp_2"] = Uniform(minimum=20, maximum=60)
+        self.double_gauss_prior["sigpp_1"] = Uniform(minimum=0, maximum=10)
+        self.double_gauss_prior["sigpp_2"] = Uniform(minimum=0, maximum=10)
         self.smooth_prior = PriorDict()
         self.smooth_prior["delta_m"] = Uniform(minimum=0, maximum=10)
         self.n_test = 10
 
-    def test_delta_m_zero_matches_two_component_primary_mass_ratio(self):
+    def test_single_peak_delta_m_zero_matches_two_component_primary_mass_ratio(self):
         max_diffs = list()
         for ii in range(self.n_test):
             parameters = self.power_prior.sample()
             parameters.update(self.gauss_prior.sample())
             p_m1 = mass.two_component_primary_mass_ratio(self.dataset, **parameters)
             parameters["delta_m"] = 0
-            p_m2 = mass.smoothed_two_component_primary_mass_ratio(
+            p_m2 = mass.SinglePeakSmoothedMassDistribution()(self.dataset, **parameters)
+            max_diffs.append(_max_abs_difference(p_m1, p_m2))
+        self.assertAlmostEqual(max(max_diffs), 0.0)
+
+    def test_double_peak_delta_m_zero_matches_two_component_primary_mass_ratio(self):
+        max_diffs = list()
+        for ii in range(self.n_test):
+            parameters = self.power_prior.sample()
+            parameters.update(self.double_gauss_prior.sample())
+            del parameters["beta"]
+            p_m1 = mass.three_component_single(
+                mass=self.dataset["mass_1"], **parameters
+            )
+            parameters["delta_m"] = 0
+            p_m2 = mass.MultiPeakSmoothedMassDistribution().p_m1(
                 self.dataset, **parameters
             )
             max_diffs.append(_max_abs_difference(p_m1, p_m2))
         self.assertAlmostEqual(max(max_diffs), 0.0)
 
-    def test_normalised(self):
+    def test_single_peak_normalised(self):
         norms = list()
         for ii in range(self.n_test):
             parameters = self.power_prior.sample()
             parameters.update(self.gauss_prior.sample())
             parameters.update(self.smooth_prior.sample())
-            p_m = mass.smoothed_two_component_primary_mass_ratio(
-                self.dataset, **parameters
-            )
+            p_m = mass.SinglePeakSmoothedMassDistribution()(self.dataset, **parameters)
+            norms.append(trapz(trapz(p_m, self.m1s), self.qs))
+        self.assertAlmostEqual(_max_abs_difference(norms, 1.0), 0.0, 2)
+
+    def test_double_peak_normalised(self):
+        norms = list()
+        for ii in range(self.n_test):
+            parameters = self.power_prior.sample()
+            parameters.update(self.double_gauss_prior.sample())
+            parameters.update(self.smooth_prior.sample())
+            p_m = mass.MultiPeakSmoothedMassDistribution()(self.dataset, **parameters)
             norms.append(trapz(trapz(p_m, self.m1s), self.qs))
         self.assertAlmostEqual(_max_abs_difference(norms, 1.0), 0.0, 2)
 

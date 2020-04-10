@@ -11,7 +11,7 @@ class _Redshift(object):
     Base class for models which include a term like dVc/dz / (1 + z)
     """
 
-    def __init__(self, z_max=1):
+    def __init__(self, z_max=2.3):
         self.z_max = z_max
         self.zs_ = np.linspace(1e-3, z_max, 1000)
         self.zs = xp.asarray(self.zs_)

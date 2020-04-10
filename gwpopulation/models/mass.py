@@ -300,7 +300,7 @@ def two_component_primary_secondary_identical(
 
 class _SmoothedMassDistribution(object):
     def __init__(self):
-        self.m1s = xp.linspace(3, 100, 1000)
+        self.m1s = xp.linspace(2, 100, 1000)
         self.qs = xp.linspace(0.001, 1, 500)
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]

@@ -112,6 +112,7 @@ class PowerLawRedshift(_Redshift):
 class MadauDickinsonRedshift(_Redshift):
     """
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 (33)
+    See https://arxiv.org/abs/2003.12152 (2) for the normalisation
 
     The parameterisation differs a little from there, we use
 
@@ -144,6 +145,7 @@ class MadauDickinsonRedshift(_Redshift):
         psi_of_z = (1 + redshift) ** gamma / (
             1 + ((1 + redshift) / (1 + z_peak)) ** kappa
         )
+        psi_of_z *= 1 + (1 + z_peak) ** (- kappa)
         return psi_of_z
 
 

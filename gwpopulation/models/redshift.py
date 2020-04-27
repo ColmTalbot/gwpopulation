@@ -1,5 +1,4 @@
 from ..cupy_utils import to_numpy, trapz, xp
-from ..utils import powerlaw
 
 import numpy as np
 
@@ -145,7 +144,7 @@ class MadauDickinsonRedshift(_Redshift):
         psi_of_z = (1 + redshift) ** gamma / (
             1 + ((1 + redshift) / (1 + z_peak)) ** kappa
         )
-        psi_of_z *= 1 + (1 + z_peak) ** (- kappa)
+        psi_of_z *= 1 + (1 + z_peak) ** (-kappa)
         return psi_of_z
 
 

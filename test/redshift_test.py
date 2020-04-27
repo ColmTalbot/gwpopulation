@@ -12,7 +12,7 @@ from gwpopulation.cupy_utils import trapz, xp
 
 class TestRedshift(unittest.TestCase):
     def setUp(self):
-        self.zs = xp.linspace(1e-3, 1, 1000)
+        self.zs = xp.linspace(1e-3, 2.3, 1000)
         self.test_data = dict(redshift=self.zs)
         self.n_test = 100
 

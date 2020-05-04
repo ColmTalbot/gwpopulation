@@ -197,7 +197,7 @@ class HyperparameterLikelihood(Likelihood):
             data[key] = xp.array(data[key])
         return data
 
-    def posterior_predictive_resample(self, samples):
+    def posterior_predictive_resample(self, samples, return_weights=False):
         """
         Resample the original single event posteriors to use the PPD from each
         of the other events as the prior.
@@ -209,11 +209,15 @@ class HyperparameterLikelihood(Likelihood):
         samples: pd.DataFrame, dict, list
             The samples to do the weighting over, typically the posterior from
             some run.
+        return_weights: bool, optional
+            Whether to return the per-sample weights, default = False
         Returns
         -------
         new_samples: dict
             Dictionary containing the weighted posterior samples for each of
             the events.
+        weights: array-like
+            Weights to apply to the samples, only if return_weights == True.
         """
         if isinstance(samples, pd.DataFrame):
             samples = [dict(samples.iloc[ii]) for ii in range(len(samples))]
@@ -251,7 +255,10 @@ class HyperparameterLikelihood(Likelihood):
         event_weights = list(event_weights)
         weight_string = " ".join([f"{float(weight):.1f}" for weight in event_weights])
         logger.info(f"Resampling done, sum of weights for events are {weight_string}")
-        return new_samples
+        if return_weights:
+            return new_samples, weights
+        else:
+            return new_samples
 
 
 class RateLikelihood(HyperparameterLikelihood):

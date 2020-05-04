@@ -1,5 +1,4 @@
 from ..cupy_utils import to_numpy, trapz, xp
-from ..utils import powerlaw
 
 import numpy as np
 
@@ -11,7 +10,7 @@ class _Redshift(object):
     Base class for models which include a term like dVc/dz / (1 + z)
     """
 
-    def __init__(self, z_max=1):
+    def __init__(self, z_max=2.3):
         self.z_max = z_max
         self.zs_ = np.linspace(1e-3, z_max, 1000)
         self.zs = xp.asarray(self.zs_)
@@ -112,6 +111,7 @@ class PowerLawRedshift(_Redshift):
 class MadauDickinsonRedshift(_Redshift):
     """
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 (33)
+    See https://arxiv.org/abs/2003.12152 (2) for the normalisation
 
     The parameterisation differs a little from there, we use
 
@@ -144,6 +144,7 @@ class MadauDickinsonRedshift(_Redshift):
         psi_of_z = (1 + redshift) ** gamma / (
             1 + ((1 + redshift) / (1 + z_peak)) ** kappa
         )
+        psi_of_z *= 1 + (1 + z_peak) ** (-kappa)
         return psi_of_z
 
 

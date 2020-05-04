@@ -218,7 +218,9 @@ class TestSmoothedMassDistribution(unittest.TestCase):
         for ii in range(self.n_test):
             parameters = self.broken_power_prior.sample()
             parameters.update(self.smooth_prior.sample())
-            p_m = mass.BrokenPowerLawSmoothedMassDistribution()(self.dataset, **parameters)
+            p_m = mass.BrokenPowerLawSmoothedMassDistribution()(
+                self.dataset, **parameters
+            )
             norms.append(trapz(trapz(p_m, self.m1s), self.qs))
         self.assertAlmostEqual(_max_abs_difference(norms, 1.0), 0.0, 2)
 

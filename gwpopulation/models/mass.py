@@ -316,7 +316,7 @@ def two_component_primary_secondary_identical(
 
 class _SmoothedMassDistribution(object):
     def __init__(self):
-        self.m1s = xp.linspace(3, 100, 1000)
+        self.m1s = xp.linspace(2, 100, 1000)
         self.qs = xp.linspace(0.001, 1, 500)
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]
@@ -373,28 +373,29 @@ class _SmoothedMassDistribution(object):
     @staticmethod
     def smoothing(masses, mmin, mmax, delta_m):
         """
-        Apply a one sided window between mmin and mmin+dm to the mass pdf.
+        Apply a one sided window between mmin and mmin + delta_m to the
+        mass pdf.
 
         The upper cut off is a step function,
         the lower cutoff is a logistic rise over delta_m solar masses.
 
-        See T&T18 Eq
+        See T&T18 Eqs 7-8
+        Note that there is a sign error in that paper.
+
+        S = (f(m - mmin, delta_m) + 1)^{-1}
+        f(m') = delta_m / m' + delta_m / (m' - delta_m)
+
+        See also, https://en.wikipedia.org/wiki/Window_function#Planck-taper_window
         """
         window = xp.ones_like(masses)
         if delta_m > 0.0:
-            mass_range = mmax - mmin
-            delta_m /= mass_range
-            sel_p = (masses >= mmin) & (masses <= (mmin + delta_m * mass_range))
-            ms_p = masses - mmin
-            z_p = xp.nan_to_num(
-                2
-                * delta_m
-                * (
-                    1 / (2 * ms_p / mass_range)
-                    + 1 / (2 * ms_p / mass_range - 2 * delta_m)
+            smoothing_region = (masses > mmin) & (masses < (mmin + delta_m))
+            shifted_mass = masses[smoothing_region] - mmin
+            if shifted_mass.size:
+                exponent = xp.nan_to_num(
+                    delta_m / shifted_mass + delta_m / (shifted_mass - delta_m)
                 )
-            )
-            window[sel_p] = 1 / (xp.exp(z_p[sel_p]) + 1)
+                window[smoothing_region] = 1 / (xp.exp(exponent) + 1)
         window[(masses < mmin) | (masses > mmax)] = 0
         return window
 
@@ -621,15 +622,7 @@ class MultiPeakSmoothedMassDistribution(_SmoothedMassDistribution):
 
 class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
     def __call__(
-        self,
-        dataset,
-        alpha_1,
-        alpha_2,
-        beta,
-        mmin,
-        mmax,
-        delta_m,
-        break_fraction,
+        self, dataset, alpha_1, alpha_2, beta, mmin, mmax, delta_m, break_fraction,
     ):
         """
         Broken power law for two-dimensional mass distribution with low
@@ -669,9 +662,7 @@ class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
         )
         return p_m / norm
 
-    def norm_p_m1(
-        self, alpha_1, alpha_2, mmin, mmax, delta_m, break_fraction
-    ):
+    def norm_p_m1(self, alpha_1, alpha_2, mmin, mmax, delta_m, break_fraction):
         if delta_m == 0.0:
             return 1
         p_m = double_power_law_primary_mass(

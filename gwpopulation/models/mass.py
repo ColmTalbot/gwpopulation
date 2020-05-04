@@ -57,11 +57,11 @@ def double_power_law_peak_primary_mass(
     """
 
     p_pow = double_power_law_primary_mass(
-        mass=mass, 
-        alpha_1=alpha_1, 
-        alpha_2=alpha_2, 
-        mmin=mmin, 
-        mmax=mmax, 
+        mass=mass,
+        alpha_1=alpha_1,
+        alpha_2=alpha_2,
+        mmin=mmin,
+        mmax=mmax,
         break_fraction=break_fraction,
     )
     p_norm = truncnorm(mass, mu=mpp, sigma=sigpp, high=100, low=mmin)
@@ -674,8 +674,8 @@ class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
             Powerlaw exponent for more massive black hole above break.
         beta: float
             Power law exponent of the mass ratio distribution.
-        break_fraction:float
-            The fraction between mmin and mmax primary mass distribution breaks.
+        break_fraction: float
+            Fraction between mmin and mmax primary mass distribution breaks at.
         mmin: float
             Minimum black hole mass.
         mmax: float
@@ -769,7 +769,7 @@ class BrokenPowerLawPeakSmoothedMassDistribution(_SmoothedMassDistribution):
         beta: float
             Power law exponent of the mass ratio distribution.
         break_fraction: float
-            The fraction between mmin and mmax primary mass distribution breaks.
+            Fraction between mmin and mmax primary mass distribution breaks at.
         mmin: float
             Minimum black hole mass.
         mmax: float

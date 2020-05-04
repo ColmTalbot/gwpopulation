@@ -5,6 +5,21 @@ from ..utils import powerlaw, truncnorm
 
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
+    """
+    Parameters
+    ----------
+    alpha_1: float
+        Powerlaw exponent for more massive black hole below break.
+    alpha_2: float
+        Powerlaw exponent for more massive black hole above break.
+    break_fraction:float
+        The fraction between mmin and mmax primary mass distribution breaks.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum mass in the powerlaw distributed component.
+    """
+
     prob = xp.zeros_like(mass)
     m_break = mmin + break_fraction * (mmax - mmin)
     correction = powerlaw(m_break, alpha=-alpha_2, low=m_break, high=mmax) / powerlaw(
@@ -18,6 +33,27 @@ def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_frac
 
 
 def double_power_law_peak_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction, lam, mpp, sigpp):
+    """
+    Parameters
+    ----------
+    alpha_1: float
+        Powerlaw exponent for more massive black hole below break.
+    alpha_2: float
+        Powerlaw exponent for more massive black hole above break.
+    break_fraction:float
+        The fraction between mmin and mmax primary mass distribution breaks.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum mass in the powerlaw distributed component.
+    lam: float
+        Fraction of black holes in the Gaussian component.
+    mpp: float
+        Mean of the Gaussian component.
+    sigpp: float
+        Standard deviation fo the Gaussian component.
+    """
+
     prob = xp.zeros_like(mass)
     m_break = mmin + break_fraction * (mmax - mmin)
     correction = powerlaw(m_break, alpha=-alpha_2, low=m_break, high=mmax) / powerlaw(
@@ -628,7 +664,32 @@ class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
         Broken power law for two-dimensional mass distribution with low
         mass smoothing.
 
+        Parameters
+        ----------                                                                                                                                                                                         
+        dataset: dict                                                                                                                                                                                      
+            Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+        alpha_1: float
+            Powerlaw exponent for more massive black hole below break.
+        alpha_2: float
+            Powerlaw exponent for more massive black hole above break.
+        beta: float
+            Power law exponent of the mass ratio distribution.
+        break_fraction:float
+            The fraction between mmin and mmax primary mass distribution breaks.
+        mmin: float
+            Minimum black hole mass.
+        mmax: float
+            Maximum mass in the powerlaw distributed component.
+        lam: float
+            Fraction of black holes in the Gaussian component.
+        mpp: float
+            Mean of the Gaussian component.
+        sigpp: float
+            Standard deviation fo the Gaussian component.
+        delta_m: float
+            Rise length of the low end of the mass distribution.
         """
+
         p_m1 = self.p_m1(
             dataset,
             alpha_1=alpha_1,
@@ -696,7 +757,33 @@ class BrokenPowerLawPeakSmoothedMassDistribution(_SmoothedMassDistribution):
         """
         Broken power law for two-dimensional mass distribution with low
         mass smoothing.
+
+        Parameters
+        ----------
+        dataset: dict
+            Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+        alpha_1: float
+            Powerlaw exponent for more massive black hole below break.
+        alpha_2: float
+            Powerlaw exponent for more massive black hole above break.
+        beta: float
+            Power law exponent of the mass ratio distribution.
+        break_fraction: float
+            The fraction between mmin and mmax primary mass distribution breaks.
+        mmin: float
+            Minimum black hole mass.
+        mmax: float
+            Maximum mass in the powerlaw distributed component.
+        lam: float
+            Fraction of black holes in the Gaussian component.
+        mpp: float
+            Mean of the Gaussian component.
+        sigpp: float
+            Standard deviation fo the Gaussian component.
+        delta_m: float
+            Rise length of the low end of the mass distribution.
         """
+
         p_m1 = self.p_m1(
             dataset,
             alpha_1=alpha_1,

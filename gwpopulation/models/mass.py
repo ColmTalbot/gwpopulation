@@ -5,6 +5,21 @@ from ..utils import powerlaw, truncnorm
 
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
+    """
+    Parameters
+    ----------
+    alpha_1: float
+        Powerlaw exponent for more massive black hole below break.
+    alpha_2: float
+        Powerlaw exponent for more massive black hole above break.
+    break_fraction:float
+        The fraction between mmin and mmax primary mass distribution breaks.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum mass in the powerlaw distributed component.
+    """
+
     prob = xp.zeros_like(mass)
     m_break = mmin + break_fraction * (mmax - mmin)
     correction = powerlaw(m_break, alpha=-alpha_2, low=m_break, high=mmax) / powerlaw(
@@ -15,6 +30,43 @@ def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_frac
     high_part = powerlaw(mass[mass >= m_break], alpha=-alpha_2, low=m_break, high=mmax)
     prob[mass >= m_break] = high_part
     return prob / (1 + correction)
+
+
+def double_power_law_peak_primary_mass(
+        mass, alpha_1, alpha_2, mmin, mmax, break_fraction, lam, mpp, sigpp
+):
+    """
+    Parameters
+    ----------
+    alpha_1: float
+        Powerlaw exponent for more massive black hole below break.
+    alpha_2: float
+        Powerlaw exponent for more massive black hole above break.
+    break_fraction:float
+        The fraction between mmin and mmax primary mass distribution breaks.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum mass in the powerlaw distributed component.
+    lam: float
+        Fraction of black holes in the Gaussian component.
+    mpp: float
+        Mean of the Gaussian component.
+    sigpp: float
+        Standard deviation fo the Gaussian component.
+    """
+
+    p_pow = double_power_law_primary_mass(
+        mass=mass,
+        alpha_1=alpha_1,
+        alpha_2=alpha_2,
+        mmin=mmin,
+        mmax=mmax,
+        break_fraction=break_fraction,
+    )
+    p_norm = truncnorm(mass, mu=mpp, sigma=sigpp, high=100, low=mmin)
+    prob = (1 - lam) * p_pow + lam * p_norm
+    return prob
 
 
 def double_power_law_primary_power_law_mass_ratio(
@@ -612,7 +664,32 @@ class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
         Broken power law for two-dimensional mass distribution with low
         mass smoothing.
 
+        Parameters
+        ----------
+        dataset: dict
+            Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+        alpha_1: float
+            Powerlaw exponent for more massive black hole below break.
+        alpha_2: float
+            Powerlaw exponent for more massive black hole above break.
+        beta: float
+            Power law exponent of the mass ratio distribution.
+        break_fraction: float
+            Fraction between mmin and mmax primary mass distribution breaks at.
+        mmin: float
+            Minimum black hole mass.
+        mmax: float
+            Maximum mass in the powerlaw distributed component.
+        lam: float
+            Fraction of black holes in the Gaussian component.
+        mpp: float
+            Mean of the Gaussian component.
+        sigpp: float
+            Standard deviation fo the Gaussian component.
+        delta_m: float
+            Rise length of the low end of the mass distribution.
         """
+
         p_m1 = self.p_m1(
             dataset,
             alpha_1=alpha_1,
@@ -656,6 +733,114 @@ class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
             mmin=mmin,
             mmax=mmax,
             break_fraction=break_fraction,
+        )
+        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
+        norm = trapz(p_m, self.m1s)
+        return norm
+
+
+class BrokenPowerLawPeakSmoothedMassDistribution(_SmoothedMassDistribution):
+    def __call__(
+        self,
+        dataset,
+        alpha_1,
+        alpha_2,
+        beta,
+        mmin,
+        mmax,
+        delta_m,
+        break_fraction,
+        lam,
+        mpp,
+        sigpp,
+    ):
+        """
+        Broken power law for two-dimensional mass distribution with low
+        mass smoothing.
+
+        Parameters
+        ----------
+        dataset: dict
+            Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+        alpha_1: float
+            Powerlaw exponent for more massive black hole below break.
+        alpha_2: float
+            Powerlaw exponent for more massive black hole above break.
+        beta: float
+            Power law exponent of the mass ratio distribution.
+        break_fraction: float
+            Fraction between mmin and mmax primary mass distribution breaks at.
+        mmin: float
+            Minimum black hole mass.
+        mmax: float
+            Maximum mass in the powerlaw distributed component.
+        lam: float
+            Fraction of black holes in the Gaussian component.
+        mpp: float
+            Mean of the Gaussian component.
+        sigpp: float
+            Standard deviation fo the Gaussian component.
+        delta_m: float
+            Rise length of the low end of the mass distribution.
+        """
+
+        p_m1 = self.p_m1(
+            dataset,
+            alpha_1=alpha_1,
+            alpha_2=alpha_2,
+            mmin=mmin,
+            mmax=mmax,
+            delta_m=delta_m,
+            break_fraction=break_fraction,
+            lam=lam,
+            mpp=mpp,
+            sigpp=sigpp,
+        )
+        p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
+        prob = p_m1 * p_q
+        return prob
+
+    def p_m1(self, dataset, alpha_1, alpha_2, mmin, mmax, delta_m, break_fraction, lam, mpp, sigpp):
+        p_m = double_power_law_peak_primary_mass(
+            dataset["mass_1"],
+            alpha_1=alpha_1,
+            alpha_2=alpha_2,
+            mmin=mmin,
+            mmax=mmax,
+            break_fraction=break_fraction,
+            lam=lam,
+            mpp=mpp,
+            sigpp=sigpp,
+        )
+        p_m *= self.smoothing(dataset["mass_1"], mmin=mmin, mmax=100, delta_m=delta_m)
+        norm = self.norm_p_m1(
+            alpha_1=alpha_1,
+            alpha_2=alpha_2,
+            mmin=mmin,
+            mmax=mmax,
+            delta_m=delta_m,
+            break_fraction=break_fraction,
+            lam=lam,
+            mpp=mpp,
+            sigpp=sigpp,
+        )
+        return p_m / norm
+
+    def norm_p_m1(
+        self, alpha_1, alpha_2, mmin, mmax, delta_m, break_fraction, lam, mpp, sigpp
+    ):
+        if delta_m == 0.0:
+            return 1
+        p_m = double_power_law_peak_primary_mass(
+            self.m1s,
+            alpha_1=alpha_1,
+            alpha_2=alpha_2,
+            mmin=mmin,
+            mmax=mmax,
+            break_fraction=break_fraction,
+            lam=lam,
+            mpp=mpp,
+            sigpp=sigpp,
         )
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
         norm = trapz(p_m, self.m1s)

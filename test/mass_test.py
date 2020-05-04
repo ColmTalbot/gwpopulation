@@ -162,6 +162,16 @@ class TestSmoothedMassDistribution(unittest.TestCase):
         self.broken_power_prior["beta"] = Uniform(minimum=-4, maximum=12)
         self.broken_power_prior["mmin"] = Uniform(minimum=3, maximum=10)
         self.broken_power_prior["mmax"] = Uniform(minimum=30, maximum=100)
+        self.broken_power_peak_prior = PriorDict()
+        self.broken_power_peak_prior["alpha_1"] = Uniform(minimum=-4, maximum=12)
+        self.broken_power_peak_prior["alpha_2"] = Uniform(minimum=-4, maximum=12)
+        self.broken_power_peak_prior["break_fraction"] = Uniform(minimum=0, maximum=1)
+        self.broken_power_peak_prior["beta"] = Uniform(minimum=-4, maximum=12)
+        self.broken_power_peak_prior["mmin"] = Uniform(minimum=3, maximum=10)
+        self.broken_power_peak_prior["mmax"] = Uniform(minimum=30, maximum=100)
+        self.broken_power_peak_prior["lam"] = Uniform(minimum=0, maximum=1)
+        self.broken_power_peak_prior["mpp"] = Uniform(minimum=20, maximum=60)
+        self.broken_power_peak_prior["sigpp"] = Uniform(minimum=0, maximum=10)
         self.smooth_prior = PriorDict()
         self.smooth_prior["delta_m"] = Uniform(minimum=0, maximum=10)
         self.n_test = 10
@@ -219,6 +229,17 @@ class TestSmoothedMassDistribution(unittest.TestCase):
             parameters = self.broken_power_prior.sample()
             parameters.update(self.smooth_prior.sample())
             p_m = mass.BrokenPowerLawSmoothedMassDistribution()(
+                self.dataset, **parameters
+            )
+            norms.append(trapz(trapz(p_m, self.m1s), self.qs))
+        self.assertAlmostEqual(_max_abs_difference(norms, 1.0), 0.0, 2)
+
+    def test_broken_power_law_peak_normalised(self):
+        norms = list()
+        for ii in range(self.n_test):
+            parameters = self.broken_power_peak_prior.sample()
+            parameters.update(self.smooth_prior.sample())
+            p_m = mass.BrokenPowerLawPeakSmoothedMassDistribution()(
                 self.dataset, **parameters
             )
             norms.append(trapz(trapz(p_m, self.m1s), self.qs))

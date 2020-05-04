@@ -32,7 +32,9 @@ def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_frac
     return prob / (1 + correction)
 
 
-def double_power_law_peak_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction, lam, mpp, sigpp):
+def double_power_law_peak_primary_mass(
+        mass, alpha_1, alpha_2, mmin, mmax, break_fraction, lam, mpp, sigpp
+):
     """
     Parameters
     ----------
@@ -54,16 +56,14 @@ def double_power_law_peak_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break
         Standard deviation fo the Gaussian component.
     """
 
-    prob = xp.zeros_like(mass)
-    m_break = mmin + break_fraction * (mmax - mmin)
-    correction = powerlaw(m_break, alpha=-alpha_2, low=m_break, high=mmax) / powerlaw(
-        m_break, alpha=-alpha_1, low=mmin, high=m_break
+    p_pow = double_power_law_primary_mass(
+        mass=mass, 
+        alpha_1=alpha_1, 
+        alpha_2=alpha_2, 
+        mmin=mmin, 
+        mmax=mmax, 
+        break_fraction=break_fraction,
     )
-    low_part = powerlaw(mass[mass < m_break], alpha=-alpha_1, low=mmin, high=m_break)
-    prob[mass < m_break] = low_part * correction
-    high_part = powerlaw(mass[mass >= m_break], alpha=-alpha_2, low=m_break, high=mmax)
-    prob[mass >= m_break] = high_part
-    p_pow = prob / (1 + correction)
     p_norm = truncnorm(mass, mu=mpp, sigma=sigpp, high=100, low=mmin)
     prob = (1 - lam) * p_pow + lam * p_norm
     return prob
@@ -665,8 +665,8 @@ class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
         mass smoothing.
 
         Parameters
-        ----------                                                                                                                                                                                         
-        dataset: dict                                                                                                                                                                                      
+        ----------
+        dataset: dict
             Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
         alpha_1: float
             Powerlaw exponent for more massive black hole below break.

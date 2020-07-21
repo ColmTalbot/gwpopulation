@@ -10,6 +10,7 @@ from .cupy_utils import CUPY_LOADED, to_numpy, xp
 
 INF = xp.nan_to_num(xp.inf)
 
+
 class HyperparameterLikelihood(Likelihood):
     """
     A likelihood for inferring hyperparameter posterior distributions with

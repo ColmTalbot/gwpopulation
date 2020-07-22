@@ -122,7 +122,10 @@ class HyperparameterLikelihood(Likelihood):
         if added_keys is not None:
             for key in added_keys:
                 self.parameters.pop(key)
-        return float(xp.nan_to_num(ln_l, nan=-INF))
+        if xp.isnan(ln_l):
+            return float(-INF)
+        else:
+            return float(xp.nan_to_num(ln_l))
 
     def noise_log_likelihood(self):
         return self.total_noise_evidence

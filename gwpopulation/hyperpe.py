@@ -8,6 +8,8 @@ from bilby.hyper.model import Model
 
 from .cupy_utils import CUPY_LOADED, to_numpy, xp
 
+INF = xp.nan_to_num(xp.inf)
+
 
 class HyperparameterLikelihood(Likelihood):
     """
@@ -120,7 +122,7 @@ class HyperparameterLikelihood(Likelihood):
         if added_keys is not None:
             for key in added_keys:
                 self.parameters.pop(key)
-        return float(xp.nan_to_num(ln_l))
+        return float(xp.nan_to_num(ln_l, nan=-INF))
 
     def noise_log_likelihood(self):
         return self.total_noise_evidence

@@ -79,3 +79,83 @@ def independent_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_1, s
         dataset["cos_tilt_1"], 1, sigma_1, 1, -1
     ) * truncnorm(dataset["cos_tilt_2"], 1, sigma_2, 1, -1)
     return prior
+
+
+def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):
+    return truncnorm(
+        dataset["chi_eff"], mu=mu_chi_eff, sigma=sigma_chi_eff, low=-1, high=1
+    )
+
+
+def gaussian_chi_p(dataset, mu_chi_p, sigma_chi_p):
+    return truncnorm(dataset["chi_p"], mu=mu_chi_p, sigma=sigma_chi_p, low=0, high=1)
+
+
+class GaussianChiEffChiP(object):
+    def __init__(self):
+        self.chi_eff = xp.linspace(-1, 1, 100)
+        self.chi_p = xp.linspace(0, 1, 50)
+        self.chi_eff_grid, self.chi_p_grid = xp.meshgrid(self.chi_eff, self.chi_p)
+        self.normalization_data = dict(chi_eff=self.chi_eff_grid, chi_p=self.chi_p_grid)
+
+    def __call__(
+        self, dataset, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
+    ):
+        if spin_covariance == 0:
+            prob = gaussian_chi_eff(
+                dataset=dataset, mu_chi_eff=mu_chi_eff, sigma_chi_eff=sigma_chi_eff,
+            )
+            prob *= gaussian_chi_p(
+                dataset=dataset, mu_chi_p=mu_chi_p, sigma_chi_p=sigma_chi_p
+            )
+        else:
+            prob = self._2d_probability(
+                dataset,
+                mu_chi_eff,
+                sigma_chi_eff,
+                mu_chi_p,
+                sigma_chi_p,
+                spin_covariance,
+            )
+            normalization = self._normalization(
+                mu_chi_eff=mu_chi_eff,
+                sigma_chi_eff=sigma_chi_eff,
+                mu_chi_p=mu_chi_p,
+                sigma_chi_p=sigma_chi_p,
+                spin_covariance=spin_covariance,
+            )
+            prob /= normalization
+        return prob
+
+    def _2d_probability(
+        self, dataset, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
+    ):
+        determinant = sigma_chi_eff ** 2 * sigma_chi_p ** 2 * (1 - spin_covariance)
+        chi_eff_residual = (mu_chi_eff - dataset["chi_eff"]) * sigma_chi_eff
+        chi_p_resiudal = (mu_chi_p - dataset["chi_p"]) * sigma_chi_p
+        prob = xp.exp(
+            -(
+                chi_eff_residual ** 2
+                + chi_p_resiudal ** 2
+                - 2 * chi_eff_residual * chi_p_resiudal * spin_covariance
+            )
+            / 2
+            / determinant
+        )
+        return prob
+
+    def _normalization(
+        self, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
+    ):
+        prob = self._2d_probability(
+            self.normalization_data,
+            mu_chi_eff,
+            sigma_chi_eff,
+            mu_chi_p,
+            sigma_chi_p,
+            spin_covariance,
+        )
+        return xp.trapz(
+            y=xp.trapz(y=prob, axis=-1, x=self.chi_p), axis=-1, x=self.chi_eff
+        )
+

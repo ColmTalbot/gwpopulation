@@ -1,5 +1,11 @@
 All of the models implemented.
 ==============================
 
-.. automodule:: gwpopulation.models
+.. automodule:: gwpopulation.models.mass
+    :members:
+
+.. automodule:: gwpopulation.models.spin
+    :members:
+
+.. automodule:: gwpopulation.models.redshift
     :members:

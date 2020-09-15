@@ -425,7 +425,7 @@ class _SmoothedMassDistribution(object):
         """
         window = xp.ones_like(masses)
         if delta_m > 0.0:
-            smoothing_region = (masses > mmin) & (masses < (mmin + delta_m))
+            smoothing_region = (masses >= mmin) & (masses < (mmin + delta_m))
             shifted_mass = masses[smoothing_region] - mmin
             if shifted_mass.size:
                 exponent = xp.nan_to_num(

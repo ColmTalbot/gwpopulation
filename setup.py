@@ -66,6 +66,7 @@ setup(
     name="gwpopulation",
     description="Unified population inference",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/ColmTalbot/gwpopulation",
     author="Colm Talbot",
     author_email="colm.talbot@monash.edu",

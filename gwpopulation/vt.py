@@ -6,15 +6,25 @@ from .cupy_utils import trapz, xp
 from .models.redshift import _Redshift
 
 
-class GridVT(object):
+class _BaseVT(object):
+
     def __init__(self, model, data):
-        self.vts = data.pop("vt")
         self.data = data
         if isinstance(model, list):
             model = Model(model)
         elif not isinstance(model, Model):
             model = Model([model])
         self.model = model
+
+    def __call__(self, *args, **kwargs):
+        raise NotImplementedError
+
+
+class GridVT(_BaseVT):
+
+    def __init__(self, model, data):
+        self.vts = data.pop("vt")
+        super(GridVT, self).__init__(model=model, data=data)
         self.values = {key: xp.unique(self.data[key]) for key in self.data}
         shape = np.array(list(self.data.values())[0].shape)
         lens = {key: len(self.values[key]) for key in self.data}
@@ -29,14 +39,10 @@ class GridVT(object):
         return vt_fac
 
 
-class ResamplingVT(object):
+class ResamplingVT(_BaseVT):
+
     def __init__(self, model, data, n_events=np.inf):
-        self.data = data
-        if isinstance(model, list):
-            model = Model(model)
-        elif not isinstance(model, Model):
-            model = Model([model])
-        self.model = model
+        super(ResamplingVT, self).__init__(model=model, data=data)
         self.n_events = n_events
         self.total_injections = data.get("total_generated", len(data["prior"]))
         self.analysis_time = data.get("analysis_time", 1)

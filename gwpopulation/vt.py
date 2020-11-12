@@ -95,5 +95,3 @@ class ResamplingVT(_BaseVT):
                 / 1e9
                 * self.analysis_time
             )
-
-

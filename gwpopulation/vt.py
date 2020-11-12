@@ -3,7 +3,7 @@ from bilby.hyper.model import Model
 import numpy as np
 
 from .cupy_utils import trapz, xp
-from .models.redshift import _Redshift
+from .models.redshift import _Redshift, total_four_volume
 
 
 class _BaseVT(object):
@@ -97,19 +97,3 @@ class ResamplingVT(_BaseVT):
             )
 
 
-def total_four_volume(lamb, analysis_time, max_redshift=2.3):
-    from astropy.cosmology import Planck15
-
-    redshifts = np.linspace(0, max_redshift, 1000)
-    psi_of_z = (1 + redshifts) ** lamb
-    normalization = 4 * np.pi / 1e9 * analysis_time
-    total_volume = (
-        np.trapz(
-            Planck15.differential_comoving_volume(redshifts).value
-            / (1 + redshifts)
-            * psi_of_z,
-            redshifts,
-        )
-        * normalization
-    )
-    return total_volume

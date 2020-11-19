@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import types
 from tqdm import tqdm
 
 from bilby.core.utils import logger
@@ -87,8 +88,13 @@ class HyperparameterLikelihood(Likelihood):
         self.samples_per_posterior = max_samples
         self.data = self.resample_posteriors(posteriors, max_samples=max_samples)
 
-        if not isinstance(hyper_prior, Model):
+        if isinstance(hyper_prior, types.FunctionType):
             hyper_prior = Model([hyper_prior])
+        elif not (hasattr(hyper_prior, 'parameters') and callable(getattr(hyper_prior,'prob'))):
+            raise AttributeError(
+                "hyper_prior must either be a function, "
+                "or a class with attribute 'parameters' and method 'prob'"
+            )
         self.hyper_prior = hyper_prior
         Likelihood.__init__(self, hyper_prior.parameters)
 

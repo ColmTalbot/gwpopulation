@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from scipy.stats import gamma
 from tqdm import tqdm
 
 from bilby.core.utils import logger
@@ -170,7 +171,20 @@ class HyperparameterLikelihood(Likelihood):
         return sample
 
     def generate_rate_posterior_sample(self):
-        raise NotImplementedError
+        if (
+            hasattr(self.selection_function, "detection_efficiency")
+            and hasattr(self.selection_function, "surveyed_hypervolume")
+        ):
+            efficiency, _ = self.selection_function.detection_efficiency(
+                self.parameters
+            )
+            vt = efficiency * self.selection_function.surveyed_hypervolume(
+                self.parameters
+            )
+        else:
+            vt = self.selection_function(self.parameters)
+        rate = gamma(a=self.n_posteriors).rvs() / vt
+        return rate
 
     def resample_posteriors(self, posteriors, max_samples=1e300):
         """
@@ -280,4 +294,4 @@ class RateLikelihood(HyperparameterLikelihood):
         return ln_l
 
     def generate_rate_posterior_sample(self):
-        pass
+        return self.parameters["rate"]

@@ -45,8 +45,22 @@ class TestRedshift(unittest.TestCase):
         model = redshift.PowerLawRedshift()
         parameters = dict(lamb=1)
         total_volume = np.trapz(
-            Planck15.differential_comoving_volume(self.zs).value * 4 * np.pi, self.zs,
+            Planck15.differential_comoving_volume(self.zs).value * 4 * np.pi,
+            self.zs,
         )
         self.assertEqual(
-            total_volume, model.total_spacetime_volume(**parameters),
+            total_volume,
+            model.total_spacetime_volume(**parameters),
+        )
+
+
+class TestFourVolume(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def test_four_volume(self):
+        self.assertAlmostEqual(
+            Planck15.comoving_volume(2.3).value / 1e9,
+            redshift.total_four_volume(lamb=1, analysis_time=1, max_redshift=2.3),
+            4
         )

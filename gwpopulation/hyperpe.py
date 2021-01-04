@@ -92,7 +92,10 @@ class HyperparameterLikelihood(Likelihood):
 
         if isinstance(hyper_prior, types.FunctionType):
             hyper_prior = Model([hyper_prior])
-        elif not (hasattr(hyper_prior, 'parameters') and callable(getattr(hyper_prior,'prob'))):
+        elif not (
+            hasattr(hyper_prior, "parameters")
+            and callable(getattr(hyper_prior, "prob"))
+        ):
             raise AttributeError(
                 "hyper_prior must either be a function, "
                 "or a class with attribute 'parameters' and method 'prob'"
@@ -178,9 +181,8 @@ class HyperparameterLikelihood(Likelihood):
         return sample
 
     def generate_rate_posterior_sample(self):
-        if (
-            hasattr(self.selection_function, "detection_efficiency")
-            and hasattr(self.selection_function, "surveyed_hypervolume")
+        if hasattr(self.selection_function, "detection_efficiency") and hasattr(
+            self.selection_function, "surveyed_hypervolume"
         ):
             efficiency, _ = self.selection_function.detection_efficiency(
                 self.parameters

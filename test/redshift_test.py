@@ -62,5 +62,5 @@ class TestFourVolume(unittest.TestCase):
         self.assertAlmostEqual(
             Planck15.comoving_volume(2.3).value / 1e9,
             redshift.total_four_volume(lamb=1, analysis_time=1, max_redshift=2.3),
-            4
+            4,
         )

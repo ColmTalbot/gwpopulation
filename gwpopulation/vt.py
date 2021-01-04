@@ -7,7 +7,6 @@ from .models.redshift import _Redshift, total_four_volume
 
 
 class _BaseVT(object):
-
     def __init__(self, model, data):
         self.data = data
         if isinstance(model, list):
@@ -21,7 +20,6 @@ class _BaseVT(object):
 
 
 class GridVT(_BaseVT):
-
     def __init__(self, model, data):
         self.vts = data.pop("vt")
         super(GridVT, self).__init__(model=model, data=data)
@@ -40,7 +38,6 @@ class GridVT(_BaseVT):
 
 
 class ResamplingVT(_BaseVT):
-
     def __init__(self, model, data, n_events=np.inf):
         super(ResamplingVT, self).__init__(model=model, data=data)
         self.n_events = n_events

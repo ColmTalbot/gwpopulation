@@ -23,7 +23,7 @@ def iid_spin_magnitude_beta(dataset, amax=1, alpha_chi=1, beta_chi=1):
 def independent_spin_magnitude_beta(
     dataset, alpha_chi_1, alpha_chi_2, beta_chi_1, beta_chi_2, amax_1, amax_2
 ):
-    """ Independent beta distributions for both spin magnitudes.
+    """Independent beta distributions for both spin magnitudes.
 
     https://arxiv.org/abs/1805.06442 Eq. (10)
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.beta.html

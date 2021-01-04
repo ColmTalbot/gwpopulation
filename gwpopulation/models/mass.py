@@ -6,8 +6,15 @@ from ..utils import powerlaw, truncnorm
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
     """
+    Broken power-law mass distribution
+
+    mmin <= m < mmin + (mmax - mmin): break_fraction: p(m) \propto m^{-alpha_1}
+    mmin + (mmax - mmin) <= m <= mmax: break_fraction: p(m) \propto m^{-alpha_2}
+
     Parameters
     ----------
+    mass: array-like
+        Mass to evaluate probability at
     alpha_1: float
         Powerlaw exponent for more massive black hole below break.
     alpha_2: float
@@ -33,11 +40,15 @@ def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_frac
 
 
 def double_power_law_peak_primary_mass(
-        mass, alpha_1, alpha_2, mmin, mmax, break_fraction, lam, mpp, sigpp
+    mass, alpha_1, alpha_2, mmin, mmax, break_fraction, lam, mpp, sigpp
 ):
     """
+    Broken power-law with a Gaussian component.
+
     Parameters
     ----------
+    mass: array-like
+        Mass to evaluate probability at
     alpha_1: float
         Powerlaw exponent for more massive black hole below break.
     alpha_2: float
@@ -82,8 +93,10 @@ def double_power_law_primary_power_law_mass_ratio(
     ----------
     dataset: dict
         Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
-    alpha: float
-        Negative power law exponent for more massive black hole.
+    alpha_1: float
+        Negative power law exponent for more massive black hole before break.
+    alpha_2: float
+        Negative power law exponent for more massive black hole after break.
     mmin: float
         Minimum black hole mass.
     mmax: float
@@ -184,7 +197,7 @@ def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
 
 def two_component_single(mass, alpha, mmin, mmax, lam, mpp, sigpp):
     """
-    Power law model for one-dimensional mass distribution.
+    Power law model for one-dimensional mass distribution with a Gaussian component.
 
     Parameters
     ----------
@@ -213,6 +226,8 @@ def three_component_single(
     mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2
 ):
     """
+    Power law model for one-dimensional mass distribution with two Gaussian components.
+
     Parameters
     ----------
     mass: array-like
@@ -351,12 +366,25 @@ def two_component_primary_secondary_identical(
 
 
 class _SmoothedMassDistribution(object):
+    """
+    Generic smoothed mass distribution base class.
+
+    Implements the low-mass smoothing and power-law mass ratio
+    distribution. Requires p_m1 to be implemented.
+    """
+
     def __init__(self):
         self.m1s = xp.linspace(2, 100, 1000)
         self.qs = xp.linspace(0.001, 1, 500)
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
+
+    def __call__(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def p_m1(self, *args, **kwargs):
+        raise NotImplementedError
 
     def p_q(self, dataset, beta, mmin, delta_m):
         p_q = powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
@@ -658,7 +686,15 @@ class MultiPeakSmoothedMassDistribution(_SmoothedMassDistribution):
 
 class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
     def __call__(
-        self, dataset, alpha_1, alpha_2, beta, mmin, mmax, delta_m, break_fraction,
+        self,
+        dataset,
+        alpha_1,
+        alpha_2,
+        beta,
+        mmin,
+        mmax,
+        delta_m,
+        break_fraction,
     ):
         """
         Broken power law for two-dimensional mass distribution with low
@@ -800,7 +836,19 @@ class BrokenPowerLawPeakSmoothedMassDistribution(_SmoothedMassDistribution):
         prob = p_m1 * p_q
         return prob
 
-    def p_m1(self, dataset, alpha_1, alpha_2, mmin, mmax, delta_m, break_fraction, lam, mpp, sigpp):
+    def p_m1(
+        self,
+        dataset,
+        alpha_1,
+        alpha_2,
+        mmin,
+        mmax,
+        delta_m,
+        break_fraction,
+        lam,
+        mpp,
+        sigpp,
+    ):
         p_m = double_power_law_peak_primary_mass(
             dataset["mass_1"],
             alpha_1=alpha_1,

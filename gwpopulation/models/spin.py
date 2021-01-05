@@ -101,6 +101,26 @@ class GaussianChiEffChiP(object):
     def __call__(
         self, dataset, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
     ):
+        """
+        A covariant Gaussian in effective aligned and precessing spins.
+
+        See https://arxiv.org/abs/2001.06051, https://arxiv.org/abs/2010.14533
+
+        Parameters
+        ----------
+        dataset: dict
+            Dictionary of numpy arrays for 'chi_eff' and 'chi_p'.
+        mu_chi_eff: float
+            Mean of the chi effective distribution
+        mu_chi_p: float
+            Mean of the chi p distribution
+        sigma_chi_eff: float
+            Standard deviation of the chi effective distribution
+        sigma_chi_p: float
+            Standard deviation of the chi p distribution
+        spin_covariance: float
+            Covariance between the two parameters
+        """
         if spin_covariance == 0:
             prob = gaussian_chi_eff(
                 dataset=dataset,

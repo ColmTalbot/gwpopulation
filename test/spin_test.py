@@ -178,3 +178,21 @@ class TestGaussianSpin(unittest.TestCase):
             1,
             3,
         )
+
+    def test_2d_gaussian_no_covariance_matches_independent(self):
+        model = spin.GaussianChiEffChiP()
+        data = dict(chi_eff=xp.linspace(-2, 2, 1001), chi_p=xp.linspace(0, 2, 1001))
+        self.assertTrue(
+            xp.all(
+                spin.gaussian_chi_eff(data, mu_chi_eff=0.4, sigma_chi_eff=0.1)
+                * spin.gaussian_chi_p(data, mu_chi_p=0.4, sigma_chi_p=0.1)
+                == model(
+                    data,
+                    mu_chi_eff=0.4,
+                    mu_chi_p=0.4,
+                    sigma_chi_eff=0.1,
+                    sigma_chi_p=0.1,
+                    spin_covariance=0.0,
+                )
+            )
+        )

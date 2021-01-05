@@ -50,9 +50,11 @@ def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
     determinant = sigma_x ** 2 * sigma_y ** 2 * (1 - covariance)
     residual_x = (mu_x - xx) * sigma_x
     residual_y = (mu_y - yy) * sigma_y
-    prob = xp.exp(-(
-            residual_x ** 2 + residual_y ** 2 - 2 * residual_x * residual_y * covariance
-    ) / 2 / determinant)
+    prob = xp.exp(
+        -(residual_x ** 2 + residual_y ** 2 - 2 * residual_x * residual_y * covariance)
+        / 2
+        / determinant
+    )
     return prob
 
 

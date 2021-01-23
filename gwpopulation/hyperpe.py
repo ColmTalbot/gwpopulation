@@ -93,9 +93,9 @@ class HyperparameterLikelihood(Likelihood):
         if isinstance(hyper_prior, types.FunctionType):
             hyper_prior = Model([hyper_prior])
         elif not (
-             hasattr(hyper_prior, 'parameters') 
-             and callable(getattr(hyper_prior,'prob'))
-             ):
+            hasattr(hyper_prior, "parameters") 
+            and callable(getattr(hyper_prior, "prob"))
+        ):
             raise AttributeError(
                 "hyper_prior must either be a function, "
                 "or a class with attribute 'parameters' and method 'prob'"

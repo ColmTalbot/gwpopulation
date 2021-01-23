@@ -95,9 +95,6 @@ def trapz(y, x=None, dx=1.0, axis=-1):
     try:
         ret = product.sum(axis)
     except ValueError:
-        # Operations didn't work, cast to ndarray
-        # d = xp.asarray(d)
-        # y = xp.asarray(y)
         ret = xp.add.reduce(product, axis)
     return ret
 
@@ -185,45 +182,3 @@ def diff(a, n=1, axis=-1):
         a = op(a[slice1], a[slice2])
 
     return a
-
-
-# class interp1d(object):
-#
-#     def __init__(self, xx, yy, bounds_error=False, fill_value=xp.nan):
-#         self.input_len = len(xx)
-#         if len(xx) != len(yy):
-#             raise ValueError('Cannot interpolate uneven length arrays.')
-#         xx = xp.concatenate((xp.asarray([-xp.inf]), xx, xp.asarray([xp.inf])))
-#         yy = xp.concatenate((xp.asarray([xp.nan]), yy, xp.asarray([xp.nan])))
-#         sorted_idxs = xp.argsort(xx)
-#         self.x_sorted = xx[sorted_idxs]
-#         self.y_sorted = yy[sorted_idxs]
-#         self.differential_x = xp.concatenate((
-#             self.x_sorted[1:] - self.x_sorted[:-1], xp.asarray([xp.nan])))
-#         self.differential_y = xp.concatenate((
-#             self.y_sorted[1:] - self.y_sorted[:-1], xp.asarray([xp.nan])))
-#         self.bounds_error = bounds_error
-#         self.fill_value = fill_value
-#
-#     def __call__(self, x_values):
-#         idxs_low = self._find_idx_below(x_values)
-#         idxs_high = idxs_low + 1
-#         bad_idxs = (idxs_low == 0) | (idxs_high == self.input_len + 1)
-#         diffs = x_values - self.x_sorted[idxs_low]
-#         output = (self.y_sorted[idxs_low] + self.differential_y[idxs_low] /
-#                   self.differential_x[idxs_low] * diffs)
-#         # import IPython; IPython.embed()
-#         if xp.any(bad_idxs):
-#             if self.bounds_error:
-#                 raise ValueError('Values outside interpolation interval.')
-#             else:
-#                 output[bad_idxs] = self.fill_value
-#         return output
-#
-#     def _find_idx_below(self, values):
-#         val_shape = values.shape
-#         vals_flat = values.flatten()
-#         idxs_low = xp.asarray([int(xp.sum(val > self.x_sorted)) - 1
-#                                for val in vals_flat])
-#         idxs_low = idxs_low.reshape(val_shape)
-#         return idxs_low

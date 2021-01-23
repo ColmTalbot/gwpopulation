@@ -6,7 +6,7 @@ import os
 
 
 def write_version_file(version):
-    """ Writes a file with version information to be used at run time
+    """Writes a file with version information to be used at run time
 
     Parameters
     ----------
@@ -58,7 +58,7 @@ def readfile(filename):
     return filecontents
 
 
-VERSION = "0.6.1"
+VERSION = "0.6.2"
 version_file = write_version_file(VERSION)
 long_description = get_long_description()
 

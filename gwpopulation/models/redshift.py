@@ -161,7 +161,7 @@ def total_four_volume(lamb, analysis_time, max_redshift=2.3):
             / (1 + redshifts)
             * psi_of_z,
             redshifts,
-            )
+        )
         * normalization
     )
     return total_volume

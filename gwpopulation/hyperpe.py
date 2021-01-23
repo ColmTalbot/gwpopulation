@@ -2,11 +2,7 @@ import types
 
 import numpy as np
 import pandas as pd
-<<<<<<< HEAD
-import types
-=======
 from scipy.stats import gamma
->>>>>>> upstream/master
 from tqdm import tqdm
 
 from bilby.core.utils import logger

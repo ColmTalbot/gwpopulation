@@ -1,8 +1,9 @@
-from ..cupy_utils import to_numpy, trapz, xp
-
-import numpy as np
+from warnings import warn
 
 from astropy.cosmology import Planck15
+import numpy as np
+
+from ..cupy_utils import to_numpy, trapz, xp
 
 
 class _Redshift(object):
@@ -27,6 +28,20 @@ class _Redshift(object):
         )
 
     def normalisation(self, parameters):
+        """
+        Compute the normalization or differential spacetime volume.
+
+        d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+
+        Parameters
+        ----------
+        parameters: dict
+            Dictionary of parameters
+
+        Returns
+        -------
+        (float, array-like): Total spacetime volume
+        """
         psi_of_z = self.psi_of_z(redshift=self.zs, **parameters)
         norm = trapz(psi_of_z * self.dvc_dz / (1 + self.zs), self.zs)
         return norm
@@ -42,23 +57,6 @@ class _Redshift(object):
         raise NotImplementedError
 
     def differential_spacetime_volume(self, dataset, **parameters):
-        """
-        Compute the differential spacetime volume.
-
-        d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
-
-        Parameters
-        ----------
-        dataset: dict
-            Dictionary containing entry "redshift"
-        parameters: dict
-            Dictionary of parameters
-
-        Returns
-        -------
-        differential_volume: (float, array-like)
-            Differential spacetime volume
-        """
         psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
         differential_volume = psi_of_z / (1 + dataset["redshift"])
         try:
@@ -70,23 +68,18 @@ class _Redshift(object):
 
     def total_spacetime_volume(self, **parameters):
         """
-        Compute the total enclosed spacetime volume.
-
-        \mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
-
-        Parameters
-        ----------
-        parameters: dict
-            Dictionary of parameters
-
-        Returns
-        -------
-        float: the total enclosed spacetime volume
+        See normalisation
         """
-        differential_volume = (
-            self.psi_of_z(redshift=self.zs, **parameters) / (1 + self.zs) * self.dvc_dz
+        warn(
+            "The total spacetime volume method is deprecated, "
+            "use normalisation instead.",
+            DeprecationWarning
         )
-        return trapz(differential_volume, self.zs)
+        return self.normalisation(parameters=parameters)
+
+    total_spacetime_volume.__doc__ = (
+        b"Deprecated use normalisation instead.\n" + normalisation.__doc__
+    )
 
 
 class PowerLawRedshift(_Redshift):

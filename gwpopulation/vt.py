@@ -88,7 +88,7 @@ class ResamplingVT(_BaseVT):
             return self._surveyed_hypervolume
         else:
             return (
-                self.redshift_model.total_spacetime_volume(**parameters)
+                self.redshift_model.normalisation(parameters)
                 / 1e9
                 * self.analysis_time
             )

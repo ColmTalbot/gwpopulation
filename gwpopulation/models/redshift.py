@@ -78,7 +78,7 @@ class _Redshift(object):
         return self.normalisation(parameters=parameters)
 
     total_spacetime_volume.__doc__ = (
-        b"Deprecated use normalisation instead.\n" + normalisation.__doc__
+        "Deprecated use normalisation instead.\n" + normalisation.__doc__
     )
 
 

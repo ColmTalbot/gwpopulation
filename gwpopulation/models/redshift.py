@@ -31,7 +31,7 @@ class _Redshift(object):
         """
         Compute the normalization or differential spacetime volume.
 
-        d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+        \mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
 
         Parameters
         ----------
@@ -57,6 +57,22 @@ class _Redshift(object):
         raise NotImplementedError
 
     def differential_spacetime_volume(self, dataset, **parameters):
+        """
+        Compute the differential spacetime volume.
+
+        d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+
+        Parameters
+        ----------
+        dataset: dict
+            Dictionary containing entry "redshift"
+        parameters: dict
+            Dictionary of parameters
+        Returns
+        -------
+        differential_volume: (float, array-like)
+            Differential spacetime volume
+        """
         psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
         differential_volume = psi_of_z / (1 + dataset["redshift"])
         try:
@@ -68,18 +84,16 @@ class _Redshift(object):
 
     def total_spacetime_volume(self, **parameters):
         """
-        See normalisation
-        """
+        Deprecated use normalisation instead.
+
+        {}
+        """.format(_Redshift.normalisation.__doc__)
         warn(
             "The total spacetime volume method is deprecated, "
             "use normalisation instead.",
             DeprecationWarning
         )
         return self.normalisation(parameters=parameters)
-
-    total_spacetime_volume.__doc__ = (
-        "Deprecated use normalisation instead.\n" + normalisation.__doc__
-    )
 
 
 class PowerLawRedshift(_Redshift):

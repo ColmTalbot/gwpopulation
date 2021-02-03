@@ -1,0 +1,1004 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Population Inference on GWTC-1 &mdash; GWPopulation 0.6.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="gwpopulation.vt.ResamplingVT" href="_autosummary/gwpopulation.vt.ResamplingVT.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> GWPopulation
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.models.html">gwpopulation.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.conversions.html">gwpopulation.conversions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.cupy_utils.html">gwpopulation.cupy_utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.utils.html">gwpopulation.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.vt.html">gwpopulation.vt</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Population Inference on GWTC-1</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Install-some-packages">Install some packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Get-the-data">Get the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Imports">Imports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Load-posteriors">Load posteriors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Add-some-weights-to-posterior">Add some weights to posterior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Specify-the-model">Specify the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Selection-effects">Selection effects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-the-likelihood">Define the likelihood</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-the-prior">Define the prior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Run-the-sampler">Run the sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-a-new-model">Define a new model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Let's-define-a-new-population-model-for-BNS.">Let’s define a new population model for BNS.</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Load-GW170817-posterior">Load GW170817 posterior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-the-new-likelihood">Define the new likelihood</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-the-new-prior">Define the new prior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Do-it-all">Do it all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Update-sampling-prior">Update sampling prior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Likelihood">Likelihood</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Prior">Prior</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GWPopulation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Population Inference on GWTC-1</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/GWTC1.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<p>This page was automatically generated from a Jupyter notebook.</p>
+<p>Find the original <a class="reference external" href="https://github.com/ColmTalbot/gwpopulation/tree/master/examples/GWTC1.ipynb">here</a>.</p>
+<hr class="docutils" />
+<p><a class="reference external" href="https://colab.research.google.com/github/ColmTalbot/gwpopulation/blob/master/examples/GWTC1.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<div class="section" id="Population-Inference-on-GWTC-1">
+<h1>Population Inference on GWTC-1<a class="headerlink" href="#Population-Inference-on-GWTC-1" title="Permalink to this headline">¶</a></h1>
+<p>The first gravitational-wave transient catalog <a class="reference external" href="https://arxiv.org/abs/1811.12907">“GWTC-1”</a> includes all compact binary coalescences observed during Advanced LIGO/Virgo’s first and second observing runs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">GWPopulation</span></code> builds upon <a class="reference external" href="git.ligo.org/lscsoft/bilby">bilby</a> (<a class="reference external" href="https://arxiv.org/abs/1811.02042">arXiv:1811.02042</a>) to provide simple, modular, user-friendly, population inference.</p>
+<p>Currently implemented models include:</p>
+<ul class="simple">
+<li><p>One and two component mass distributions in primary mass and mass ratio, e.g., Talbot &amp; Thrane (2018) (<a class="reference external" href="https://arxiv.org/abs/1801.02699">arXiv:1801:02699</a>), Fishbach &amp; Holz (2018) (<a class="reference external" href="https://arxiv.org/abs/1709.08584">arXiv:1709.08584</a>).</p></li>
+<li><p>The same mass distributions but independent but identically distributed primary and secondary.</p></li>
+<li><p>Half-Gaussian + isotropic spin tilt distribution from Talbot &amp; Thrane (2017) (<a class="reference external" href="https://arxiv.org/abs/1704.08370">arXiv:1704.08370</a>).</p></li>
+<li><p>Beta spin magnitude distribution from Wysocki+ (2018) (<a class="reference external" href="https://arxiv.org/abs/1805.06442">arXiv:1805:06442</a>).</p></li>
+<li><p>Each of these are also available with independent but identically distributed spins.</p></li>
+<li><p>Redshift evolution model as in Fishbach+ (2018) (<a class="reference external" href="https://arxiv.org/abs/1805.10270">arXiv:1805.10270</a>).</p></li>
+<li><p>More to come and any contributions welcome…</p></li>
+</ul>
+<p>For more information see the <a class="reference external" href="https://github.com/ColmTalbot/gwpopulation">git repository</a>, <a class="reference external" href="https://colmtalbot.github.io/gwpopulation/">documentation</a>.</p>
+<div class="section" id="Install-some-packages">
+<h2>Install some packages<a class="headerlink" href="#Install-some-packages" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gwpopulation</span></code> has the population model code.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cupy</span></code> allows use to leverage the GPU.</p></li>
+</ul>
+<p>If you’re using colab.research.google.com you will want to choose a GPU-accelerated runtime.</p>
+<p>“runtime”-&gt;”change runtime type”-&gt;”Hardware accelerator = GPU”</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>!pip install gwpopulation
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>!pip install cupy
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Get-the-data">
+<h2>Get the data<a class="headerlink" href="#Get-the-data" title="Permalink to this headline">¶</a></h2>
+<p>Pull the posterior samples for each of the events from the LIGO dcc.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>!wget https://dcc.ligo.org/public/0157/P1800370/002/GWTC-1_sample_release.tar.gz
+!tar -xvzf GWTC-1_sample_release.tar.gz
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Imports">
+<h2>Imports<a class="headerlink" href="#Imports" title="Permalink to this headline">¶</a></h2>
+<p>Import the packages required for the script.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>%pylab inline
+
+import h5py
+
+import pandas as pd
+from scipy.interpolate import interp1d
+from astropy import cosmology, units
+
+import bilby as bb
+from bilby.core.prior import LogUniform, PriorDict, Uniform
+from bilby.hyper.model import Model
+import gwpopulation as gwpop
+xp = gwpop.cupy_utils.xp
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Load-posteriors">
+<h2>Load posteriors<a class="headerlink" href="#Load-posteriors" title="Permalink to this headline">¶</a></h2>
+<p>We’re using the posteriors from the GWTC-1 data release.</p>
+<p>We need to change the names of the parameters to make them work with the code.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>parameter_translator = dict(
+    mass_1_det=&#39;m1_detector_frame_Msun&#39;,
+    mass_2_det=&#39;m2_detector_frame_Msun&#39;,
+    luminosity_distance=&#39;luminosity_distance_Mpc&#39;,
+    a_1=&#39;spin1&#39;,
+    a_2=&#39;spin2&#39;,
+    cos_tilt_1=&#39;costilt1&#39;,
+    cos_tilt_2=&#39;costilt2&#39;)
+
+posteriors = list()
+priors = list()
+
+file_str = &#39;./GWTC-1_sample_release/GW{}_GWTC-1.hdf5&#39;
+
+events = [&#39;150914&#39;, &#39;151012&#39;, &#39;151226&#39;, &#39;170104&#39;, &#39;170608&#39;,
+          &#39;170729&#39;, &#39;170809&#39;, &#39;170814&#39;, &#39;170818&#39;, &#39;170823&#39;]
+for event in events:
+    _posterior = pd.DataFrame()
+    _prior = pd.DataFrame()
+    with h5py.File(file_str.format(event)) as ff:
+        for my_key, gwtc_key in parameter_translator.items():
+            _posterior[my_key] = ff[&#39;IMRPhenomPv2_posterior&#39;][gwtc_key]
+            _prior[my_key] = ff[&#39;prior&#39;][gwtc_key]
+    posteriors.append(_posterior)
+    priors.append(_prior)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>luminosity_distances = np.linspace(1, 10000, 1000)
+redshifts = np.array([
+    cosmology.z_at_value(
+        cosmology.Planck15.luminosity_distance, dl * units.Mpc)
+    for dl in luminosity_distances])
+dl_to_z = interp1d(luminosity_distances, redshifts)
+
+luminosity_prior = luminosity_distances ** 2
+
+dz_ddl = np.gradient(redshifts, luminosity_distances)
+
+redshift_prior = interp1d(
+    redshifts, luminosity_prior / dz_ddl / (1 + redshifts))
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Add-some-weights-to-posterior">
+<h2>Add some weights to posterior<a class="headerlink" href="#Add-some-weights-to-posterior" title="Permalink to this headline">¶</a></h2>
+<p>Make sure the posterior <code class="docutils literal notranslate"><span class="pre">DataFrames</span></code> contain the appropriate quantities.</p>
+<p>We could include a <code class="docutils literal notranslate"><span class="pre">prior</span></code> column, this is the prior used in the initial sampling stage. This is used to weight the samples in the likelihood.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>for posterior in posteriors:
+    posterior[&#39;redshift&#39;] = dl_to_z(posterior[&#39;luminosity_distance&#39;])
+    posterior[&#39;mass_1&#39;] = posterior[&#39;mass_1_det&#39;] / (1 + posterior[&#39;redshift&#39;])
+    posterior[&#39;mass_2&#39;] = posterior[&#39;mass_2_det&#39;] / (1 + posterior[&#39;redshift&#39;])
+    posterior[&#39;mass_ratio&#39;] = posterior[&#39;mass_2&#39;] / posterior[&#39;mass_1&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Specify-the-model">
+<h2>Specify the model<a class="headerlink" href="#Specify-the-model" title="Permalink to this headline">¶</a></h2>
+<p>Choose which population models we want to use.</p>
+<p>For the mass distribution we use</p>
+<p><code class="docutils literal notranslate"><span class="pre">gwpopulation.models.mass.two_component_primary_mass_ratio</span></code>.</p>
+<p>This is a powerlaw + Gaussian mass distribution with powerlaw mass ratio distribution.</p>
+<p>For spins we use</p>
+<p><code class="docutils literal notranslate"><span class="pre">gwpopulation.models.spin.iid_spin</span></code></p>
+<p>Where the spins of the two black holes are independently and identically distirbuted with a beta distribution for the magnitude and an isotropic + half-Gaussian for the cosine tilts.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>model = Model([gwpop.models.mass.two_component_primary_mass_ratio])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Selection-effects">
+<h2>Selection effects<a class="headerlink" href="#Selection-effects" title="Permalink to this headline">¶</a></h2>
+<p>Gravitational-wave surveys suffer from Malmquist bias.</p>
+<p>In order to measure the true, astrophysical, distribution we must include a term to account for this in our population analyses.</p>
+<p>The way the likelihood is structured, this can be any object that evaluates to give the observed spactime volume as a function of the population parameters.</p>
+<p>We define classes so that various bits of metadata can be stored.</p>
+<p>The data for calculating this is not easily available. We use a very rough toy model to get the general scaling for the primary mass, <span class="math notranslate nohighlight">\(VT(m) \sim m^{1.6}\)</span>. This value was chosen to get a decent agreement with the more complex model.</p>
+<p><strong>I do not recommend using this toy function for science.</strong></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>masses = xp.linspace(3, 100, 1000)
+vts = masses**1.6
+
+def toy_vt_calculator(kwargs):
+    params = {key: kwargs[key] for key in
+              [&#39;alpha&#39;, &#39;mmin&#39;, &#39;mmax&#39;, &#39;lam&#39;, &#39;mpp&#39;, &#39;sigpp&#39;]}
+    p_m = gwpop.models.mass.two_component_single(
+        masses, **params)
+    return gwpop.cupy_utils.trapz(p_m * vts, masses)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Define-the-likelihood">
+<h2>Define the likelihood<a class="headerlink" href="#Define-the-likelihood" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">HyperparameterLikelihood</span></code> marginalises over the local merger rate, with a uniform-in-log prior.</p>
+<p>To also estimate the rate use the <code class="docutils literal notranslate"><span class="pre">RateLikelilhood</span></code> (see further on in the notebook).</p>
+<p>We provide: - <code class="docutils literal notranslate"><span class="pre">posteriors</span></code>: a list of <code class="docutils literal notranslate"><span class="pre">pandas</span></code> DataFrames - <code class="docutils literal notranslate"><span class="pre">hyper_prior</span></code>: our population model, as defined above - <code class="docutils literal notranslate"><span class="pre">selection_function</span></code>: anything which evaluates the selection function</p>
+<p>We can also provide: - <code class="docutils literal notranslate"><span class="pre">conversion_function</span></code>: this converts between the parameters we sample in and those needed by the model, e.g., for sampling in the mean and variance of the beta distribution - <code class="docutils literal notranslate"><span class="pre">max_samples</span></code>: the maximum number of samples to use from each posterior, this defaults to the length of the shortest posterior</p>
+<p>We may get a warning telling us <code class="docutils literal notranslate"><span class="pre">cupy</span></code> is not available and so <code class="docutils literal notranslate"><span class="pre">numpy</span></code> is for the likelihood evaluation. This will go away if you have a GPU and <code class="docutils literal notranslate"><span class="pre">cupy</span></code> installed.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>fast_likelihood = gwpop.hyperpe.HyperparameterLikelihood(
+    posteriors=posteriors, hyper_prior=model,
+    selection_function=toy_vt_calculator)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Define-the-prior">
+<h2>Define the prior<a class="headerlink" href="#Define-the-prior" title="Permalink to this headline">¶</a></h2>
+<p>This is the standard method to define the prior distribution within <code class="docutils literal notranslate"><span class="pre">bilby</span></code>.</p>
+<p>The labels are used in plotting.</p>
+<p>Numbers are converted to delta function priors and are not sampled.</p>
+<p>There are many other distributions available, see the code/documentation for a full list.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>fast_priors = PriorDict()
+
+# mass
+fast_priors[&#39;alpha&#39;] = Uniform(minimum=-2, maximum=4, latex_label=&#39;$\\alpha$&#39;)
+fast_priors[&#39;beta&#39;] = Uniform(minimum=-4, maximum=12, latex_label=&#39;$\\beta$&#39;)
+fast_priors[&#39;mmin&#39;] = Uniform(minimum=5, maximum=10, latex_label=&#39;$m_{\\min}$&#39;)
+fast_priors[&#39;mmax&#39;] = Uniform(minimum=20, maximum=60, latex_label=&#39;$m_{\\max}$&#39;)
+fast_priors[&#39;lam&#39;] = Uniform(minimum=0, maximum=1, latex_label=&#39;$\\lambda_{m}$&#39;)
+fast_priors[&#39;mpp&#39;] = Uniform(minimum=10, maximum=50, latex_label=&#39;$\\mu_{m}$&#39;)
+fast_priors[&#39;sigpp&#39;] = Uniform(minimum=0, maximum=10, latex_label=&#39;$\\sigma_{m}$&#39;)
+# spin
+fast_priors[&#39;amax&#39;] = 1
+fast_priors[&#39;alpha_chi&#39;] = Uniform(minimum=-4, maximum=12, latex_label=&#39;$\\alpha_{\\chi}$&#39;)
+fast_priors[&#39;beta_chi&#39;] = Uniform(minimum=-4, maximum=12, latex_label=&#39;$\\beta_{\\chi}$&#39;)
+fast_priors[&#39;xi_spin&#39;] = Uniform(minimum=0, maximum=1, latex_label=&#39;$\\xi$&#39;)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Run-the-sampler">
+<h2>Run the sampler<a class="headerlink" href="#Run-the-sampler" title="Permalink to this headline">¶</a></h2>
+<p>We’ll use the sampler <code class="docutils literal notranslate"><span class="pre">dynesty</span></code> and use a small number of live points to reduce the runtime.</p>
+<p>This is painfully slow without using the GPU version. If you have a GPU it will just work.</p>
+<p>Other samplers are available, <code class="docutils literal notranslate"><span class="pre">cpnest</span></code> gave the best results for the O1+O2 data, however it isn’t currently compatible with the GPU likelihood.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bilby</span></code> times a single likelihood evaluation before beginning the run</p>
+<p>We do a call before running to sampler as <code class="docutils literal notranslate"><span class="pre">cupy</span></code> compiles kernels the first time they are evaluated and so the estimate of the evaluation time would be off.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>fast_likelihood.parameters.update(fast_priors.sample())
+fast_likelihood.log_likelihood_ratio()
+
+fast_result = bb.run_sampler(
+    likelihood=fast_likelihood, priors=fast_priors, sampler=&#39;dynesty&#39;,
+    nlive=100, label=&#39;fast&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>fast_result.plot_corner(save=False)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Define-a-new-model">
+<h2>Define a new model<a class="headerlink" href="#Define-a-new-model" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="Let's-define-a-new-population-model-for-BNS.">
+<h3>Let’s define a new population model for BNS.<a class="headerlink" href="#Let's-define-a-new-population-model-for-BNS." title="Permalink to this headline">¶</a></h3>
+<p>Just as an example we’ll use a Gaussian distribution bounded between <span class="math notranslate nohighlight">\([1 M_{\odot}, 2 M_{\odot}]\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[p(m_1, m_2) = N \exp \left(- \frac{\left((m_1 - \mu)^2 + (m_2 - \mu)^2\right)}{2 \sigma^2}\right) \quad : \quad 1 \leq m_2 \leq m_1 \leq 2\]</div>
+<p>We see that this function takes three arguments: - <code class="docutils literal notranslate"><span class="pre">dataset</span></code>: this is common to all of the population models in <code class="docutils literal notranslate"><span class="pre">gwpopulation</span></code>, it is a dictionary containing the data to be evaluated, here it is assumed to contain entries for <code class="docutils literal notranslate"><span class="pre">mass_1</span></code> and <code class="docutils literal notranslate"><span class="pre">mass_2</span></code>, the <em>source-frame</em> masses. - <code class="docutils literal notranslate"><span class="pre">mu_bns</span></code>: the peak of the bns mass distribution. - <code class="docutils literal notranslate"><span class="pre">sigma_bns</span></code>: the width of the bns mass distribution.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>def truncated_gaussian_primary_secondary_identical(dataset, mu_bns, sigma_bns):
+    prob = gwpop.utils.truncnorm(
+        dataset[&#39;mass_1&#39;], mu=mu_bns, sigma=sigma_bns, low=1, high=2)
+    prob *= gwpop.utils.truncnorm(
+        dataset[&#39;mass_2&#39;], mu=mu_bns, sigma=sigma_bns, low=1, high=2)
+    prob *= (dataset[&#39;mass_1&#39;] &gt;= dataset[&#39;mass_2&#39;])
+    prob *= 2
+    return prob
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Load-GW170817-posterior">
+<h2>Load GW170817 posterior<a class="headerlink" href="#Load-GW170817-posterior" title="Permalink to this headline">¶</a></h2>
+<p>This is just the same as above.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>posterior = pd.DataFrame()
+prior = pd.DataFrame()
+with h5py.File(&#39;./GWTC-1_sample_release/GW170817_GWTC-1.hdf5&#39;) as ff:
+    for my_key, gwtc_key in parameter_translator.items():
+        try:
+            posterior[my_key] = ff[&#39;IMRPhenomPv2NRT_lowSpin_posterior&#39;][gwtc_key]
+            prior[my_key] = ff[&#39;IMRPhenomPv2NRT_lowSpin_prior&#39;][gwtc_key]
+        except ValueError:
+            pass
+
+posterior[&#39;redshift&#39;] = dl_to_z(posterior[&#39;luminosity_distance&#39;])
+posterior[&#39;mass_1&#39;] = posterior[&#39;mass_1_det&#39;] / (1 + posterior[&#39;redshift&#39;])
+posterior[&#39;mass_2&#39;] = posterior[&#39;mass_2_det&#39;] / (1 + posterior[&#39;redshift&#39;])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Define-the-new-likelihood">
+<h2>Define the new likelihood<a class="headerlink" href="#Define-the-new-likelihood" title="Permalink to this headline">¶</a></h2>
+<p>We use the same likelihood as before.</p>
+<p><em>Note</em>: - This time we cast our posterior to a list while creating the likelihood. - We pass the function rather than a <code class="docutils literal notranslate"><span class="pre">Model</span></code> object as before, <code class="docutils literal notranslate"><span class="pre">bilby</span></code> will turn this into a <code class="docutils literal notranslate"><span class="pre">Model</span></code> for internal use. - We’ve removed the selection and conversion functions as they aren’t needed here (yes, a selection function is techinically needed).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>bns_likelihood = gwpop.hyperpe.HyperparameterLikelihood(
+    posteriors=[posterior],
+    hyper_prior=truncated_gaussian_primary_secondary_identical)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Define-the-new-prior">
+<h2>Define the new prior<a class="headerlink" href="#Define-the-new-prior" title="Permalink to this headline">¶</a></h2>
+<p>Just as before.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>bns_priors = PriorDict()
+bns_priors[&#39;mu_bns&#39;] = Uniform(minimum=1, maximum=2, latex_label=&#39;$\\mu_{bns}$&#39;)
+bns_priors[&#39;sigma_bns&#39;] = LogUniform(minimum=1e-2, maximum=1, latex_label=&#39;$\\sigma_{bns}$&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>bns_likelihood.parameters.update(bns_priors.sample())
+bns_likelihood.log_likelihood_ratio()
+
+bns_result = bb.run_sampler(
+    likelihood=bns_likelihood, priors=bns_priors, sampler=&#39;dynesty&#39;,
+    nlive=1000)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>bns_result.plot_corner(save=False)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Do-it-all">
+<h2>Do it all<a class="headerlink" href="#Do-it-all" title="Permalink to this headline">¶</a></h2>
+<p>Let’s put together a run with models for the mass, spin and redshift distributions.</p>
+<p><strong>This will not give sensible answers because VT is not estimated.</strong></p>
+<p>The data for VT estimation isn’t available in this notebook.</p>
+<p>Note that the redshift model is a class and so is called slightly differently. This is to enable caching of expensive data internally. To call this <code class="docutils literal notranslate"><span class="pre">bilby&gt;=0.4.2</span></code> is required.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>full_model = Model([
+    gwpop.models.mass.two_component_primary_mass_ratio,
+    gwpop.models.spin.iid_spin_magnitude_beta,
+    gwpop.models.spin.independent_spin_orientation_gaussian_isotropic,
+    gwpop.models.redshift.PowerLawRedshift()])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Update-sampling-prior">
+<h2>Update sampling prior<a class="headerlink" href="#Update-sampling-prior" title="Permalink to this headline">¶</a></h2>
+<p>We need to update the sampling prior to account for the new redshift evolution model.</p>
+<p>Fortunately, we defined an interpolant for this earlier.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>for posterior in posteriors:
+    posterior[&#39;prior&#39;] = redshift_prior(posterior[&#39;redshift&#39;])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Likelihood">
+<h2>Likelihood<a class="headerlink" href="#Likelihood" title="Permalink to this headline">¶</a></h2>
+<p>We use a different likelihood class <code class="docutils literal notranslate"><span class="pre">RateLikelihood</span></code>, this will simultaneously estimate the local merger rate as well as the population distribution.</p>
+<p>This is created just as before.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>full_likelihood = gwpop.hyperpe.RateLikelihood(
+    posteriors=posteriors, hyper_prior=full_model)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Prior">
+<h2>Prior<a class="headerlink" href="#Prior" title="Permalink to this headline">¶</a></h2>
+<p>This is just a longer version of the previous.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>full_priors = PriorDict()
+
+# rate
+fast_priors[&#39;rate&#39;] = LogUniform(minimum=1e-20, maximum=1e20, latex_label=&#39;$R$&#39;)
+# mass
+full_priors[&#39;alpha&#39;] = Uniform(minimum=-4, maximum=12, latex_label=&#39;$\\alpha$&#39;)
+full_priors[&#39;beta&#39;] = Uniform(minimum=-4, maximum=12, latex_label=&#39;$\\beta$&#39;)
+full_priors[&#39;mmin&#39;] = Uniform(minimum=5, maximum=10, latex_label=&#39;$m_{\\min}$&#39;)
+full_priors[&#39;mmax&#39;] = Uniform(minimum=20, maximum=60, latex_label=&#39;$m_{\\max}$&#39;)
+full_priors[&#39;lam&#39;] = Uniform(minimum=0, maximum=1, latex_label=&#39;$\\lambda_{m}$&#39;)
+full_priors[&#39;mpp&#39;] = Uniform(minimum=20, maximum=50, latex_label=&#39;$\\mu_{m}$&#39;)
+full_priors[&#39;sigpp&#39;] = Uniform(minimum=0, maximum=10, latex_label=&#39;$\\sigma_{m}$&#39;)
+# spin magnitude
+full_priors[&#39;amax&#39;] = 1
+full_priors[&#39;alpha_chi&#39;] = Uniform(minimum=-4, maximum=12, latex_label=&#39;$\\alpha_{\\chi}$&#39;)
+full_priors[&#39;beta_chi&#39;] = Uniform(minimum=-4, maximum=12, latex_label=&#39;$\\beta_{\\chi}$&#39;)
+# spin orientation
+full_priors[&#39;xi_spin&#39;] = Uniform(minimum=0, maximum=1, latex_label=&#39;$\\xi$&#39;)
+full_priors[&#39;sigma_1&#39;] = Uniform(minimum=0, maximum=4, latex_label=&#39;$\\sigma{1}$&#39;)
+full_priors[&#39;sigma_2&#39;] = Uniform(minimum=0, maximum=4, latex_label=&#39;$\\sigma{2}$&#39;)
+# redshift evolution
+full_priors[&#39;lamb&#39;] = Uniform(minimum=-25, maximum=25, latex_label=&#39;$\\lambda_{z}$&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>full_likelihood.parameters.update(full_priors.sample())
+full_likelihood.log_likelihood_ratio()
+
+full_result = run_sampler(
+    likelihood=full_likelihood, priors=full_priors, sampler=&#39;dynesty&#39;,
+    nlive=100)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="_autosummary/gwpopulation.vt.ResamplingVT.html" class="btn btn-neutral float-left" title="gwpopulation.vt.ResamplingVT" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Colm Talbot.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

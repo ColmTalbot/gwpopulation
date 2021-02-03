@@ -1,0 +1,6 @@
+gwpopulation.models.mass.two\_component\_primary\_secondary\_identical
+======================================================================
+
+.. currentmodule:: gwpopulation.models.mass
+
+.. autofunction:: two_component_primary_secondary_identical

@@ -1,0 +1,34 @@
+﻿gwpopulation.hyperpe
+====================
+
+.. currentmodule:: gwpopulation.hyperpe
+
+.. automodule:: gwpopulation.hyperpe
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      HyperparameterLikelihood
+      RateLikelihood
+   
+   
+
+   
+   
+   
+
+
+

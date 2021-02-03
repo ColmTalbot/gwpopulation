@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Welcome to the documentation for GWPopulation! &mdash; GWPopulation 0.6.1 documentation</title>
+  <title>Welcome to the documentation for GWPopulation! &mdash; GWPopulation 0.6.2 documentation</title>
   
 
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,15 +32,16 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="All of the models implemented." href="models.html" /> 
+    <link rel="next" title="gwpopulation.models" href="_autosummary/gwpopulation.models.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -51,7 +55,7 @@
           
 
           
-            <a href="#" class="icon icon-home" alt="Documentation Home"> GWPopulation
+            <a href="#" class="icon icon-home"> GWPopulation
           
 
           
@@ -86,10 +90,18 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="models.html">All of the models implemented.</a></li>
-<li class="toctree-l1"><a class="reference internal" href="likelihood.html">All of the likelihoods implemented.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.models.html">gwpopulation.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.conversions.html">gwpopulation.conversions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.cupy_utils.html">gwpopulation.cupy_utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.utils.html">gwpopulation.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.vt.html">gwpopulation.vt</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GWTC1.html">Population Inference on GWTC-1</a></li>
 </ul>
 
             
@@ -130,6 +142,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -141,8 +155,8 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
-            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -179,9 +193,9 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="welcome-to-the-documentation-for-gwpopulation">
-<h1>Welcome to the documentation for GWPopulation!<a class="headerlink" href="#welcome-to-the-documentation-for-gwpopulation" title="Permalink to this headline">¶</a></h1>
-<span class="target" id="module-gwpopulation"></span><div class="section" id="gwpopulation">
+<div class="section" id="module-gwpopulation">
+<span id="welcome-to-the-documentation-for-gwpopulation"></span><h1>Welcome to the documentation for GWPopulation!<a class="headerlink" href="#module-gwpopulation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="gwpopulation">
 <h2>GWPopulation<a class="headerlink" href="#gwpopulation" title="Permalink to this headline">¶</a></h2>
 <p>A collection of code for doing population inference.</p>
 <p>All of this code will run on either CPUs or GPUs using cupy for GPU
@@ -194,14 +208,42 @@ acceleration.</p>
 </ul>
 </dd>
 </dl>
-<p>The code is hosted as github.com/ColmTalbot/gwpopulation.</p>
+<p>The code is hosted at <a class="reference external" href="www.github.com/ColmTalbot/gwpopulation">www.github.com/ColmTalbot/gwpopulation</a>.</p>
 </div>
+<div class="section" id="api">
+<h2>API:<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/gwpopulation.models.html#module-gwpopulation.models" title="gwpopulation.models"><code class="xref py py-obj docutils literal notranslate"><span class="pre">models</span></code></a></p></td>
+<td><p>Implemented population models.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/gwpopulation.conversions.html#module-gwpopulation.conversions" title="gwpopulation.conversions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conversions</span></code></a></p></td>
+<td><p>Parameter conversions</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/gwpopulation.cupy_utils.html#module-gwpopulation.cupy_utils" title="gwpopulation.cupy_utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cupy_utils</span></code></a></p></td>
+<td><p>Helper functions for missing functionality in cupy.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/gwpopulation.hyperpe.html#module-gwpopulation.hyperpe" title="gwpopulation.hyperpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hyperpe</span></code></a></p></td>
+<td><p>Likelihoods for population inference</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/gwpopulation.utils.html#module-gwpopulation.utils" title="gwpopulation.utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils</span></code></a></p></td>
+<td><p>Helper functions for probability distributions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/gwpopulation.vt.html#module-gwpopulation.vt" title="gwpopulation.vt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vt</span></code></a></p></td>
+<td><p>Sensitive volume estimation.</p></td>
+</tr>
+</tbody>
+</table>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption"><span class="caption-text">Examples:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="models.html">All of the models implemented.</a></li>
-<li class="toctree-l1"><a class="reference internal" href="likelihood.html">All of the likelihoods implemented.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GWTC1.html">Population Inference on GWTC-1</a></li>
 </ul>
+</div>
 </div>
 </div>
 
@@ -210,35 +252,28 @@ acceleration.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="models.html" class="btn btn-neutral float-right" title="All of the models implemented." accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
+        <a href="_autosummary/gwpopulation.models.html" class="btn btn-neutral float-right" title="gwpopulation.models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Colm Talbot
+        &#169; Copyright 2021, Colm Talbot.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

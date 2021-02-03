@@ -1,0 +1,6 @@
+gwpopulation.models.spin.independent\_spin\_orientation\_gaussian\_isotropic
+============================================================================
+
+.. currentmodule:: gwpopulation.models.spin
+
+.. autofunction:: independent_spin_orientation_gaussian_isotropic

@@ -1,0 +1,6 @@
+gwpopulation.utils.beta\_dist
+=============================
+
+.. currentmodule:: gwpopulation.utils
+
+.. autofunction:: beta_dist

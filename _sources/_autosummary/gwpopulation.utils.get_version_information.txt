@@ -1,0 +1,6 @@
+gwpopulation.utils.get\_version\_information
+============================================
+
+.. currentmodule:: gwpopulation.utils
+
+.. autofunction:: get_version_information

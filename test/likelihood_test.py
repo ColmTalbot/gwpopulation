@@ -35,7 +35,7 @@ class Likelihoods(unittest.TestCase):
             _ = HyperparameterLikelihood(posteriors=self.data)
 
     def test_likelihood_pass_sampling_prior_raises_error(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             _ = HyperparameterLikelihood(
                 posteriors=self.data,
                 hyper_prior=self.model,

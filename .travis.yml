@@ -17,6 +17,10 @@ python:
 
 cache: pip
 
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install pandoc
+
 install:
   - pip install --upgrade -r requirements.txt
   - pip install -r pages_requirements.txt

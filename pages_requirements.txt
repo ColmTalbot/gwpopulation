@@ -4,3 +4,4 @@ pygments
 numpydoc
 nbsphinx
 sphinx_rtd_theme
+pandoc

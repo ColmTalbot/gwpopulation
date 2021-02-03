@@ -12,7 +12,7 @@ This includes:
   - population models for gravitational-wave sources.
   - selection functions for gravitational-wave sources.
 
-The code is hosted as github.com/ColmTalbot/gwpopulation.
+The code is hosted at `<www.github.com/ColmTalbot/gwpopulation>`_.
 """
 import sys
 

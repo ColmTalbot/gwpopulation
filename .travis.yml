@@ -32,6 +32,7 @@ script:
 before_deploy:
   - cd docs
   - mv Makefile.gh_pages Makefile
+  - cp ../examples/*.ipynb ./
   - make clean
   - make html
   - cd ../

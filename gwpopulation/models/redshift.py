@@ -1,3 +1,7 @@
+"""
+Implemented redshift models
+"""
+
 from warnings import warn
 
 from astropy.cosmology import Planck15
@@ -28,10 +32,11 @@ class _Redshift(object):
         )
 
     def normalisation(self, parameters):
-        """
+        r"""
         Compute the normalization or differential spacetime volume.
 
-        \mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+        .. math::
+            \mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
 
         Parameters
         ----------
@@ -57,10 +62,11 @@ class _Redshift(object):
         raise NotImplementedError
 
     def differential_spacetime_volume(self, dataset, **parameters):
-        """
+        r"""
         Compute the differential spacetime volume.
 
-        d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+        .. math::
+            d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
 
         Parameters
         ----------
@@ -97,15 +103,18 @@ class _Redshift(object):
 
 
 class PowerLawRedshift(_Redshift):
-    """
+    r"""
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270
 
-    Note that this is not a normalised probability.
+    .. math::
+        p(z|\gamma, \kappa, z_p) &\propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)
+
+        \psi(z|\gamma, \kappa, z_p) &= (1 + z)^\lambda
 
     Parameters
     ----------
-    z_max: float, optional
-        The maximum redshift allowed.
+    lamb: float
+        The spectral index.
     """
 
     def __call__(self, dataset, lamb):
@@ -116,16 +125,16 @@ class PowerLawRedshift(_Redshift):
 
 
 class MadauDickinsonRedshift(_Redshift):
-    """
+    r"""
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 (33)
     See https://arxiv.org/abs/2003.12152 (2) for the normalisation
 
     The parameterisation differs a little from there, we use
 
-    $p(z|\gamma, \kappa, z_p) \propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)$
-    $\psi(z|\gamma, \kappa, z_p) = \frac{(1 + z)^\gamma}{1 + (\frac{1 + z}{1 + z_p})^\kappa}$
+    .. math::
+        p(z|\gamma, \kappa, z_p) &\propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)
 
-    Note that this is not a normalised probability.
+        \psi(z|\gamma, \kappa, z_p) &= \frac{(1 + z)^\gamma}{1 + (\frac{1 + z}{1 + z_p})^\kappa}
 
     Parameters
     ----------

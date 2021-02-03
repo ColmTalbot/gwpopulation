@@ -1,3 +1,7 @@
+"""
+Likelihoods for population inference
+"""
+
 import types
 
 import numpy as np
@@ -135,6 +139,7 @@ class HyperparameterLikelihood(Likelihood):
         ----------
         sample: dict
             Input sample to compute the extra things for.
+
         Returns
         -------
         sample: dict
@@ -153,17 +158,18 @@ class HyperparameterLikelihood(Likelihood):
         return sample
 
     def generate_rate_posterior_sample(self):
-        """
+        r"""
         Generate a sample from the posterior distribution for rate assuming a
-        1 / R prior.
+        :math:`1 / R` prior.
 
         The likelihood evaluated is analytically marginalized over rate.
         However the rate dependent likelihood can be trivially written.
 
-        p(R) = Gamma(n=n posteriors, scale=vt)
+        .. math::
+            p(R) = \Gamma(n=N, \text{scale}=\mathcal{V})
 
-        Here Gamma is the Gamma distribution, n posteriors are the number
-        of events being analyzed and vt is the total observed 4-volume.
+        Here :math:`\Gamma` is the Gamma distribution, :math:`N` is the number
+        of events being analyzed and :math:`\mathcal{V}` is the total observed 4-volume.
 
         Returns
         -------
@@ -195,6 +201,7 @@ class HyperparameterLikelihood(Likelihood):
         max_samples: int, opt
             Maximum number of samples to take from each posterior,
             default is length of shortest posterior chain.
+
         Returns
         -------
         data: dict
@@ -228,6 +235,7 @@ class HyperparameterLikelihood(Likelihood):
             some run.
         return_weights: bool, optional
             Whether to return the per-sample weights, default = False
+
         Returns
         -------
         new_samples: dict
@@ -295,4 +303,8 @@ class RateLikelihood(HyperparameterLikelihood):
         return ln_l
 
     def generate_rate_posterior_sample(self):
+        """
+        Since the rate is a sampled parameter,
+        this simply returns the current value of the rate parameter.
+        """
         return self.parameters["rate"]

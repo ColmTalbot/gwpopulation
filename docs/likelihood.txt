@@ -1,5 +1,0 @@
-All of the likelihoods implemented.
-==============================
-
-.. automodule:: gwpopulation.hyperpe
-    :members:

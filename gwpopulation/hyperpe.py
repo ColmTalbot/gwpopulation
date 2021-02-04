@@ -1,3 +1,7 @@
+"""
+Likelihoods for population inference
+"""
+
 import types
 
 import numpy as np
@@ -21,33 +25,12 @@ class HyperparameterLikelihood(Likelihood):
 
     See Eq. (34) of https://arxiv.org/abs/1809.02293 for a definition.
 
-    Parameters
-    ----------
-    posteriors: list
-        An list of pandas data frames of samples sets of samples.
-        Each set may have a different size.
-    hyper_prior: `bilby.hyper.model.Model`
-        The population model, this can alternatively be a function.
-    sampling_prior: `bilby.hyper.model.Model`
-        The sampling prior, this can alternatively be a function.
-    log_evidences: list, optional
-        Log evidences for single runs to ensure proper normalisation
-        of the hyperparameter likelihood. If not provided, the original
-        evidences will be set to 0. This produces a Bayes factor between
-        the sampling prior and the hyperparameterised model.
-    max_samples: int, optional
-        Maximum number of samples to use from each set.
-    cupy: bool
-        If True and a compatible CUDA environment is available,
-        cupy will be used for performance.
-        Note: this requires setting up your hyper_prior properly.
     """
 
     def __init__(
         self,
         posteriors,
         hyper_prior,
-        sampling_prior=None,
         ln_evidences=None,
         max_samples=1e100,
         selection_function=lambda args: 1,
@@ -64,9 +47,6 @@ class HyperparameterLikelihood(Likelihood):
             values.
         hyper_prior: `bilby.hyper.model.Model`
             The population model, this can alternatively be a function.
-        sampling_prior: array-like *DEPRECATED*
-            The sampling prior, this can alternatively be a function.
-            THIS WILL BE REMOVED IN THE NEXT RELEASE.
         ln_evidences: list, optional
             Log evidences for single runs to ensure proper normalisation
             of the hyperparameter likelihood. If not provided, the original
@@ -103,13 +83,7 @@ class HyperparameterLikelihood(Likelihood):
         self.hyper_prior = hyper_prior
         Likelihood.__init__(self, hyper_prior.parameters)
 
-        if sampling_prior is not None:
-            raise ValueError(
-                "Passing a sampling_prior is deprecated and will be removed "
-                "in the next release. This should be passed as a 'prior' "
-                "column in the posteriors."
-            )
-        elif "prior" in self.data:
+        if "prior" in self.data:
             self.sampling_prior = self.data.pop("prior")
         else:
             logger.info("No prior values provided, defaulting to 1.")
@@ -124,6 +98,8 @@ class HyperparameterLikelihood(Likelihood):
         self.selection_function = selection_function
 
         self.n_posteriors = len(posteriors)
+
+    __doc__ += __init__.__doc__
 
     def log_likelihood_ratio(self):
         self.parameters, added_keys = self.conversion_function(self.parameters)
@@ -163,6 +139,7 @@ class HyperparameterLikelihood(Likelihood):
         ----------
         sample: dict
             Input sample to compute the extra things for.
+
         Returns
         -------
         sample: dict
@@ -181,6 +158,24 @@ class HyperparameterLikelihood(Likelihood):
         return sample
 
     def generate_rate_posterior_sample(self):
+        r"""
+        Generate a sample from the posterior distribution for rate assuming a
+        :math:`1 / R` prior.
+
+        The likelihood evaluated is analytically marginalized over rate.
+        However the rate dependent likelihood can be trivially written.
+
+        .. math::
+            p(R) = \Gamma(n=N, \text{scale}=\mathcal{V})
+
+        Here :math:`\Gamma` is the Gamma distribution, :math:`N` is the number
+        of events being analyzed and :math:`\mathcal{V}` is the total observed 4-volume.
+
+        Returns
+        -------
+        rate: float
+            A sample from the posterior distribution for rate.
+        """
         if hasattr(self.selection_function, "detection_efficiency") and hasattr(
             self.selection_function, "surveyed_hypervolume"
         ):
@@ -206,6 +201,7 @@ class HyperparameterLikelihood(Likelihood):
         max_samples: int, opt
             Maximum number of samples to take from each posterior,
             default is length of shortest posterior chain.
+
         Returns
         -------
         data: dict
@@ -239,6 +235,7 @@ class HyperparameterLikelihood(Likelihood):
             some run.
         return_weights: bool, optional
             Whether to return the per-sample weights, default = False
+
         Returns
         -------
         new_samples: dict
@@ -295,7 +292,10 @@ class RateLikelihood(HyperparameterLikelihood):
     and estimating rates with including selection effects.
 
     See Eq. (34) of https://arxiv.org/abs/1809.02293 for a definition.
+
     """
+
+    __doc__ += HyperparameterLikelihood.__init__.__doc__
 
     def _get_selection_factor(self):
         ln_l = -self.selection_function(self.parameters) * self.parameters["rate"]
@@ -303,4 +303,8 @@ class RateLikelihood(HyperparameterLikelihood):
         return ln_l
 
     def generate_rate_posterior_sample(self):
+        """
+        Since the rate is a sampled parameter,
+        this simply returns the current value of the rate parameter.
+        """
         return self.parameters["rate"]

@@ -38,6 +38,7 @@ extensions = [
     "nbsphinx",
     "sphinx.ext.autosummary",
 ]
+autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -46,14 +47,14 @@ templates_path = ["_templates"]
 # You can specify multiple suffix as a list of string:
 #
 source_suffix = [".rst", ".md"]
-source_suffix = ".txt"
+source_suffix = [".txt", ".ipynb", ".rst"]
 
 # The master toctree document.
 master_doc = "index"
 
 # General information about the project.
 project = u"GWPopulation"
-copyright = u"2019, Colm Talbot"
+copyright = u"2021, Colm Talbot"
 author = u"Colm Talbot"
 
 
@@ -92,6 +93,7 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
+# html_theme = "alabaster"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -123,7 +125,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'gwpopulationdoc'
+htmlhelp_basename = "gwpopulationdoc"
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -182,3 +184,13 @@ texinfo_documents = [
 ]
 
 numpydoc_show_class_members = False
+
+nbsphinx_execute = 'never'
+nbsphinx_prolog = """
+This page was automatically generated from a Jupyter notebook.
+
+Find the original here_.
+
+.. _here: https://github.com/ColmTalbot/gwpopulation/tree/master/examples/{{ env.doc2path(env.docname, base=None) }}
+----
+"""

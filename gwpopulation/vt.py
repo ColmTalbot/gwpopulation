@@ -1,3 +1,7 @@
+"""
+Sensitive volume estimation.
+"""
+
 from bilby.hyper.model import Model
 
 import numpy as np
@@ -20,6 +24,16 @@ class _BaseVT(object):
 
 
 class GridVT(_BaseVT):
+    """
+    Evaluate the sensitive volume on a grid.
+
+    Parameters
+    ----------
+    model: callable
+        Population model
+    data: dict
+        The sensitivity labelled `vt` and an entry for each parameter to be marginalized over.
+    """
     def __init__(self, model, data):
         self.vts = data.pop("vt")
         super(GridVT, self).__init__(model=model, data=data)
@@ -38,6 +52,21 @@ class GridVT(_BaseVT):
 
 
 class ResamplingVT(_BaseVT):
+    """
+    Evaluate the sensitive volume using a set of found injections.
+
+    See https://arxiv.org/abs/1904.10879 for details of the formalism.
+
+    Parameters
+    ----------
+    model: callable
+        Population model
+    data: dict
+        The found injections and relevant meta data
+    n_events: int
+        The number of events observed
+    """
+
     def __init__(self, model, data, n_events=np.inf):
         super(ResamplingVT, self).__init__(model=model, data=data)
         self.n_events = n_events
@@ -58,7 +87,7 @@ class ResamplingVT(_BaseVT):
 
         This should be implemented as in https://arxiv.org/abs/1904.10879
 
-        If 4 * n_events < n_effective we return np.inf so that the sample
+        If n_effective < 4 * n_events we return np.inf so that the sample
         is rejected.
 
         Parameters
@@ -84,11 +113,29 @@ class ResamplingVT(_BaseVT):
         return mu, var
 
     def surveyed_hypervolume(self, parameters):
+        r"""
+        The total surveyed 4-volume with units of :math:`Gpc^3yr`.
+
+        .. math::
+            \mathcal{V} = \int dz \frac{dV_c}{dz} \frac{\psi(z)}{1 + z}
+
+        If no redshift model is specified, assume :math:`\psi(z)=1`.
+
+        Parameters
+        ----------
+        parameters: dict
+            Dictionary of parameters to compute the volume at
+
+        Returns
+        -------
+        float: The volume
+
+        """
         if self.redshift_model is None:
             return self._surveyed_hypervolume
         else:
             return (
-                self.redshift_model.total_spacetime_volume(**parameters)
+                self.redshift_model.normalisation(parameters)
                 / 1e9
                 * self.analysis_time
             )

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>gwpopulation.utils.get_version_information &mdash; GWPopulation 0.6.2 documentation</title>
+  <title>gwpopulation.models.spin.gaussian_chi_p &mdash; GWPopulation 0.6.2 documentation</title>
   
 
   
@@ -41,8 +41,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="gwpopulation.utils.powerlaw" href="gwpopulation.utils.powerlaw.html" />
-    <link rel="prev" title="gwpopulation.utils.beta_dist" href="gwpopulation.utils.beta_dist.html" /> 
+    <link rel="next" title="gwpopulation.models.spin.iid_spin" href="gwpopulation.models.spin.iid_spin.html" />
+    <link rel="prev" title="gwpopulation.models.spin.gaussian_chi_eff" href="gwpopulation.models.spin.gaussian_chi_eff.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -93,18 +93,26 @@
             
               <p class="caption"><span class="caption-text">API:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="gwpopulation.models.html">gwpopulation.models</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gwpopulation.models.html">gwpopulation.models</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.mass.html">gwpopulation.models.mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.redshift.html">gwpopulation.models.redshift</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gwpopulation.models.spin.html">gwpopulation.models.spin</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.gaussian_chi_eff.html">gwpopulation.models.spin.gaussian_chi_eff</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gwpopulation.models.spin.gaussian_chi_p</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.iid_spin.html">gwpopulation.models.spin.iid_spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.iid_spin_magnitude_beta.html">gwpopulation.models.spin.iid_spin_magnitude_beta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.iid_spin_orientation_gaussian_isotropic.html">gwpopulation.models.spin.iid_spin_orientation_gaussian_isotropic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.independent_spin_magnitude_beta.html">gwpopulation.models.spin.independent_spin_magnitude_beta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic.html">gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.GaussianChiEffChiP.html">gwpopulation.models.spin.GaussianChiEffChiP</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.conversions.html">gwpopulation.conversions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.cupy_utils.html">gwpopulation.cupy_utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.beta_dist.html">gwpopulation.utils.beta_dist</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">gwpopulation.utils.get_version_information</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.powerlaw.html">gwpopulation.utils.powerlaw</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.truncnorm.html">gwpopulation.utils.truncnorm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.unnormalized_2d_gaussian.html">gwpopulation.utils.unnormalized_2d_gaussian</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.vt.html">gwpopulation.vt</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples:</span></p>
@@ -158,15 +166,17 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="gwpopulation.utils.html">gwpopulation.utils</a> &raquo;</li>
+          <li><a href="gwpopulation.models.html">gwpopulation.models</a> &raquo;</li>
         
-      <li>gwpopulation.utils.get_version_information</li>
+          <li><a href="gwpopulation.models.spin.html">gwpopulation.models.spin</a> &raquo;</li>
+        
+      <li>gwpopulation.models.spin.gaussian_chi_p</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../_sources/_autosummary/gwpopulation.utils.get_version_information.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/gwpopulation.models.spin.gaussian_chi_p.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -203,12 +213,34 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="gwpopulation-utils-get-version-information">
-<h1>gwpopulation.utils.get_version_information<a class="headerlink" href="#gwpopulation-utils-get-version-information" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="gwpopulation-models-spin-gaussian-chi-p">
+<h1>gwpopulation.models.spin.gaussian_chi_p<a class="headerlink" href="#gwpopulation-models-spin-gaussian-chi-p" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="gwpopulation.utils.get_version_information">
-<code class="sig-prename descclassname">gwpopulation.utils.</code><code class="sig-name descname">get_version_information</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.utils.get_version_information" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="gwpopulation.models.spin.gaussian_chi_p">
+<code class="sig-prename descclassname">gwpopulation.models.spin.</code><code class="sig-name descname">gaussian_chi_p</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span></em>, <em class="sig-param"><span class="n">mu_chi_p</span></em>, <em class="sig-param"><span class="n">sigma_chi_p</span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.spin.gaussian_chi_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Gaussian distribution in precessing effective spin (chi p)</p>
+<p>See <a class="reference external" href="https://arxiv.org/abs/2001.06051">https://arxiv.org/abs/2001.06051</a>, <a class="reference external" href="https://arxiv.org/abs/2010.14533">https://arxiv.org/abs/2010.14533</a></p>
+<div class="math notranslate nohighlight">
+\[p(\chi_p) = \mathcal{N}(\chi_p}; \mu=\mu_\chi, \sigma=\sigma_\chi, x_\min=0, m_\max=1)\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\mathcal{N}\)</span> is a truncated Gaussian.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dataset: dict</strong></dt><dd><p>Input data, must contain <cite>chi_eff</cite> (<span class="math notranslate nohighlight">\(\chi_p\)</span>)</p>
+</dd>
+<dt><strong>mu_chi_p: float</strong></dt><dd><p>Mean of the distribution (<span class="math notranslate nohighlight">\(\mu_\chi\)</span>)</p>
+</dd>
+<dt><strong>sigma_chi_p: float</strong></dt><dd><p>Standard deviation of the distribution (<span class="math notranslate nohighlight">\(\sigma_\chi\)</span>)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array-like: The probability</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 
@@ -218,8 +250,8 @@
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="gwpopulation.utils.powerlaw.html" class="btn btn-neutral float-right" title="gwpopulation.utils.powerlaw" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="gwpopulation.utils.beta_dist.html" class="btn btn-neutral float-left" title="gwpopulation.utils.beta_dist" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gwpopulation.models.spin.iid_spin.html" class="btn btn-neutral float-right" title="gwpopulation.models.spin.iid_spin" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="gwpopulation.models.spin.gaussian_chi_eff.html" class="btn btn-neutral float-left" title="gwpopulation.models.spin.gaussian_chi_eff" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

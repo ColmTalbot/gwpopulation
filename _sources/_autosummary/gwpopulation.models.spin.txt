@@ -16,6 +16,8 @@ gwpopulation.models.spin
    .. autosummary::
       :toctree:
    
+      gaussian_chi_eff
+      gaussian_chi_p
       iid_spin
       iid_spin_magnitude_beta
       iid_spin_orientation_gaussian_isotropic
@@ -25,6 +27,14 @@ gwpopulation.models.spin
    
 
    
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      GaussianChiEffChiP
    
    
 

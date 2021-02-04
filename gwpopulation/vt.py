@@ -34,6 +34,7 @@ class GridVT(_BaseVT):
     data: dict
         The sensitivity labelled `vt` and an entry for each parameter to be marginalized over.
     """
+
     def __init__(self, model, data):
         self.vts = data.pop("vt")
         super(GridVT, self).__init__(model=model, data=data)
@@ -135,7 +136,5 @@ class ResamplingVT(_BaseVT):
             return self._surveyed_hypervolume
         else:
             return (
-                self.redshift_model.normalisation(parameters)
-                / 1e9
-                * self.analysis_time
+                self.redshift_model.normalisation(parameters) / 1e9 * self.analysis_time
             )

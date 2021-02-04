@@ -185,7 +185,7 @@ texinfo_documents = [
 
 numpydoc_show_class_members = False
 
-nbsphinx_execute = 'never'
+nbsphinx_execute = "never"
 nbsphinx_prolog = """
 This page was automatically generated from a Jupyter notebook.
 

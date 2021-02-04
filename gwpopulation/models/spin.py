@@ -2,7 +2,8 @@
 Implemented spin models
 """
 
-from ..utils import beta_dist, truncnorm
+from ..cupy_utils import xp
+from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian
 
 
 def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
@@ -136,3 +137,143 @@ def independent_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_1, s
         dataset["cos_tilt_1"], 1, sigma_1, 1, -1
     ) * truncnorm(dataset["cos_tilt_2"], 1, sigma_2, 1, -1)
     return prior
+
+
+def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):
+    r"""
+    A Gaussian in chi effective distribution
+
+    See https://arxiv.org/abs/2001.06051, https://arxiv.org/abs/2010.14533
+
+    .. math::
+        p(\chi_{\text{eff}}) = \mathcal{N}(\chi_{\text{eff}}; \mu=\mu_\chi, \sigma=\sigma_\chi, x_\min=-1, m_\max=1)
+
+    Where :math:`\mathcal{N}` is a truncated Gaussian.
+
+    Parameters
+    ----------
+    dataset: dict
+        Input data, must contain `chi_eff` (:math:`\chi_{\text{eff}}`)
+    mu_chi_eff: float
+        Mean of the distribution (:math:`\mu_\chi`)
+    sigma_chi_eff: float
+        Standard deviation of the distribution (:math:`\sigma_\chi`)
+
+    Returns
+    -------
+    array-like: The probability
+    """
+    return truncnorm(
+        dataset["chi_eff"], mu=mu_chi_eff, sigma=sigma_chi_eff, low=-1, high=1
+    )
+
+
+def gaussian_chi_p(dataset, mu_chi_p, sigma_chi_p):
+    r"""
+    A Gaussian distribution in precessing effective spin (chi p)
+
+    See https://arxiv.org/abs/2001.06051, https://arxiv.org/abs/2010.14533
+
+    .. math::
+        p(\chi_p) = \mathcal{N}(\chi_p}; \mu=\mu_\chi, \sigma=\sigma_\chi, x_\min=0, m_\max=1)
+
+    Where :math:`\mathcal{N}` is a truncated Gaussian.
+
+    Parameters
+    ----------
+    dataset: dict
+        Input data, must contain `chi_eff` (:math:`\chi_p`)
+    mu_chi_p: float
+        Mean of the distribution (:math:`\mu_\chi`)
+    sigma_chi_p: float
+        Standard deviation of the distribution (:math:`\sigma_\chi`)
+
+    Returns
+    -------
+    array-like: The probability
+    """
+    return truncnorm(dataset["chi_p"], mu=mu_chi_p, sigma=sigma_chi_p, low=0, high=1)
+
+
+class GaussianChiEffChiP(object):
+    r"""
+    A covariant Gaussian in effective aligned and precessing spins.
+
+    See https://arxiv.org/abs/2001.06051, https://arxiv.org/abs/2010.14533
+
+    The covariance matrix is given by:
+
+    .. math::
+        \Sigma = \begin{bmatrix}
+            \sigma^2_{\text{eff}} & \rho \sigma_{\text{eff}} \sigma_{p} \\
+            \rho \sigma_{\text{eff}} \sigma_{p} & \sigma^2_{p}
+        \end{bmatrix}
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'chi_eff' and 'chi_p'.
+    mu_chi_eff: float
+        Mean of the chi effective distribution (:math:`\mu_{\text{eff}}`)
+    mu_chi_p: float
+        Mean of the chi p distribution (:math:`\mu_{p}`)
+    sigma_chi_eff: float
+        Standard deviation of the chi effective distribution (:math:`\sigma_{\text{eff}}`)
+    sigma_chi_p: float
+        Standard deviation of the chi p distribution (:math:`\sigma_{p}`)
+    spin_covariance: float
+        Covariance between the two parameters (:math:`\rho`)
+    """
+
+    def __init__(self):
+        self.chi_eff = xp.linspace(-1, 1, 500)
+        self.chi_p = xp.linspace(0, 1, 250)
+        self.chi_eff_grid, self.chi_p_grid = xp.meshgrid(self.chi_eff, self.chi_p)
+
+    def __call__(
+        self, dataset, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
+    ):
+        if spin_covariance == 0:
+            prob = gaussian_chi_eff(
+                dataset=dataset,
+                mu_chi_eff=mu_chi_eff,
+                sigma_chi_eff=sigma_chi_eff,
+            )
+            prob *= gaussian_chi_p(
+                dataset=dataset, mu_chi_p=mu_chi_p, sigma_chi_p=sigma_chi_p
+            )
+        else:
+            prob = unnormalized_2d_gaussian(
+                dataset["chi_eff"],
+                dataset["chi_p"],
+                mu_chi_eff,
+                mu_chi_p,
+                sigma_chi_eff,
+                sigma_chi_p,
+                spin_covariance,
+            )
+            normalization = self._normalization(
+                mu_chi_eff=mu_chi_eff,
+                sigma_chi_eff=sigma_chi_eff,
+                mu_chi_p=mu_chi_p,
+                sigma_chi_p=sigma_chi_p,
+                spin_covariance=spin_covariance,
+            )
+            prob /= normalization
+        return prob
+
+    def _normalization(
+        self, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
+    ):
+        prob = unnormalized_2d_gaussian(
+            self.chi_eff_grid,
+            self.chi_p_grid,
+            mu_chi_eff,
+            mu_chi_p,
+            sigma_chi_eff,
+            sigma_chi_p,
+            spin_covariance,
+        )
+        return xp.trapz(
+            y=xp.trapz(y=prob, axis=-1, x=self.chi_eff), axis=-1, x=self.chi_p
+        )

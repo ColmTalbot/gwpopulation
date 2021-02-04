@@ -93,11 +93,13 @@ class _Redshift(object):
         Deprecated use normalisation instead.
 
         {}
-        """.format(_Redshift.normalisation.__doc__)
+        """.format(
+            _Redshift.normalisation.__doc__
+        )
         warn(
             "The total spacetime volume method is deprecated, "
             "use normalisation instead.",
-            DeprecationWarning
+            DeprecationWarning,
         )
         return self.normalisation(parameters=parameters)
 

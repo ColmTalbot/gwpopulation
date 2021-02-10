@@ -12,7 +12,7 @@ This includes:
   - population models for gravitational-wave sources.
   - selection functions for gravitational-wave sources.
 
-The code is hosted as github.com/ColmTalbot/gwpopulation.
+The code is hosted at `<www.github.com/ColmTalbot/gwpopulation>`_.
 """
 import sys
 
@@ -46,7 +46,15 @@ from . import conversions, cupy_utils, hyperpe, models, utils, vt
 
 __version__ = utils.get_version_information()
 
-__all_with_xp = [models.mass, models.redshift, cupy_utils, hyperpe, utils, vt]
+__all_with_xp = [
+    models.mass,
+    models.redshift,
+    models.spin,
+    cupy_utils,
+    hyperpe,
+    utils,
+    vt,
+]
 
 
 def disable_cupy():

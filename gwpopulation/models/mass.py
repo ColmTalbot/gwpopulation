@@ -1,3 +1,7 @@
+"""
+Implemented mass models
+"""
+
 from warnings import warn
 
 from ..cupy_utils import trapz, xp
@@ -5,26 +9,29 @@ from ..utils import powerlaw, truncnorm
 
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
-    """
+    r"""
     Broken power-law mass distribution
 
-    mmin <= m < mmin + (mmax - mmin): break_fraction: p(m) \propto m^{-alpha_1}
-    mmin + (mmax - mmin) <= m <= mmax: break_fraction: p(m) \propto m^{-alpha_2}
+    .. math::
+        p(m | \alpha_1, m_\min, m_\max, \delta) &\propto \begin{cases}
+            m^{-\alpha_1} : m_\min \leq m < m_\min + \delta (m_\max - m_\min)\\
+            m^{-\alpha_2} : m_\min + \delta (m_\max - m_\min) \leq m < m_\max
+        \end{cases}
 
     Parameters
     ----------
     mass: array-like
-        Mass to evaluate probability at
+        Mass to evaluate probability at (:math:`m`).
     alpha_1: float
-        Powerlaw exponent for more massive black hole below break.
+        Powerlaw exponent for more massive black hole below break (:math:`\alpha_1`).
     alpha_2: float
-        Powerlaw exponent for more massive black hole above break.
-    break_fraction:float
-        The fraction between mmin and mmax primary mass distribution breaks.
+        Powerlaw exponent for more massive black hole above break (:math:`\alpha_2`).
+    break_fraction: float
+        The fraction between mmin and mmax primary mass distribution breaks (:math:`\delta`).
     mmin: float
-        Minimum black hole mass.
+        Minimum black hole mass (:math:`m_\min`).
     mmax: float
-        Maximum mass in the powerlaw distributed component.
+        Maximum mass in the powerlaw distributed component (:math:`m_\max`).
     """
 
     prob = xp.zeros_like(mass)
@@ -42,29 +49,43 @@ def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_frac
 def double_power_law_peak_primary_mass(
     mass, alpha_1, alpha_2, mmin, mmax, break_fraction, lam, mpp, sigpp
 ):
-    """
+    r"""
     Broken power-law with a Gaussian component.
+
+    .. math::
+        p(m | \alpha_1, \alpha_2, m_\min, m_\max, \delta, \lambda_m, \mu_m, \sigma_m) =
+        (1 - \lambda_m) p_{\text{bpl}}(m | \alpha_1, \alpha_2, m_\min, m_\max, \delta)
+        + \lambda_m p_{\text{norm}}(m | \mu_m, \sigma_m)
+
+    .. math::
+        p_{\text{bpl}}(m | \alpha_1, m_\min, m_\max, \delta) &\propto \begin{cases}
+            m^{-\alpha_1} : m_\min \leq m < m_\min + \delta (m_\max - m_\min)\\
+            m^{-\alpha_2} : m_\min + \delta (m_\max - m_\min) \leq m < m_\max
+        \end{cases}
+
+    .. math::
+        p_{\text{norm}}(m | \mu_m, \sigma_m) \propto \exp\left(-\frac{(m - \mu_{m})^2}{2\sigma^2_m}\right)
 
     Parameters
     ----------
     mass: array-like
-        Mass to evaluate probability at
+        Mass to evaluate probability at (:math:`m`).
     alpha_1: float
-        Powerlaw exponent for more massive black hole below break.
+        Powerlaw exponent for more massive black hole below break (:math:`\alpha_1`).
     alpha_2: float
-        Powerlaw exponent for more massive black hole above break.
+        Powerlaw exponent for more massive black hole above break (:math:`\alpha_2`).
     break_fraction:float
-        The fraction between mmin and mmax primary mass distribution breaks.
+        The fraction between mmin and mmax primary mass distribution breaks (:math:`\delta`).
     mmin: float
-        Minimum black hole mass.
+        Minimum black hole mass (:math:`m_\min`).
     mmax: float
-        Maximum mass in the powerlaw distributed component.
+        Maximum mass in the powerlaw distributed component (:math:`m_\max`).
     lam: float
-        Fraction of black holes in the Gaussian component.
+        Fraction of black holes in the Gaussian component (:math:`\lambda_m`).
     mpp: float
-        Mean of the Gaussian component.
+        Mean of the Gaussian component (:math:`\mu_m`).
     sigpp: float
-        Standard deviation fo the Gaussian component.
+        Standard deviation fo the Gaussian component (:math:`\sigma_m`).
     """
 
     p_pow = double_power_law_primary_mass(
@@ -83,24 +104,34 @@ def double_power_law_peak_primary_mass(
 def double_power_law_primary_power_law_mass_ratio(
     dataset, alpha_1, alpha_2, beta, mmin, mmax, break_fraction
 ):
-    """
+    r"""
     Power law model for two-dimensional mass distribution, modelling primary
     mass and conditional mass ratio distribution.
 
-    p(m1, q) = p(m1) * p(q | m1)
+    .. math::
+        p(m_1, q) = p_{\text{bpl}}(m_1) p(q | m_1)
+
+    .. math::
+        p_{\text{bpl}}(m | \alpha_1, m_\min, m_\max, \delta) &\propto \begin{cases}
+            m^{-\alpha_1} : m_\min \leq m < m_\min + \delta (m_\max - m_\min)\\
+            m^{-\alpha_2} : m_\min + \delta (m_\max - m_\min) \leq m < m_\max
+        \end{cases}
+
+    .. math::
+        p(q | m_1) \propto q^\beta : \frac{m_1}{m_\min} \leq q \leq 1
 
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+        Dictionary of numpy arrays for `mass_1` (:math:`m_1`) and `mass_ratio` (:math:`q`).
     alpha_1: float
-        Negative power law exponent for more massive black hole before break.
+        Negative power law exponent for more massive black hole before break (:math:`\alpha_1`).
     alpha_2: float
-        Negative power law exponent for more massive black hole after break.
+        Negative power law exponent for more massive black hole after break (:math:`\alpha_2`).
     mmin: float
-        Minimum black hole mass.
+        Minimum black hole mass (:math:`m_\min`).
     mmax: float
-        Maximum black hole mass.
+        Maximum black hole mass (:math:`m_\max`).
     break_fraction: float
         Break point of the primary mass distribution.
         This is specified as a fraction of the way between mmin and mmax.
@@ -118,24 +149,29 @@ def double_power_law_primary_power_law_mass_ratio(
 
 
 def power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
-    """
+    r"""
     Power law model for two-dimensional mass distribution, modelling primary
     mass and conditional mass ratio distribution.
 
-    p(m1, q) = p(m1) * p(q | m1)
+    .. math::
+        p(m_1, q) &= p_{\text{pow}}(m_1) p(q | m_1)
+
+        p_{\text{pow}}(m) &\propto m^{-\alpha} : m_\min \leq m < m_\max
+
+        p(q | m_1) &\propto q^\beta : \frac{m_1}{m_\min} \leq q \leq 1
 
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+        Dictionary of numpy arrays for 'mass_1' (:math:`m_1`) and 'mass_ratio' (:math:`q`).
     alpha: float
-        Negative power law exponent for more massive black hole.
+        Negative power law exponent for more massive black hole (:math:`\alpha`).
     mmin: float
-        Minimum black hole mass.
+        Minimum black hole mass (:math:`m_\min`).
     mmax: float
-        Maximum black hole mass.
+        Maximum black hole mass (:math:`m_\max`).
     beta: float
-        Power law exponent of the mass ratio distribution.
+        Power law exponent of the mass ratio distribution (:math:`\beta`).
     """
     return two_component_primary_mass_ratio(
         dataset, alpha=alpha, beta=beta, mmin=mmin, mmax=mmax, lam=0, mpp=35, sigpp=1
@@ -147,24 +183,27 @@ def _primary_secondary_general(dataset, p_m1, p_m2):
 
 
 def power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):
-    """
+    r"""
     Power law model for two-dimensional mass distribution, modelling the
     primary and secondary masses as following independent distributions.
 
-    p(m1, m2) = p(m1) * p(m2) : m1 >= m2
+    .. math::
+        p(m1, m2) &= p_{\text{pow}}(m1) p_{\text{pow}}(m2) : m1 \geq m2
+
+        p_{\text{pow}}(m) &\propto m^{-\alpha} : m_\min \leq m < m_\max
 
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays for 'mass_1' and 'mass_2'.
+        Dictionary of numpy arrays for 'mass_1' (:math:`m_1`) and 'mass_2' (:math:`m_2`).
     alpha: float
-        Negative power law exponent for more massive black hole.
+        Negative power law exponent for more massive black hole (:math:`\alpha`).
     beta: float
-        Negative power law exponent of the secondary mass distribution.
+        Negative power law exponent of the secondary mass distribution (:math:`\beta`).
     mmin: float
-        Minimum black hole mass.
+        Minimum black hole mass (:math:`m_\min`).
     mmax: float
-        Maximum black hole mass.
+        Maximum black hole mass (:math:`m_\max`).
     """
     p_m1 = powerlaw(dataset["mass_1"], -alpha, mmax, mmin)
     p_m2 = powerlaw(dataset["mass_2"], -beta, mmax, mmin)
@@ -173,22 +212,25 @@ def power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):
 
 
 def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
-    """
+    r"""
     Power law model for two-dimensional mass distribution, modelling the
     primary and secondary masses as following independent distributions.
 
-    p(m1, m2) = p(m1) * p(m2) : m1 >= m2
+    .. math::
+        p(m_1, m_2 | \alpha, m_\min, m_\max) &= p_{\text{pow}}(m_1 | \alpha) p_{\text{pow}}(m_2 | \alpha) : m_1 \geq m_2
+
+        p_{\text{pow}}(m | \alpha) &\propto m^{-\alpha} : m_\min \leq m < m_\max
 
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays for 'mass_1' and 'mass_2'.
+        Dictionary of numpy arrays for 'mass_1' (:math:`m_1`) and 'mass_2' (:math:`m_2`).
     alpha: float
-        Negative power law exponent for more massive black hole.
+        Negative power law exponent for both black holes (:math:`\alpha`).
     mmin: float
-        Minimum black hole mass.
+        Minimum black hole mass (:math:`m_\min`).
     mmax: float
-        Maximum black hole mass.
+        Maximum black hole mass (:math:`m_\max`).
     """
     return power_law_primary_secondary_independent(
         dataset=dataset, alpha=alpha, beta=alpha, mmin=mmin, mmax=mmax
@@ -196,25 +238,32 @@ def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
 
 
 def two_component_single(mass, alpha, mmin, mmax, lam, mpp, sigpp):
-    """
+    r"""
     Power law model for one-dimensional mass distribution with a Gaussian component.
+
+    .. math::
+        p(m) &= (1 - \lambda_m) p_{\text{pow}} + \lambda_m p_{\text{norm}}
+
+        p_{\text{pow}}(m) &\propto m^{-\alpha} : m_\min \leq m < m_\max
+
+        p_{\text{norm}}(m) &\propto \exp\left(-\frac{(m - \mu_{m})^2}{2\sigma^2_m}\right)
 
     Parameters
     ----------
     mass: array-like
-        Array of mass values.
+        Array of mass values (:math:`m`).
     alpha: float
-        Negative power law exponent for the black hole distribution.
+        Negative power law exponent for the black hole distribution (:math:`\alpha`).
     mmin: float
-        Minimum black hole mass.
+        Minimum black hole mass (:math:`m_\min`).
     mmax: float
-        Maximum black hole mass.
+        Maximum black hole mass (:math:`m_\max`).
     lam: float
-        Fraction of black holes in the Gaussian component.
+        Fraction of black holes in the Gaussian component (:math:`\lambda_m`).
     mpp: float
-        Mean of the Gaussian component.
+        Mean of the Gaussian component (:math:`\mu_m`).
     sigpp: float
-        Standard deviation of the Gaussian component.
+        Standard deviation of the Gaussian component (:math:`\sigma_m`).
     """
     p_pow = powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
     p_norm = truncnorm(mass, mu=mpp, sigma=sigpp, high=100, low=mmin)
@@ -225,8 +274,15 @@ def two_component_single(mass, alpha, mmin, mmax, lam, mpp, sigpp):
 def three_component_single(
     mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2
 ):
-    """
+    r"""
     Power law model for one-dimensional mass distribution with two Gaussian components.
+
+    .. math::
+        p(m) &= (1 - \lambda_m) p_{\text{pow}}(m) + \lambda_m p_{\text{norm}}(m)
+
+        p_{\text{pow}}(m) &\propto m^{-\alpha} : m_\min \leq m < m_\max
+
+        p_{\text{norm}}(m) &\propto \exp\left(-\frac{(m - \mu_{m})^2}{2\sigma^2_m}\right)
 
     Parameters
     ----------
@@ -259,11 +315,12 @@ def three_component_single(
 
 
 def two_component_primary_mass_ratio(dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp):
-    """
+    r"""
     Power law model for two-dimensional mass distribution, modelling primary
     mass and conditional mass ratio distribution.
 
-    p(m1, q) = p(m1) * p(q | m1)
+    .. math::
+        p(m_1, q) = p(m1) p(q | m_1)
 
     Parameters
     ----------
@@ -294,11 +351,12 @@ def two_component_primary_mass_ratio(dataset, alpha, beta, mmin, mmax, lam, mpp,
 def two_component_primary_secondary_independent(
     dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp
 ):
-    """
+    r"""
     Power law model for two-dimensional mass distribution, modelling the
     primary and secondary masses as following independent distributions.
 
-    p(m1, m2) = p(m1) * p(m2) : m1 >= m2
+    .. math::
+        p(m_1, m_2) = p_{\text{pow}}(m_1) p_{\text{pow}}(m_2) : m1 \geq m_2
 
     Parameters
     ----------
@@ -330,11 +388,12 @@ def two_component_primary_secondary_independent(
 def two_component_primary_secondary_identical(
     dataset, alpha, mmin, mmax, lam, mpp, sigpp
 ):
-    """
+    r"""
     Power law model for two-dimensional mass distribution, modelling the
     primary and secondary masses as following independent distributions.
 
-    p(m1, m2) = p(m1) * p(m2) : m1 >= m2
+    .. math::
+        p(m_1, m_2) = p(m_1) * p(m_2) : m_1 \geq m_2
 
     Parameters
     ----------

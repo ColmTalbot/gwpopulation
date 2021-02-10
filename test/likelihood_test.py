@@ -35,7 +35,7 @@ class Likelihoods(unittest.TestCase):
             _ = HyperparameterLikelihood(posteriors=self.data)
 
     def test_likelihood_pass_sampling_prior_raises_error(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             _ = HyperparameterLikelihood(
                 posteriors=self.data,
                 hyper_prior=self.model,
@@ -173,15 +173,14 @@ class Likelihoods(unittest.TestCase):
         }
         self.assertDictEqual(expected, new_params)
 
-    def test_generate_rate_posterior_sample_raises_error(self):
+    def test_generate_rate_posterior_sample_returns_positive(self):
         like = HyperparameterLikelihood(
             posteriors=self.data,
             hyper_prior=self.model,
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
         )
-        with self.assertRaises(NotImplementedError):
-            like.generate_rate_posterior_sample()
+        self.assertGreater(like.generate_rate_posterior_sample(), 0)
 
     def test_resampling_posteriors(self):
         priors = PriorDict(dict(a=Uniform(0, 2), b=Uniform(0, 2), c=Uniform(0, 2)))

@@ -8,7 +8,8 @@ from ..cupy_utils import trapz, xp
 from ..utils import powerlaw, truncnorm
 
 
-def matter_matters(mass, A, NSmin, NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, alpha1, alpha2):
+def matter_matters(mass, A, NSmin, NSmax, BHmin, BHmax, 
+                   n0, n1, n2, n3, mbreak, alpha_1, alpha_2):
     r"""
     the single-mass distribution considered in Fishbach, Essick, Holz. Does
     Matter Matter? ApJ Lett 899, 1 (2020) : arXiv:2006.13178
@@ -46,9 +47,15 @@ def matter_matters(mass, A, NSmin, NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
         depth of the dip between NSmax and BHmin (A).
     """
     mbreak = BHmin
-    logprob = xp.where(mass >= 0, -xp.log(1 + (NSmin/mass)**n0) + xp.log(1.0 - A/((1 + (NSmax/mass)**n1) * (1 + (mass/BHmin)**n2))) \
-            - xp.log(1 + (mass/BHmax)**n3) + xp.where(mass <= mbreak, alpha1, alpha2)*(xp.log(mass) - xp.log(mbreak)),
-            - xp.infty)
+    logprob = xp.where(mass >= 0, 
+                       -xp.log(1 + (NSmin/mass)**n0) \
+                       + xp.log(1.0 - A/((1 + (NSmax/mass)**n1) * (1 + (mass/BHmin)**n2))) \
+                       - xp.log(1 + (mass/BHmax)**n3)\
+                       + xp.where(mass <= mbreak, 
+                                  alpha_1,
+                                  alpha_2
+                                  )*(xp.log(mass) - xp.log(mbreak)),
+                       -xp.infty)
     return xp.exp(logprob)
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
@@ -144,7 +151,7 @@ def double_power_law_peak_primary_mass(
     return prob
 
 def matter_matters_primary_secondary_independent(dataset, A, NSmin, NSmax,
-    BHmin, BHmax, n0, n1, n2, n3, mbreak, alpha1, alpha2
+    BHmin, BHmax, n0, n1, n2, n3, mbreak, alpha_1, alpha_2
 ):
     r"""
     Two-dimenstional mass distribution considered in Fishbach, Essick, Holz. Does
@@ -179,10 +186,10 @@ def matter_matters_primary_secondary_independent(dataset, A, NSmin, NSmax,
     """
 
     p_m1 = matter_matters(dataset["mass_1"], A, NSmin, NSmax, BHmin, BHmax, 
-                          n0, n1, n2, n3, mbreak, alpha1, alpha2)
+                          n0, n1, n2, n3, mbreak, alpha_1, alpha_2)
     p_m2 = matter_matters(dataset["mass_1"]*dataset["mass_ratio"], A, NSmin, 
                           NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
-                          alpha1, alpha2)
+                          alpha_1, alpha_2)
     prob = _primary_secondary_general(dataset, p_m1, p_m2)
     return prob
 

@@ -8,6 +8,48 @@ from ..cupy_utils import trapz, xp
 from ..utils import powerlaw, truncnorm
 
 
+def matter_matters(mass, A, NSmin, NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, alpha1, alpha2):
+    r"""
+    the single-mass distribution considered in Fishbach, Essick, Holz. Does
+    Matter Matter? ApJ Lett 899, 1 (2020) : arXiv:2006.13178
+
+    .. math::
+        p(m | \alpha_1, m_\min, m_\max, \delta) &\propto \begin{cases}
+            m^{-\alpha_1} : m_\min \leq m < m_\min + \delta (m_\max - m_\min)\\
+            m^{-\alpha_2} : m_\min + \delta (m_\max - m_\min) \leq m < m_\max
+        \end{cases}
+
+    Parameters
+    ----------
+    mass: array-like
+        Mass to evaluate probability at (:math:`m`).
+    alpha_1: float
+        Powerlaw exponent for compact object below break (:math:`\alpha_1`).
+    alpha_2: float
+        Powerlaw exponent for compact object above break (:math:`\alpha_2`).
+    mbreak: float
+        Mass at which the power law exponent switches from alpha_1 to alpha_2.
+        Pinned for now to be at BHmin (:math:`\m_{break}`). 
+    NSmin: float
+        Minimum compact object mass (:math:`m_\min`).
+    NSmax: float
+        Mass at which the notch filter starts (:math:`\gamma_{low}`)
+    BHmin: float
+        Mass at which the notch filter ends (:math:`\gamma_{high}`)
+    BHmax: float
+        Maximum mass in the powerlaw distributed component (:math:`m_\max`).
+    n{0,1,2,3}: float
+        Exponents to set the sharpness of the low mass cutoff, low edge of dip,
+        high edge of dip, and high mass cutoff, respectively (:math:`\eta_i`). 
+    A: float
+        depth of the dip between NSmax and BHmin (A).
+    """
+    mbreak = BHmin
+    logprob = xp.where(mass >= 0, -xp.log(1 + (NSmin/mass)**n0) + xp.log(1.0 - A/((1 + (NSmax/mass)**n1) * (1 + (mass/BHmin)**n2))) \
+            - xp.log(1 + (mass/BHmax)**n3) + xp.where(mass <= mbreak, alpha1, alpha2)*(xp.log(mass) - xp.log(mbreak)),
+            - xp.infty)
+    return xp.exp(logprob)
+
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
     r"""
     Broken power-law mass distribution

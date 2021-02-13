@@ -150,7 +150,7 @@ def double_power_law_peak_primary_mass(
     return prob
 
 def matter_matters_primary_secondary_independent(dataset, A, NSmin, NSmax,
-    BHmin, BHmax, n0, n1, n2, n3, mbreak, alpha_1, alpha_2
+    BHmin, BHmax, n0, n1, n2, n3, mbreak, alpha_1, alpha_2, beta_q
 ):
     r"""
     Two-dimenstional mass distribution considered in Fishbach, Essick, Holz. Does
@@ -190,7 +190,7 @@ def matter_matters_primary_secondary_independent(dataset, A, NSmin, NSmax,
     p_m2 = matter_matters(dataset["mass_2"], A, NSmin, 
                           NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
                           alpha_1, alpha_2)
-    prob = _primary_secondary_general(dataset, p_m1, p_m2)
+    prob = _primary_secondary_plaw_pairing(dataset, p_m1, p_m2, beta_q)
     return prob
 
 def double_power_law_primary_power_law_mass_ratio(
@@ -272,6 +272,10 @@ def power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
 
 def _primary_secondary_general(dataset, p_m1, p_m2):
     return p_m1 * p_m2 * (dataset["mass_1"] >= dataset["mass_2"]) * 2
+
+def _primary_secondary_plaw_pairing(dataset, p_m1, p_m2, beta_pair):
+    q = datatset["mass_2"]/dataset["mass_1"]
+    return _primary_secondary_general(dataset, p_m1, p_m2) * (q ** beta_pair)
 
 
 def power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):

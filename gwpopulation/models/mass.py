@@ -187,7 +187,7 @@ def matter_matters_primary_secondary_independent(dataset, A, NSmin, NSmax,
 
     p_m1 = matter_matters(dataset["mass_1"], A, NSmin, NSmax, BHmin, BHmax, 
                           n0, n1, n2, n3, mbreak, alpha_1, alpha_2)
-    p_m2 = matter_matters(dataset["mass_1"]*dataset["mass_ratio"], A, NSmin, 
+    p_m2 = matter_matters(dataset["mass_2"], A, NSmin, 
                           NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
                           alpha_1, alpha_2)
     prob = _primary_secondary_general(dataset, p_m1, p_m2)

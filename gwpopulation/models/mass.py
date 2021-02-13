@@ -46,7 +46,6 @@ def matter_matters(mass, A, NSmin, NSmax, BHmin, BHmax,
     A: float
         depth of the dip between NSmax and BHmin (A).
     """
-    mbreak = BHmin
     logprob = xp.where(mass >= 0, 
                        -xp.log(1 + (NSmin/mass)**n0) \
                        + xp.log(1.0 - A/((1 + (NSmax/mass)**n1) * (1 + (mass/BHmin)**n2))) \
@@ -185,6 +184,7 @@ def matter_matters_primary_secondary_independent(dataset, A, NSmin, NSmax,
         depth of the dip between NSmax and BHmin (A).
     """
 
+    mbreak = BHmin
     p_m1 = matter_matters(dataset["mass_1"], A, NSmin, NSmax, BHmin, BHmax, 
                           n0, n1, n2, n3, mbreak, alpha_1, alpha_2)
     p_m2 = matter_matters(dataset["mass_2"], A, NSmin, 

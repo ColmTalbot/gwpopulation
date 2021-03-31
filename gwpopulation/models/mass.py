@@ -56,7 +56,6 @@ def matter_matters(mass, A, NSmin, NSmax, BHmin, BHmax,
                                   alpha_2
                                   )*(xp.log(mass) - xp.log(mbreak)),
                        -xp.infty)
-
     return xp.exp(logprob)
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
@@ -191,14 +190,6 @@ def matter_matters_primary_secondary_independent(dataset, A, NSmin, NSmax,
     p_m2 = matter_matters(dataset["mass_2"], A, NSmin, 
                           NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
                           alpha_1, alpha_2)
-    # normalize
-    ms = xp.linspace(1,100,1000)
-    p_m = matter_matters(ms, A, NSmin, NSmax, BHmin, BHmax, n0, n1, n2, n3,
-    mbreak, alpha_1, alpha_2)
-    norm = trapz(p_m)
-    p_m1 /= norm
-    p_m2 /= norm
-
     prob = _primary_secondary_general(dataset, p_m1, p_m2)
     return prob
 
@@ -243,24 +234,7 @@ def matter_matters_pairing(dataset, A, NSmin, NSmax,
     p_m2 = matter_matters(dataset["mass_2"], A, NSmin, 
                           NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
                           alpha_1, alpha_2)
-    # normalize
-    ms = xp.linspace(1,100,1000)
-    p_m = matter_matters(ms, A, NSmin, NSmax, BHmin, BHmax, n0, n1, n2, n3,
-    mbreak, alpha_1, alpha_2)
-    norm = trapz(p_m)
-    p_m1 /= norm
-    p_m2 /= norm
-    
-    qs = xp.linspace(0.001,1,500)
-    m1s_grid, qs_grid = xp.meshgrid(ms,qs)
-
-    mockdata = dict(mass_1=m1s_grid, mass_2=m1s_grid*qs_grid)
-    p_pairing = _primary_secondary_plaw_pairing(mockdata, p_m1, p_m2, beta_q)
-    norm_pairing = trapz(p_pairing)
-    
-    prob = _primary_secondary_plaw_pairing(dataset, p_m1, p_m2,
-    beta_q)/norm_pairing
-    
+    prob = _primary_secondary_plaw_pairing(dataset, p_m1, p_m2, beta_q)
     return prob
 
 def double_power_law_primary_power_law_mass_ratio(
@@ -1119,36 +1093,3 @@ class BrokenPowerLawPeakSmoothedMassDistribution(_SmoothedMassDistribution):
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
         norm = trapz(p_m, self.m1s)
         return norm
-
-"""
-class MatterMattersMassDistribution(object):
-    
-    def __init__(self):
-        self.ms = xp.linspace(1, 100, 1000)
-        self.qs = xp
-
-    def __call__(self, dataset, A, NSmin, NSmax, BHmin, BHmax, n0, n1, n2, n3,
-    mbreak, alpha_1, alpha_2, beta_q):
-        p_m1 = matter_matters(
-        return prob
-
-
-    def norm_pm(self, dataset, A, NSmin, NSmax, BHmin, BHmax, n0, n1, n2, n3,
-    mbreak, alpha_1, alpha_2):
-        
-        p_m = matter_matters(self.m1s, A, NSmin, NSmax, BHmin, BHmax, n0,
-        n1, n2, n3, mbreak, alpha_1, alpha_2)
-        
-        norm = trapz(p_m,self.ms)
-        return norm
-
-    def norm_pairing():
-
-    def norm_pairing():
-    
-    # normalize
-    ms = xp.linspace(1, 100, 1000)
-    p_m_grid = matter_matters(ms, A, NSmin, NSmax, BHmin, BHmax,
-                                n0, n1, n2, n3, mbreak, alpha_1, alpha_2)
-    norm = trapz(pm,ms) *norm_qdist
-"""

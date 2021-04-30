@@ -448,7 +448,7 @@ class BaseSmoothedMassDistribution(object):
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
 
-    def __call__(self, dataset, **kwargs):
+    def __call__(self, dataset, *args, **kwargs):
         beta = kwargs.pop("beta")
         mmin = kwargs.get("mmin", self.mmin)
         delta_m = kwargs.get("delta_m", 0)

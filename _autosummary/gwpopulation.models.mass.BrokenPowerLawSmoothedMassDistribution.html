@@ -106,11 +106,11 @@
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_secondary_identical.html">gwpopulation.models.mass.two_component_primary_secondary_identical</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_secondary_independent.html">gwpopulation.models.mass.two_component_primary_secondary_independent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.two_component_single.html">gwpopulation.models.mass.two_component_single</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BaseSmoothedMassDistribution.html">gwpopulation.models.mass.BaseSmoothedMassDistribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html">gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html">gwpopulation.models.mass.MultiPeakSmoothedMassDistribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html">gwpopulation.models.mass.SinglePeakSmoothedMassDistribution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.SmoothedMassDistribution.html">gwpopulation.models.mass.SmoothedMassDistribution</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.redshift.html">gwpopulation.models.redshift</a></li>
@@ -225,11 +225,11 @@
 <h1>gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution<a class="headerlink" href="#gwpopulation-models-mass-brokenpowerlawsmoothedmassdistribution" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution">
-<em class="property">class </em><code class="sig-prename descclassname">gwpopulation.models.mass.</code><code class="sig-name descname">BrokenPowerLawSmoothedMassDistribution</code><a class="reference internal" href="../_modules/gwpopulation/models/mass.html#BrokenPowerLawSmoothedMassDistribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">gwpopulation.models.mass._SmoothedMassDistribution</span></code></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gwpopulation.models.mass.</span></code><code class="sig-name descname"><span class="pre">BrokenPowerLawSmoothedMassDistribution</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/models/mass.html#BrokenPowerLawSmoothedMassDistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution" title="gwpopulation.models.mass.BaseSmoothedMassDistribution"><code class="xref py py-class docutils literal notranslate"><span class="pre">gwpopulation.models.mass.BaseSmoothedMassDistribution</span></code></a></p>
 <dl class="py method">
 <dt id="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -240,35 +240,73 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.__init__" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.__init__" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([mmin, mmax])</p></td>
 <td><p>Initialize self.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm_p_m1</span></code>(alpha_1, alpha_2, mmin, mmax, …)</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_m1" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_m1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm_p_m1</span></code></a>(delta_m, **kwargs)</p></td>
+<td><p>Calculate the normalisation factor for the primary mass</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_q" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm_p_q</span></code></a>(beta, mmin, delta_m)</p></td>
 <td><p>Calculate the mass ratio normalisation by linear interpolation</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p_m1</span></code>(dataset, alpha_1, alpha_2, mmin, mmax, …)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p_m1</span></code>(dataset, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p_q</span></code>(dataset, beta, mmin, delta_m)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.smoothing" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.smoothing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smoothing</span></code></a>(masses, mmin, mmax, delta_m)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.primary_model" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.primary_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">primary_model</span></code></a>(alpha_1, alpha_2, mmin, mmax, …)</p></td>
+<td><p>Broken power-law mass distribution</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.smoothing" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.smoothing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smoothing</span></code></a>(masses, mmin, mmax, delta_m)</p></td>
 <td><p>Apply a one sided window between mmin and mmin + delta_m to the mass pdf.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
+<dt id="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_m1">
+<code class="sig-name descname"><span class="pre">norm_p_m1</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_m</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_m1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the normalisation factor for the primary mass</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_q">
-<code class="sig-name descname">norm_p_q</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">beta</span></em>, <em class="sig-param"><span class="n">mmin</span></em>, <em class="sig-param"><span class="n">delta_m</span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_q" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">norm_p_q</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_m</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_q" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the mass ratio normalisation by linear interpolation</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.primary_model">
+<code class="sig-name descname"><span class="pre">primary_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">break_fraction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.primary_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Broken power-law mass distribution</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}p(m | \alpha_1, m_\min, m_\max, \delta) &amp;\propto \begin{cases}
+    m^{-\alpha_1} : m_\min \leq m &lt; m_\min + \delta (m_\max - m_\min)\\
+    m^{-\alpha_2} : m_\min + \delta (m_\max - m_\min) \leq m &lt; m_\max
+\end{cases}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mass: array-like</strong></dt><dd><p>Mass to evaluate probability at (<span class="math notranslate nohighlight">\(m\)</span>).</p>
+</dd>
+<dt><strong>alpha_1: float</strong></dt><dd><p>Powerlaw exponent for more massive black hole below break (<span class="math notranslate nohighlight">\(\alpha_1\)</span>).</p>
+</dd>
+<dt><strong>alpha_2: float</strong></dt><dd><p>Powerlaw exponent for more massive black hole above break (<span class="math notranslate nohighlight">\(\alpha_2\)</span>).</p>
+</dd>
+<dt><strong>break_fraction: float</strong></dt><dd><p>The fraction between mmin and mmax primary mass distribution breaks (<span class="math notranslate nohighlight">\(\delta\)</span>).</p>
+</dd>
+<dt><strong>mmin: float</strong></dt><dd><p>Minimum black hole mass (<span class="math notranslate nohighlight">\(m_\min\)</span>).</p>
+</dd>
+<dt><strong>mmax: float</strong></dt><dd><p>Maximum mass in the powerlaw distributed component (<span class="math notranslate nohighlight">\(m_\max\)</span>).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.smoothing">
-<em class="property">static </em><code class="sig-name descname">smoothing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">masses</span></em>, <em class="sig-param"><span class="n">mmin</span></em>, <em class="sig-param"><span class="n">mmax</span></em>, <em class="sig-param"><span class="n">delta_m</span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.smoothing" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">smoothing</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_m</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.smoothing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply a one sided window between mmin and mmin + delta_m to the
 mass pdf.</p>
 <p>The upper cut off is a step function,

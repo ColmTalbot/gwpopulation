@@ -33,8 +33,6 @@
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -170,8 +168,6 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Implemented mass models</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
 <span class="kn">from</span> <span class="nn">..cupy_utils</span> <span class="kn">import</span> <span class="n">trapz</span><span class="p">,</span> <span class="n">xp</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">powerlaw</span><span class="p">,</span> <span class="n">truncnorm</span>
@@ -593,26 +589,61 @@
     <span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">_SmoothedMassDistribution</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">BaseSmoothedMassDistribution</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generic smoothed mass distribution base class.</span>
 
 <span class="sd">    Implements the low-mass smoothing and power-law mass ratio</span>
 <span class="sd">    distribution. Requires p_m1 to be implemented.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    mmin: float</span>
+<span class="sd">        The minimum mass considered for numerical normalization</span>
+<span class="sd">    mmax: float</span>
+<span class="sd">        The maximum mass considered for numerical normalization</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">primary_model</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="BaseSmoothedMassDistribution.__init__"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmin</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmax</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qs</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">m1s_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qs_grid</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m1s_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qs_grid</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qs</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+        <span class="n">mmin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mmin&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmin</span><span class="p">)</span>
+        <span class="n">delta_m</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;delta_m&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">p_m1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_m1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">p_q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_q</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">p_m1</span> <span class="o">*</span> <span class="n">p_q</span>
+        <span class="k">return</span> <span class="n">prob</span>
 
-    <span class="k">def</span> <span class="nf">p_m1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">p_m1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">mmin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mmin&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmin</span><span class="p">)</span>
+        <span class="n">delta_m</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;delta_m&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">p_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">primary_model</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span>
+        <span class="p">)</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_p_m1</span><span class="p">(</span><span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">p_m</span> <span class="o">/</span> <span class="n">norm</span>
+
+<div class="viewcode-block" id="BaseSmoothedMassDistribution.norm_p_m1"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.norm_p_m1">[docs]</a>    <span class="k">def</span> <span class="nf">norm_p_m1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the normalisation factor for the primary mass&quot;&quot;&quot;</span>
+        <span class="n">mmin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mmin&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmin</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">delta_m</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="n">p_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">primary_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
+
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">trapz</span><span class="p">(</span><span class="n">p_m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">norm</span></div>
 
     <span class="k">def</span> <span class="nf">p_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">):</span>
         <span class="n">p_q</span> <span class="o">=</span> <span class="n">powerlaw</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_ratio&quot;</span><span class="p">],</span> <span class="n">beta</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mmin</span> <span class="o">/</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">])</span>
@@ -630,7 +661,7 @@
 
         <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">p_q</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">norm_p_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseSmoothedMassDistribution.norm_p_q"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.norm_p_q">[docs]</a>    <span class="k">def</span> <span class="nf">norm_p_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the mass ratio normalisation by linear interpolation&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">delta_m</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">1</span>
@@ -644,7 +675,7 @@
             <span class="n">norms</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_below</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">)</span> <span class="o">+</span> <span class="n">norms</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_above</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">all_norms</span>
+        <span class="k">return</span> <span class="n">all_norms</span></div>
 
     <span class="k">def</span> <span class="nf">_cache_q_norms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">masses</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -662,7 +693,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_above</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_above</span> <span class="o">==</span> <span class="n">max_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_idx</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">minimum</span><span class="p">((</span><span class="n">masses</span> <span class="o">-</span> <span class="n">m_below</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dm</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BaseSmoothedMassDistribution.smoothing"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.smoothing">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">smoothing</span><span class="p">(</span><span class="n">masses</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply a one sided window between mmin and mmin + delta_m to the</span>
@@ -689,10 +720,13 @@
                 <span class="p">)</span>
                 <span class="n">window</span><span class="p">[</span><span class="n">smoothing_region</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">exponent</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">window</span><span class="p">[(</span><span class="n">masses</span> <span class="o">&lt;</span> <span class="n">mmin</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">masses</span> <span class="o">&gt;</span> <span class="n">mmax</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="n">window</span>
+        <span class="k">return</span> <span class="n">window</span></div></div>
 
 
-<div class="viewcode-block" id="SinglePeakSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">SinglePeakSmoothedMassDistribution</span><span class="p">(</span><span class="n">_SmoothedMassDistribution</span><span class="p">):</span>
+<div class="viewcode-block" id="SinglePeakSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">SinglePeakSmoothedMassDistribution</span><span class="p">(</span><span class="n">BaseSmoothedMassDistribution</span><span class="p">):</span>
+
+    <span class="n">primary_model</span> <span class="o">=</span> <span class="n">two_component_single</span>
+
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Powerlaw + peak model for two-dimensional mass distribution with low</span>
@@ -726,8 +760,8 @@
 <span class="sd">        The interpolation of the p(q) normalisation has a fill value of</span>
 <span class="sd">        the normalisation factor for m_1 = 100.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">p_m1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_m1</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="p">,</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SinglePeakSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
             <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
             <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
@@ -735,57 +769,14 @@
             <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
             <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
             <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_q</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">prob</span> <span class="o">=</span> <span class="n">p_m1</span> <span class="o">*</span> <span class="n">p_q</span>
-        <span class="k">return</span> <span class="n">prob</span>
-
-    <span class="k">def</span> <span class="nf">p_m1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">):</span>
-        <span class="n">p_m</span> <span class="o">=</span> <span class="n">two_component_single</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span>
-            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
-            <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_p_m1</span><span class="p">(</span>
-            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
-            <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
-            <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">p_m</span> <span class="o">/</span> <span class="n">norm</span>
-
-<div class="viewcode-block" id="SinglePeakSmoothedMassDistribution.norm_p_m1"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.norm_p_m1">[docs]</a>    <span class="k">def</span> <span class="nf">norm_p_m1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate the normalisation factor for the primary mass&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">delta_m</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1</span>
-        <span class="n">p_m</span> <span class="o">=</span> <span class="n">two_component_single</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span>
-        <span class="p">)</span>
-        <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-
-        <span class="n">norm</span> <span class="o">=</span> <span class="n">trapz</span><span class="p">(</span><span class="n">p_m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">norm</span></div></div>
+            <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="SmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.SmoothedMassDistribution.html#gwpopulation.models.mass.SmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">SmoothedMassDistribution</span><span class="p">(</span><span class="n">SinglePeakSmoothedMassDistribution</span><span class="p">):</span>
-<div class="viewcode-block" id="SmoothedMassDistribution.__init__"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.SmoothedMassDistribution.html#gwpopulation.models.mass.SmoothedMassDistribution.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;SmoothedMassDistribution has been deprecated and will be removed in a &quot;</span>
-            <span class="s2">&quot;future release, use SinglePeakSmoothedMassDistribution instead.&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="MultiPeakSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">MultiPeakSmoothedMassDistribution</span><span class="p">(</span><span class="n">BaseSmoothedMassDistribution</span><span class="p">):</span>
 
+    <span class="n">primary_model</span> <span class="o">=</span> <span class="n">three_component_single</span>
 
-<div class="viewcode-block" id="MultiPeakSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">MultiPeakSmoothedMassDistribution</span><span class="p">(</span><span class="n">_SmoothedMassDistribution</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dataset</span><span class="p">,</span>
@@ -832,9 +823,10 @@
 <span class="sd">        delta_m: float</span>
 <span class="sd">            Rise length of the low end of the mass distribution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">p_m1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_m1</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="p">,</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MultiPeakSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
             <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
             <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
             <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
@@ -844,75 +836,13 @@
             <span class="n">sigpp_1</span><span class="o">=</span><span class="n">sigpp_1</span><span class="p">,</span>
             <span class="n">sigpp_2</span><span class="o">=</span><span class="n">sigpp_2</span><span class="p">,</span>
             <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_q</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">prob</span> <span class="o">=</span> <span class="n">p_m1</span> <span class="o">*</span> <span class="n">p_q</span>
-        <span class="k">return</span> <span class="n">prob</span>
-
-    <span class="k">def</span> <span class="nf">p_m1</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dataset</span><span class="p">,</span>
-        <span class="n">alpha</span><span class="p">,</span>
-        <span class="n">mmin</span><span class="p">,</span>
-        <span class="n">mmax</span><span class="p">,</span>
-        <span class="n">lam</span><span class="p">,</span>
-        <span class="n">lam_1</span><span class="p">,</span>
-        <span class="n">mpp_1</span><span class="p">,</span>
-        <span class="n">sigpp_1</span><span class="p">,</span>
-        <span class="n">mpp_2</span><span class="p">,</span>
-        <span class="n">sigpp_2</span><span class="p">,</span>
-        <span class="n">delta_m</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="n">p_m</span> <span class="o">=</span> <span class="n">three_component_single</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span>
-            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">lam_1</span><span class="o">=</span><span class="n">lam_1</span><span class="p">,</span>
-            <span class="n">mpp_1</span><span class="o">=</span><span class="n">mpp_1</span><span class="p">,</span>
-            <span class="n">mpp_2</span><span class="o">=</span><span class="n">mpp_2</span><span class="p">,</span>
-            <span class="n">sigpp_1</span><span class="o">=</span><span class="n">sigpp_1</span><span class="p">,</span>
-            <span class="n">sigpp_2</span><span class="o">=</span><span class="n">sigpp_2</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_p_m1</span><span class="p">(</span>
-            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">lam_1</span><span class="o">=</span><span class="n">lam_1</span><span class="p">,</span>
-            <span class="n">mpp_1</span><span class="o">=</span><span class="n">mpp_1</span><span class="p">,</span>
-            <span class="n">mpp_2</span><span class="o">=</span><span class="n">mpp_2</span><span class="p">,</span>
-            <span class="n">sigpp_1</span><span class="o">=</span><span class="n">sigpp_1</span><span class="p">,</span>
-            <span class="n">sigpp_2</span><span class="o">=</span><span class="n">sigpp_2</span><span class="p">,</span>
-            <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">p_m</span> <span class="o">/</span> <span class="n">norm</span>
-
-    <span class="k">def</span> <span class="nf">norm_p_m1</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">lam_1</span><span class="p">,</span> <span class="n">mpp_1</span><span class="p">,</span> <span class="n">sigpp_1</span><span class="p">,</span> <span class="n">mpp_2</span><span class="p">,</span> <span class="n">sigpp_2</span><span class="p">,</span> <span class="n">delta_m</span>
-    <span class="p">):</span>
-        <span class="k">if</span> <span class="n">delta_m</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1</span>
-        <span class="n">p_m</span> <span class="o">=</span> <span class="n">three_component_single</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span>
-            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">lam_1</span><span class="o">=</span><span class="n">lam_1</span><span class="p">,</span>
-            <span class="n">mpp_1</span><span class="o">=</span><span class="n">mpp_1</span><span class="p">,</span>
-            <span class="n">mpp_2</span><span class="o">=</span><span class="n">mpp_2</span><span class="p">,</span>
-            <span class="n">sigpp_1</span><span class="o">=</span><span class="n">sigpp_1</span><span class="p">,</span>
-            <span class="n">sigpp_2</span><span class="o">=</span><span class="n">sigpp_2</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="n">trapz</span><span class="p">(</span><span class="n">p_m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">norm</span></div>
+        <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BrokenPowerLawSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">BrokenPowerLawSmoothedMassDistribution</span><span class="p">(</span><span class="n">_SmoothedMassDistribution</span><span class="p">):</span>
+<div class="viewcode-block" id="BrokenPowerLawSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">BrokenPowerLawSmoothedMassDistribution</span><span class="p">(</span><span class="n">BaseSmoothedMassDistribution</span><span class="p">):</span>
+
+    <span class="n">primary_model</span> <span class="o">=</span> <span class="n">double_power_law_primary_mass</span>
+
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dataset</span><span class="p">,</span>
@@ -953,57 +883,22 @@
 <span class="sd">        delta_m: float</span>
 <span class="sd">            Rise length of the low end of the mass distribution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">p_m1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_m1</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="p">,</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">BrokenPowerLawSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
             <span class="n">alpha_1</span><span class="o">=</span><span class="n">alpha_1</span><span class="p">,</span>
             <span class="n">alpha_2</span><span class="o">=</span><span class="n">alpha_2</span><span class="p">,</span>
+            <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
             <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
             <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
             <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
             <span class="n">break_fraction</span><span class="o">=</span><span class="n">break_fraction</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_q</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">prob</span> <span class="o">=</span> <span class="n">p_m1</span> <span class="o">*</span> <span class="n">p_q</span>
-        <span class="k">return</span> <span class="n">prob</span>
-
-    <span class="k">def</span> <span class="nf">p_m1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">alpha_1</span><span class="p">,</span> <span class="n">alpha_2</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">,</span> <span class="n">break_fraction</span><span class="p">):</span>
-        <span class="n">p_m</span> <span class="o">=</span> <span class="n">double_power_law_primary_mass</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span>
-            <span class="n">alpha_1</span><span class="o">=</span><span class="n">alpha_1</span><span class="p">,</span>
-            <span class="n">alpha_2</span><span class="o">=</span><span class="n">alpha_2</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">break_fraction</span><span class="o">=</span><span class="n">break_fraction</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_p_m1</span><span class="p">(</span>
-            <span class="n">alpha_1</span><span class="o">=</span><span class="n">alpha_1</span><span class="p">,</span>
-            <span class="n">alpha_2</span><span class="o">=</span><span class="n">alpha_2</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
-            <span class="n">break_fraction</span><span class="o">=</span><span class="n">break_fraction</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">p_m</span> <span class="o">/</span> <span class="n">norm</span>
-
-    <span class="k">def</span> <span class="nf">norm_p_m1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha_1</span><span class="p">,</span> <span class="n">alpha_2</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">,</span> <span class="n">break_fraction</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">delta_m</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1</span>
-        <span class="n">p_m</span> <span class="o">=</span> <span class="n">double_power_law_primary_mass</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span>
-            <span class="n">alpha_1</span><span class="o">=</span><span class="n">alpha_1</span><span class="p">,</span>
-            <span class="n">alpha_2</span><span class="o">=</span><span class="n">alpha_2</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">break_fraction</span><span class="o">=</span><span class="n">break_fraction</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="n">trapz</span><span class="p">(</span><span class="n">p_m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">norm</span></div>
+        <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BrokenPowerLawPeakSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">BrokenPowerLawPeakSmoothedMassDistribution</span><span class="p">(</span><span class="n">_SmoothedMassDistribution</span><span class="p">):</span>
+<div class="viewcode-block" id="BrokenPowerLawPeakSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">BrokenPowerLawPeakSmoothedMassDistribution</span><span class="p">(</span><span class="n">BaseSmoothedMassDistribution</span><span class="p">):</span>
+
+    <span class="n">primary_model</span> <span class="o">=</span> <span class="n">double_power_law_peak_primary_mass</span>
+
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dataset</span><span class="p">,</span>
@@ -1047,11 +942,11 @@
 <span class="sd">        delta_m: float</span>
 <span class="sd">            Rise length of the low end of the mass distribution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">p_m1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_m1</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="p">,</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">BrokenPowerLawPeakSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
             <span class="n">alpha_1</span><span class="o">=</span><span class="n">alpha_1</span><span class="p">,</span>
             <span class="n">alpha_2</span><span class="o">=</span><span class="n">alpha_2</span><span class="p">,</span>
+            <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
             <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
             <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
             <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
@@ -1059,68 +954,7 @@
             <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
             <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
             <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_q</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">prob</span> <span class="o">=</span> <span class="n">p_m1</span> <span class="o">*</span> <span class="n">p_q</span>
-        <span class="k">return</span> <span class="n">prob</span>
-
-    <span class="k">def</span> <span class="nf">p_m1</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dataset</span><span class="p">,</span>
-        <span class="n">alpha_1</span><span class="p">,</span>
-        <span class="n">alpha_2</span><span class="p">,</span>
-        <span class="n">mmin</span><span class="p">,</span>
-        <span class="n">mmax</span><span class="p">,</span>
-        <span class="n">delta_m</span><span class="p">,</span>
-        <span class="n">break_fraction</span><span class="p">,</span>
-        <span class="n">lam</span><span class="p">,</span>
-        <span class="n">mpp</span><span class="p">,</span>
-        <span class="n">sigpp</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="n">p_m</span> <span class="o">=</span> <span class="n">double_power_law_peak_primary_mass</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span>
-            <span class="n">alpha_1</span><span class="o">=</span><span class="n">alpha_1</span><span class="p">,</span>
-            <span class="n">alpha_2</span><span class="o">=</span><span class="n">alpha_2</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">break_fraction</span><span class="o">=</span><span class="n">break_fraction</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
-            <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_p_m1</span><span class="p">(</span>
-            <span class="n">alpha_1</span><span class="o">=</span><span class="n">alpha_1</span><span class="p">,</span>
-            <span class="n">alpha_2</span><span class="o">=</span><span class="n">alpha_2</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
-            <span class="n">break_fraction</span><span class="o">=</span><span class="n">break_fraction</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
-            <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">p_m</span> <span class="o">/</span> <span class="n">norm</span>
-
-    <span class="k">def</span> <span class="nf">norm_p_m1</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">alpha_1</span><span class="p">,</span> <span class="n">alpha_2</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">,</span> <span class="n">break_fraction</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span>
-    <span class="p">):</span>
-        <span class="k">if</span> <span class="n">delta_m</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1</span>
-        <span class="n">p_m</span> <span class="o">=</span> <span class="n">double_power_law_peak_primary_mass</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span>
-            <span class="n">alpha_1</span><span class="o">=</span><span class="n">alpha_1</span><span class="p">,</span>
-            <span class="n">alpha_2</span><span class="o">=</span><span class="n">alpha_2</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">break_fraction</span><span class="o">=</span><span class="n">break_fraction</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
-            <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="n">trapz</span><span class="p">(</span><span class="n">p_m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">norm</span></div>
+        <span class="p">)</span></div>
 </pre></div>
 
            </div>

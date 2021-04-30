@@ -38,11 +38,11 @@ gwpopulation.models.mass
       :toctree:
       :template: custom-class-template.rst
    
+      BaseSmoothedMassDistribution
       BrokenPowerLawPeakSmoothedMassDistribution
       BrokenPowerLawSmoothedMassDistribution
       MultiPeakSmoothedMassDistribution
       SinglePeakSmoothedMassDistribution
-      SmoothedMassDistribution
    
    
 

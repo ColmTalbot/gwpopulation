@@ -33,8 +33,6 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -106,11 +104,11 @@
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_secondary_identical.html">gwpopulation.models.mass.two_component_primary_secondary_identical</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_secondary_independent.html">gwpopulation.models.mass.two_component_primary_secondary_independent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.two_component_single.html">gwpopulation.models.mass.two_component_single</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BaseSmoothedMassDistribution.html">gwpopulation.models.mass.BaseSmoothedMassDistribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html">gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html">gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html">gwpopulation.models.mass.MultiPeakSmoothedMassDistribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html">gwpopulation.models.mass.SinglePeakSmoothedMassDistribution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.SmoothedMassDistribution.html">gwpopulation.models.mass.SmoothedMassDistribution</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.redshift.html">gwpopulation.models.redshift</a></li>
@@ -271,19 +269,19 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution" title="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BrokenPowerLawPeakSmoothedMassDistribution</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution" title="gwpopulation.models.mass.BaseSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseSmoothedMassDistribution</span></code></a>([mmin, mmax])</p></td>
+<td><p>Generic smoothed mass distribution base class.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution" title="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BrokenPowerLawPeakSmoothedMassDistribution</span></code></a>([…])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BrokenPowerLawSmoothedMassDistribution</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BrokenPowerLawSmoothedMassDistribution</span></code></a>([…])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution" title="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiPeakSmoothedMassDistribution</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution" title="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiPeakSmoothedMassDistribution</span></code></a>([mmin, mmax])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution" title="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SinglePeakSmoothedMassDistribution</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.SmoothedMassDistribution.html#gwpopulation.models.mass.SmoothedMassDistribution" title="gwpopulation.models.mass.SmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SmoothedMassDistribution</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution" title="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SinglePeakSmoothedMassDistribution</span></code></a>([mmin, mmax])</p></td>
 <td><p></p></td>
 </tr>
 </tbody>

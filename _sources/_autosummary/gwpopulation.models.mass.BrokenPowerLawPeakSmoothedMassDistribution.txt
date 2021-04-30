@@ -21,6 +21,7 @@ gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution
       ~BrokenPowerLawPeakSmoothedMassDistribution.norm_p_q
       ~BrokenPowerLawPeakSmoothedMassDistribution.p_m1
       ~BrokenPowerLawPeakSmoothedMassDistribution.p_q
+      ~BrokenPowerLawPeakSmoothedMassDistribution.primary_model
       ~BrokenPowerLawPeakSmoothedMassDistribution.smoothing
    
    

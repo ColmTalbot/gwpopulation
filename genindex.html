@@ -33,8 +33,6 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -196,6 +194,8 @@
       <ul>
         <li><a href="_autosummary/gwpopulation.hyperpe.RateLikelihood.html#gwpopulation.hyperpe.RateLikelihood.__init__">(gwpopulation.hyperpe.RateLikelihood method)</a>
 </li>
+        <li><a href="_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.__init__">(gwpopulation.models.mass.BaseSmoothedMassDistribution method)</a>
+</li>
         <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.__init__">(gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution method)</a>
 </li>
         <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.__init__">(gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution method)</a>
@@ -203,8 +203,6 @@
         <li><a href="_autosummary/gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.__init__">(gwpopulation.models.mass.MultiPeakSmoothedMassDistribution method)</a>
 </li>
         <li><a href="_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.__init__">(gwpopulation.models.mass.SinglePeakSmoothedMassDistribution method)</a>
-</li>
-        <li><a href="_autosummary/gwpopulation.models.mass.SmoothedMassDistribution.html#gwpopulation.models.mass.SmoothedMassDistribution.__init__">(gwpopulation.models.mass.SmoothedMassDistribution method)</a>
 </li>
         <li><a href="_autosummary/gwpopulation.models.redshift.MadauDickinsonRedshift.html#gwpopulation.models.redshift.MadauDickinsonRedshift.__init__">(gwpopulation.models.redshift.MadauDickinsonRedshift method)</a>
 </li>
@@ -231,12 +229,14 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_autosummary/gwpopulation.utils.beta_dist.html#gwpopulation.utils.beta_dist">beta_dist() (in module gwpopulation.utils)</a>
+      <li><a href="_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution">BaseSmoothedMassDistribution (class in gwpopulation.models.mass)</a>
 </li>
-      <li><a href="_autosummary/gwpopulation.cupy_utils.betaln.html#gwpopulation.cupy_utils.betaln">betaln() (in module gwpopulation.cupy_utils)</a>
+      <li><a href="_autosummary/gwpopulation.utils.beta_dist.html#gwpopulation.utils.beta_dist">beta_dist() (in module gwpopulation.utils)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/gwpopulation.cupy_utils.betaln.html#gwpopulation.cupy_utils.betaln">betaln() (in module gwpopulation.cupy_utils)</a>
+</li>
       <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution">BrokenPowerLawPeakSmoothedMassDistribution (class in gwpopulation.models.mass)</a>
 </li>
       <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution">BrokenPowerLawSmoothedMassDistribution (class in gwpopulation.models.mass)</a>
@@ -466,26 +466,32 @@
         <li><a href="_autosummary/gwpopulation.hyperpe.RateLikelihood.html#gwpopulation.hyperpe.RateLikelihood.noise_log_likelihood">(gwpopulation.hyperpe.RateLikelihood method)</a>
 </li>
       </ul></li>
-      <li><a href="_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.norm_p_m1">norm_p_m1() (gwpopulation.models.mass.SinglePeakSmoothedMassDistribution method)</a>
+      <li><a href="_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.norm_p_m1">norm_p_m1() (gwpopulation.models.mass.BaseSmoothedMassDistribution method)</a>
 
       <ul>
-        <li><a href="_autosummary/gwpopulation.models.mass.SmoothedMassDistribution.html#gwpopulation.models.mass.SmoothedMassDistribution.norm_p_m1">(gwpopulation.models.mass.SmoothedMassDistribution method)</a>
+        <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.norm_p_m1">(gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution method)</a>
+</li>
+        <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_m1">(gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution method)</a>
+</li>
+        <li><a href="_autosummary/gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.norm_p_m1">(gwpopulation.models.mass.MultiPeakSmoothedMassDistribution method)</a>
+</li>
+        <li><a href="_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.norm_p_m1">(gwpopulation.models.mass.SinglePeakSmoothedMassDistribution method)</a>
 </li>
       </ul></li>
-      <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.norm_p_q">norm_p_q() (gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution method)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.norm_p_q">norm_p_q() (gwpopulation.models.mass.BaseSmoothedMassDistribution method)</a>
 
       <ul>
+        <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.norm_p_q">(gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution method)</a>
+</li>
         <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.norm_p_q">(gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution method)</a>
 </li>
         <li><a href="_autosummary/gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.norm_p_q">(gwpopulation.models.mass.MultiPeakSmoothedMassDistribution method)</a>
 </li>
         <li><a href="_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.norm_p_q">(gwpopulation.models.mass.SinglePeakSmoothedMassDistribution method)</a>
 </li>
-        <li><a href="_autosummary/gwpopulation.models.mass.SmoothedMassDistribution.html#gwpopulation.models.mass.SmoothedMassDistribution.norm_p_q">(gwpopulation.models.mass.SmoothedMassDistribution method)</a>
-</li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/gwpopulation.models.redshift.MadauDickinsonRedshift.html#gwpopulation.models.redshift.MadauDickinsonRedshift.normalisation">normalisation() (gwpopulation.models.redshift.MadauDickinsonRedshift method)</a>
 
       <ul>
@@ -506,16 +512,26 @@
       </ul></li>
       <li><a href="_autosummary/gwpopulation.models.mass.power_law_primary_mass_ratio.html#gwpopulation.models.mass.power_law_primary_mass_ratio">power_law_primary_mass_ratio() (in module gwpopulation.models.mass)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/gwpopulation.models.mass.power_law_primary_secondary_identical.html#gwpopulation.models.mass.power_law_primary_secondary_identical">power_law_primary_secondary_identical() (in module gwpopulation.models.mass)</a>
 </li>
       <li><a href="_autosummary/gwpopulation.models.mass.power_law_primary_secondary_independent.html#gwpopulation.models.mass.power_law_primary_secondary_independent">power_law_primary_secondary_independent() (in module gwpopulation.models.mass)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/gwpopulation.utils.powerlaw.html#gwpopulation.utils.powerlaw">powerlaw() (in module gwpopulation.utils)</a>
 </li>
       <li><a href="_autosummary/gwpopulation.models.redshift.PowerLawRedshift.html#gwpopulation.models.redshift.PowerLawRedshift">PowerLawRedshift (class in gwpopulation.models.redshift)</a>
 </li>
+      <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.primary_model">primary_model() (gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution method)</a>
+
+      <ul>
+        <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.primary_model">(gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution method)</a>
+</li>
+        <li><a href="_autosummary/gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.primary_model">(gwpopulation.models.mass.MultiPeakSmoothedMassDistribution method)</a>
+</li>
+        <li><a href="_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.primary_model">(gwpopulation.models.mass.SinglePeakSmoothedMassDistribution method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -542,18 +558,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution">SinglePeakSmoothedMassDistribution (class in gwpopulation.models.mass)</a>
 </li>
-      <li><a href="_autosummary/gwpopulation.models.mass.SmoothedMassDistribution.html#gwpopulation.models.mass.SmoothedMassDistribution">SmoothedMassDistribution (class in gwpopulation.models.mass)</a>
-</li>
-      <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.smoothing">smoothing() (gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution static method)</a>
+      <li><a href="_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.smoothing">smoothing() (gwpopulation.models.mass.BaseSmoothedMassDistribution static method)</a>
 
       <ul>
+        <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.smoothing">(gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution static method)</a>
+</li>
         <li><a href="_autosummary/gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.smoothing">(gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution static method)</a>
 </li>
         <li><a href="_autosummary/gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.smoothing">(gwpopulation.models.mass.MultiPeakSmoothedMassDistribution static method)</a>
 </li>
         <li><a href="_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.smoothing">(gwpopulation.models.mass.SinglePeakSmoothedMassDistribution static method)</a>
-</li>
-        <li><a href="_autosummary/gwpopulation.models.mass.SmoothedMassDistribution.html#gwpopulation.models.mass.SmoothedMassDistribution.smoothing">(gwpopulation.models.mass.SmoothedMassDistribution static method)</a>
 </li>
       </ul></li>
   </ul></td>

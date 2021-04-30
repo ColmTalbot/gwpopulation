@@ -21,6 +21,7 @@ gwpopulation.models.mass.MultiPeakSmoothedMassDistribution
       ~MultiPeakSmoothedMassDistribution.norm_p_q
       ~MultiPeakSmoothedMassDistribution.p_m1
       ~MultiPeakSmoothedMassDistribution.p_q
+      ~MultiPeakSmoothedMassDistribution.primary_model
       ~MultiPeakSmoothedMassDistribution.smoothing
    
    

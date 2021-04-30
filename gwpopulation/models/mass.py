@@ -422,7 +422,7 @@ def two_component_primary_secondary_identical(
     )
 
 
-class SmoothedMassDistribution(object):
+class BaseSmoothedMassDistribution(object):
     """
     Generic smoothed mass distribution base class.
 
@@ -556,7 +556,7 @@ class SmoothedMassDistribution(object):
         return norm
 
 
-class SinglePeakSmoothedMassDistribution(SmoothedMassDistribution):
+class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
 
     primary_model = two_component_single
 
@@ -606,7 +606,7 @@ class SinglePeakSmoothedMassDistribution(SmoothedMassDistribution):
         )
 
 
-class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
+class MultiPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
 
     primary_model = three_component_single
 
@@ -671,7 +671,7 @@ class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
         )
 
 
-class BrokenPowerLawSmoothedMassDistribution(SmoothedMassDistribution):
+class BrokenPowerLawSmoothedMassDistribution(BaseSmoothedMassDistribution):
 
     primary_model = double_power_law_primary_mass
 
@@ -726,7 +726,7 @@ class BrokenPowerLawSmoothedMassDistribution(SmoothedMassDistribution):
         )
 
 
-class BrokenPowerLawPeakSmoothedMassDistribution(SmoothedMassDistribution):
+class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
 
     primary_model = double_power_law_peak_primary_mass
 

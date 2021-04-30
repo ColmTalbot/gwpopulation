@@ -448,7 +448,7 @@ class BaseSmoothedMassDistribution(object):
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
 
-    def __call__(self, dataset, *args, **kwargs):
+    def __call__(self, dataset, **kwargs):
         beta = kwargs.pop("beta")
         mmin = kwargs.get("mmin", self.mmin)
         delta_m = kwargs.get("delta_m", 0)
@@ -456,6 +456,27 @@ class BaseSmoothedMassDistribution(object):
         p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
         prob = p_m1 * p_q
         return prob
+
+    def p_m1(self, dataset, **kwargs):
+        mmin = kwargs.get("mmin", self.mmin)
+        delta_m = kwargs.pop("delta_m", 0)
+        p_m = self.__class__.primary_model(dataset["mass_1"], **kwargs)
+        p_m *= self.smoothing(
+            dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
+        )
+        norm = self.norm_p_m1(delta_m=delta_m, **kwargs)
+        return p_m / norm
+
+    def norm_p_m1(self, delta_m, **kwargs):
+        """Calculate the normalisation factor for the primary mass"""
+        mmin = kwargs.get("mmin", self.mmin)
+        if delta_m == 0:
+            return 1
+        p_m = self.__class__.primary_model(self.m1s, **kwargs)
+        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
+
+        norm = trapz(p_m, self.m1s)
+        return norm
 
     def p_q(self, dataset, beta, mmin, delta_m):
         p_q = powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
@@ -533,27 +554,6 @@ class BaseSmoothedMassDistribution(object):
                 window[smoothing_region] = 1 / (xp.exp(exponent) + 1)
         window[(masses < mmin) | (masses > mmax)] = 0
         return window
-
-    def p_m1(self, dataset, **kwargs):
-        mmin = kwargs.get("mmin", self.mmin)
-        delta_m = kwargs.pop("delta_m", 0)
-        p_m = self.primary_model(dataset["mass_1"], **kwargs)
-        p_m *= self.smoothing(
-            dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
-        )
-        norm = self.norm_p_m1(delta_m=delta_m, **kwargs)
-        return p_m / norm
-
-    def norm_p_m1(self, delta_m, **kwargs):
-        """Calculate the normalisation factor for the primary mass"""
-        mmin = kwargs.get("mmin", self.mmin)
-        if delta_m == 0:
-            return 1
-        p_m = self.primary_model(self.m1s, **kwargs)
-        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
-
-        norm = trapz(p_m, self.m1s)
-        return norm
 
 
 class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
@@ -659,6 +659,7 @@ class MultiPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
         return super(MultiPeakSmoothedMassDistribution, self).__call__(
             dataset=dataset,
             alpha=alpha,
+            beta=beta,
             mmin=mmin,
             mmax=mmax,
             lam=lam,
@@ -719,6 +720,7 @@ class BrokenPowerLawSmoothedMassDistribution(BaseSmoothedMassDistribution):
             dataset=dataset,
             alpha_1=alpha_1,
             alpha_2=alpha_2,
+            beta=beta,
             mmin=mmin,
             mmax=mmax,
             delta_m=delta_m,
@@ -777,6 +779,7 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
             dataset=dataset,
             alpha_1=alpha_1,
             alpha_2=alpha_2,
+            beta=beta,
             mmin=mmin,
             mmax=mmax,
             delta_m=delta_m,

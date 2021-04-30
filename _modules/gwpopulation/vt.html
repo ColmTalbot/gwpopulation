@@ -264,9 +264,9 @@
 <span class="sd">            The population parameters</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mu</span><span class="p">,</span> <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detection_efficiency</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
-        <span class="n">n_effective</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">var</span>
-        <span class="k">if</span> <span class="n">n_effective</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_events</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mu</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_events</span> <span class="o">*</span> <span class="n">var</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">n_effective</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">var</span>
         <span class="n">vt_factor</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="mi">3</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_events</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">n_effective</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">vt_factor</span>
 

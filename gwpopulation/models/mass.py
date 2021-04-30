@@ -2,8 +2,6 @@
 Implemented mass models
 """
 
-from warnings import warn
-
 from ..cupy_utils import trapz, xp
 from ..utils import powerlaw, truncnorm
 
@@ -424,26 +422,40 @@ def two_component_primary_secondary_identical(
     )
 
 
-class _SmoothedMassDistribution(object):
+class SmoothedMassDistribution(object):
     """
     Generic smoothed mass distribution base class.
 
     Implements the low-mass smoothing and power-law mass ratio
     distribution. Requires p_m1 to be implemented.
+
+    Parameters
+    ==========
+    mmin: float
+        The minimum mass considered for numerical normalization
+    mmax: float
+        The maximum mass considered for numerical normalization
     """
 
-    def __init__(self):
-        self.m1s = xp.linspace(2, 100, 1000)
+    primary_model = None
+
+    def __init__(self, mmin=2, mmax=100):
+        self.mmin = 2
+        self.mmax = 100
+        self.m1s = xp.linspace(mmin, mmax, 1000)
         self.qs = xp.linspace(0.001, 1, 500)
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
 
-    def __call__(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def p_m1(self, *args, **kwargs):
-        raise NotImplementedError
+    def __call__(self, dataset, *args, **kwargs):
+        beta = kwargs.pop("beta")
+        mmin = kwargs.get("mmin", self.mmin)
+        delta_m = kwargs.get("delta_m", 0)
+        p_m1 = self.p_m1(dataset, **kwargs)
+        p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
+        prob = p_m1 * p_q
+        return prob
 
     def p_q(self, dataset, beta, mmin, delta_m):
         p_q = powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
@@ -522,8 +534,32 @@ class _SmoothedMassDistribution(object):
         window[(masses < mmin) | (masses > mmax)] = 0
         return window
 
+    def p_m1(self, dataset, **kwargs):
+        mmin = kwargs.get("mmin", self.mmin)
+        delta_m = kwargs.pop("delta_m", 0)
+        p_m = self.primary_model(dataset["mass_1"], **kwargs)
+        p_m *= self.smoothing(
+            dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
+        )
+        norm = self.norm_p_m1(delta_m=delta_m, **kwargs)
+        return p_m / norm
 
-class SinglePeakSmoothedMassDistribution(_SmoothedMassDistribution):
+    def norm_p_m1(self, delta_m, **kwargs):
+        """Calculate the normalisation factor for the primary mass"""
+        mmin = kwargs.get("mmin", self.mmin)
+        if delta_m == 0:
+            return 1
+        p_m = self.primary_model(self.m1s, **kwargs)
+        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
+
+        norm = trapz(p_m, self.m1s)
+        return norm
+
+
+class SinglePeakSmoothedMassDistribution(SmoothedMassDistribution):
+
+    primary_model = two_component_single
+
     def __call__(self, dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, delta_m):
         """
         Powerlaw + peak model for two-dimensional mass distribution with low
@@ -557,8 +593,8 @@ class SinglePeakSmoothedMassDistribution(_SmoothedMassDistribution):
         The interpolation of the p(q) normalisation has a fill value of
         the normalisation factor for m_1 = 100.
         """
-        p_m1 = self.p_m1(
-            dataset,
+        return super(SinglePeakSmoothedMassDistribution, self).__call__(
+            dataset=dataset,
             alpha=alpha,
             mmin=mmin,
             mmax=mmax,
@@ -566,57 +602,14 @@ class SinglePeakSmoothedMassDistribution(_SmoothedMassDistribution):
             mpp=mpp,
             sigpp=sigpp,
             delta_m=delta_m,
+            beta=beta,
         )
-        p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
-        prob = p_m1 * p_q
-        return prob
-
-    def p_m1(self, dataset, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
-        p_m = two_component_single(
-            dataset["mass_1"],
-            alpha=alpha,
-            mmin=mmin,
-            mmax=mmax,
-            lam=lam,
-            mpp=mpp,
-            sigpp=sigpp,
-        )
-        p_m *= self.smoothing(dataset["mass_1"], mmin=mmin, mmax=100, delta_m=delta_m)
-        norm = self.norm_p_m1(
-            alpha=alpha,
-            mmin=mmin,
-            mmax=mmax,
-            lam=lam,
-            mpp=mpp,
-            sigpp=sigpp,
-            delta_m=delta_m,
-        )
-        return p_m / norm
-
-    def norm_p_m1(self, alpha, mmin, mmax, lam, mpp, sigpp, delta_m):
-        """Calculate the normalisation factor for the primary mass"""
-        if delta_m == 0.0:
-            return 1
-        p_m = two_component_single(
-            self.m1s, alpha=alpha, mmin=mmin, mmax=mmax, lam=lam, mpp=mpp, sigpp=sigpp
-        )
-        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
-
-        norm = trapz(p_m, self.m1s)
-        return norm
 
 
-class SmoothedMassDistribution(SinglePeakSmoothedMassDistribution):
-    def __init__(self):
-        warn(
-            "SmoothedMassDistribution has been deprecated and will be removed in a "
-            "future release, use SinglePeakSmoothedMassDistribution instead.",
-            DeprecationWarning,
-        )
-        super(SmoothedMassDistribution, self).__init__()
+class MultiPeakSmoothedMassDistribution(SmoothedMassDistribution):
 
+    primary_model = three_component_single
 
-class MultiPeakSmoothedMassDistribution(_SmoothedMassDistribution):
     def __call__(
         self,
         dataset,
@@ -663,8 +656,8 @@ class MultiPeakSmoothedMassDistribution(_SmoothedMassDistribution):
         delta_m: float
             Rise length of the low end of the mass distribution.
         """
-        p_m1 = self.p_m1(
-            dataset,
+        return super(MultiPeakSmoothedMassDistribution, self).__call__(
+            dataset=dataset,
             alpha=alpha,
             mmin=mmin,
             mmax=mmax,
@@ -676,74 +669,12 @@ class MultiPeakSmoothedMassDistribution(_SmoothedMassDistribution):
             sigpp_2=sigpp_2,
             delta_m=delta_m,
         )
-        p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
-        prob = p_m1 * p_q
-        return prob
-
-    def p_m1(
-        self,
-        dataset,
-        alpha,
-        mmin,
-        mmax,
-        lam,
-        lam_1,
-        mpp_1,
-        sigpp_1,
-        mpp_2,
-        sigpp_2,
-        delta_m,
-    ):
-        p_m = three_component_single(
-            dataset["mass_1"],
-            alpha=alpha,
-            mmin=mmin,
-            mmax=mmax,
-            lam=lam,
-            lam_1=lam_1,
-            mpp_1=mpp_1,
-            mpp_2=mpp_2,
-            sigpp_1=sigpp_1,
-            sigpp_2=sigpp_2,
-        )
-        p_m *= self.smoothing(dataset["mass_1"], mmin=mmin, mmax=100, delta_m=delta_m)
-        norm = self.norm_p_m1(
-            alpha=alpha,
-            mmin=mmin,
-            mmax=mmax,
-            lam=lam,
-            lam_1=lam_1,
-            mpp_1=mpp_1,
-            mpp_2=mpp_2,
-            sigpp_1=sigpp_1,
-            sigpp_2=sigpp_2,
-            delta_m=delta_m,
-        )
-        return p_m / norm
-
-    def norm_p_m1(
-        self, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2, delta_m
-    ):
-        if delta_m == 0.0:
-            return 1
-        p_m = three_component_single(
-            self.m1s,
-            alpha=alpha,
-            mmin=mmin,
-            mmax=mmax,
-            lam=lam,
-            lam_1=lam_1,
-            mpp_1=mpp_1,
-            mpp_2=mpp_2,
-            sigpp_1=sigpp_1,
-            sigpp_2=sigpp_2,
-        )
-        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
-        norm = trapz(p_m, self.m1s)
-        return norm
 
 
-class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
+class BrokenPowerLawSmoothedMassDistribution(SmoothedMassDistribution):
+
+    primary_model = double_power_law_primary_mass
+
     def __call__(
         self,
         dataset,
@@ -784,9 +715,8 @@ class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
         delta_m: float
             Rise length of the low end of the mass distribution.
         """
-
-        p_m1 = self.p_m1(
-            dataset,
+        return super(BrokenPowerLawSmoothedMassDistribution, self).__call__(
+            dataset=dataset,
             alpha_1=alpha_1,
             alpha_2=alpha_2,
             mmin=mmin,
@@ -794,47 +724,12 @@ class BrokenPowerLawSmoothedMassDistribution(_SmoothedMassDistribution):
             delta_m=delta_m,
             break_fraction=break_fraction,
         )
-        p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
-        prob = p_m1 * p_q
-        return prob
-
-    def p_m1(self, dataset, alpha_1, alpha_2, mmin, mmax, delta_m, break_fraction):
-        p_m = double_power_law_primary_mass(
-            dataset["mass_1"],
-            alpha_1=alpha_1,
-            alpha_2=alpha_2,
-            mmin=mmin,
-            mmax=mmax,
-            break_fraction=break_fraction,
-        )
-        p_m *= self.smoothing(dataset["mass_1"], mmin=mmin, mmax=100, delta_m=delta_m)
-        norm = self.norm_p_m1(
-            alpha_1=alpha_1,
-            alpha_2=alpha_2,
-            mmin=mmin,
-            mmax=mmax,
-            delta_m=delta_m,
-            break_fraction=break_fraction,
-        )
-        return p_m / norm
-
-    def norm_p_m1(self, alpha_1, alpha_2, mmin, mmax, delta_m, break_fraction):
-        if delta_m == 0.0:
-            return 1
-        p_m = double_power_law_primary_mass(
-            self.m1s,
-            alpha_1=alpha_1,
-            alpha_2=alpha_2,
-            mmin=mmin,
-            mmax=mmax,
-            break_fraction=break_fraction,
-        )
-        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
-        norm = trapz(p_m, self.m1s)
-        return norm
 
 
-class BrokenPowerLawPeakSmoothedMassDistribution(_SmoothedMassDistribution):
+class BrokenPowerLawPeakSmoothedMassDistribution(SmoothedMassDistribution):
+
+    primary_model = double_power_law_peak_primary_mass
+
     def __call__(
         self,
         dataset,
@@ -878,9 +773,8 @@ class BrokenPowerLawPeakSmoothedMassDistribution(_SmoothedMassDistribution):
         delta_m: float
             Rise length of the low end of the mass distribution.
         """
-
-        p_m1 = self.p_m1(
-            dataset,
+        return super(BrokenPowerLawPeakSmoothedMassDistribution, self).__call__(
+            dataset=dataset,
             alpha_1=alpha_1,
             alpha_2=alpha_2,
             mmin=mmin,
@@ -891,64 +785,3 @@ class BrokenPowerLawPeakSmoothedMassDistribution(_SmoothedMassDistribution):
             mpp=mpp,
             sigpp=sigpp,
         )
-        p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
-        prob = p_m1 * p_q
-        return prob
-
-    def p_m1(
-        self,
-        dataset,
-        alpha_1,
-        alpha_2,
-        mmin,
-        mmax,
-        delta_m,
-        break_fraction,
-        lam,
-        mpp,
-        sigpp,
-    ):
-        p_m = double_power_law_peak_primary_mass(
-            dataset["mass_1"],
-            alpha_1=alpha_1,
-            alpha_2=alpha_2,
-            mmin=mmin,
-            mmax=mmax,
-            break_fraction=break_fraction,
-            lam=lam,
-            mpp=mpp,
-            sigpp=sigpp,
-        )
-        p_m *= self.smoothing(dataset["mass_1"], mmin=mmin, mmax=100, delta_m=delta_m)
-        norm = self.norm_p_m1(
-            alpha_1=alpha_1,
-            alpha_2=alpha_2,
-            mmin=mmin,
-            mmax=mmax,
-            delta_m=delta_m,
-            break_fraction=break_fraction,
-            lam=lam,
-            mpp=mpp,
-            sigpp=sigpp,
-        )
-        return p_m / norm
-
-    def norm_p_m1(
-        self, alpha_1, alpha_2, mmin, mmax, delta_m, break_fraction, lam, mpp, sigpp
-    ):
-        if delta_m == 0.0:
-            return 1
-        p_m = double_power_law_peak_primary_mass(
-            self.m1s,
-            alpha_1=alpha_1,
-            alpha_2=alpha_2,
-            mmin=mmin,
-            mmax=mmax,
-            break_fraction=break_fraction,
-            lam=lam,
-            mpp=mpp,
-            sigpp=sigpp,
-        )
-        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=100, delta_m=delta_m)
-        norm = trapz(p_m, self.m1s)
-        return norm

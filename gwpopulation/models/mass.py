@@ -46,7 +46,7 @@ def matter_matters(mass, A, NSmin, NSmax, BHmin, BHmax,
     A: float
         depth of the dip between NSmax and BHmin (A).
     """
-    mbreak=BHmin
+    #mbreak=BHmin
     logprob = xp.where(mass >= 0, 
                        -xp.log(1 + (NSmin/mass)**n0) \
                        + xp.log(1.0 - A/((1 + (NSmax/mass)**n1) * (1 + (mass/BHmin)**n2))) \

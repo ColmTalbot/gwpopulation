@@ -81,11 +81,6 @@ class ResamplingVT(_BaseVT):
             self._surveyed_hypervolume = total_four_volume(
                 lamb=0, analysis_time=self.analysis_time
             )
-        k = model.__class__
-        self.model_for_norm = k(model.models)
-        self.m_grid = xp.logspace(0, 2, 1000)
-        m1_grid, m2_grid = xp.meshgrid(self.m_grid, self.m_grid)
-        self.data_grid = dict(mass_1=m1_grid, mass_2=m2_grid)
 
     def __call__(self, parameters):
         """
@@ -107,23 +102,10 @@ class ResamplingVT(_BaseVT):
             return np.inf
         vt_factor = mu / np.exp((3 + self.n_events) / 2 / n_effective)
         return vt_factor
-    
-    def _normalize(self, parameters):
-        self.model_for_norm.parameters.update(parameters)
-        p_grid = self.model_for_norm.prob(self.data_grid)
-        norm_m1 = trapz(p_grid,self.m_grid, axis=0)
-        norm_m1m2 = trapz(norm_m1,self.m_grid)
-        return norm_m1m2
 
     def detection_efficiency(self, parameters):
         self.model.parameters.update(parameters)
-        if 'A' in parameters.keys():
-            norm = self._normalize(parameters)
-        else:
-            norm = 1
-        prob = self.model.prob(self.data)
-        print(norm)
-        weights =  prob / norm / self.data["prior"]
+        weights = self.model.prob(self.data) / self.data["prior"]
         mu = float(xp.sum(weights) / self.total_injections)
         var = float(
             xp.sum(weights ** 2) / self.total_injections ** 2

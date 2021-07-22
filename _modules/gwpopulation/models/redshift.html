@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
 
   
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
@@ -87,7 +90,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">API:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.models.html">gwpopulation.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.conversions.html">gwpopulation.conversions</a></li>
@@ -96,7 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.utils.html">gwpopulation.utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.vt.html">gwpopulation.vt</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Examples:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../GWTC1.html">Population Inference on GWTC-1</a></li>
 </ul>
@@ -195,7 +198,7 @@
 
     <span class="k">def</span> <span class="nf">_cache_dvc_dz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redshifts</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cached_dvc_dz</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">redshifts</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">zs_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvc_dz_</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">redshifts</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">zs_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvc_dz_</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">normalisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
@@ -223,7 +226,8 @@
         <span class="n">differential_volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">differential_spacetime_volume</span><span class="p">(</span>
             <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">differential_volume</span> <span class="o">/</span> <span class="n">normalisation</span>
+        <span class="n">in_bounds</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;redshift&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_max</span>
+        <span class="k">return</span> <span class="n">differential_volume</span> <span class="o">/</span> <span class="n">normalisation</span> <span class="o">*</span> <span class="n">in_bounds</span>
 
     <span class="k">def</span> <span class="nf">psi_of_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redshift</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -256,13 +260,11 @@
         <span class="k">return</span> <span class="n">differential_volume</span>
 
     <span class="k">def</span> <span class="nf">total_spacetime_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Deprecated use normalisation instead.</span>
+        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Deprecated use normalisation instead.</span>
 
-<span class="sd">        {}</span>
-<span class="sd">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">_Redshift</span><span class="o">.</span><span class="n">normalisation</span><span class="o">.</span><span class="vm">__doc__</span>
-        <span class="p">)</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">_Redshift</span><span class="o">.</span><span class="n">normalisation</span><span class="o">.</span><span class="vm">__doc__</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">        &quot;&quot;&quot;</span>
         <span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;The total spacetime volume method is deprecated, &quot;</span>
             <span class="s2">&quot;use normalisation instead.&quot;</span><span class="p">,</span>

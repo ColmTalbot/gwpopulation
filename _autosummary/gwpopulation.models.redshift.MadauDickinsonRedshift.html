@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>gwpopulation.models.redshift.MadauDickinsonRedshift &mdash; GWPopulation 0.6.2 documentation</title>
@@ -13,6 +14,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 
   
   
@@ -29,12 +32,13 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -91,7 +95,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">API:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="gwpopulation.models.html">gwpopulation.models</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.mass.html">gwpopulation.models.mass</a></li>
@@ -110,7 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.vt.html">gwpopulation.vt</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Examples:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../GWTC1.html">Population Inference on GWTC-1</a></li>
 </ul>
@@ -208,11 +212,11 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="gwpopulation-models-redshift-madaudickinsonredshift">
+<section id="gwpopulation-models-redshift-madaudickinsonredshift">
 <h1>gwpopulation.models.redshift.MadauDickinsonRedshift<a class="headerlink" href="#gwpopulation-models-redshift-madaudickinsonredshift" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="gwpopulation.models.redshift.MadauDickinsonRedshift">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gwpopulation.models.redshift.</span></code><code class="sig-name descname"><span class="pre">MadauDickinsonRedshift</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/models/redshift.html#MadauDickinsonRedshift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.models.redshift.MadauDickinsonRedshift" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.models.redshift.MadauDickinsonRedshift">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">gwpopulation.models.redshift.</span></span><span class="sig-name descname"><span class="pre">MadauDickinsonRedshift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/models/redshift.html#MadauDickinsonRedshift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.models.redshift.MadauDickinsonRedshift" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">gwpopulation.models.redshift._Redshift</span></code></p>
 <p>Redshift model from Fishbach+ <a class="reference external" href="https://arxiv.org/abs/1805.10270">https://arxiv.org/abs/1805.10270</a> (33)
 See <a class="reference external" href="https://arxiv.org/abs/2003.12152">https://arxiv.org/abs/2003.12152</a> (2) for the normalisation</p>
@@ -234,10 +238,9 @@ See <a class="reference external" href="https://arxiv.org/abs/2003.12152">https:
 </dd>
 </dl>
 <dl class="py method">
-<dt id="gwpopulation.models.redshift.MadauDickinsonRedshift.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.redshift.MadauDickinsonRedshift.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
+<dt class="sig sig-object py" id="gwpopulation.models.redshift.MadauDickinsonRedshift.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.redshift.MadauDickinsonRedshift.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
@@ -247,7 +250,7 @@ See <a class="reference external" href="https://arxiv.org/abs/2003.12152">https:
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.models.redshift.MadauDickinsonRedshift.__init__" title="gwpopulation.models.redshift.MadauDickinsonRedshift.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([z_max])</p></td>
-<td><p>Initialize self.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.models.redshift.MadauDickinsonRedshift.differential_spacetime_volume" title="gwpopulation.models.redshift.MadauDickinsonRedshift.differential_spacetime_volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">differential_spacetime_volume</span></code></a>(dataset, …)</p></td>
 <td><p>Compute the differential spacetime volume.</p></td>
@@ -267,8 +270,8 @@ See <a class="reference external" href="https://arxiv.org/abs/2003.12152">https:
 </tbody>
 </table>
 <dl class="py method">
-<dt id="gwpopulation.models.redshift.MadauDickinsonRedshift.differential_spacetime_volume">
-<code class="sig-name descname"><span class="pre">differential_spacetime_volume</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.redshift.MadauDickinsonRedshift.differential_spacetime_volume" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.models.redshift.MadauDickinsonRedshift.differential_spacetime_volume">
+<span class="sig-name descname"><span class="pre">differential_spacetime_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.redshift.MadauDickinsonRedshift.differential_spacetime_volume" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the differential spacetime volume.</p>
 <div class="math notranslate nohighlight">
 \[d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)\]</div>
@@ -289,8 +292,8 @@ See <a class="reference external" href="https://arxiv.org/abs/2003.12152">https:
 </dd></dl>
 
 <dl class="py method">
-<dt id="gwpopulation.models.redshift.MadauDickinsonRedshift.normalisation">
-<code class="sig-name descname"><span class="pre">normalisation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.redshift.MadauDickinsonRedshift.normalisation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.models.redshift.MadauDickinsonRedshift.normalisation">
+<span class="sig-name descname"><span class="pre">normalisation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.redshift.MadauDickinsonRedshift.normalisation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the normalization or differential spacetime volume.</p>
 <div class="math notranslate nohighlight">
 \[\mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)\]</div>
@@ -311,7 +314,7 @@ See <a class="reference external" href="https://arxiv.org/abs/2003.12152">https:
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>

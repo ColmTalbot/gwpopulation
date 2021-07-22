@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>gwpopulation.hyperpe.HyperparameterLikelihood &mdash; GWPopulation 0.6.2 documentation</title>
@@ -13,6 +14,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 
   
   
@@ -29,12 +32,13 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -91,7 +95,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">API:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.models.html">gwpopulation.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.conversions.html">gwpopulation.conversions</a></li>
@@ -104,7 +108,7 @@
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.vt.html">gwpopulation.vt</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Examples:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../GWTC1.html">Population Inference on GWTC-1</a></li>
 </ul>
@@ -200,11 +204,11 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="gwpopulation-hyperpe-hyperparameterlikelihood">
+<section id="gwpopulation-hyperpe-hyperparameterlikelihood">
 <h1>gwpopulation.hyperpe.HyperparameterLikelihood<a class="headerlink" href="#gwpopulation-hyperpe-hyperparameterlikelihood" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="gwpopulation.hyperpe.HyperparameterLikelihood">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">gwpopulation.hyperpe.</span></code><code class="sig-name descname"><span class="pre">HyperparameterLikelihood</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">posteriors</span></em>, <em class="sig-param"><span class="pre">hyper_prior</span></em>, <em class="sig-param"><span class="pre">ln_evidences=None</span></em>, <em class="sig-param"><span class="pre">max_samples=1e+100</span></em>, <em class="sig-param"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></em>, <em class="sig-param"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></em>, <em class="sig-param"><span class="pre">cupy=True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">gwpopulation.hyperpe.</span></span><span class="sig-name descname"><span class="pre">HyperparameterLikelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">posteriors</span></em>, <em class="sig-param"><span class="pre">hyper_prior</span></em>, <em class="sig-param"><span class="pre">ln_evidences=None</span></em>, <em class="sig-param"><span class="pre">max_samples=1e+100</span></em>, <em class="sig-param"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></em>, <em class="sig-param"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></em>, <em class="sig-param"><span class="pre">cupy=True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">bilby.core.likelihood.Likelihood</span></code></p>
 <p>A likelihood for inferring hyperparameter posterior distributions with
 including selection effects.</p>
@@ -243,8 +247,8 @@ Note: this requires setting up your hyper_prior properly.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">posteriors</span></em>, <em class="sig-param"><span class="pre">hyper_prior</span></em>, <em class="sig-param"><span class="pre">ln_evidences=None</span></em>, <em class="sig-param"><span class="pre">max_samples=1e+100</span></em>, <em class="sig-param"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></em>, <em class="sig-param"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></em>, <em class="sig-param"><span class="pre">cupy=True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">posteriors</span></em>, <em class="sig-param"><span class="pre">hyper_prior</span></em>, <em class="sig-param"><span class="pre">ln_evidences=None</span></em>, <em class="sig-param"><span class="pre">max_samples=1e+100</span></em>, <em class="sig-param"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></em>, <em class="sig-param"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></em>, <em class="sig-param"><span class="pre">cupy=True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -337,8 +341,8 @@ Note: this requires setting up your hyper_prior properly.</p>
 </tbody>
 </table>
 <dl class="py method">
-<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.generate_extra_statistics">
-<code class="sig-name descname"><span class="pre">generate_extra_statistics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.generate_extra_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.generate_extra_statistics" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood.generate_extra_statistics">
+<span class="sig-name descname"><span class="pre">generate_extra_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.generate_extra_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.generate_extra_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given an input sample, add extra statistics</p>
 <p>Adds the ln BF for each of the events in the data and the selection
 function</p>
@@ -359,8 +363,8 @@ function</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.generate_rate_posterior_sample">
-<code class="sig-name descname"><span class="pre">generate_rate_posterior_sample</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.generate_rate_posterior_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.generate_rate_posterior_sample" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood.generate_rate_posterior_sample">
+<span class="sig-name descname"><span class="pre">generate_rate_posterior_sample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.generate_rate_posterior_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.generate_rate_posterior_sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a sample from the posterior distribution for rate assuming a
 <span class="math notranslate nohighlight">\(1 / R\)</span> prior.</p>
 <p>The likelihood evaluated is analytically marginalized over rate.
@@ -380,8 +384,8 @@ of events being analyzed and <span class="math notranslate nohighlight">\(\mathc
 </dd></dl>
 
 <dl class="py method">
-<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood">
-<code class="sig-name descname"><span class="pre">log_likelihood</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.log_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood">
+<span class="sig-name descname"><span class="pre">log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.log_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><dl class="simple">
@@ -392,8 +396,8 @@ of events being analyzed and <span class="math notranslate nohighlight">\(\mathc
 </dd></dl>
 
 <dl class="py method">
-<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio">
-<code class="sig-name descname"><span class="pre">log_likelihood_ratio</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.log_likelihood_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio">
+<span class="sig-name descname"><span class="pre">log_likelihood_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.log_likelihood_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Difference between log likelihood and noise log likelihood</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -405,8 +409,8 @@ of events being analyzed and <span class="math notranslate nohighlight">\(\mathc
 </dd></dl>
 
 <dl class="py method">
-<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood">
-<code class="sig-name descname"><span class="pre">noise_log_likelihood</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.noise_log_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood">
+<span class="sig-name descname"><span class="pre">noise_log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.noise_log_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><dl class="simple">
@@ -417,8 +421,8 @@ of events being analyzed and <span class="math notranslate nohighlight">\(\mathc
 </dd></dl>
 
 <dl class="py method">
-<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample">
-<code class="sig-name descname"><span class="pre">posterior_predictive_resample</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.posterior_predictive_resample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample">
+<span class="sig-name descname"><span class="pre">posterior_predictive_resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.posterior_predictive_resample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resample the original single event posteriors to use the PPD from each
 of the other events as the prior.</p>
 <p>There may be something weird going on with rate.</p>
@@ -445,8 +449,8 @@ the events.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors">
-<code class="sig-name descname"><span class="pre">resample_posteriors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e+300</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.resample_posteriors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors">
+<span class="sig-name descname"><span class="pre">resample_posteriors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e+300</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.resample_posteriors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert list of pandas DataFrame object to dict of arrays.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -470,7 +474,7 @@ There is a key for each shared key in posteriors.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>

@@ -28,7 +28,7 @@ class _Redshift(object):
 
     def _cache_dvc_dz(self, redshifts):
         self.cached_dvc_dz = xp.asarray(
-            np.interp(to_numpy(redshifts), self.zs_, self.dvc_dz_, left0, right=0)
+            np.interp(to_numpy(redshifts), self.zs_, self.dvc_dz_, left=0, right=0)
         )
 
     def normalisation(self, parameters):

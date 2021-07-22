@@ -28,7 +28,7 @@ class _Redshift(object):
 
     def _cache_dvc_dz(self, redshifts):
         self.cached_dvc_dz = xp.asarray(
-            np.interp(to_numpy(redshifts), self.zs_, self.dvc_dz_)
+            np.interp(to_numpy(redshifts), self.zs_, self.dvc_dz_, left=0, right=0)
         )
 
     def normalisation(self, parameters):
@@ -56,7 +56,8 @@ class _Redshift(object):
         differential_volume = self.differential_spacetime_volume(
             dataset=dataset, **parameters
         )
-        return differential_volume / normalisation
+        in_bounds = dataset["redshift"] <= self.z_max
+        return differential_volume / normalisation * in_bounds
 
     def psi_of_z(self, redshift, **parameters):
         raise NotImplementedError
@@ -89,13 +90,11 @@ class _Redshift(object):
         return differential_volume
 
     def total_spacetime_volume(self, **parameters):
-        """
+        f"""
         Deprecated use normalisation instead.
 
-        {}
-        """.format(
-            _Redshift.normalisation.__doc__
-        )
+        {_Redshift.normalisation.__doc__}
+        """
         warn(
             "The total spacetime volume method is deprecated, "
             "use normalisation instead.",

@@ -51,6 +51,12 @@ class TestRedshift(unittest.TestCase):
             model.total_spacetime_volume(**parameters),
         )
 
+    def test_zero_outside_domain(self):
+        model = redshift.PowerLawRedshift(z_max=1)
+        parameters = dict(lamb=1)
+        p_z = model(self.test_data, **parameters)
+        self.assertTrue(all(p_z[self.zs > 1] == 0))
+
 
 class TestFourVolume(unittest.TestCase):
     def setUp(self) -> None:

@@ -234,7 +234,7 @@ def matter_matters_pairing(dataset, A, NSmin, NSmax,
     p_m2 = matter_matters(dataset["mass_2"], A, NSmin, 
                           NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
                           alpha_1, alpha_2)
-    prob = _primary_secondary_plaw_pairing(dataset, p_m1, p_m2, beta_q)
+    prob = _primary_secondary_pairing(dataset, p_m1, p_m2, beta_q)
     return prob
 
 def double_power_law_primary_power_law_mass_ratio(
@@ -318,8 +318,7 @@ def _primary_secondary_general(dataset, p_m1, p_m2):
     return p_m1 * p_m2 * (dataset["mass_1"] >= dataset["mass_2"]) * 2
 
 def _primary_secondary_plaw_pairing(dataset, p_m1, p_m2, beta_pair):
-    q = dataset["mass_2"]/dataset["mass_1"] #could add logic to take mass_ratio if
-    #its available and mass2 if its not
+    q = dataset["mass_2"]/dataset["mass_1"]
     return _primary_secondary_general(dataset, p_m1, p_m2) * (q ** beta_pair)
 
 

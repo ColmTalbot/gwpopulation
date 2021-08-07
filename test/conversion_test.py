@@ -1,5 +1,3 @@
-from __future__ import division
-
 import unittest
 
 from gwpopulation.conversions import *
@@ -24,7 +22,7 @@ class TestBetaConversion(unittest.TestCase):
             mu = self.known_values["mu"][ii]
             var = self.known_values["var"][ii]
             amax = self.known_values["amax"][ii]
-            alpha, beta, _ = mu_chi_var_chi_max_to_alpha_beta_max(mu, var, amax)
+            alpha, beta, _ = mu_var_max_to_alpha_beta_max(mu, var, amax)
             self.assertAlmostEqual(alpha, self.known_values["alpha"][ii])
             self.assertAlmostEqual(beta, self.known_values["beta"][ii])
             self.assertAlmostEqual(amax, self.known_values["amax"][ii])
@@ -34,7 +32,7 @@ class TestBetaConversion(unittest.TestCase):
             alpha = self.known_values["alpha"][ii]
             beta = self.known_values["beta"][ii]
             amax = self.known_values["amax"][ii]
-            mu, var, _ = alpha_beta_max_to_mu_chi_var_chi_max(alpha, beta, amax)
+            mu, var, _ = alpha_beta_max_to_mu_var_max(alpha, beta, amax)
             self.assertAlmostEqual(mu, self.known_values["mu"][ii])
             self.assertAlmostEqual(var, self.known_values["var"][ii])
 
@@ -46,9 +44,9 @@ class TestBetaConversion(unittest.TestCase):
             params["amax" + suffix] = self.known_values["amax"][ii]
             new_params, _ = convert_to_beta_parameters(params, remove=True)
             full_dict = params.copy()
-            alpha, beta, _ = mu_chi_var_chi_max_to_alpha_beta_max(
-                mu_chi=params["mu_chi" + suffix],
-                var_chi=params["sigma_chi" + suffix],
+            alpha, beta, _ = mu_var_max_to_alpha_beta_max(
+                mu=params["mu_chi" + suffix],
+                var=params["sigma_chi" + suffix],
                 amax=params["amax" + suffix],
             )
             full_dict["alpha_chi" + suffix] = alpha

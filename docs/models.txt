@@ -1,5 +1,0 @@
-All of the models implemented.
-==============================
-
-.. automodule:: gwpopulation.models
-    :members:

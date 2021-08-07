@@ -6,7 +6,7 @@ import os
 
 
 def write_version_file(version):
-    """ Writes a file with version information to be used at run time
+    """Writes a file with version information to be used at run time
 
     Parameters
     ----------
@@ -58,7 +58,7 @@ def readfile(filename):
     return filecontents
 
 
-VERSION = "0.5.0"
+VERSION = "0.6.3"
 version_file = write_version_file(VERSION)
 long_description = get_long_description()
 
@@ -66,6 +66,7 @@ setup(
     name="gwpopulation",
     description="Unified population inference",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/ColmTalbot/gwpopulation",
     author="Colm Talbot",
     author_email="colm.talbot@monash.edu",

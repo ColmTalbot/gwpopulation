@@ -253,6 +253,7 @@ class TestSmoothedMassDistribution(unittest.TestCase):
         parameters["mpp"] = 130
         parameters["sigpp"] = 1
         parameters["lam"] = 0.5
+        parameters["mmin"] = 5
         self.assertEqual(model(dict(mass_1=8 * np.ones(5), mass_ratio=0.5 * np.ones(5)), **parameters)[0], 0)
         self.assertGreater(model(dict(mass_1=130 * np.ones(5), mass_ratio=0.9 * np.ones(5)), **parameters)[0], 0)
 

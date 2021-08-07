@@ -133,7 +133,7 @@ class TestPrimarySecondary(unittest.TestCase):
 
 class TestSmoothedMassDistribution(unittest.TestCase):
     def setUp(self):
-        self.m1s = np.linspace(3, 100, 1000)
+        self.m1s = np.linspace(2, 100, 1000)
         self.qs = np.linspace(0.01, 1, 500)
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]
@@ -152,7 +152,7 @@ class TestSmoothedMassDistribution(unittest.TestCase):
         self.double_gauss_prior["lam"] = Uniform(minimum=0, maximum=1)
         self.double_gauss_prior["lam_1"] = Uniform(minimum=0, maximum=1)
         self.double_gauss_prior["mpp_1"] = Uniform(minimum=20, maximum=60)
-        self.double_gauss_prior["mpp_2"] = Uniform(minimum=20, maximum=60)
+        self.double_gauss_prior["mpp_2"] = Uniform(minimum=20, maximum=100)
         self.double_gauss_prior["sigpp_1"] = Uniform(minimum=0, maximum=10)
         self.double_gauss_prior["sigpp_2"] = Uniform(minimum=0, maximum=10)
         self.broken_power_prior = PriorDict()
@@ -245,6 +245,40 @@ class TestSmoothedMassDistribution(unittest.TestCase):
             norms.append(trapz(trapz(p_m, self.m1s), self.qs))
         self.assertAlmostEqual(_max_abs_difference(norms, 1.0), 0.0, 2)
 
+    def test_set_minimum_and_maximum(self):
+        model = mass.SinglePeakSmoothedMassDistribution(mmin=5, mmax=150)
+        parameters = self.gauss_prior.sample()
+        parameters.update(self.power_prior.sample())
+        parameters.update(self.smooth_prior.sample())
+        parameters["mpp"] = 130
+        parameters["sigpp"] = 1
+        parameters["lam"] = 0.5
+        self.assertEqual(model(dict(mass_1=8 * np.ones(5), mass_ratio=0.5 * np.ones(5)), **parameters)[0], 0)
+        self.assertGreater(model(dict(mass_1=130 * np.ones(5), mass_ratio=0.9 * np.ones(5)), **parameters)[0], 0)
+
+    def test_mmin_below_global_minimum_raises_error(self):
+        model = mass.SinglePeakSmoothedMassDistribution(mmin=5, mmax=150)
+        parameters = self.gauss_prior.sample()
+        parameters.update(self.power_prior.sample())
+        parameters.update(self.smooth_prior.sample())
+        parameters["mmin"] = 2
+        with self.assertRaises(ValueError):
+            model(self.dataset, **parameters)
+
+    def test_mmax_above_global_maximum_raises_error(self):
+        model = mass.SinglePeakSmoothedMassDistribution(mmin=5, mmax=150)
+        parameters = self.gauss_prior.sample()
+        parameters.update(self.power_prior.sample())
+        parameters.update(self.smooth_prior.sample())
+        parameters["mmax"] = 200
+        with self.assertRaises(ValueError):
+            model(self.dataset, **parameters)
+
 
 def _max_abs_difference(array, comparison):
     return float(xp.max(xp.abs(comparison - xp.asarray(array))))
+
+
+if __name__ == "__main__":
+    unittest.main()
+

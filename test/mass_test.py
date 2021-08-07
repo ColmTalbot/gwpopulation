@@ -254,8 +254,18 @@ class TestSmoothedMassDistribution(unittest.TestCase):
         parameters["sigpp"] = 1
         parameters["lam"] = 0.5
         parameters["mmin"] = 5
-        self.assertEqual(model(dict(mass_1=8 * np.ones(5), mass_ratio=0.5 * np.ones(5)), **parameters)[0], 0)
-        self.assertGreater(model(dict(mass_1=130 * np.ones(5), mass_ratio=0.9 * np.ones(5)), **parameters)[0], 0)
+        self.assertEqual(
+            model(
+                dict(mass_1=8 * np.ones(5), mass_ratio=0.5 * np.ones(5)), **parameters
+            )[0],
+            0,
+        )
+        self.assertGreater(
+            model(
+                dict(mass_1=130 * np.ones(5), mass_ratio=0.9 * np.ones(5)), **parameters
+            )[0],
+            0,
+        )
 
     def test_mmin_below_global_minimum_raises_error(self):
         model = mass.SinglePeakSmoothedMassDistribution(mmin=5, mmax=150)
@@ -282,4 +292,3 @@ def _max_abs_difference(array, comparison):
 
 if __name__ == "__main__":
     unittest.main()
-

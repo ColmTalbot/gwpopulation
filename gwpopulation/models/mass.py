@@ -865,4 +865,3 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
             sigpp=sigpp,
             gaussian_mass_maximum=self.mmax,
         )
-

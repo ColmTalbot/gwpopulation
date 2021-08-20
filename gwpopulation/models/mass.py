@@ -45,7 +45,16 @@ def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_frac
 
 
 def double_power_law_peak_primary_mass(
-    mass, alpha_1, alpha_2, mmin, mmax, break_fraction, lam, mpp, sigpp
+    mass,
+    alpha_1,
+    alpha_2,
+    mmin,
+    mmax,
+    break_fraction,
+    lam,
+    mpp,
+    sigpp,
+    gaussian_mass_maximum=100,
 ):
     r"""
     Broken power-law with a Gaussian component.
@@ -84,6 +93,8 @@ def double_power_law_peak_primary_mass(
         Mean of the Gaussian component (:math:`\mu_m`).
     sigpp: float
         Standard deviation fo the Gaussian component (:math:`\sigma_m`).
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
     """
 
     p_pow = double_power_law_primary_mass(
@@ -94,7 +105,7 @@ def double_power_law_peak_primary_mass(
         mmax=mmax,
         break_fraction=break_fraction,
     )
-    p_norm = truncnorm(mass, mu=mpp, sigma=sigpp, high=100, low=mmin)
+    p_norm = truncnorm(mass, mu=mpp, sigma=sigpp, high=gaussian_mass_maximum, low=mmin)
     prob = (1 - lam) * p_pow + lam * p_norm
     return prob
 
@@ -235,7 +246,9 @@ def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
     )
 
 
-def two_component_single(mass, alpha, mmin, mmax, lam, mpp, sigpp):
+def two_component_single(
+    mass, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
+):
     r"""
     Power law model for one-dimensional mass distribution with a Gaussian component.
 
@@ -262,15 +275,27 @@ def two_component_single(mass, alpha, mmin, mmax, lam, mpp, sigpp):
         Mean of the Gaussian component (:math:`\mu_m`).
     sigpp: float
         Standard deviation of the Gaussian component (:math:`\sigma_m`).
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
     """
     p_pow = powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
-    p_norm = truncnorm(mass, mu=mpp, sigma=sigpp, high=100, low=mmin)
+    p_norm = truncnorm(mass, mu=mpp, sigma=sigpp, high=gaussian_mass_maximum, low=mmin)
     prob = (1 - lam) * p_pow + lam * p_norm
     return prob
 
 
 def three_component_single(
-    mass, alpha, mmin, mmax, lam, lam_1, mpp_1, sigpp_1, mpp_2, sigpp_2
+    mass,
+    alpha,
+    mmin,
+    mmax,
+    lam,
+    lam_1,
+    mpp_1,
+    sigpp_1,
+    mpp_2,
+    sigpp_2,
+    gaussian_mass_maximum=100,
 ):
     r"""
     Power law model for one-dimensional mass distribution with two Gaussian components.
@@ -304,15 +329,24 @@ def three_component_single(
         Standard deviation of the lower mass Gaussian component.
     sigpp_2: float
         Standard deviation of the upper mass Gaussian component.
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
+        Note that this applies the same value to both.
     """
     p_pow = powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
-    p_norm1 = truncnorm(mass, mu=mpp_1, sigma=sigpp_1, high=100, low=mmin)
-    p_norm2 = truncnorm(mass, mu=mpp_2, sigma=sigpp_2, high=100, low=mmin)
+    p_norm1 = truncnorm(
+        mass, mu=mpp_1, sigma=sigpp_1, high=gaussian_mass_maximum, low=mmin
+    )
+    p_norm2 = truncnorm(
+        mass, mu=mpp_2, sigma=sigpp_2, high=gaussian_mass_maximum, low=mmin
+    )
     prob = (1 - lam) * p_pow + lam * lam_1 * p_norm1 + lam * (1 - lam_1) * p_norm2
     return prob
 
 
-def two_component_primary_mass_ratio(dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp):
+def two_component_primary_mass_ratio(
+    dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
+):
     r"""
     Power law model for two-dimensional mass distribution, modelling primary
     mass and conditional mass ratio distribution.
@@ -338,8 +372,17 @@ def two_component_primary_mass_ratio(dataset, alpha, beta, mmin, mmax, lam, mpp,
         Mean of the Gaussian component.
     sigpp: float
         Standard deviation fo the Gaussian component.
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
     """
-    params = dict(mmin=mmin, mmax=mmax, lam=lam, mpp=mpp, sigpp=sigpp)
+    params = dict(
+        mmin=mmin,
+        mmax=mmax,
+        lam=lam,
+        mpp=mpp,
+        sigpp=sigpp,
+        gaussian_mass_maximum=gaussian_mass_maximum,
+    )
     p_m1 = two_component_single(dataset["mass_1"], alpha=alpha, **params)
     p_q = powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
     prob = p_m1 * p_q
@@ -347,7 +390,7 @@ def two_component_primary_mass_ratio(dataset, alpha, beta, mmin, mmax, lam, mpp,
 
 
 def two_component_primary_secondary_independent(
-    dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp
+    dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
 ):
     r"""
     Power law model for two-dimensional mass distribution, modelling the
@@ -374,8 +417,17 @@ def two_component_primary_secondary_independent(
         Mean of the Gaussian component.
     sigpp: float
         Standard deviation fo the Gaussian component.
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
     """
-    params = dict(mmin=mmin, mmax=mmax, lam=lam, mpp=mpp, sigpp=sigpp)
+    params = dict(
+        mmin=mmin,
+        mmax=mmax,
+        lam=lam,
+        mpp=mpp,
+        sigpp=sigpp,
+        gaussian_mass_maximum=gaussian_mass_maximum,
+    )
     p_m1 = two_component_single(dataset["mass_1"], alpha=alpha, **params)
     p_m2 = two_component_single(dataset["mass_2"], alpha=beta, **params)
 
@@ -384,7 +436,7 @@ def two_component_primary_secondary_independent(
 
 
 def two_component_primary_secondary_identical(
-    dataset, alpha, mmin, mmax, lam, mpp, sigpp
+    dataset, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
 ):
     r"""
     Power law model for two-dimensional mass distribution, modelling the
@@ -409,6 +461,8 @@ def two_component_primary_secondary_identical(
         Mean of the Gaussian component.
     sigpp: float
         Standard deviation fo the Gaussian component.
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
     """
     return two_component_primary_secondary_independent(
         dataset=dataset,
@@ -419,6 +473,7 @@ def two_component_primary_secondary_identical(
         lam=lam,
         mpp=mpp,
         sigpp=sigpp,
+        gaussian_mass_maximum=gaussian_mass_maximum,
     )
 
 
@@ -440,8 +495,8 @@ class BaseSmoothedMassDistribution(object):
     primary_model = None
 
     def __init__(self, mmin=2, mmax=100):
-        self.mmin = 2
-        self.mmax = 100
+        self.mmin = mmin
+        self.mmax = mmax
         self.m1s = xp.linspace(mmin, mmax, 1000)
         self.qs = xp.linspace(0.001, 1, 500)
         self.dm = self.m1s[1] - self.m1s[0]
@@ -451,6 +506,15 @@ class BaseSmoothedMassDistribution(object):
     def __call__(self, dataset, *args, **kwargs):
         beta = kwargs.pop("beta")
         mmin = kwargs.get("mmin", self.mmin)
+        mmax = kwargs.get("mmax", self.mmax)
+        if mmin < self.mmin:
+            raise ValueError(
+                "{self.__class__}: mmin ({mmin}) < self.mmin ({self.mmin})"
+            )
+        if mmax > self.mmax:
+            raise ValueError(
+                "{self.__class__}: mmax ({mmax}) > self.mmax ({self.mmax})"
+            )
         delta_m = kwargs.get("delta_m", 0)
         p_m1 = self.p_m1(dataset, **kwargs)
         p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
@@ -590,8 +654,8 @@ class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
 
         Notes
         -----
-        The interpolation of the p(q) normalisation has a fill value of
-        the normalisation factor for m_1 = 100.
+        The Gaussian component is bounded between [`mmin`, `self.mmax`].
+        This means that the `mmax` parameter is _not_ the global maximum.
         """
         return super(SinglePeakSmoothedMassDistribution, self).__call__(
             dataset=dataset,
@@ -603,6 +667,7 @@ class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
             sigpp=sigpp,
             delta_m=delta_m,
             beta=beta,
+            gaussian_mass_maximum=self.mmax,
         )
 
 
@@ -655,6 +720,11 @@ class MultiPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
             Standard deviation of the upper mass Gaussian component.
         delta_m: float
             Rise length of the low end of the mass distribution.
+
+        Notes
+        -----
+        The Gaussian components are bounded between [`mmin`, `self.mmax`].
+        This means that the `mmax` parameter is _not_ the global maximum.
         """
         return super(MultiPeakSmoothedMassDistribution, self).__call__(
             dataset=dataset,
@@ -669,6 +739,7 @@ class MultiPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
             sigpp_1=sigpp_1,
             sigpp_2=sigpp_2,
             delta_m=delta_m,
+            gaussian_mass_maximum=self.mmax,
         )
 
 
@@ -774,6 +845,11 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
             Standard deviation fo the Gaussian component.
         delta_m: float
             Rise length of the low end of the mass distribution.
+
+        Notes
+        -----
+        The Gaussian component is bounded between [`mmin`, `self.mmax`].
+        This means that the `mmax` parameter is _not_ the global maximum.
         """
         return super(BrokenPowerLawPeakSmoothedMassDistribution, self).__call__(
             dataset=dataset,
@@ -787,4 +863,5 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
             lam=lam,
             mpp=mpp,
             sigpp=sigpp,
+            gaussian_mass_maximum=self.mmax,
         )

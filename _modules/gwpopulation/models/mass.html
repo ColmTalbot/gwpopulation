@@ -99,10 +99,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.utils.html">gwpopulation.utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.vt.html">gwpopulation.vt</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../GWTC1.html">Population Inference on GWTC-1</a></li>
-</ul>
 
             
           
@@ -215,7 +211,16 @@
 
 
 <div class="viewcode-block" id="double_power_law_peak_primary_mass"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.double_power_law_peak_primary_mass.html#gwpopulation.models.mass.double_power_law_peak_primary_mass">[docs]</a><span class="k">def</span> <span class="nf">double_power_law_peak_primary_mass</span><span class="p">(</span>
-    <span class="n">mass</span><span class="p">,</span> <span class="n">alpha_1</span><span class="p">,</span> <span class="n">alpha_2</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">break_fraction</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span>
+    <span class="n">mass</span><span class="p">,</span>
+    <span class="n">alpha_1</span><span class="p">,</span>
+    <span class="n">alpha_2</span><span class="p">,</span>
+    <span class="n">mmin</span><span class="p">,</span>
+    <span class="n">mmax</span><span class="p">,</span>
+    <span class="n">break_fraction</span><span class="p">,</span>
+    <span class="n">lam</span><span class="p">,</span>
+    <span class="n">mpp</span><span class="p">,</span>
+    <span class="n">sigpp</span><span class="p">,</span>
+    <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Broken power-law with a Gaussian component.</span>
@@ -254,6 +259,8 @@
 <span class="sd">        Mean of the Gaussian component (:math:`\mu_m`).</span>
 <span class="sd">    sigpp: float</span>
 <span class="sd">        Standard deviation fo the Gaussian component (:math:`\sigma_m`).</span>
+<span class="sd">    gaussian_mass_maximum: float, optional</span>
+<span class="sd">        Upper truncation limit of the Gaussian component. (default: 100)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">p_pow</span> <span class="o">=</span> <span class="n">double_power_law_primary_mass</span><span class="p">(</span>
@@ -264,7 +271,7 @@
         <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
         <span class="n">break_fraction</span><span class="o">=</span><span class="n">break_fraction</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">p_norm</span> <span class="o">=</span> <span class="n">truncnorm</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">mmin</span><span class="p">)</span>
+    <span class="n">p_norm</span> <span class="o">=</span> <span class="n">truncnorm</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">gaussian_mass_maximum</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">mmin</span><span class="p">)</span>
     <span class="n">prob</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">lam</span><span class="p">)</span> <span class="o">*</span> <span class="n">p_pow</span> <span class="o">+</span> <span class="n">lam</span> <span class="o">*</span> <span class="n">p_norm</span>
     <span class="k">return</span> <span class="n">prob</span></div>
 
@@ -405,7 +412,9 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="two_component_single"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.two_component_single.html#gwpopulation.models.mass.two_component_single">[docs]</a><span class="k">def</span> <span class="nf">two_component_single</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="p">):</span>
+<div class="viewcode-block" id="two_component_single"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.two_component_single.html#gwpopulation.models.mass.two_component_single">[docs]</a><span class="k">def</span> <span class="nf">two_component_single</span><span class="p">(</span>
+    <span class="n">mass</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="p">,</span> <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="mi">100</span>
+<span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Power law model for one-dimensional mass distribution with a Gaussian component.</span>
 
@@ -432,15 +441,27 @@
 <span class="sd">        Mean of the Gaussian component (:math:`\mu_m`).</span>
 <span class="sd">    sigpp: float</span>
 <span class="sd">        Standard deviation of the Gaussian component (:math:`\sigma_m`).</span>
+<span class="sd">    gaussian_mass_maximum: float, optional</span>
+<span class="sd">        Upper truncation limit of the Gaussian component. (default: 100)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">p_pow</span> <span class="o">=</span> <span class="n">powerlaw</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=-</span><span class="n">alpha</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">mmin</span><span class="p">)</span>
-    <span class="n">p_norm</span> <span class="o">=</span> <span class="n">truncnorm</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">mmin</span><span class="p">)</span>
+    <span class="n">p_norm</span> <span class="o">=</span> <span class="n">truncnorm</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">gaussian_mass_maximum</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">mmin</span><span class="p">)</span>
     <span class="n">prob</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">lam</span><span class="p">)</span> <span class="o">*</span> <span class="n">p_pow</span> <span class="o">+</span> <span class="n">lam</span> <span class="o">*</span> <span class="n">p_norm</span>
     <span class="k">return</span> <span class="n">prob</span></div>
 
 
 <div class="viewcode-block" id="three_component_single"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.three_component_single.html#gwpopulation.models.mass.three_component_single">[docs]</a><span class="k">def</span> <span class="nf">three_component_single</span><span class="p">(</span>
-    <span class="n">mass</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">lam_1</span><span class="p">,</span> <span class="n">mpp_1</span><span class="p">,</span> <span class="n">sigpp_1</span><span class="p">,</span> <span class="n">mpp_2</span><span class="p">,</span> <span class="n">sigpp_2</span>
+    <span class="n">mass</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">,</span>
+    <span class="n">mmin</span><span class="p">,</span>
+    <span class="n">mmax</span><span class="p">,</span>
+    <span class="n">lam</span><span class="p">,</span>
+    <span class="n">lam_1</span><span class="p">,</span>
+    <span class="n">mpp_1</span><span class="p">,</span>
+    <span class="n">sigpp_1</span><span class="p">,</span>
+    <span class="n">mpp_2</span><span class="p">,</span>
+    <span class="n">sigpp_2</span><span class="p">,</span>
+    <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Power law model for one-dimensional mass distribution with two Gaussian components.</span>
@@ -474,15 +495,24 @@
 <span class="sd">        Standard deviation of the lower mass Gaussian component.</span>
 <span class="sd">    sigpp_2: float</span>
 <span class="sd">        Standard deviation of the upper mass Gaussian component.</span>
+<span class="sd">    gaussian_mass_maximum: float, optional</span>
+<span class="sd">        Upper truncation limit of the Gaussian component. (default: 100)</span>
+<span class="sd">        Note that this applies the same value to both.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">p_pow</span> <span class="o">=</span> <span class="n">powerlaw</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=-</span><span class="n">alpha</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">mmin</span><span class="p">)</span>
-    <span class="n">p_norm1</span> <span class="o">=</span> <span class="n">truncnorm</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mpp_1</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigpp_1</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">mmin</span><span class="p">)</span>
-    <span class="n">p_norm2</span> <span class="o">=</span> <span class="n">truncnorm</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mpp_2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigpp_2</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">mmin</span><span class="p">)</span>
+    <span class="n">p_norm1</span> <span class="o">=</span> <span class="n">truncnorm</span><span class="p">(</span>
+        <span class="n">mass</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mpp_1</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigpp_1</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">gaussian_mass_maximum</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">mmin</span>
+    <span class="p">)</span>
+    <span class="n">p_norm2</span> <span class="o">=</span> <span class="n">truncnorm</span><span class="p">(</span>
+        <span class="n">mass</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mpp_2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigpp_2</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">gaussian_mass_maximum</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">mmin</span>
+    <span class="p">)</span>
     <span class="n">prob</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">lam</span><span class="p">)</span> <span class="o">*</span> <span class="n">p_pow</span> <span class="o">+</span> <span class="n">lam</span> <span class="o">*</span> <span class="n">lam_1</span> <span class="o">*</span> <span class="n">p_norm1</span> <span class="o">+</span> <span class="n">lam</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">lam_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">p_norm2</span>
     <span class="k">return</span> <span class="n">prob</span></div>
 
 
-<div class="viewcode-block" id="two_component_primary_mass_ratio"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.two_component_primary_mass_ratio.html#gwpopulation.models.mass.two_component_primary_mass_ratio">[docs]</a><span class="k">def</span> <span class="nf">two_component_primary_mass_ratio</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="p">):</span>
+<div class="viewcode-block" id="two_component_primary_mass_ratio"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.two_component_primary_mass_ratio.html#gwpopulation.models.mass.two_component_primary_mass_ratio">[docs]</a><span class="k">def</span> <span class="nf">two_component_primary_mass_ratio</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="p">,</span> <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="mi">100</span>
+<span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Power law model for two-dimensional mass distribution, modelling primary</span>
 <span class="sd">    mass and conditional mass ratio distribution.</span>
@@ -508,8 +538,17 @@
 <span class="sd">        Mean of the Gaussian component.</span>
 <span class="sd">    sigpp: float</span>
 <span class="sd">        Standard deviation fo the Gaussian component.</span>
+<span class="sd">    gaussian_mass_maximum: float, optional</span>
+<span class="sd">        Upper truncation limit of the Gaussian component. (default: 100)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
+        <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
+        <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
+        <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
+        <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
+        <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="n">gaussian_mass_maximum</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">p_m1</span> <span class="o">=</span> <span class="n">two_component_single</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
     <span class="n">p_q</span> <span class="o">=</span> <span class="n">powerlaw</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_ratio&quot;</span><span class="p">],</span> <span class="n">beta</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mmin</span> <span class="o">/</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">])</span>
     <span class="n">prob</span> <span class="o">=</span> <span class="n">p_m1</span> <span class="o">*</span> <span class="n">p_q</span>
@@ -517,7 +556,7 @@
 
 
 <div class="viewcode-block" id="two_component_primary_secondary_independent"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.two_component_primary_secondary_independent.html#gwpopulation.models.mass.two_component_primary_secondary_independent">[docs]</a><span class="k">def</span> <span class="nf">two_component_primary_secondary_independent</span><span class="p">(</span>
-    <span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span>
+    <span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="p">,</span> <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="mi">100</span>
 <span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Power law model for two-dimensional mass distribution, modelling the</span>
@@ -544,8 +583,17 @@
 <span class="sd">        Mean of the Gaussian component.</span>
 <span class="sd">    sigpp: float</span>
 <span class="sd">        Standard deviation fo the Gaussian component.</span>
+<span class="sd">    gaussian_mass_maximum: float, optional</span>
+<span class="sd">        Upper truncation limit of the Gaussian component. (default: 100)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
+        <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
+        <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
+        <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
+        <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
+        <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="n">gaussian_mass_maximum</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">p_m1</span> <span class="o">=</span> <span class="n">two_component_single</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
     <span class="n">p_m2</span> <span class="o">=</span> <span class="n">two_component_single</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_2&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
 
@@ -554,7 +602,7 @@
 
 
 <div class="viewcode-block" id="two_component_primary_secondary_identical"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.two_component_primary_secondary_identical.html#gwpopulation.models.mass.two_component_primary_secondary_identical">[docs]</a><span class="k">def</span> <span class="nf">two_component_primary_secondary_identical</span><span class="p">(</span>
-    <span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span>
+    <span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="p">,</span> <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="mi">100</span>
 <span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Power law model for two-dimensional mass distribution, modelling the</span>
@@ -579,6 +627,8 @@
 <span class="sd">        Mean of the Gaussian component.</span>
 <span class="sd">    sigpp: float</span>
 <span class="sd">        Standard deviation fo the Gaussian component.</span>
+<span class="sd">    gaussian_mass_maximum: float, optional</span>
+<span class="sd">        Upper truncation limit of the Gaussian component. (default: 100)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">two_component_primary_secondary_independent</span><span class="p">(</span>
         <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
@@ -589,6 +639,7 @@
         <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
         <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
         <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
+        <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="n">gaussian_mass_maximum</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -610,8 +661,8 @@
     <span class="n">primary_model</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="BaseSmoothedMassDistribution.__init__"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmin</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mmax</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmin</span> <span class="o">=</span> <span class="n">mmin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmax</span> <span class="o">=</span> <span class="n">mmax</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qs</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -621,6 +672,15 @@
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">beta</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
         <span class="n">mmin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mmin&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmin</span><span class="p">)</span>
+        <span class="n">mmax</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mmax&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mmin</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmin</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{self.__class__}</span><span class="s2">: mmin (</span><span class="si">{mmin}</span><span class="s2">) &lt; self.mmin (</span><span class="si">{self.mmin}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">mmax</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{self.__class__}</span><span class="s2">: mmax (</span><span class="si">{mmax}</span><span class="s2">) &gt; self.mmax (</span><span class="si">{self.mmax}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
         <span class="n">delta_m</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;delta_m&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">p_m1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_m1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">p_q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_q</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
@@ -760,8 +820,8 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        The interpolation of the p(q) normalisation has a fill value of</span>
-<span class="sd">        the normalisation factor for m_1 = 100.</span>
+<span class="sd">        The Gaussian component is bounded between [`mmin`, `self.mmax`].</span>
+<span class="sd">        This means that the `mmax` parameter is _not_ the global maximum.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SinglePeakSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
             <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
@@ -773,6 +833,7 @@
             <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
             <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
             <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
+            <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -825,6 +886,11 @@
 <span class="sd">            Standard deviation of the upper mass Gaussian component.</span>
 <span class="sd">        delta_m: float</span>
 <span class="sd">            Rise length of the low end of the mass distribution.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The Gaussian components are bounded between [`mmin`, `self.mmax`].</span>
+<span class="sd">        This means that the `mmax` parameter is _not_ the global maximum.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MultiPeakSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
             <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
@@ -839,6 +905,7 @@
             <span class="n">sigpp_1</span><span class="o">=</span><span class="n">sigpp_1</span><span class="p">,</span>
             <span class="n">sigpp_2</span><span class="o">=</span><span class="n">sigpp_2</span><span class="p">,</span>
             <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
+            <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -944,6 +1011,11 @@
 <span class="sd">            Standard deviation fo the Gaussian component.</span>
 <span class="sd">        delta_m: float</span>
 <span class="sd">            Rise length of the low end of the mass distribution.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The Gaussian component is bounded between [`mmin`, `self.mmax`].</span>
+<span class="sd">        This means that the `mmax` parameter is _not_ the global maximum.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">BrokenPowerLawPeakSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
             <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
@@ -957,6 +1029,7 @@
             <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
             <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
             <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
+            <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span>
         <span class="p">)</span></div>
 </pre></div>
 

@@ -38,7 +38,7 @@
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -126,10 +126,6 @@
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.vt.html">gwpopulation.vt</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../GWTC1.html">Population Inference on GWTC-1</a></li>
 </ul>
 
             
@@ -280,7 +276,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.primary_model">
-<span class="sig-name descname"><span class="pre">primary_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigpp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.primary_model" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">primary_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigpp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gaussian_mass_maximum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.primary_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Power law model for one-dimensional mass distribution with a Gaussian component.</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}p(m) &amp;= (1 - \lambda_m) p_{\text{pow}} + \lambda_m p_{\text{norm}}\\p_{\text{pow}}(m) &amp;\propto m^{-\alpha} : m_\min \leq m &lt; m_\max\\p_{\text{norm}}(m) &amp;\propto \exp\left(-\frac{(m - \mu_{m})^2}{2\sigma^2_m}\right)\end{aligned}\end{align} \]</div>
@@ -300,6 +296,8 @@
 <dt><strong>mpp: float</strong></dt><dd><p>Mean of the Gaussian component (<span class="math notranslate nohighlight">\(\mu_m\)</span>).</p>
 </dd>
 <dt><strong>sigpp: float</strong></dt><dd><p>Standard deviation of the Gaussian component (<span class="math notranslate nohighlight">\(\sigma_m\)</span>).</p>
+</dd>
+<dt><strong>gaussian_mass_maximum: float, optional</strong></dt><dd><p>Upper truncation limit of the Gaussian component. (default: 100)</p>
 </dd>
 </dl>
 </dd>

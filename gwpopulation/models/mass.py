@@ -202,6 +202,9 @@ def matter_matters_primary_secondary_independent(dataset, A, NSmin, NSmax,
                           NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
                           alpha_1, alpha_2)
     prob = _primary_secondary_general(dataset, p_m1, p_m2)
+    
+    # get rid of areas where there are no injections
+    prob = xp.where((dataset["mass_1"]>60)*(dataset["mass_2"]<2.5), 0, prob)
     return prob
 
 
@@ -246,6 +249,8 @@ def matter_matters_pairing(dataset, A, NSmin, NSmax,
                           NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
                           alpha_1, alpha_2)
     prob = _primary_secondary_plaw_pairing(dataset, p_m1, p_m2, beta_q)
+    # get rid of areas where there are no injections
+    prob = xp.where((dataset["mass_1"]>60)*(dataset["mass_2"]<2.5), 0, prob)
     return prob
 
 def double_power_law_primary_power_law_mass_ratio(

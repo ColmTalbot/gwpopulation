@@ -76,6 +76,13 @@ def independent_spin_magnitude_beta(
     prior = beta_dist(
         dataset["a_1"], alpha_chi_1, beta_chi_1, scale=amax_1
     ) * beta_dist(dataset["a_2"], alpha_chi_2, beta_chi_2, scale=amax_2)
+    
+    # get rid of areas where there are no injections
+    no_inj = xp.logical_or((dataset["a_2"]>0.4)*(dataset["mass_2"]<2.5),
+                           (dataset["a_1"]>0.4)*(dataset["mass_1"]<2.5)
+    )
+    prior = xp.where(no_inj, 0, prior)
+    
     return prior
 
 

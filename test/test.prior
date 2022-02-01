@@ -1,0 +1,15 @@
+rate = LogUniform(minimum=0.1, maximum=1000.0, name='rate', latex_label='$R$', unit=None)
+alpha = Uniform(minimum=-4, maximum=12, name='alpha', latex_label='$\\alpha$', unit=None)
+mmax = Uniform(minimum=30, maximum=100, name='mmax', latex_label='$m_{\\max}$', unit=None)
+mmin = Uniform(minimum=3, maximum=10, name='mmin', latex_label='$m_{\\min}$', unit=None)
+beta = Uniform(minimum=-4, maximum=12, name='beta', latex_label='$\\beta_{q}$', unit=None)
+lam = Uniform(minimum=0, maximum=1, name='lambda', latex_label='$\\lambda$', unit=None)
+mpp = Uniform(minimum=20, maximum=50, name='mpp', latex_label='$\\mu_{m}$', unit=None)
+sigpp = Uniform(minimum=0.4, maximum=10, name='sigpp', latex_label='$\\sigma_{m}$', unit=None)
+delta_m = Uniform(minimum=0, maximum=10, name='delta_m', latex_label='$\\delta m$', unit=None)
+xi_spin = 0
+sigma_1 = 1
+sigma_2 = 1
+amax = 1
+alpha_chi = 1
+beta_chi = 1

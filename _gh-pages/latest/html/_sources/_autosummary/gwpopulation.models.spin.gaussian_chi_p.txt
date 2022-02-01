@@ -1,0 +1,6 @@
+gwpopulation.models.spin.gaussian\_chi\_p
+=========================================
+
+.. currentmodule:: gwpopulation.models.spin
+
+.. autofunction:: gaussian_chi_p

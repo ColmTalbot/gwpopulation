@@ -1,0 +1,6 @@
+gwpopulation.cupy\_utils.trapz
+==============================
+
+.. currentmodule:: gwpopulation.cupy_utils
+
+.. autofunction:: trapz

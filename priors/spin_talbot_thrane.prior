@@ -1,0 +1,3 @@
+xi_spin = Uniform(minimum=0, maximum=1, name='xi_spin', latex_label='$\\xi$')
+sigma_1 = Uniform(minimum=1e-2, maximum=4e0, name='sigma_1', latex_label='$\\sigma_1$')
+sigma_2 = Uniform(minimum=1e-2, maximum=4e0, name='sigma_2', latex_label='$\\sigma_2$')

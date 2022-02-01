@@ -1,4 +1,5 @@
 [![Python package](https://github.com/ColmTalbot/gwpopulation/actions/workflows/python-package.yml/badge.svg)](https://github.com/ColmTalbot/gwpopulation/actions/workflows/python-package.yml)
+[![GitHub Pages](https://github.com/ColmTalbot/gwpopulation/actions/workflows/pages.yml/badge.svg)](https://github.com/ColmTalbot/gwpopulation/actions/workflows/pages.yml)
 [![codecov](https://codecov.io/gh/ColmTalbot/gwpopulation/branch/master/graph/badge.svg?token=4K4V0HRDMI)](https://codecov.io/gh/ColmTalbot/gwpopulation)
 [![Maintainability](https://api.codeclimate.com/v1/badges/579536603e8e06466e63/maintainability)](https://codeclimate.com/github/ColmTalbot/gwpopulation/maintainability)
 [![Versions](https://img.shields.io/pypi/pyversions/gwpopulation.svg)](https://pypi.org/project/gwpopulation/)
@@ -12,6 +13,8 @@ These are formatted to be consistent with the [Bilby](https://git.ligo.org/lscso
 For an example using this code to analyse the first gravitational-wave transient catalog (GWTC-1) see [here](https://colab.research.google.com/github/ColmTalbot/gwpopulation/blob/master/examples/GWTC1.ipynb).
 
 Automatically generated docs can be found [here](https://colmtalbot.github.io/gwpopulation/).
+
+If you're using this for production analyses, you may be interested in the associated pipeline code [gwpopulation_pipe](https://docs.ligo.org/RatesAndPopulations/gwpopulation_pipe/).
 
 # Attribution
 
@@ -43,6 +46,3 @@ Most of the models implemented are derived from models presented in one of:
 - [Talbot & Thrane (2018)](https://arxiv.org/abs/1801.02699)
 - [Wysocki et al. (2018)](https://arxiv.org/abs/1805.06442)
 - [Fishbach et al. (2019)](https://arxiv.org/abs/1805.10270)
-
-As of v0.5.0 `GWPopulation` supports only `python >= 3.6`.
-See [the python 3 statement](https://python3statement.org/) for more information.

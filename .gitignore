@@ -1,4 +1,5 @@
 *.ignore
+gwpopulation.egg-info
 build/*
 outdir/*
 logs/*

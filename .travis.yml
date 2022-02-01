@@ -12,8 +12,7 @@
 language: python
 
 python:
-  - "3.6"
-  - "3.7"
+  - "3.9"
 
 cache: pip
 
@@ -24,14 +23,7 @@ before_install:
 install:
   - pip install --upgrade -r requirements.txt
   - pip install -r pages_requirements.txt
-  - pip install "coverage<4.4" "pytest-cov<2.5" codeclimate-test-reporter
   - pip install .
-
-script:
-  
-  - export PYTHONPATH='.' 
-  - pytest --cov=gwpopulation
-  - codeclimate-test-reporter --file .coverage
 
 before_deploy:
   - cd docs
@@ -50,4 +42,4 @@ deploy:
   keep-history: true
   on:
     branch: master
-    python: "3.7"
+    python: "3.9"

@@ -14,6 +14,8 @@ For an example using this code to analyse the first gravitational-wave transient
 
 Automatically generated docs can be found [here](https://colmtalbot.github.io/gwpopulation/).
 
+If you're using this for production analyses, you may be interested in the associated pipeline code [gwpopulation_pipe](https://docs.ligo.org/RatesAndPopulations/gwpopulation_pipe/).
+
 # Attribution
 
 Please cite [Talbot _et al_ (2019)](https://doi.org/10.1103/PhysRevD.100.043030) if you find this package useful.
@@ -44,6 +46,3 @@ Most of the models implemented are derived from models presented in one of:
 - [Talbot & Thrane (2018)](https://arxiv.org/abs/1801.02699)
 - [Wysocki et al. (2018)](https://arxiv.org/abs/1805.06442)
 - [Fishbach et al. (2019)](https://arxiv.org/abs/1805.10270)
-
-As of v0.5.0 `GWPopulation` supports only `python >= 3.6`.
-See [the python 3 statement](https://python3statement.org/) for more information.

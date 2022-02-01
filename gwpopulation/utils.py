@@ -111,20 +111,20 @@ def truncnorm(xx, mu, sigma, high, low):
     """
     if sigma <= 0:
         raise ValueError(f"Sigma must be greater than 0, sigma={sigma}")
-    norm = 2 ** 0.5 / xp.pi ** 0.5 / sigma
-    norm /= erf((high - mu) / 2 ** 0.5 / sigma) + erf((mu - low) / 2 ** 0.5 / sigma)
-    prob = xp.exp(-xp.power(xx - mu, 2) / (2 * sigma ** 2))
+    norm = 2**0.5 / xp.pi**0.5 / sigma
+    norm /= erf((high - mu) / 2**0.5 / sigma) + erf((mu - low) / 2**0.5 / sigma)
+    prob = xp.exp(-xp.power(xx - mu, 2) / (2 * sigma**2))
     prob *= norm
     prob *= (xx <= high) & (xx >= low)
     return prob
 
 
 def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
-    determinant = sigma_x ** 2 * sigma_y ** 2 * (1 - covariance)
+    determinant = sigma_x**2 * sigma_y**2 * (1 - covariance)
     residual_x = (mu_x - xx) * sigma_x
     residual_y = (mu_y - yy) * sigma_y
     prob = xp.exp(
-        -(residual_x ** 2 + residual_y ** 2 - 2 * residual_x * residual_y * covariance)
+        -(residual_x**2 + residual_y**2 - 2 * residual_x * residual_y * covariance)
         / 2
         / determinant
     )

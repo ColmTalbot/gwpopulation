@@ -92,7 +92,7 @@ def double_power_law_peak_primary_mass(
     mpp: float
         Mean of the Gaussian component (:math:`\mu_m`).
     sigpp: float
-        Standard deviation fo the Gaussian component (:math:`\sigma_m`).
+        Standard deviation of the Gaussian component (:math:`\sigma_m`).
     gaussian_mass_maximum: float, optional
         Upper truncation limit of the Gaussian component. (default: 100)
     """
@@ -371,7 +371,7 @@ def two_component_primary_mass_ratio(
     mpp: float
         Mean of the Gaussian component.
     sigpp: float
-        Standard deviation fo the Gaussian component.
+        Standard deviation of the Gaussian component.
     gaussian_mass_maximum: float, optional
         Upper truncation limit of the Gaussian component. (default: 100)
     """
@@ -416,7 +416,7 @@ def two_component_primary_secondary_independent(
     mpp: float
         Mean of the Gaussian component.
     sigpp: float
-        Standard deviation fo the Gaussian component.
+        Standard deviation of the Gaussian component.
     gaussian_mass_maximum: float, optional
         Upper truncation limit of the Gaussian component. (default: 100)
     """
@@ -460,7 +460,7 @@ def two_component_primary_secondary_identical(
     mpp: float
         Mean of the Gaussian component.
     sigpp: float
-        Standard deviation fo the Gaussian component.
+        Standard deviation of the Gaussian component.
     gaussian_mass_maximum: float, optional
         Upper truncation limit of the Gaussian component. (default: 100)
     """
@@ -579,7 +579,7 @@ class BaseSmoothedMassDistribution(object):
         Cache the information necessary for linear interpolation of the mass
         ratio normalisation
         """
-        self.n_below = xp.zeros_like(masses, dtype=xp.int) - 1
+        self.n_below = xp.zeros_like(masses, dtype=int) - 1
         m_below = xp.zeros_like(masses)
         for mm in self.m1s:
             self.n_below += masses > mm
@@ -648,7 +648,7 @@ class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
         mpp: float
             Mean of the Gaussian component.
         sigpp: float
-            Standard deviation fo the Gaussian component.
+            Standard deviation of the Gaussian component.
         delta_m: float
             Rise length of the low end of the mass distribution.
 
@@ -783,7 +783,7 @@ class BrokenPowerLawSmoothedMassDistribution(BaseSmoothedMassDistribution):
         mpp: float
             Mean of the Gaussian component.
         sigpp: float
-            Standard deviation fo the Gaussian component.
+            Standard deviation of the Gaussian component.
         delta_m: float
             Rise length of the low end of the mass distribution.
         """
@@ -842,7 +842,7 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
         mpp: float
             Mean of the Gaussian component.
         sigpp: float
-            Standard deviation fo the Gaussian component.
+            Standard deviation of the Gaussian component.
         delta_m: float
             Rise length of the low end of the mass distribution.
 

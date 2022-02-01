@@ -2,8 +2,6 @@
 Implemented redshift models
 """
 
-from warnings import warn
-
 from astropy.cosmology import Planck15
 import numpy as np
 
@@ -88,19 +86,6 @@ class _Redshift(object):
             self._cache_dvc_dz(dataset["redshift"])
             differential_volume *= self.cached_dvc_dz
         return differential_volume
-
-    def total_spacetime_volume(self, **parameters):
-        f"""
-        Deprecated use normalisation instead.
-
-        {_Redshift.normalisation.__doc__}
-        """
-        warn(
-            "The total spacetime volume method is deprecated, "
-            "use normalisation instead.",
-            DeprecationWarning,
-        )
-        return self.normalisation(parameters=parameters)
 
 
 class PowerLawRedshift(_Redshift):

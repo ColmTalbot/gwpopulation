@@ -15,7 +15,7 @@ from bilby.hyper.model import Model
 
 from .cupy_utils import CUPY_LOADED, to_numpy, xp
 
-INF = xp.nan_to_num(xp.inf)
+INF = np.nan_to_num(np.inf)
 
 
 class HyperparameterLikelihood(Likelihood):
@@ -110,7 +110,7 @@ class HyperparameterLikelihood(Likelihood):
             for key in added_keys:
                 self.parameters.pop(key)
         if xp.isnan(ln_l):
-            return float(-INF)
+            return -INF
         else:
             return float(xp.nan_to_num(ln_l))
 

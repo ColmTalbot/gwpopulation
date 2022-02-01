@@ -44,7 +44,7 @@ def write_version_file(version):
 
 
 def get_long_description():
-    """ Finds the README and reads in the description """
+    """Finds the README and reads in the description"""
     here = os.path.abspath(os.path.dirname(__file__))
     with open(os.path.join(here, "README.md")) as f:
         long_description = f.read()
@@ -69,7 +69,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ColmTalbot/gwpopulation",
     author="Colm Talbot",
-    author_email="colm.talbot@monash.edu",
+    author_email="talbotcolm@gmail.com",
     license="MIT",
     version=VERSION,
     packages=find_packages(exclude=["test", "venv", "priors"]),
@@ -77,11 +77,10 @@ setup(
     package_data={"gwpopulation": [version_file]},
     install_requires=["future", "numpy", "scipy", "astropy", "bilby"],
     classifiers=[
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.8",
 )

@@ -54,9 +54,9 @@ source_suffix = [".txt", ".ipynb", ".rst"]
 master_doc = "index"
 
 # General information about the project.
-project = u"GWPopulation"
-copyright = u"2021, Colm Talbot"
-author = u"Colm Talbot"
+project = "GWPopulation"
+copyright = "2021, Colm Talbot"
+author = "Colm Talbot"
 
 
 # The version info for the project you're documenting, acts as replacement for
@@ -153,8 +153,8 @@ latex_documents = [
     (
         master_doc,
         "gwpopulation.tex",
-        u"GWPopulation Documentation",
-        u"Colm Talbot",
+        "GWPopulation Documentation",
+        "Colm Talbot",
         "manual",
     ),
 ]
@@ -164,7 +164,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "GWPopulation", u"GWPopulation Documentation", [author], 1)]
+man_pages = [(master_doc, "GWPopulation", "GWPopulation Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -176,7 +176,7 @@ texinfo_documents = [
     (
         master_doc,
         "GWPopulation",
-        u"GWPopulation Documentation",
+        "GWPopulation Documentation",
         author,
         "Colm Talbot",
         "Population models for gravitational waves.",

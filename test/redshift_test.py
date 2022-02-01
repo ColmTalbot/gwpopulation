@@ -46,10 +46,7 @@ class TestRedshift(unittest.TestCase):
             Planck15.differential_comoving_volume(self.zs).value * 4 * np.pi,
             self.zs,
         )
-        self.assertEqual(
-            total_volume,
-            model.total_spacetime_volume(**parameters),
-        )
+        self.assertEqual(total_volume, model.normalisation(parameters))
 
     def test_zero_outside_domain(self):
         model = redshift.PowerLawRedshift(z_max=1)

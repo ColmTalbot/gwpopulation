@@ -4,12 +4,12 @@ Helper functions for missing functionality in cupy.
 
 try:
     import cupy as xp
-    from cupyx.scipy.special import erf, gammaln
+    from cupyx.scipy.special import erf, gammaln  # noqa
 
     CUPY_LOADED = True
 except ImportError:
     import numpy as xp
-    from scipy.special import erf, gammaln
+    from scipy.special import erf, gammaln  # noqa
 
     CUPY_LOADED = False
 
@@ -106,9 +106,9 @@ def trapz(y, x=None, dx=1.0, axis=-1):
             d = d.reshape(shape)
         else:
             d = xp.diff(x, axis=axis)
-    nd = y.ndim
-    slice1 = [slice(None)] * nd
-    slice2 = [slice(None)] * nd
+    ndim = y.ndim
+    slice1 = [slice(None)] * ndim
+    slice2 = [slice(None)] * ndim
     slice1[axis] = slice(1, None)
     slice2[axis] = slice(None, -1)
     product = d * (y[tuple(slice1)] + y[tuple(slice2)]) / 2.0

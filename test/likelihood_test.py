@@ -91,6 +91,12 @@ class Likelihoods(unittest.TestCase):
         like.parameters.update(self.params)
         self.assertEqual(like.log_likelihood_ratio(), 0.0)
 
+    def test_hpe_likelihood_converts_nan_to_neginf(self):
+        like = HyperparameterLikelihood(posteriors=self.data, hyper_prior=self.model)
+        like._get_selection_factor = lambda *args, **kwargs: np.nan
+        like.parameters.update(self.params)
+        self.assertEqual(like.log_likelihood_ratio(), np.nan_to_num(-np.inf))
+
     def test_hpe_likelihood_noise_likelihood_ratio(self):
         like = HyperparameterLikelihood(
             posteriors=self.data,

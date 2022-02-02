@@ -35,7 +35,7 @@ jobs:
         run: |
           conda install --file requirements.txt
           conda install --file pages_requirements.txt
-          conda install .
+          python -m pip install .
 
       - name: Build documentation
         run: |

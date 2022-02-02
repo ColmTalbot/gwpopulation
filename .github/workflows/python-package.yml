@@ -45,7 +45,7 @@ jobs:
         conda install jupyter
     - name: Install gwpopulation
       run: |
-        conda install .
+        python -m pip install .
     - name: Run pre-commit checks
       run: |
         pre-commit run --all-files --verbose --show-diff-on-failure

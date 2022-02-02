@@ -49,8 +49,8 @@ jobs:
     - name: Run pre-commit checks
       run: |
         pre-commit run --all-files --verbose --show-diff-on-failure
-        jupyter nbconvert --clear-output --inplace **.ipynb
-        codespell **.ipynb -L "hist"
+        jupyter nbconvert --clear-output --inplace examples/*.ipynb
+        codespell examples/*.ipynb -L "hist"
         git reset --hard
     - name: List installed
       run: |

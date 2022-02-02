@@ -1,6 +1,0 @@
-gwpopulation.cupy\_utils.betaln
-===============================
-
-.. currentmodule:: gwpopulation.cupy_utils
-
-.. autofunction:: betaln

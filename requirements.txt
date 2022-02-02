@@ -1,6 +1,0 @@
-numpy>=1.16
-scipy
-pandas
-tqdm
-astropy
-bilby

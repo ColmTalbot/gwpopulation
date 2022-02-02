@@ -1,6 +1,0 @@
-gwpopulation.models.spin.iid\_spin\_magnitude\_beta
-===================================================
-
-.. currentmodule:: gwpopulation.models.spin
-
-.. autofunction:: iid_spin_magnitude_beta

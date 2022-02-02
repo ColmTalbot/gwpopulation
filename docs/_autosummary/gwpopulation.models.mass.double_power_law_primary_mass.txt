@@ -1,6 +1,0 @@
-gwpopulation.models.mass.double\_power\_law\_primary\_mass
-==========================================================
-
-.. currentmodule:: gwpopulation.models.mass
-
-.. autofunction:: double_power_law_primary_mass

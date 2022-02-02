@@ -1,6 +1,0 @@
-gwpopulation.conversions.convert\_to\_beta\_parameters
-======================================================
-
-.. currentmodule:: gwpopulation.conversions
-
-.. autofunction:: convert_to_beta_parameters

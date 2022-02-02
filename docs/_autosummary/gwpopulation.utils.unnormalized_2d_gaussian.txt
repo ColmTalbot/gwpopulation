@@ -1,6 +1,0 @@
-gwpopulation.utils.unnormalized\_2d\_gaussian
-=============================================
-
-.. currentmodule:: gwpopulation.utils
-
-.. autofunction:: unnormalized_2d_gaussian

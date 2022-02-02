@@ -1,6 +1,0 @@
-gwpopulation.utils.truncnorm
-============================
-
-.. currentmodule:: gwpopulation.utils
-
-.. autofunction:: truncnorm

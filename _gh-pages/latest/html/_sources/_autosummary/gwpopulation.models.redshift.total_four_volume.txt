@@ -1,6 +1,0 @@
-gwpopulation.models.redshift.total\_four\_volume
-================================================
-
-.. currentmodule:: gwpopulation.models.redshift
-
-.. autofunction:: total_four_volume

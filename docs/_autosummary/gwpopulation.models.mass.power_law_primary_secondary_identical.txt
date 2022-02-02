@@ -1,6 +1,0 @@
-gwpopulation.models.mass.power\_law\_primary\_secondary\_identical
-==================================================================
-
-.. currentmodule:: gwpopulation.models.mass
-
-.. autofunction:: power_law_primary_secondary_identical

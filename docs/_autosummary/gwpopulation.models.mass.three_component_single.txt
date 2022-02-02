@@ -1,6 +1,0 @@
-gwpopulation.models.mass.three\_component\_single
-=================================================
-
-.. currentmodule:: gwpopulation.models.mass
-
-.. autofunction:: three_component_single

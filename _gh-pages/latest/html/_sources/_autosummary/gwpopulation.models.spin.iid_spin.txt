@@ -1,6 +1,0 @@
-gwpopulation.models.spin.iid\_spin
-==================================
-
-.. currentmodule:: gwpopulation.models.spin
-
-.. autofunction:: iid_spin

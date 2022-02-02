@@ -1,6 +1,0 @@
-gwpopulation.models.mass.power\_law\_primary\_mass\_ratio
-=========================================================
-
-.. currentmodule:: gwpopulation.models.mass
-
-.. autofunction:: power_law_primary_mass_ratio

@@ -32,17 +32,21 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip setuptools
-        python -m pip install flake8 pytest-cov
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        conda install flake8 pytest-cov
+        conda install --file requirements.txt
+        conda install pre-commit
+        conda install jupyter
     - name: Install gwpopulation
       run: |
-        python -m pip install .
+        conda install .
     - name: Run pre-commit checks
       run: |
-        python -m pip install pre-commit
         pre-commit run --all-files --verbose --show-diff-on-failure
         jupyter nbconvert --clear-output --inplace **.ipynb
         codespell **.ipynb -L "hist"

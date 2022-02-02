@@ -24,6 +24,9 @@ class HyperparameterLikelihood(Likelihood):
 
     See Eq. (34) of https://arxiv.org/abs/1809.02293 for a definition.
 
+    For the uncertainty calculation see the Appendix of 
+    `Golomb and Talbot <https://arxiv.org/abs/2106.15745>`_ and 
+    `Farr <https://arxiv.org/abs/1904.10879>`_.
     """
 
     def __init__(
@@ -355,10 +358,10 @@ class RateLikelihood(HyperparameterLikelihood):
 
     def _get_selection_factor(self, return_uncertainty=True):
         selection, variance = self._selection_function_with_uncertainty()
-        ln_l = -selection * self.parameters["rate"]
-        ln_l += self.n_posteriors * xp.log(self.parameters["rate"])
+        n_expected = selection * self.parameters["rate"]
+        ln_l = -n_expected + self.n_posteriors * xp.log(self.parameters["rate"])
         if return_uncertainty:
-            return ln_l, self.n_posteriors * variance
+            return ln_l, n_expected * variance
         else:
             return ln_l
 

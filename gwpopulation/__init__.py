@@ -14,8 +14,8 @@ This includes:
 
 The code is hosted at `<www.github.com/ColmTalbot/gwpopulation>`_.
 """
-from .hyperpe import RateLikelihood
 from . import conversions, cupy_utils, hyperpe, models, utils, vt
+from .hyperpe import RateLikelihood
 
 __version__ = utils.get_version_information()
 

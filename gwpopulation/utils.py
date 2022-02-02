@@ -4,7 +4,7 @@ Helper functions for probability distributions.
 
 import os
 
-from .cupy_utils import erf, betaln, xp
+from .cupy_utils import betaln, erf, xp
 
 
 def beta_dist(xx, alpha, beta, scale=1):

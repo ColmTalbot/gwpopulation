@@ -57,10 +57,13 @@ jobs:
           make html
           cd ../
           touch _gh-pages/latest/html/.nojekyll
+          ls
+          ls *
+          ls */*
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: _gh_pages/latest/html/
+          publish_dir: _gh_pages/latest/html

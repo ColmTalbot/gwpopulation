@@ -63,4 +63,4 @@ jobs:
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: _gh_pages/latest/
+          publish_dir: _gh_pages/latest/html/

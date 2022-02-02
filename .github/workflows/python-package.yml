@@ -41,20 +41,21 @@ jobs:
       run: |
         conda install flake8 pytest-cov
         conda install --file requirements.txt
-        conda install pre-commit
+        conda install pre-commit codespell
         conda install jupyter
+        pre-commit install
     - name: Install gwpopulation
       run: |
         python -m pip install .
+    - name: List installed
+      run: |
+        python -m pip list
     - name: Run pre-commit checks
       run: |
         pre-commit run --all-files --verbose --show-diff-on-failure
         jupyter nbconvert --clear-output --inplace examples/*.ipynb
         codespell examples/*.ipynb -L "hist"
         git reset --hard
-    - name: List installed
-      run: |
-        python -m pip list
     - name: Test with pytest
       run: |
         pytest --cov gwpopulation -ra --color yes --cov-report=xml --junitxml=pytest.xml

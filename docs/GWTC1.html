@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>&lt;no title&gt; &mdash; GWPopulation 0.7.0 documentation</title>
+  <title>Population Inference on GWTC-1 &mdash; GWPopulation 0.7.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -16,6 +15,8 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -49,6 +50,33 @@
 <li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.utils.html">gwpopulation.utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_autosummary/gwpopulation.vt.html">gwpopulation.vt</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Population Inference on GWTC-1</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Install-some-packages">Install some packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Get-the-data">Get the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Imports">Imports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Load-posteriors">Load posteriors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Add-some-weights-to-posterior">Add some weights to posterior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Specify-the-model">Specify the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Selection-effects">Selection effects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-the-likelihood">Define the likelihood</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-the-prior">Define the prior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Run-the-sampler">Run the sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-a-new-model">Define a new model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Let’s-define-a-new-population-model-for-BNS.">Let’s define a new population model for BNS.</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Load-GW170817-posterior">Load GW170817 posterior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-the-new-likelihood">Define the new likelihood</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-the-new-prior">Define the new prior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Do-it-all">Do it all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Update-sampling-prior">Update sampling prior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Likelihood">Likelihood</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Prior">Prior</a></li>
+</ul>
+</li>
+</ul>
 
         </div>
       </div>
@@ -64,7 +92,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>&lt;no title&gt;</li>
+      <li>Population Inference on GWTC-1</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/GWTC1.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -76,6 +104,252 @@
              
   
 <style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
 /* CSS overrides for sphinx_rtd_theme */
 
 /* 24px margin */
@@ -98,1145 +372,818 @@
     text-align: unset;
 }
 </style>
-<dl>
-<dt>{</dt><dd><p>“nbformat”: 4,
-“nbformat_minor”: 0,
-“metadata”: {</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“colab”: {</dt><dd><p>“name”: “GWTC1.ipynb”,
-“version”: “0.3.2”,
-“provenance”: [],
-“collapsed_sections”: [],
-“include_colab_link”: true</p>
-</dd>
-</dl>
-<p>},
-“kernelspec”: {</p>
-<blockquote>
-<div><p>“name”: “python3”,
-“display_name”: “Python 3”</p>
-</div></blockquote>
-<p>},
-“accelerator”: “GPU”,
-“pycharm”: {</p>
-<blockquote>
-<div><dl>
-<dt>“stem_cell”: {</dt><dd><p>“cell_type”: “raw”,
-“source”: [],
-“metadata”: {</p>
-<blockquote>
-<div><p>“collapsed”: false</p>
-</div></blockquote>
-<p>}</p>
-</dd>
-</dl>
-<p>}</p>
-</div></blockquote>
-<p>}</p>
-</div></blockquote>
-<p>},
-“cells”: [</p>
-<blockquote>
-<div><dl>
-<dt>{</dt><dd><p>“cell_type”: “markdown”,
-“metadata”: {</p>
-<blockquote>
-<div><p>“id”: “view-in-github”,
-“colab_type”: “text”</p>
-</div></blockquote>
-<p>},
-“source”: [</p>
-<blockquote>
-<div><p>“[![Open in Colab](<a class="reference external" href="https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ColmTalbot/gwpopulation/blob/master/examples/GWTC1.ipynb">https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ColmTalbot/gwpopulation/blob/master/examples/GWTC1.ipynb</a>)”</p>
-</div></blockquote>
-<p>]</p>
-</dd>
-</dl>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “kiawJMuzaMqA”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“n”,
-“# Population Inference on GWTC-1n”,
-“n”,
-“The first gravitational-wave transient catalog [&quot;GWTC-1&quot;](<a class="reference external" href="https://arxiv.org/abs/1811.12907">https://arxiv.org/abs/1811.12907</a>) includes all compact binary coalescences observed during Advanced LIGO/Virgo’s first and second observing runs.n”,
-“n”,
-“<cite>GWPopulation</cite> builds upon [bilby](git.ligo.org/lscsoft/bilby) ([arXiv:1811.02042](https://arxiv.org/abs/1811.02042)) to provide simple, modular, user-friendly, population inference.n”,
-“n”,
-“Currently implemented models include:n”,
-“n”,
-“- One and two component mass distributions in primary mass and mass ratio, e.g., Talbot &amp; Thrane (2018) ([arXiv:1801:02699](https://arxiv.org/abs/1801.02699)), Fishbach &amp; Holz (2018) ([arXiv:1709.08584](https://arxiv.org/abs/1709.08584)).n”,
-“- The same mass distributions but independent but identically distributed primary and secondary.n”,
-“- Half-Gaussian + isotropic spin tilt distribution from Talbot &amp; Thrane (2017) ([arXiv:1704.08370](https://arxiv.org/abs/1704.08370)).n”,
-“- Beta spin magnitude distribution from Wysocki+ (2018) ([arXiv:1805:06442](https://arxiv.org/abs/1805.06442)).n”,
-“- Each of these are also available with independent but identically distributed spins.n”,
-“- Redshift evolution model as in Fishbach+ (2018) ([arXiv:1805.10270](https://arxiv.org/abs/1805.10270)).n”,
-“- More to come and any contributions welcome…n”,
-“n”,
-“For more information see the [git repository](https://github.com/ColmTalbot/gwpopulation), [documentation](https://colmtalbot.github.io/gwpopulation/).n”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “U6RH_xfNbBb3”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Install some packagesn”,
-“n”,
-“- <cite>gwpopulation</cite> has the population model code.n”,
-“- <cite>cupy</cite> allows use to leverage the GPU.n”,
-“n”,
-“If you’re using colab.research.google.com you will want to choose a GPU-accelerated runtime.n”,
-“n”,
-“&quot;runtime&quot;-&gt;&quot;change runtime type&quot;-&gt;&quot;Hardware accelerator = GPU&quot;”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “WT13XqcsZoie”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“!pip install gwpopulation”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “1tjorhzLaoU2”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“!pip install cupy”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “rxjmzikYa0bb”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Get the datan”,
-“n”,
-“Pull the posterior samples for each of the events from the LIGO dcc.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “GXZpNd3cZ3hF”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“!wget <a class="reference external" href="https://dcc.ligo.org/public/0157/P1800370/002/GWTC-1_sample_release.tar.gzn">https://dcc.ligo.org/public/0157/P1800370/002/GWTC-1_sample_release.tar.gzn</a>”,
-“!tar -xvzf GWTC-1_sample_release.tar.gz”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “NLEgW_zrbNPw”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Importsn”,
-“n”,
-“Import the packages required for the script.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “7zJiHR7rayRR”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“%pylab inlinen”,
-“n”,
-“import h5pyn”,
-“n”,
-“import pandas as pdn”,
-“from scipy.interpolate import interp1dn”,
-“from astropy import cosmology, unitsn”,
-“n”,
-“import bilby as bbn”,
-“from bilby.core.prior import LogUniform, PriorDict, Uniformn”,
-“from bilby.hyper.model import Modeln”,
-“import gwpopulation as gwpopn”,
-“n”,
-“xp = gwpop.cupy_utils.xp”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “hm3_uaQRbXmS”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Load posteriorsn”,
-“n”,
-“We’re using the posteriors from the GWTC-1 data release.n”,
-“n”,
-“We need to change the names of the parameters to make them work with the code.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “BojmLvpxbYwM”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“parameter_translator = dict(n”,
-”    mass_1_det=&quot;m1_detector_frame_Msun&quot;,n”,
-”    mass_2_det=&quot;m2_detector_frame_Msun&quot;,n”,
-”    luminosity_distance=&quot;luminosity_distance_Mpc&quot;,n”,
-”    a_1=&quot;spin1&quot;,n”,
-”    a_2=&quot;spin2&quot;,n”,
-”    cos_tilt_1=&quot;costilt1&quot;,n”,
-”    cos_tilt_2=&quot;costilt2&quot;,n”,
-“)n”,
-“n”,
-“posteriors = list()n”,
-“priors = list()n”,
-“n”,
-“file_str = &quot;./GWTC-1_sample_release/GW{}_GWTC-1.hdf5&quot;n”,
-“n”,
-“events = [n”,
-”    &quot;150914&quot;,n”,
-”    &quot;151012&quot;,n”,
-”    &quot;151226&quot;,n”,
-”    &quot;170104&quot;,n”,
-”    &quot;170608&quot;,n”,
-”    &quot;170729&quot;,n”,
-”    &quot;170809&quot;,n”,
-”    &quot;170814&quot;,n”,
-”    &quot;170818&quot;,n”,
-”    &quot;170823&quot;,n”,
-“]n”,
-“for event in events:n”,
-”    _posterior = pd.DataFrame()n”,
-”    _prior = pd.DataFrame()n”,
-”    with h5py.File(file_str.format(event)) as ff:n”,
-”        for my_key, gwtc_key in parameter_translator.items():n”,
-”            _posterior[my_key] = ff[&quot;IMRPhenomPv2_posterior&quot;][gwtc_key]n”,
-”            _prior[my_key] = ff[&quot;prior&quot;][gwtc_key]n”,
-”    posteriors.append(_posterior)n”,
-”    priors.append(_prior)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “ol2czCPkblx6”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“luminosity_distances = np.linspace(1, 10000, 1000)n”,
-“redshifts = np.array(n”,
-”    [n”,
-”        cosmology.z_at_value(cosmology.Planck15.luminosity_distance, dl * units.Mpc)n”,
-”        for dl in luminosity_distancesn”,
-”    ]n”,
-“)n”,
-“dl_to_z = interp1d(luminosity_distances, redshifts)n”,
-“n”,
-“luminosity_prior = luminosity_distances**2n”,
-“n”,
-“dz_ddl = np.gradient(redshifts, luminosity_distances)n”,
-“n”,
-“redshift_prior = interp1d(redshifts, luminosity_prior / dz_ddl / (1 + redshifts))”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “9zlAGxTxRUIn”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Add some weights to posteriorn”,
-“n”,
-“Make sure the posterior <cite>DataFrames</cite> contain the appropriate quantities.n”,
-“n”,
-“We could include a <cite>prior</cite> column, this is the prior used in the initial sampling stage.n”,
-“This is used to weight the samples in the likelihood.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “hTqr-NvTbn4c”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“for posterior in posteriors:n”,
-”    posterior[&quot;redshift&quot;] = dl_to_z(posterior[&quot;luminosity_distance&quot;])n”,
-”    posterior[&quot;mass_1&quot;] = posterior[&quot;mass_1_det&quot;] / (1 + posterior[&quot;redshift&quot;])n”,
-”    posterior[&quot;mass_2&quot;] = posterior[&quot;mass_2_det&quot;] / (1 + posterior[&quot;redshift&quot;])n”,
-”    posterior[&quot;mass_ratio&quot;] = posterior[&quot;mass_2&quot;] / posterior[&quot;mass_1&quot;]”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “Bx1xdvjubhmA”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Specify the modeln”,
-“n”,
-“Choose which population models we want to use. n”,
-“n”,
-“For the mass distribution we use n”,
-“n”,
-“<cite>gwpopulation.models.mass.two_component_primary_mass_ratio</cite>.n”,
-“n”,
-“This is a powerlaw + Gaussian mass distribution with powerlaw mass ratio distribution.n”,
-“n”,
-“For spins we usen”,
-“n”,
-“<cite>gwpopulation.models.spin.iid_spin</cite>n”,
-“n”,
-“Where the spins of the two black holes are independently and identically distributed with a beta distribution for the magnitude and an isotropic + half-Gaussian for the cosine tilts.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “rHspMjv-bpyZ”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“model = Model([gwpop.models.mass.two_component_primary_mass_ratio])”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “7NwQL52xbrxr”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Selection effectsn”,
-“n”,
-“Gravitational-wave surveys suffer from Malmquist bias.n”,
-“n”,
-“In order to measure the true, astrophysical, distribution we must include a term to account for this in our population analyses.n”,
-“n”,
-“The way the likelihood is structured, this can be any object that evaluates to give the observed spactime volume as a function of the population parameters.n”,
-“n”,
-“We define classes so that various bits of metadata can be stored.n”,
-“n”,
-“The data for calculating this is not easily available.n”,
-“We use a very rough toy model to get the general scaling for the primary mass, $VT(m) \sim m^{1.6}$.n”,
-“This value was chosen to get a decent agreement with the more complex model.n”,
-“n”,
-“<strong>I do not recommend using this toy function for science.</strong>”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “wmgJOa57bttM”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“masses = xp.linspace(3, 100, 1000)n”,
-“vts = masses**1.6n”,
-“n”,
-“n”,
-“def toy_vt_calculator(kwargs):n”,
-”    params = {n”,
-”        key: kwargs[key] for key in [&quot;alpha&quot;, &quot;mmin&quot;, &quot;mmax&quot;, &quot;lam&quot;, &quot;mpp&quot;, &quot;sigpp&quot;]n”,
-”    }n”,
-”    p_m = gwpop.models.mass.two_component_single(masses, <a href="#id1"><span class="problematic" id="id2">**</span></a>params)n”,
-”    return gwpop.cupy_utils.trapz(p_m * vts, masses)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “LsHr0RCCb18B”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Define the likelihoodn”,
-“n”,
-“The <cite>HyperparameterLikelihood</cite> marginalises over the local merger rate, with a uniform-in-log prior.n”,
-“n”,
-“To also estimate the rate use the <cite>RateLikelilhood</cite> (see further on in the notebook).n”,
-“n”,
-“We provide:n”,
-“- <cite>posteriors</cite>: a list of <cite>pandas</cite> DataFramesn”,
-“- <cite>hyper_prior</cite>: our population model, as defined aboven”,
-“- <cite>selection_function</cite>: anything which evaluates the selection functionn”,
-“n”,
-“We can also provide:n”,
-“- <cite>conversion_function</cite>: this converts between the parameters we sample in and those needed by the model, e.g., for sampling in the mean and variance of the beta distributionn”,
-“- <cite>max_samples</cite>: the maximum number of samples to use from each posterior, this defaults to the length of the shortest posteriorn”,
-“n”,
-“We may get a warning telling us <cite>cupy</cite> is not available and so <cite>numpy</cite> is for the likelihood evaluation.n”,
-“This will go away if you have a GPU and <cite>cupy</cite> installed.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “0NhriPjTbzT7”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“fast_likelihood = gwpop.hyperpe.HyperparameterLikelihood(n”,
-”    posteriors=posteriors, hyper_prior=model, selection_function=toy_vt_calculatorn”,
-“)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “6HuGzAh1b7FQ”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Define the priorn”,
-“n”,
-“This is the standard method to define the prior distribution within <cite>bilby</cite>.n”,
-“n”,
-“The labels are used in plotting.n”,
-“n”,
-“Numbers are converted to delta function priors and are not sampled.n”,
-“n”,
-“There are many other distributions available, see the code/documentation for a full list.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “7pD90QeEb9aV”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“fast_priors = PriorDict()n”,
-“n”,
-“# massn”,
-“fast_priors[&quot;alpha&quot;] = Uniform(minimum=-2, maximum=4, latex_label=&quot;$\\alpha$&quot;)n”,
-“fast_priors[&quot;beta&quot;] = Uniform(minimum=-4, maximum=12, latex_label=&quot;$\\beta$&quot;)n”,
-“fast_priors[&quot;mmin&quot;] = Uniform(minimum=5, maximum=10, latex_label=&quot;$m_{\\min}$&quot;)n”,
-“fast_priors[&quot;mmax&quot;] = Uniform(minimum=20, maximum=60, latex_label=&quot;$m_{\\max}$&quot;)n”,
-“fast_priors[&quot;lam&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\lambda_{m}$&quot;)n”,
-“fast_priors[&quot;mpp&quot;] = Uniform(minimum=10, maximum=50, latex_label=&quot;$\\mu_{m}$&quot;)n”,
-“fast_priors[&quot;sigpp&quot;] = Uniform(minimum=0, maximum=10, latex_label=&quot;$\\sigma_{m}$&quot;)n”,
-“# spinn”,
-“fast_priors[&quot;amax&quot;] = 1n”,
-“fast_priors[&quot;alpha_chi&quot;] = Uniform(n”,
-”    minimum=-4, maximum=12, latex_label=&quot;$\\alpha_{\\chi}$&quot;n”,
-“)n”,
-“fast_priors[&quot;beta_chi&quot;] = Uniform(n”,
-”    minimum=-4, maximum=12, latex_label=&quot;$\\beta_{\\chi}$&quot;n”,
-“)n”,
-“fast_priors[&quot;xi_spin&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\xi$&quot;)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “hOXy6gHmcAVf”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Run the samplern”,
-“n”,
-“We’ll use the sampler <cite>dynesty</cite> and use a small number of live points to reduce the runtime.n”,
-“n”,
-“This is painfully slow without using the GPU version.n”,
-“If you have a GPU it will just work.n”,
-“n”,
-“Other samplers are available, <cite>cpnest</cite> gave the best results for the O1+O2 data, however it isn’t currently compatible with the GPU likelihood.n”,
-“n”,
-“<cite>bilby</cite> times a single likelihood evaluation before beginning the runn”,
-“n”,
-“We do a call before running to sampler as <cite>cupy</cite> compiles kernels the first time they are evaluated and so the estimate of the evaluation time would be off.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “EFGmgznvcC4s”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“fast_likelihood.parameters.update(fast_priors.sample())n”,
-“fast_likelihood.log_likelihood_ratio()n”,
-“n”,
-“fast_result = bb.run_sampler(n”,
-”    likelihood=fast_likelihood,n”,
-”    priors=fast_priors,n”,
-”    sampler=&quot;dynesty&quot;,n”,
-”    nlive=100,n”,
-”    label=&quot;fast&quot;,n”,
-“)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “vSrM3Dy1zsKL”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“fast_result.plot_corner(save=False)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “hBfS17v47-zu”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Define a new modeln”,
-“n”,
-“### Let’s define a new population model for BNS. n”,
-“n”,
-“Just as an example we’ll use a Gaussian distribution bounded between $[1 M_{\odot}, 2 M_{\odot}]$.n”,
-“n”,
-“$$p(m_1, m_2) = N \exp \left(- \frac{\left((m_1 - \mu)^2 + (m_2 - \mu)^2\right)}{2 \sigma^2}\right) \quad : \quad 1 \leq m_2 \leq m_1 \leq 2$$n”,
-“n”,
-“We see that this function takes three arguments:n”,
-“- <cite>dataset</cite>: this is common to all of the population models in <cite>gwpopulation</cite>, it is a dictionary containing the data to be evaluated, here it is assumed to contain entries for <cite>mass_1</cite> and <cite>mass_2</cite>, the _source-<a href="#id9"><span class="problematic" id="id10">frame_</span></a> masses.n”,
-“- <cite>mu_bns</cite>: the peak of the bns mass distribution.n”,
-“- <cite>sigma_bns</cite>: the width of the bns mass distribution.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “qRKha-Mv8Zav”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“def truncated_gaussian_primary_secondary_identical(dataset, mu_bns, sigma_bns):n”,
-”    prob = gwpop.utils.truncnorm(n”,
-”        dataset[&quot;mass_1&quot;], mu=mu_bns, sigma=sigma_bns, low=1, high=2n”,
-”    )n”,
-”    prob <a href="#id3"><span class="problematic" id="id4">*</span></a>= gwpop.utils.truncnorm(n”,
-”        dataset[&quot;mass_2&quot;], mu=mu_bns, sigma=sigma_bns, low=1, high=2n”,
-”    )n”,
-”    prob <a href="#id5"><span class="problematic" id="id6">*</span></a>= dataset[&quot;mass_1&quot;] &gt;= dataset[&quot;mass_2&quot;]n”,
-”    prob <a href="#id7"><span class="problematic" id="id8">*</span></a>= 2n”,
-”    return prob”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “IflaTL8l9TJQ”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Load GW170817 posteriorn”,
-“n”,
-“This is just the same as above.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “ubZz578B9ATE”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“posterior = pd.DataFrame()n”,
-“prior = pd.DataFrame()n”,
-“with h5py.File(&quot;./GWTC-1_sample_release/GW170817_GWTC-1.hdf5&quot;) as ff:n”,
-”    for my_key, gwtc_key in parameter_translator.items():n”,
-”        try:n”,
-”            posterior[my_key] = ff[&quot;IMRPhenomPv2NRT_lowSpin_posterior&quot;][gwtc_key]n”,
-”            prior[my_key] = ff[&quot;IMRPhenomPv2NRT_lowSpin_prior&quot;][gwtc_key]n”,
-”        except ValueError:n”,
-”            passn”,
-“n”,
-“posterior[&quot;redshift&quot;] = dl_to_z(posterior[&quot;luminosity_distance&quot;])n”,
-“posterior[&quot;mass_1&quot;] = posterior[&quot;mass_1_det&quot;] / (1 + posterior[&quot;redshift&quot;])n”,
-“posterior[&quot;mass_2&quot;] = posterior[&quot;mass_2_det&quot;] / (1 + posterior[&quot;redshift&quot;])”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “ktT2Ydiw9Yak”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Define the new likelihoodn”,
-“n”,
-“We use the same likelihood as before.n”,
-“n”,
-“_Note_:n”,
-“- This time we cast our posterior to a list while creating the likelihood.n”,
-“- We pass the function rather than a <cite>Model</cite> object as before, <cite>bilby</cite> will turn this into a <cite>Model</cite> for internal use.n”,
-“- We’ve removed the selection and conversion functions as they aren’t needed here (yes, a selection function is technically needed).”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “0xqYdOKV9F1E”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“bns_likelihood = gwpop.hyperpe.HyperparameterLikelihood(n”,
-”    posteriors=[posterior], hyper_prior=truncated_gaussian_primary_secondary_identicaln”,
-“)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “iGHtErVA9hBb”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Define the new priorn”,
-“n”,
-“Just as before.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “gn_vPWIW9MED”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“bns_priors = PriorDict()n”,
-“bns_priors[&quot;mu_bns&quot;] = Uniform(minimum=1, maximum=2, latex_label=&quot;$\\mu_{bns}$&quot;)n”,
-“bns_priors[&quot;sigma_bns&quot;] = LogUniform(n”,
-”    minimum=1e-2, maximum=1, latex_label=&quot;$\\sigma_{bns}$&quot;n”,
-“)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “d_gwpGQi9e0M”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“bns_likelihood.parameters.update(bns_priors.sample())n”,
-“bns_likelihood.log_likelihood_ratio()n”,
-“n”,
-“bns_result = bb.run_sampler(n”,
-”    likelihood=bns_likelihood, priors=bns_priors, sampler=&quot;dynesty&quot;, nlive=1000n”,
-“)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “Y1O73fzb9t1S”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“bns_result.plot_corner(save=False)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “mxXt8coXANxX”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Do it alln”,
-“n”,
-“Let’s put together a run with models for the mass, spin and redshift distributions.n”,
-“n”,
-“<strong>This will not give sensible answers because VT is not estimated.</strong>n”,
-“n”,
-“The data for VT estimation isn’t available in this notebook.n”,
-“n”,
-“Note that the redshift model is a class and so is called slightly differently.n”,
-“This is to enable caching of expensive data internally.n”,
-“To call this <cite>bilby&gt;=0.4.2</cite> is required.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “LTq6eP5qAgLm”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“full_model = Model(n”,
-”    [n”,
-”        gwpop.models.mass.two_component_primary_mass_ratio,n”,
-”        gwpop.models.spin.iid_spin_magnitude_beta,n”,
-”        gwpop.models.spin.independent_spin_orientation_gaussian_isotropic,n”,
-”        gwpop.models.redshift.PowerLawRedshift(),n”,
-”    ]n”,
-“)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “<a href="#id11"><span class="problematic" id="id12">T4Ize_dKRtC_</span></a>”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Update sampling priorn”,
-“n”,
-“We need to update the sampling prior to account for the new redshift evolution model.n”,
-“n”,
-“Fortunately, we defined an interpolant for this earlier.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “7i0WSBDZRunm”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“for posterior in posteriors:n”,
-”    posterior[&quot;prior&quot;] = redshift_prior(posterior[&quot;redshift&quot;])”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “5JxwG1xNSJ_9”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Likelihoodn”,
-“n”,
-“We use a different likelihood class <cite>RateLikelihood</cite>, this will simultaneously estimate the local merger rate as well as the population distribution.n”,
-“n”,
-“This is created just as before.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “v-o0X0OiBaug”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“full_likelihood = gwpop.hyperpe.RateLikelihood(n”,
-”    posteriors=posteriors, hyper_prior=full_modeln”,
-“)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “<a href="#id13"><span class="problematic" id="id14">RkzUAuX4SNQ_</span></a>”,
-“colab_type”: “text”</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “markdown”,
-“source”: [</p>
-<blockquote>
-<div><p>“## Priorn”,
-“n”,
-“This is just a longer version of the previous.”</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “F2DXzB_KA8sR”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“full_priors = PriorDict()n”,
-“n”,
-“# raten”,
-“fast_priors[&quot;rate&quot;] = LogUniform(minimum=1e-20, maximum=1e20, latex_label=&quot;$R$&quot;)n”,
-“# massn”,
-“full_priors[&quot;alpha&quot;] = Uniform(minimum=-4, maximum=12, latex_label=&quot;$\\alpha$&quot;)n”,
-“full_priors[&quot;beta&quot;] = Uniform(minimum=-4, maximum=12, latex_label=&quot;$\\beta$&quot;)n”,
-“full_priors[&quot;mmin&quot;] = Uniform(minimum=5, maximum=10, latex_label=&quot;$m_{\\min}$&quot;)n”,
-“full_priors[&quot;mmax&quot;] = Uniform(minimum=20, maximum=60, latex_label=&quot;$m_{\\max}$&quot;)n”,
-“full_priors[&quot;lam&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\lambda_{m}$&quot;)n”,
-“full_priors[&quot;mpp&quot;] = Uniform(minimum=20, maximum=50, latex_label=&quot;$\\mu_{m}$&quot;)n”,
-“full_priors[&quot;sigpp&quot;] = Uniform(minimum=0, maximum=10, latex_label=&quot;$\\sigma_{m}$&quot;)n”,
-“# spin magnituden”,
-“full_priors[&quot;amax&quot;] = 1n”,
-“full_priors[&quot;alpha_chi&quot;] = Uniform(n”,
-”    minimum=-4, maximum=12, latex_label=&quot;$\\alpha_{\\chi}$&quot;n”,
-“)n”,
-“full_priors[&quot;beta_chi&quot;] = Uniform(n”,
-”    minimum=-4, maximum=12, latex_label=&quot;$\\beta_{\\chi}$&quot;n”,
-“)n”,
-“# spin orientationn”,
-“full_priors[&quot;xi_spin&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\xi$&quot;)n”,
-“full_priors[&quot;sigma_1&quot;] = Uniform(minimum=0, maximum=4, latex_label=&quot;$\\sigma{1}$&quot;)n”,
-“full_priors[&quot;sigma_2&quot;] = Uniform(minimum=0, maximum=4, latex_label=&quot;$\\sigma{2}$&quot;)n”,
-“# redshift evolutionn”,
-“full_priors[&quot;lamb&quot;] = Uniform(minimum=-25, maximum=25, latex_label=&quot;$\\lambda_{z}$&quot;)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“metadata”: {</dt><dd><p>“id”: “PDd-8Z_WBXEs”,
-“colab_type”: “code”,
-“colab”: {}</p>
-</dd>
-</dl>
-<p>},
-“cell_type”: “code”,
-“source”: [</p>
-<blockquote>
-<div><p>“full_likelihood.parameters.update(full_priors.sample())n”,
-“full_likelihood.log_likelihood_ratio()n”,
-“n”,
-“full_result = run_sampler(n”,
-”    likelihood=full_likelihood, priors=full_priors, sampler=&quot;dynesty&quot;, nlive=100n”,
-“)”</p>
-</div></blockquote>
-<p>],
-“execution_count”: 0,
-“outputs”: []</p>
-</div></blockquote>
-<p>}</p>
-</div></blockquote>
-<p>]</p>
-</dd>
-</dl>
-<p>}</p>
+<p>This page was automatically generated from a Jupyter notebook.</p>
+<p>Find the original <a class="reference external" href="https://github.com/ColmTalbot/gwpopulation/tree/master/examples/GWTC1.ipynb">here</a>.</p>
+<hr class="docutils" />
+<div class="section" id="Population-Inference-on-GWTC-1">
+<h1>Population Inference on GWTC-1<a class="headerlink" href="#Population-Inference-on-GWTC-1" title="Permalink to this headline"></a></h1>
+<p>The first gravitational-wave transient catalog <a class="reference external" href="https://arxiv.org/abs/1811.12907">“GWTC-1”</a> includes all compact binary coalescences observed during Advanced LIGO/Virgo’s first and second observing runs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">GWPopulation</span></code> builds upon <a class="reference external" href="git.ligo.org/lscsoft/bilby">bilby</a> (<a class="reference external" href="https://arxiv.org/abs/1811.02042">arXiv:1811.02042</a>) to provide simple, modular, user-friendly, population inference.</p>
+<p>Currently implemented models include:</p>
+<ul class="simple">
+<li><p>One and two component mass distributions in primary mass and mass ratio, e.g., Talbot &amp; Thrane (2018) (<a class="reference external" href="https://arxiv.org/abs/1801.02699">arXiv:1801:02699</a>), Fishbach &amp; Holz (2018) (<a class="reference external" href="https://arxiv.org/abs/1709.08584">arXiv:1709.08584</a>).</p></li>
+<li><p>The same mass distributions but independent but identically distributed primary and secondary.</p></li>
+<li><p>Half-Gaussian + isotropic spin tilt distribution from Talbot &amp; Thrane (2017) (<a class="reference external" href="https://arxiv.org/abs/1704.08370">arXiv:1704.08370</a>).</p></li>
+<li><p>Beta spin magnitude distribution from Wysocki+ (2018) (<a class="reference external" href="https://arxiv.org/abs/1805.06442">arXiv:1805:06442</a>).</p></li>
+<li><p>Each of these are also available with independent but identically distributed spins.</p></li>
+<li><p>Redshift evolution model as in Fishbach+ (2018) (<a class="reference external" href="https://arxiv.org/abs/1805.10270">arXiv:1805.10270</a>).</p></li>
+<li><p>More to come and any contributions welcome…</p></li>
+</ul>
+<p>For more information see the <a class="reference external" href="https://github.com/ColmTalbot/gwpopulation">git repository</a>, <a class="reference external" href="https://colmtalbot.github.io/gwpopulation/">documentation</a>.</p>
+<div class="section" id="Install-some-packages">
+<h2>Install some packages<a class="headerlink" href="#Install-some-packages" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gwpopulation</span></code> has the population model code.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cupy</span></code> allows use to leverage the GPU.</p></li>
+</ul>
+<p>If you’re using colab.research.google.com you will want to choose a GPU-accelerated runtime.</p>
+<p>“runtime”-&gt;“change runtime type”-&gt;“Hardware accelerator = GPU”</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>!pip install gwpopulation
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Requirement already satisfied: gwpopulation in /usr/local/lib/python3.7/dist-packages (0.6.3)
+Requirement already satisfied: numpy in /usr/local/lib/python3.7/dist-packages (from gwpopulation) (1.19.5)
+Requirement already satisfied: astropy in /usr/local/lib/python3.7/dist-packages (from gwpopulation) (4.3.1)
+Requirement already satisfied: future in /usr/local/lib/python3.7/dist-packages (from gwpopulation) (0.16.0)
+Requirement already satisfied: bilby in /usr/local/lib/python3.7/dist-packages (from gwpopulation) (1.1.5)
+Requirement already satisfied: scipy in /usr/local/lib/python3.7/dist-packages (from gwpopulation) (1.7.3)
+Requirement already satisfied: importlib-metadata in /usr/local/lib/python3.7/dist-packages (from astropy-&gt;gwpopulation) (4.10.1)
+Requirement already satisfied: pyerfa&gt;=1.7.3 in /usr/local/lib/python3.7/dist-packages (from astropy-&gt;gwpopulation) (2.0.0.1)
+Requirement already satisfied: pandas in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (1.3.5)
+Requirement already satisfied: dill in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (0.3.4)
+Requirement already satisfied: tqdm in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (4.62.3)
+Requirement already satisfied: dynesty&lt;1.1 in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (1.0.1)
+Requirement already satisfied: mock in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (4.0.3)
+Requirement already satisfied: attrs in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (21.4.0)
+Requirement already satisfied: matplotlib&gt;=2.1 in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (3.2.2)
+Requirement already satisfied: h5py in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (3.1.0)
+Requirement already satisfied: corner in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (2.2.1)
+Requirement already satisfied: tables in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (3.4.4)
+Requirement already satisfied: emcee in /usr/local/lib/python3.7/dist-packages (from bilby-&gt;gwpopulation) (3.1.1)
+Requirement already satisfied: six in /usr/local/lib/python3.7/dist-packages (from dynesty&lt;1.1-&gt;bilby-&gt;gwpopulation) (1.15.0)
+Requirement already satisfied: python-dateutil&gt;=2.1 in /usr/local/lib/python3.7/dist-packages (from matplotlib&gt;=2.1-&gt;bilby-&gt;gwpopulation) (2.8.2)
+Requirement already satisfied: pyparsing!=2.0.4,!=2.1.2,!=2.1.6,&gt;=2.0.1 in /usr/local/lib/python3.7/dist-packages (from matplotlib&gt;=2.1-&gt;bilby-&gt;gwpopulation) (3.0.7)
+Requirement already satisfied: cycler&gt;=0.10 in /usr/local/lib/python3.7/dist-packages (from matplotlib&gt;=2.1-&gt;bilby-&gt;gwpopulation) (0.11.0)
+Requirement already satisfied: kiwisolver&gt;=1.0.1 in /usr/local/lib/python3.7/dist-packages (from matplotlib&gt;=2.1-&gt;bilby-&gt;gwpopulation) (1.3.2)
+Requirement already satisfied: cached-property in /usr/local/lib/python3.7/dist-packages (from h5py-&gt;bilby-&gt;gwpopulation) (1.5.2)
+Requirement already satisfied: zipp&gt;=0.5 in /usr/local/lib/python3.7/dist-packages (from importlib-metadata-&gt;astropy-&gt;gwpopulation) (3.7.0)
+Requirement already satisfied: typing-extensions&gt;=3.6.4 in /usr/local/lib/python3.7/dist-packages (from importlib-metadata-&gt;astropy-&gt;gwpopulation) (3.10.0.2)
+Requirement already satisfied: pytz&gt;=2017.3 in /usr/local/lib/python3.7/dist-packages (from pandas-&gt;bilby-&gt;gwpopulation) (2018.9)
+Requirement already satisfied: numexpr&gt;=2.5.2 in /usr/local/lib/python3.7/dist-packages (from tables-&gt;bilby-&gt;gwpopulation) (2.8.1)
+Requirement already satisfied: packaging in /usr/local/lib/python3.7/dist-packages (from numexpr&gt;=2.5.2-&gt;tables-&gt;bilby-&gt;gwpopulation) (21.3)
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Get-the-data">
+<h2>Get the data<a class="headerlink" href="#Get-the-data" title="Permalink to this headline"></a></h2>
+<p>Pull the posterior samples for each of the events from the LIGO dcc.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>!wget https://dcc.ligo.org/public/0157/P1800370/002/GWTC-1_sample_release.tar.gz
+!tar -xvzf GWTC-1_sample_release.tar.gz
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+--2022-02-02 16:23:28--  https://dcc.ligo.org/public/0157/P1800370/002/GWTC-1_sample_release.tar.gz
+Resolving dcc.ligo.org (dcc.ligo.org)... 131.215.125.144
+Connecting to dcc.ligo.org (dcc.ligo.org)|131.215.125.144|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 89895447 (86M) [application/x-gzip]
+Saving to: ‘GWTC-1_sample_release.tar.gz.3’
+
+GWTC-1_sample_relea 100%[===================&gt;]  85.73M  19.7MB/s    in 5.3s
+
+2022-02-02 16:23:34 (16.2 MB/s) - ‘GWTC-1_sample_release.tar.gz.3’ saved [89895447/89895447]
+
+./GWTC-1_sample_release/
+./GWTC-1_sample_release/GW170729_GWTC-1.hdf5
+./GWTC-1_sample_release/GW151226_GWTC-1.hdf5
+./GWTC-1_sample_release/GW170809_GWTC-1.hdf5
+./GWTC-1_sample_release/GW170104_GWTC-1.hdf5
+./GWTC-1_sample_release/GW170817_GWTC-1.hdf5
+./GWTC-1_sample_release/GW170608_GWTC-1.hdf5
+./GWTC-1_sample_release/GW170814_GWTC-1.hdf5
+./GWTC-1_sample_release/GW151012_GWTC-1.hdf5
+./GWTC-1_sample_release/GW170809_priorChoices_GWTC-1.hdf5
+./GWTC-1_sample_release/GW170818_GWTC-1.hdf5
+./GWTC-1_sample_release/GW150914_GWTC-1.hdf5
+./GWTC-1_sample_release/GW170823_GWTC-1.hdf5
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Imports">
+<h2>Imports<a class="headerlink" href="#Imports" title="Permalink to this headline"></a></h2>
+<p>Import the packages required for the script.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>%pylab inline
+
+import h5py
+
+import pandas as pd
+from scipy.interpolate import interp1d
+from astropy import cosmology, units
+
+import bilby as bb
+from bilby.core.prior import LogUniform, PriorDict, Uniform
+from bilby.hyper.model import Model
+import gwpopulation as gwpop
+
+xp = gwpop.cupy_utils.xp
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Populating the interactive namespace from numpy and matplotlib
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Load-posteriors">
+<h2>Load posteriors<a class="headerlink" href="#Load-posteriors" title="Permalink to this headline"></a></h2>
+<p>We’re using the posteriors from the GWTC-1 data release.</p>
+<p>We need to change the names of the parameters to make them work with the code.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>parameter_translator = dict(
+    mass_1_det=&quot;m1_detector_frame_Msun&quot;,
+    mass_2_det=&quot;m2_detector_frame_Msun&quot;,
+    luminosity_distance=&quot;luminosity_distance_Mpc&quot;,
+    a_1=&quot;spin1&quot;,
+    a_2=&quot;spin2&quot;,
+    cos_tilt_1=&quot;costilt1&quot;,
+    cos_tilt_2=&quot;costilt2&quot;,
+)
+
+posteriors = list()
+priors = list()
+
+file_str = &quot;./GWTC-1_sample_release/GW{}_GWTC-1.hdf5&quot;
+
+events = [
+    &quot;150914&quot;,
+    &quot;151012&quot;,
+    &quot;151226&quot;,
+    &quot;170104&quot;,
+    &quot;170608&quot;,
+    &quot;170729&quot;,
+    &quot;170809&quot;,
+    &quot;170814&quot;,
+    &quot;170818&quot;,
+    &quot;170823&quot;,
+]
+for event in events:
+    _posterior = pd.DataFrame()
+    _prior = pd.DataFrame()
+    with h5py.File(file_str.format(event)) as ff:
+        for my_key, gwtc_key in parameter_translator.items():
+            _posterior[my_key] = ff[&quot;IMRPhenomPv2_posterior&quot;][gwtc_key]
+            _prior[my_key] = ff[&quot;prior&quot;][gwtc_key]
+    posteriors.append(_posterior)
+    priors.append(_prior)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>luminosity_distances = np.linspace(1, 10000, 1000)
+redshifts = np.array(
+    [
+        cosmology.z_at_value(cosmology.Planck15.luminosity_distance, dl * units.Mpc)
+        for dl in luminosity_distances
+    ]
+)
+dl_to_z = interp1d(luminosity_distances, redshifts)
+
+luminosity_prior = luminosity_distances**2
+
+dz_ddl = np.gradient(redshifts, luminosity_distances)
+
+redshift_prior = interp1d(redshifts, luminosity_prior / dz_ddl / (1 + redshifts))
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Add-some-weights-to-posterior">
+<h2>Add some weights to posterior<a class="headerlink" href="#Add-some-weights-to-posterior" title="Permalink to this headline"></a></h2>
+<p>Make sure the posterior <code class="docutils literal notranslate"><span class="pre">DataFrames</span></code> contain the appropriate quantities.</p>
+<p>We could include a <code class="docutils literal notranslate"><span class="pre">prior</span></code> column, this is the prior used in the initial sampling stage. This is used to weight the samples in the likelihood.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>for posterior in posteriors:
+    posterior[&quot;redshift&quot;] = dl_to_z(posterior[&quot;luminosity_distance&quot;])
+    posterior[&quot;mass_1&quot;] = posterior[&quot;mass_1_det&quot;] / (1 + posterior[&quot;redshift&quot;])
+    posterior[&quot;mass_2&quot;] = posterior[&quot;mass_2_det&quot;] / (1 + posterior[&quot;redshift&quot;])
+    posterior[&quot;mass_ratio&quot;] = posterior[&quot;mass_2&quot;] / posterior[&quot;mass_1&quot;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Specify-the-model">
+<h2>Specify the model<a class="headerlink" href="#Specify-the-model" title="Permalink to this headline"></a></h2>
+<p>Choose which population models we want to use.</p>
+<p>For the mass distribution we use</p>
+<p><code class="docutils literal notranslate"><span class="pre">gwpopulation.models.mass.two_component_primary_mass_ratio</span></code>.</p>
+<p>This is a powerlaw + Gaussian mass distribution with powerlaw mass ratio distribution.</p>
+<p>For spins we use</p>
+<p><code class="docutils literal notranslate"><span class="pre">gwpopulation.models.spin.iid_spin</span></code></p>
+<p>Where the spins of the two black holes are independently and identically distributed with a beta distribution for the magnitude and an isotropic + half-Gaussian for the cosine tilts.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>model = Model(
+    [gwpop.models.mass.two_component_primary_mass_ratio, gwpop.models.spin.iid_spin]
+)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Selection-effects">
+<h2>Selection effects<a class="headerlink" href="#Selection-effects" title="Permalink to this headline"></a></h2>
+<p>Gravitational-wave surveys suffer from Malmquist bias.</p>
+<p>In order to measure the true, astrophysical, distribution we must include a term to account for this in our population analyses.</p>
+<p>The way the likelihood is structured, this can be any object that evaluates to give the observed spactime volume as a function of the population parameters.</p>
+<p>We define classes so that various bits of metadata can be stored.</p>
+<p>The data for calculating this is not easily available. We use a very rough toy model to get the general scaling for the primary mass, <span class="math notranslate nohighlight">\(VT(m) \sim m^{1.6}\)</span>. This value was chosen to get a decent agreement with the more complex model.</p>
+<p><strong>I do not recommend using this toy function for science.</strong></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>masses = xp.linspace(3, 100, 1000)
+vts = masses**1.6
+
+
+def toy_vt_calculator(kwargs):
+    params = {
+        key: kwargs[key] for key in [&quot;alpha&quot;, &quot;mmin&quot;, &quot;mmax&quot;, &quot;lam&quot;, &quot;mpp&quot;, &quot;sigpp&quot;]
+    }
+    p_m = gwpop.models.mass.two_component_single(masses, **params)
+    return gwpop.cupy_utils.trapz(p_m * vts, masses)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Define-the-likelihood">
+<h2>Define the likelihood<a class="headerlink" href="#Define-the-likelihood" title="Permalink to this headline"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">HyperparameterLikelihood</span></code> marginalises over the local merger rate, with a uniform-in-log prior.</p>
+<p>To also estimate the rate use the <code class="docutils literal notranslate"><span class="pre">RateLikelilhood</span></code> (see further on in the notebook).</p>
+<p>We provide: - <code class="docutils literal notranslate"><span class="pre">posteriors</span></code>: a list of <code class="docutils literal notranslate"><span class="pre">pandas</span></code> DataFrames - <code class="docutils literal notranslate"><span class="pre">hyper_prior</span></code>: our population model, as defined above - <code class="docutils literal notranslate"><span class="pre">selection_function</span></code>: anything which evaluates the selection function</p>
+<p>We can also provide: - <code class="docutils literal notranslate"><span class="pre">conversion_function</span></code>: this converts between the parameters we sample in and those needed by the model, e.g., for sampling in the mean and variance of the beta distribution - <code class="docutils literal notranslate"><span class="pre">max_samples</span></code>: the maximum number of samples to use from each posterior, this defaults to the length of the shortest posterior</p>
+<p>We may get a warning telling us <code class="docutils literal notranslate"><span class="pre">cupy</span></code> is not available and so <code class="docutils literal notranslate"><span class="pre">numpy</span></code> is for the likelihood evaluation. This will go away if you have a GPU and <code class="docutils literal notranslate"><span class="pre">cupy</span></code> installed.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>fast_likelihood = gwpop.hyperpe.HyperparameterLikelihood(
+    posteriors=posteriors, hyper_prior=model, selection_function=toy_vt_calculator
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+16:23 bilby INFO    : No prior values provided, defaulting to 1.
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Define-the-prior">
+<h2>Define the prior<a class="headerlink" href="#Define-the-prior" title="Permalink to this headline"></a></h2>
+<p>This is the standard method to define the prior distribution within <code class="docutils literal notranslate"><span class="pre">bilby</span></code>.</p>
+<p>The labels are used in plotting.</p>
+<p>Numbers are converted to delta function priors and are not sampled.</p>
+<p>There are many other distributions available, see the code/documentation for a full list.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>fast_priors = PriorDict()
+
+# mass
+fast_priors[&quot;alpha&quot;] = Uniform(minimum=-2, maximum=4, latex_label=&quot;$\\alpha$&quot;)
+fast_priors[&quot;beta&quot;] = Uniform(minimum=-4, maximum=12, latex_label=&quot;$\\beta$&quot;)
+fast_priors[&quot;mmin&quot;] = Uniform(minimum=5, maximum=10, latex_label=&quot;$m_{\\min}$&quot;)
+fast_priors[&quot;mmax&quot;] = Uniform(minimum=20, maximum=60, latex_label=&quot;$m_{\\max}$&quot;)
+fast_priors[&quot;lam&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\lambda_{m}$&quot;)
+fast_priors[&quot;mpp&quot;] = Uniform(minimum=10, maximum=50, latex_label=&quot;$\\mu_{m}$&quot;)
+fast_priors[&quot;sigpp&quot;] = Uniform(minimum=0, maximum=10, latex_label=&quot;$\\sigma_{m}$&quot;)
+# spin
+fast_priors[&quot;amax&quot;] = 1
+fast_priors[&quot;alpha_chi&quot;] = Uniform(
+    minimum=-4, maximum=12, latex_label=&quot;$\\alpha_{\\chi}$&quot;
+)
+fast_priors[&quot;beta_chi&quot;] = Uniform(
+    minimum=-4, maximum=12, latex_label=&quot;$\\beta_{\\chi}$&quot;
+)
+fast_priors[&quot;xi_spin&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\xi$&quot;)
+fast_priors[&quot;sigma_spin&quot;] = Uniform(minimum=0, maximum=4, latex_label=&quot;$\\sigma$&quot;)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Run-the-sampler">
+<h2>Run the sampler<a class="headerlink" href="#Run-the-sampler" title="Permalink to this headline"></a></h2>
+<p>We’ll use the sampler <code class="docutils literal notranslate"><span class="pre">dynesty</span></code> and use a small number of live points to reduce the runtime.</p>
+<p>This is painfully slow without using the GPU version. If you have a GPU it will just work.</p>
+<p>Other samplers are available, <code class="docutils literal notranslate"><span class="pre">cpnest</span></code> gave the best results for the O1+O2 data, however it isn’t currently compatible with the GPU likelihood.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bilby</span></code> times a single likelihood evaluation before beginning the run</p>
+<p>We do a call before running to sampler as <code class="docutils literal notranslate"><span class="pre">cupy</span></code> compiles kernels the first time they are evaluated and so the estimate of the evaluation time would be off.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>fast_likelihood.parameters.update(fast_priors.sample())
+fast_likelihood.log_likelihood_ratio()
+
+fast_result = bb.run_sampler(
+    likelihood=fast_likelihood,
+    priors=fast_priors,
+    sampler=&quot;dynesty&quot;,
+    nlive=100,
+    walks=5,
+    nact=3,
+    label=&quot;fast&quot;,
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+16:23 bilby INFO    : Running for label &#39;fast&#39;, output will be saved to &#39;outdir&#39;
+16:23 bilby INFO    : Search parameters:
+16:23 bilby INFO    :   alpha = Uniform(minimum=-2, maximum=4, name=None, latex_label=&#39;$\\alpha$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   beta = Uniform(minimum=-4, maximum=12, name=None, latex_label=&#39;$\\beta$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   mmin = Uniform(minimum=5, maximum=10, name=None, latex_label=&#39;$m_{\\min}$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   mmax = Uniform(minimum=20, maximum=60, name=None, latex_label=&#39;$m_{\\max}$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   lam = Uniform(minimum=0, maximum=1, name=None, latex_label=&#39;$\\lambda_{m}$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   mpp = Uniform(minimum=10, maximum=50, name=None, latex_label=&#39;$\\mu_{m}$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   sigpp = Uniform(minimum=0, maximum=10, name=None, latex_label=&#39;$\\sigma_{m}$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   alpha_chi = Uniform(minimum=-4, maximum=12, name=None, latex_label=&#39;$\\alpha_{\\chi}$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   beta_chi = Uniform(minimum=-4, maximum=12, name=None, latex_label=&#39;$\\beta_{\\chi}$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   xi_spin = Uniform(minimum=0, maximum=1, name=None, latex_label=&#39;$\\xi$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   sigma_spin = Uniform(minimum=0, maximum=4, name=None, latex_label=&#39;$\\sigma$&#39;, unit=None, boundary=None)
+16:23 bilby INFO    :   amax = 1
+16:23 bilby INFO    : Single likelihood evaluation took 5.354e-03 s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "99653b1db773475497e01c0237c89fa7", "version_minor": 0, "version_major": 2}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+16:23 bilby INFO    : Checkpoint every check_point_delta_t = 600s
+16:23 bilby WARNING : Using cached result
+16:23 bilby INFO    : Summary of results:
+nsamples: 1404
+ln_noise_evidence:    nan
+ln_evidence:    nan +/-  0.281
+ln_bayes_factor: -98.265 +/-  0.281
+
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>_ = fast_result.plot_corner(save=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/GWTC1_22_0.png" src="_images/GWTC1_22_0.png" />
+</div>
+</div>
+<p>We can compute a rate posterior as a post-processing step.</p>
+<p>Note that because we used the unphysical selection function above, this is not going to be a sensible number.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>rates = list()
+for ii in range(len(fast_result.posterior)):
+    fast_likelihood.parameters.update(dict(fast_result.posterior.iloc[ii]))
+    rates.append(float(fast_likelihood.generate_rate_posterior_sample()))
+fast_result.posterior[&quot;rate&quot;] = rates
+
+plt.hist(np.log10(rates), bins=30, histtype=&quot;step&quot;, density=True)
+plt.xlabel(&quot;$\\log_{10} {\\cal R}$&quot;)
+plt.ylabel(&quot;$p(\\log_{10} {\\cal R})$&quot;)
+plt.show()
+plt.close()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/GWTC1_24_0.png" src="_images/GWTC1_24_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Define-a-new-model">
+<h2>Define a new model<a class="headerlink" href="#Define-a-new-model" title="Permalink to this headline"></a></h2>
+<div class="section" id="Let’s-define-a-new-population-model-for-BNS.">
+<h3>Let’s define a new population model for BNS.<a class="headerlink" href="#Let’s-define-a-new-population-model-for-BNS." title="Permalink to this headline"></a></h3>
+<p>Just as an example we’ll use a Gaussian distribution bounded between <span class="math notranslate nohighlight">\([1 M_{\odot}, 2 M_{\odot}]\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[p(m_1, m_2) = N \exp \left(- \frac{\left((m_1 - \mu)^2 + (m_2 - \mu)^2\right)}{2 \sigma^2}\right) \quad : \quad 1 \leq m_2 \leq m_1 \leq 2\]</div>
+<p>We see that this function takes three arguments: - <code class="docutils literal notranslate"><span class="pre">dataset</span></code>: this is common to all of the population models in <code class="docutils literal notranslate"><span class="pre">gwpopulation</span></code>, it is a dictionary containing the data to be evaluated, here it is assumed to contain entries for <code class="docutils literal notranslate"><span class="pre">mass_1</span></code> and <code class="docutils literal notranslate"><span class="pre">mass_2</span></code>, the <em>source-frame</em> masses. - <code class="docutils literal notranslate"><span class="pre">mu_bns</span></code>: the peak of the bns mass distribution. - <code class="docutils literal notranslate"><span class="pre">sigma_bns</span></code>: the width of the bns mass distribution.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>def truncated_gaussian_primary_secondary_identical(dataset, mu_bns, sigma_bns):
+    prob = gwpop.utils.truncnorm(
+        dataset[&quot;mass_1&quot;], mu=mu_bns, sigma=sigma_bns, low=1, high=2
+    )
+    prob *= gwpop.utils.truncnorm(
+        dataset[&quot;mass_2&quot;], mu=mu_bns, sigma=sigma_bns, low=1, high=2
+    )
+    prob *= dataset[&quot;mass_1&quot;] &gt;= dataset[&quot;mass_2&quot;]
+    prob *= 2
+    return prob
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Load-GW170817-posterior">
+<h2>Load GW170817 posterior<a class="headerlink" href="#Load-GW170817-posterior" title="Permalink to this headline"></a></h2>
+<p>This is just the same as above.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>posterior = pd.DataFrame()
+prior = pd.DataFrame()
+with h5py.File(&quot;./GWTC-1_sample_release/GW170817_GWTC-1.hdf5&quot;) as ff:
+    for my_key, gwtc_key in parameter_translator.items():
+        try:
+            posterior[my_key] = ff[&quot;IMRPhenomPv2NRT_lowSpin_posterior&quot;][gwtc_key]
+            prior[my_key] = ff[&quot;IMRPhenomPv2NRT_lowSpin_prior&quot;][gwtc_key]
+        except ValueError:
+            pass
+
+posterior[&quot;redshift&quot;] = dl_to_z(posterior[&quot;luminosity_distance&quot;])
+posterior[&quot;mass_1&quot;] = posterior[&quot;mass_1_det&quot;] / (1 + posterior[&quot;redshift&quot;])
+posterior[&quot;mass_2&quot;] = posterior[&quot;mass_2_det&quot;] / (1 + posterior[&quot;redshift&quot;])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Define-the-new-likelihood">
+<h2>Define the new likelihood<a class="headerlink" href="#Define-the-new-likelihood" title="Permalink to this headline"></a></h2>
+<p>We use the same likelihood as before.</p>
+<p><em>Note</em>: - This time we cast our posterior to a list while creating the likelihood. - We pass the function rather than a <code class="docutils literal notranslate"><span class="pre">Model</span></code> object as before, <code class="docutils literal notranslate"><span class="pre">bilby</span></code> will turn this into a <code class="docutils literal notranslate"><span class="pre">Model</span></code> for internal use. - We’ve removed the selection and conversion functions as they aren’t needed here (yes, a selection function is technically needed).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>bns_likelihood = gwpop.hyperpe.HyperparameterLikelihood(
+    posteriors=[posterior], hyper_prior=truncated_gaussian_primary_secondary_identical
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+16:24 bilby INFO    : No prior values provided, defaulting to 1.
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Define-the-new-prior">
+<h2>Define the new prior<a class="headerlink" href="#Define-the-new-prior" title="Permalink to this headline"></a></h2>
+<p>Just as before.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>bns_priors = PriorDict()
+bns_priors[&quot;mu_bns&quot;] = Uniform(minimum=1, maximum=2, latex_label=&quot;$\\mu_{bns}$&quot;)
+bns_priors[&quot;sigma_bns&quot;] = LogUniform(
+    minimum=1e-2, maximum=1, latex_label=&quot;$\\sigma_{bns}$&quot;
+)
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>bns_likelihood.parameters.update(bns_priors.sample())
+bns_likelihood.log_likelihood_ratio()
+
+bns_result = bb.run_sampler(
+    likelihood=bns_likelihood,
+    priors=bns_priors,
+    sampler=&quot;dynesty&quot;,
+    nlive=100,
+    walks=5,
+    nact=3,
+    label=&quot;bns&quot;,
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+16:24 bilby INFO    : Running for label &#39;bns&#39;, output will be saved to &#39;outdir&#39;
+16:24 bilby INFO    : Search parameters:
+16:24 bilby INFO    :   mu_bns = Uniform(minimum=1, maximum=2, name=None, latex_label=&#39;$\\mu_{bns}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   sigma_bns = LogUniform(minimum=0.01, maximum=1, name=None, latex_label=&#39;$\\sigma_{bns}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    : Single likelihood evaluation took 3.923e-03 s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8459868a6f93413ab2f65860018e318a", "version_minor": 0, "version_major": 2}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+16:24 bilby INFO    : Checkpoint every check_point_delta_t = 600s
+16:24 bilby WARNING : Using cached result
+16:24 bilby INFO    : Summary of results:
+nsamples: 741
+ln_noise_evidence:    nan
+ln_evidence:    nan +/-  0.194
+ln_bayes_factor:  0.919 +/-  0.194
+
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>_ = bns_result.plot_corner(save=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/GWTC1_34_0.png" src="_images/GWTC1_34_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Do-it-all">
+<h2>Do it all<a class="headerlink" href="#Do-it-all" title="Permalink to this headline"></a></h2>
+<p>Let’s put together a run with models for the mass, spin and redshift distributions.</p>
+<p><strong>This will not give sensible answers because VT is not estimated.</strong></p>
+<p>The data for VT estimation isn’t available in this notebook.</p>
+<p>Note that the redshift model is a class and so is called slightly differently. This is to enable caching of expensive data internally. To call this <code class="docutils literal notranslate"><span class="pre">bilby&gt;=0.4.2</span></code> is required.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>full_model = Model(
+    [
+        gwpop.models.mass.two_component_primary_mass_ratio,
+        gwpop.models.spin.iid_spin_magnitude_beta,
+        gwpop.models.spin.independent_spin_orientation_gaussian_isotropic,
+        gwpop.models.redshift.PowerLawRedshift(),
+    ]
+)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Update-sampling-prior">
+<h2>Update sampling prior<a class="headerlink" href="#Update-sampling-prior" title="Permalink to this headline"></a></h2>
+<p>We need to update the sampling prior to account for the new redshift evolution model.</p>
+<p>Fortunately, we defined an interpolant for this earlier.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>for posterior in posteriors:
+    posterior[&quot;prior&quot;] = redshift_prior(posterior[&quot;redshift&quot;])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Likelihood">
+<h2>Likelihood<a class="headerlink" href="#Likelihood" title="Permalink to this headline"></a></h2>
+<p>We use a different likelihood class <code class="docutils literal notranslate"><span class="pre">RateLikelihood</span></code>, this will simultaneously estimate the local merger rate as well as the population distribution.</p>
+<p>This is created just as before.</p>
+<p>We note that this is not strictly necessary as we can always reconstruct the rate posterior in post-processing using the <code class="docutils literal notranslate"><span class="pre">HypmerparameterLikelihood</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>full_likelihood = gwpop.hyperpe.HyperparameterLikelihood(
+    posteriors=posteriors, hyper_prior=full_model
+)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Prior">
+<h2>Prior<a class="headerlink" href="#Prior" title="Permalink to this headline"></a></h2>
+<p>This is just a longer version of the previous.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>full_priors = PriorDict()
+
+# mass
+full_priors[&quot;alpha&quot;] = Uniform(minimum=-4, maximum=12, latex_label=&quot;$\\alpha$&quot;)
+full_priors[&quot;beta&quot;] = Uniform(minimum=-4, maximum=12, latex_label=&quot;$\\beta$&quot;)
+full_priors[&quot;mmin&quot;] = Uniform(minimum=5, maximum=10, latex_label=&quot;$m_{\\min}$&quot;)
+full_priors[&quot;mmax&quot;] = Uniform(minimum=20, maximum=60, latex_label=&quot;$m_{\\max}$&quot;)
+full_priors[&quot;lam&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\lambda_{m}$&quot;)
+full_priors[&quot;mpp&quot;] = Uniform(minimum=20, maximum=50, latex_label=&quot;$\\mu_{m}$&quot;)
+full_priors[&quot;sigpp&quot;] = Uniform(minimum=0, maximum=10, latex_label=&quot;$\\sigma_{m}$&quot;)
+# spin magnitude
+full_priors[&quot;amax&quot;] = 1
+full_priors[&quot;alpha_chi&quot;] = Uniform(
+    minimum=-4, maximum=12, latex_label=&quot;$\\alpha_{\\chi}$&quot;
+)
+full_priors[&quot;beta_chi&quot;] = Uniform(
+    minimum=-4, maximum=12, latex_label=&quot;$\\beta_{\\chi}$&quot;
+)
+# spin orientation
+full_priors[&quot;xi_spin&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\xi$&quot;)
+full_priors[&quot;sigma_1&quot;] = Uniform(minimum=0, maximum=4, latex_label=&quot;$\\sigma{1}$&quot;)
+full_priors[&quot;sigma_2&quot;] = Uniform(minimum=0, maximum=4, latex_label=&quot;$\\sigma{2}$&quot;)
+# redshift evolution
+full_priors[&quot;lamb&quot;] = Uniform(minimum=-25, maximum=25, latex_label=&quot;$\\lambda_{z}$&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>full_likelihood.parameters.update(full_priors.sample())
+full_likelihood.log_likelihood_ratio()
+
+full_result = bb.run_sampler(
+    likelihood=full_likelihood,
+    priors=full_priors,
+    sampler=&quot;dynesty&quot;,
+    nlive=100,
+    walks=5,
+    nact=3,
+    label=&quot;full&quot;,
+)
+
+_ = full_result.plot_corner(save=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+16:24 bilby INFO    : Running for label &#39;full&#39;, output will be saved to &#39;outdir&#39;
+16:24 bilby INFO    : Search parameters:
+16:24 bilby INFO    :   alpha = Uniform(minimum=-4, maximum=12, name=None, latex_label=&#39;$\\alpha$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   beta = Uniform(minimum=-4, maximum=12, name=None, latex_label=&#39;$\\beta$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   mmin = Uniform(minimum=5, maximum=10, name=None, latex_label=&#39;$m_{\\min}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   mmax = Uniform(minimum=20, maximum=60, name=None, latex_label=&#39;$m_{\\max}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   lam = Uniform(minimum=0, maximum=1, name=None, latex_label=&#39;$\\lambda_{m}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   mpp = Uniform(minimum=20, maximum=50, name=None, latex_label=&#39;$\\mu_{m}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   sigpp = Uniform(minimum=0, maximum=10, name=None, latex_label=&#39;$\\sigma_{m}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   alpha_chi = Uniform(minimum=-4, maximum=12, name=None, latex_label=&#39;$\\alpha_{\\chi}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   beta_chi = Uniform(minimum=-4, maximum=12, name=None, latex_label=&#39;$\\beta_{\\chi}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   xi_spin = Uniform(minimum=0, maximum=1, name=None, latex_label=&#39;$\\xi$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   sigma_1 = Uniform(minimum=0, maximum=4, name=None, latex_label=&#39;$\\sigma{1}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   sigma_2 = Uniform(minimum=0, maximum=4, name=None, latex_label=&#39;$\\sigma{2}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   lamb = Uniform(minimum=-25, maximum=25, name=None, latex_label=&#39;$\\lambda_{z}$&#39;, unit=None, boundary=None)
+16:24 bilby INFO    :   amax = 1
+16:24 bilby INFO    : Single likelihood evaluation took 1.124e-02 s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "66e076bc656941e789941a3cc9b7186a", "version_minor": 0, "version_major": 2}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+16:24 bilby INFO    : Checkpoint every check_point_delta_t = 600s
+16:24 bilby WARNING : Using cached result
+16:24 bilby INFO    : Summary of results:
+nsamples: 1300
+ln_noise_evidence:    nan
+ln_evidence:    nan +/-  0.345
+ln_bayes_factor: -254.228 +/-  0.345
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/GWTC1_43_3.png" src="_images/GWTC1_43_3.png" />
+</div>
+</div>
+<p>Finally, we’ll print some version information so we have a record.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>import platform
+
+print(f&quot;Python=={platform.python_version()}&quot;)
+print(
+    &quot;\n&quot;.join(
+        f&quot;{m.__name__}=={m.__version__}&quot;
+        for m in globals().values()
+        if getattr(m, &quot;__version__&quot;, None)
+    )
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Python==3.7.12
+numpy==1.19.5
+matplotlib==3.2.2
+matplotlib.pylab==1.19.5
+numpy==1.19.5
+matplotlib==3.2.2
+logging==0.5.1.2
+re==2.2.1
+h5py==3.1.0
+pandas==1.3.5
+bilby==1.1.5: release
+gwpopulation==0.6.3:
+cupy==9.4.0
+platform==1.0.8
+</pre></div></div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"99653b1db773475497e01c0237c89fa7": {"model_module": "@jupyter-widgets/controls", "model_name": "HBoxModel", "model_module_version": "1.5.0", "state": {"_view_name": "HBoxView", "_dom_classes": [], "_model_name": "HBoxModel", "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.5.0", "box_style": "", "layout": "IPY_MODEL_cc6c1c1b2b5b458a905de948bf12a32f", "_model_module": "@jupyter-widgets/controls", "children": ["IPY_MODEL_2d167f0a0b2f48f0ab212706b517382d", "IPY_MODEL_430133232b304402a9be43726e13067c", "IPY_MODEL_87dac2ce9ef64e08a7e6f2bc611d7150"]}}, "cc6c1c1b2b5b458a905de948bf12a32f": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": null, "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "2d167f0a0b2f48f0ab212706b517382d": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "model_module_version": "1.5.0", "state": {"_view_name": "HTMLView", "style": "IPY_MODEL_d6e79cee9b0b4698bcf6e5b5478c18dc", "_dom_classes": [], "description": "", "_model_name": "HTMLModel", "placeholder": "\u200b", "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "value": "", "_view_count": null, "_view_module_version": "1.5.0", "description_tooltip": null, "_model_module": "@jupyter-widgets/controls", "layout": "IPY_MODEL_47fef133b4a04d4cadcd07fc21a33057"}}, "430133232b304402a9be43726e13067c": {"model_module": "@jupyter-widgets/controls", "model_name": "FloatProgressModel", "model_module_version": "1.5.0", "state": {"_view_name": "ProgressView", "style": "IPY_MODEL_9d799f3de5e04ce2bcdff6678a083af2", "_dom_classes": [], "description": "", "_model_name": "FloatProgressModel", "bar_style": "success", "max": 1, "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "value": 0, "_view_count": null, "_view_module_version": "1.5.0", "orientation": "horizontal", "min": 0, "description_tooltip": null, "_model_module": "@jupyter-widgets/controls", "layout": "IPY_MODEL_0009005e20ad4b119cdc97df3cfb88bf"}}, "87dac2ce9ef64e08a7e6f2bc611d7150": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "model_module_version": "1.5.0", "state": {"_view_name": "HTMLView", "style": "IPY_MODEL_bf91d369a3e04b9697c7528e89e7ff56", "_dom_classes": [], "description": "", "_model_name": "HTMLModel", "placeholder": "\u200b", "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "value": " 0/? [00:36&lt;?, ?it/s]", "_view_count": null, "_view_module_version": "1.5.0", "description_tooltip": null, "_model_module": "@jupyter-widgets/controls", "layout": "IPY_MODEL_0196787a9f5d496eba0eec9e679a71c8"}}, "d6e79cee9b0b4698bcf6e5b5478c18dc": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "model_module_version": "1.5.0", "state": {"_view_name": "StyleView", "_model_name": "DescriptionStyleModel", "description_width": "", "_view_module": "@jupyter-widgets/base", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.2.0", "_model_module": "@jupyter-widgets/controls"}}, "47fef133b4a04d4cadcd07fc21a33057": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": null, "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "9d799f3de5e04ce2bcdff6678a083af2": {"model_module": "@jupyter-widgets/controls", "model_name": "ProgressStyleModel", "model_module_version": "1.5.0", "state": {"_view_name": "StyleView", "_model_name": "ProgressStyleModel", "description_width": "", "_view_module": "@jupyter-widgets/base", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.2.0", "bar_color": null, "_model_module": "@jupyter-widgets/controls"}}, "0009005e20ad4b119cdc97df3cfb88bf": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": "20px", "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "bf91d369a3e04b9697c7528e89e7ff56": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "model_module_version": "1.5.0", "state": {"_view_name": "StyleView", "_model_name": "DescriptionStyleModel", "description_width": "", "_view_module": "@jupyter-widgets/base", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.2.0", "_model_module": "@jupyter-widgets/controls"}}, "0196787a9f5d496eba0eec9e679a71c8": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": null, "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "8459868a6f93413ab2f65860018e318a": {"model_module": "@jupyter-widgets/controls", "model_name": "HBoxModel", "model_module_version": "1.5.0", "state": {"_view_name": "HBoxView", "_dom_classes": [], "_model_name": "HBoxModel", "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.5.0", "box_style": "", "layout": "IPY_MODEL_4e4e9befb8dd4d509653ecc7f0111303", "_model_module": "@jupyter-widgets/controls", "children": ["IPY_MODEL_1294db7c67364a9eacd322a060d594ea", "IPY_MODEL_ea2bfc972b8e49e1b3a439ee25add80f", "IPY_MODEL_ce02041c627c4110ab0962f43a959c61"]}}, "4e4e9befb8dd4d509653ecc7f0111303": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": null, "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "1294db7c67364a9eacd322a060d594ea": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "model_module_version": "1.5.0", "state": {"_view_name": "HTMLView", "style": "IPY_MODEL_b6aa6c458f99432ca669c7f5644a9e3f", "_dom_classes": [], "description": "", "_model_name": "HTMLModel", "placeholder": "\u200b", "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "value": "", "_view_count": null, "_view_module_version": "1.5.0", "description_tooltip": null, "_model_module": "@jupyter-widgets/controls", "layout": "IPY_MODEL_cd3f2d9462124e5b837d13addf5f430a"}}, "ea2bfc972b8e49e1b3a439ee25add80f": {"model_module": "@jupyter-widgets/controls", "model_name": "FloatProgressModel", "model_module_version": "1.5.0", "state": {"_view_name": "ProgressView", "style": "IPY_MODEL_1f1f701a4c084ea3b9afee83dd3d0d04", "_dom_classes": [], "description": "", "_model_name": "FloatProgressModel", "bar_style": "success", "max": 1, "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "value": 0, "_view_count": null, "_view_module_version": "1.5.0", "orientation": "horizontal", "min": 0, "description_tooltip": null, "_model_module": "@jupyter-widgets/controls", "layout": "IPY_MODEL_e2ca28993a9542feb13dca6404f4245f"}}, "ce02041c627c4110ab0962f43a959c61": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "model_module_version": "1.5.0", "state": {"_view_name": "HTMLView", "style": "IPY_MODEL_bf45a526e960470ba5e74d060e0c33e9", "_dom_classes": [], "description": "", "_model_name": "HTMLModel", "placeholder": "\u200b", "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "value": " 0/? [00:06&lt;?, ?it/s]", "_view_count": null, "_view_module_version": "1.5.0", "description_tooltip": null, "_model_module": "@jupyter-widgets/controls", "layout": "IPY_MODEL_3b828dd5b3ab40988c81553554f1fd92"}}, "b6aa6c458f99432ca669c7f5644a9e3f": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "model_module_version": "1.5.0", "state": {"_view_name": "StyleView", "_model_name": "DescriptionStyleModel", "description_width": "", "_view_module": "@jupyter-widgets/base", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.2.0", "_model_module": "@jupyter-widgets/controls"}}, "cd3f2d9462124e5b837d13addf5f430a": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": null, "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "1f1f701a4c084ea3b9afee83dd3d0d04": {"model_module": "@jupyter-widgets/controls", "model_name": "ProgressStyleModel", "model_module_version": "1.5.0", "state": {"_view_name": "StyleView", "_model_name": "ProgressStyleModel", "description_width": "", "_view_module": "@jupyter-widgets/base", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.2.0", "bar_color": null, "_model_module": "@jupyter-widgets/controls"}}, "e2ca28993a9542feb13dca6404f4245f": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": "20px", "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "bf45a526e960470ba5e74d060e0c33e9": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "model_module_version": "1.5.0", "state": {"_view_name": "StyleView", "_model_name": "DescriptionStyleModel", "description_width": "", "_view_module": "@jupyter-widgets/base", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.2.0", "_model_module": "@jupyter-widgets/controls"}}, "3b828dd5b3ab40988c81553554f1fd92": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": null, "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "66e076bc656941e789941a3cc9b7186a": {"model_module": "@jupyter-widgets/controls", "model_name": "HBoxModel", "model_module_version": "1.5.0", "state": {"_view_name": "HBoxView", "_dom_classes": [], "_model_name": "HBoxModel", "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.5.0", "box_style": "", "layout": "IPY_MODEL_803a60ab311a408ba4e03cb8eed47e2f", "_model_module": "@jupyter-widgets/controls", "children": ["IPY_MODEL_5a6c4692573547048439b89a00e28b18", "IPY_MODEL_48fab02b132a4a10bb501f27c2ef39fa", "IPY_MODEL_fbe9800b9e784401bc92c0e7b2542e9a"]}}, "803a60ab311a408ba4e03cb8eed47e2f": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": null, "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "5a6c4692573547048439b89a00e28b18": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "model_module_version": "1.5.0", "state": {"_view_name": "HTMLView", "style": "IPY_MODEL_e7a5a70782b841a8978654aecce552f6", "_dom_classes": [], "description": "", "_model_name": "HTMLModel", "placeholder": "\u200b", "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "value": "", "_view_count": null, "_view_module_version": "1.5.0", "description_tooltip": null, "_model_module": "@jupyter-widgets/controls", "layout": "IPY_MODEL_1c1fe46749d94b549dae311a357b4e30"}}, "48fab02b132a4a10bb501f27c2ef39fa": {"model_module": "@jupyter-widgets/controls", "model_name": "FloatProgressModel", "model_module_version": "1.5.0", "state": {"_view_name": "ProgressView", "style": "IPY_MODEL_71973823e9724989af88eea10d138044", "_dom_classes": [], "description": "", "_model_name": "FloatProgressModel", "bar_style": "info", "max": 1, "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "value": 0, "_view_count": null, "_view_module_version": "1.5.0", "orientation": "horizontal", "min": 0, "description_tooltip": null, "_model_module": "@jupyter-widgets/controls", "layout": "IPY_MODEL_2e61f7ef300f465a8938128d5312fde1"}}, "fbe9800b9e784401bc92c0e7b2542e9a": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "model_module_version": "1.5.0", "state": {"_view_name": "HTMLView", "style": "IPY_MODEL_72dc0072c7fe4aa9b7e99d1d5301a54f", "_dom_classes": [], "description": "", "_model_name": "HTMLModel", "placeholder": "\u200b", "_view_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "value": " 0/? [00:00&lt;?, ?it/s]", "_view_count": null, "_view_module_version": "1.5.0", "description_tooltip": null, "_model_module": "@jupyter-widgets/controls", "layout": "IPY_MODEL_d54f26fcb24548deb45a7829a40c4684"}}, "e7a5a70782b841a8978654aecce552f6": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "model_module_version": "1.5.0", "state": {"_view_name": "StyleView", "_model_name": "DescriptionStyleModel", "description_width": "", "_view_module": "@jupyter-widgets/base", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.2.0", "_model_module": "@jupyter-widgets/controls"}}, "1c1fe46749d94b549dae311a357b4e30": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": null, "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "71973823e9724989af88eea10d138044": {"model_module": "@jupyter-widgets/controls", "model_name": "ProgressStyleModel", "model_module_version": "1.5.0", "state": {"_view_name": "StyleView", "_model_name": "ProgressStyleModel", "description_width": "", "_view_module": "@jupyter-widgets/base", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.2.0", "bar_color": null, "_model_module": "@jupyter-widgets/controls"}}, "2e61f7ef300f465a8938128d5312fde1": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": "20px", "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}, "72dc0072c7fe4aa9b7e99d1d5301a54f": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "model_module_version": "1.5.0", "state": {"_view_name": "StyleView", "_model_name": "DescriptionStyleModel", "description_width": "", "_view_module": "@jupyter-widgets/base", "_model_module_version": "1.5.0", "_view_count": null, "_view_module_version": "1.2.0", "_model_module": "@jupyter-widgets/controls"}}, "d54f26fcb24548deb45a7829a40c4684": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "model_module_version": "1.2.0", "state": {"_view_name": "LayoutView", "grid_template_rows": null, "right": null, "justify_content": null, "_view_module": "@jupyter-widgets/base", "overflow": null, "_model_module_version": "1.2.0", "_view_count": null, "flex_flow": null, "width": null, "min_width": null, "border": null, "align_items": null, "bottom": null, "_model_module": "@jupyter-widgets/base", "top": null, "grid_column": null, "overflow_y": null, "overflow_x": null, "grid_auto_flow": null, "grid_area": null, "grid_template_columns": null, "flex": null, "_model_name": "LayoutModel", "justify_items": null, "grid_row": null, "max_height": null, "align_content": null, "visibility": null, "align_self": null, "height": null, "min_height": null, "padding": null, "grid_auto_rows": null, "grid_gap": null, "max_width": null, "order": null, "_view_module_version": "1.2.0", "grid_template_areas": null, "object_position": null, "object_fit": null, "grid_auto_columns": null, "margin": null, "display": null, "left": null}}}
+</script></div>
+</div>
 
 
            </div>

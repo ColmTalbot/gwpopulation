@@ -16,6 +16,8 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -112,7 +114,41 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="gwpopulation.utils.unnormalized_2d_gaussian">
 <span class="sig-prename descclassname"><span class="pre">gwpopulation.utils.</span></span><span class="sig-name descname"><span class="pre">unnormalized_2d_gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/utils.html#unnormalized_2d_gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.utils.unnormalized_2d_gaussian" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Compute the probability distribution for a correlated 2-dimensional Gaussian
+neglecting normalization terms.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\ln p(x) = (x - \mu_{x} y - \mu_{y}) \Sigma^{-1} (x - \mu_x y - \mu_{y})^{T} \\
+\Sigma = \begin{bmatrix}
+        \sigma^{2}_{x} &amp; \rho \sigma_{x} \sigma_{y} \\
+        \rho \sigma_{x} \sigma_{y} &amp; \sigma^{2}_{y}
+    \end{bmatrix}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>xx: array-like</strong></dt><dd><p>Input data in first dimension (<span class="math notranslate nohighlight">\(x\)</span>)</p>
+</dd>
+<dt><strong>yy: array-like</strong></dt><dd><p>Input data in second dimension (<span class="math notranslate nohighlight">\(y\)</span>)</p>
+</dd>
+<dt><strong>mu_x: float</strong></dt><dd><p>Mean in the first dimension (<span class="math notranslate nohighlight">\(\mu_{x}\)</span>)</p>
+</dd>
+<dt><strong>sigma_x: float</strong></dt><dd><p>Standard deviation in the first dimension (<span class="math notranslate nohighlight">\(\sigma_{x}\)</span>)</p>
+</dd>
+<dt><strong>mu_y: float</strong></dt><dd><p>Mean in the second dimension (<span class="math notranslate nohighlight">\(\mu_{y}\)</span>)</p>
+</dd>
+<dt><strong>sigma_y: float</strong></dt><dd><p>Standard deviation in the second dimension (<span class="math notranslate nohighlight">\(\sigma_{y}\)</span>)</p>
+</dd>
+<dt><strong>covariance: float</strong></dt><dd><p>The normalized covariance (bounded in [0, 1]) (<span class="math notranslate nohighlight">\(\rho\)</span>)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>prob: array-like</dt><dd><p>The unnormalized probability distribution (<span class="math notranslate nohighlight">\(p(x)\)</span>)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 

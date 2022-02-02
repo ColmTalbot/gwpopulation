@@ -195,9 +195,42 @@
 
 
 <div class="viewcode-block" id="unnormalized_2d_gaussian"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.unnormalized_2d_gaussian.html#gwpopulation.utils.unnormalized_2d_gaussian">[docs]</a><span class="k">def</span> <span class="nf">unnormalized_2d_gaussian</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">mu_x</span><span class="p">,</span> <span class="n">mu_y</span><span class="p">,</span> <span class="n">sigma_x</span><span class="p">,</span> <span class="n">sigma_y</span><span class="p">,</span> <span class="n">covariance</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the probability distribution for a correlated 2-dimensional Gaussian</span>
+<span class="sd">    neglecting normalization terms.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \ln p(x) = (x - \mu_{x} y - \mu_{y}) \Sigma^{-1} (x - \mu_x y - \mu_{y})^{T} \\</span>
+<span class="sd">        \Sigma = \begin{bmatrix}</span>
+<span class="sd">                \sigma^{2}_{x} &amp; \rho \sigma_{x} \sigma_{y} \\</span>
+<span class="sd">                \rho \sigma_{x} \sigma_{y} &amp; \sigma^{2}_{y}</span>
+<span class="sd">            \end{bmatrix}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    xx: array-like</span>
+<span class="sd">        Input data in first dimension (:math:`x`)</span>
+<span class="sd">    yy: array-like</span>
+<span class="sd">        Input data in second dimension (:math:`y`)</span>
+<span class="sd">    mu_x: float</span>
+<span class="sd">        Mean in the first dimension (:math:`\mu_{x}`)</span>
+<span class="sd">    sigma_x: float</span>
+<span class="sd">        Standard deviation in the first dimension (:math:`\sigma_{x}`)</span>
+<span class="sd">    mu_y: float</span>
+<span class="sd">        Mean in the second dimension (:math:`\mu_{y}`)</span>
+<span class="sd">    sigma_y: float</span>
+<span class="sd">        Standard deviation in the second dimension (:math:`\sigma_{y}`)</span>
+<span class="sd">    covariance: float</span>
+<span class="sd">        The normalized covariance (bounded in [0, 1]) (:math:`\rho`)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    prob: array-like</span>
+<span class="sd">        The unnormalized probability distribution (:math:`p(x)`)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">determinant</span> <span class="o">=</span> <span class="n">sigma_x</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma_y</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">covariance</span><span class="p">)</span>
-    <span class="n">residual_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">mu_x</span> <span class="o">-</span> <span class="n">xx</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma_x</span>
-    <span class="n">residual_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">mu_y</span> <span class="o">-</span> <span class="n">yy</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma_y</span>
+    <span class="n">residual_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">mu_x</span> <span class="o">-</span> <span class="n">xx</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma_y</span>
+    <span class="n">residual_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">mu_y</span> <span class="o">-</span> <span class="n">yy</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma_x</span>
     <span class="n">prob</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
         <span class="o">-</span><span class="p">(</span><span class="n">residual_x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">residual_y</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">residual_x</span> <span class="o">*</span> <span class="n">residual_y</span> <span class="o">*</span> <span class="n">covariance</span><span class="p">)</span>
         <span class="o">/</span> <span class="mi">2</span>

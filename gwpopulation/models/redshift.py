@@ -2,8 +2,8 @@
 Implemented redshift models
 """
 
-from astropy.cosmology import Planck15
 import numpy as np
+from astropy.cosmology import Planck15
 
 from ..cupy_utils import to_numpy, trapz, xp
 

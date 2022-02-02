@@ -6,12 +6,11 @@ import types
 
 import numpy as np
 import pandas as pd
+from bilby.core.likelihood import Likelihood
+from bilby.core.utils import logger
+from bilby.hyper.model import Model
 from scipy.stats import gamma
 from tqdm import tqdm
-
-from bilby.core.utils import logger
-from bilby.core.likelihood import Likelihood
-from bilby.hyper.model import Model
 
 from .cupy_utils import CUPY_LOADED, to_numpy, xp
 

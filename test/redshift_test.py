@@ -1,11 +1,11 @@
 import unittest
 
+import numpy as np
 from astropy.cosmology import Planck15
 from bilby.core.prior import PriorDict, Uniform
-import numpy as np
 
-from gwpopulation.models import redshift
 from gwpopulation.cupy_utils import trapz, xp
+from gwpopulation.models import redshift
 
 
 class TestRedshift(unittest.TestCase):

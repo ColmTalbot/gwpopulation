@@ -3,8 +3,8 @@ import unittest
 from bilby.core.prior import PriorDict, Uniform
 
 from gwpopulation.cupy_utils import trapz, xp
-from gwpopulation.utils import truncnorm
 from gwpopulation.models import spin
+from gwpopulation.utils import truncnorm
 
 
 class TestSpinOrientation(unittest.TestCase):

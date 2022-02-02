@@ -84,16 +84,11 @@
 <span class="kn">import</span> <span class="nn">types</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">bilby.core.likelihood</span> <span class="kn">import</span> <span class="n">Likelihood</span>
 <span class="kn">from</span> <span class="nn">bilby.core.utils</span> <span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span> <span class="nn">bilby.hyper.model</span> <span class="kn">import</span> <span class="n">Model</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gamma</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="kn">from</span> <span class="nn">.cupy_utils</span> <span class="kn">import</span> <span class="n">CUPY_LOADED</span><span class="p">,</span> <span class="n">to_numpy</span><span class="p">,</span> <span class="n">xp</span>
-
-<span class="n">INF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="HyperparameterLikelihood"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood">[docs]</a><span class="k">class</span> <span class="nc">HyperparameterLikelihood</span><span class="p">(</span><span class="n">Likelihood</span><span class="p">):</span>
@@ -175,7 +170,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">conversion_function</span> <span class="o">=</span> <span class="n">conversion_function</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">selection_function</span> <span class="o">=</span> <span class="n">selection_function</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">posteriors</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">posteriors</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span></div>
 
     <span class="vm">__doc__</span> <span class="o">+=</span> <span class="fm">__init__</span><span class="o">.</span><span class="vm">__doc__</span>
 
@@ -188,7 +184,7 @@
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">added_keys</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">xp</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ln_l</span><span class="p">):</span>
-            <span class="k">return</span> <span class="o">-</span><span class="n">INF</span>
+            <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_inf</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ln_l</span><span class="p">))</span></div>
 
@@ -254,6 +250,8 @@
 <span class="sd">        rate: float</span>
 <span class="sd">            A sample from the posterior distribution for rate.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gamma</span>
+
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selection_function</span><span class="p">,</span> <span class="s2">&quot;detection_efficiency&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">selection_function</span><span class="p">,</span> <span class="s2">&quot;surveyed_hypervolume&quot;</span>
         <span class="p">):</span>
@@ -322,6 +320,9 @@
 <span class="sd">        weights: array-like</span>
 <span class="sd">            Weights to apply to the samples, only if return_weights == True.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+        <span class="kn">from</span> <span class="nn">tqdm.auto</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">))]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>

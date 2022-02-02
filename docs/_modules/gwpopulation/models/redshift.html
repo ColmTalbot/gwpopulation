@@ -82,7 +82,6 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">astropy.cosmology</span> <span class="kn">import</span> <span class="n">Planck15</span>
 
 <span class="kn">from</span> <span class="nn">..cupy_utils</span> <span class="kn">import</span> <span class="n">to_numpy</span><span class="p">,</span> <span class="n">trapz</span><span class="p">,</span> <span class="n">xp</span>
 
@@ -93,6 +92,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_max</span><span class="o">=</span><span class="mf">2.3</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">astropy.cosmology</span> <span class="kn">import</span> <span class="n">Planck15</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">z_max</span> <span class="o">=</span> <span class="n">z_max</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zs_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">z_max</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zs</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zs_</span><span class="p">)</span>
@@ -229,10 +230,9 @@
         <span class="k">return</span> <span class="n">psi_of_z</span></div>
 
 
-<span class="n">power_law_redshift</span> <span class="o">=</span> <span class="n">PowerLawRedshift</span><span class="p">()</span>
-
-
 <div class="viewcode-block" id="total_four_volume"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.redshift.total_four_volume.html#gwpopulation.models.redshift.total_four_volume">[docs]</a><span class="k">def</span> <span class="nf">total_four_volume</span><span class="p">(</span><span class="n">lamb</span><span class="p">,</span> <span class="n">analysis_time</span><span class="p">,</span> <span class="n">max_redshift</span><span class="o">=</span><span class="mf">2.3</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">astropy.cosmology</span> <span class="kn">import</span> <span class="n">Planck15</span>
+
     <span class="n">redshifts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_redshift</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
     <span class="n">psi_of_z</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">redshifts</span><span class="p">)</span> <span class="o">**</span> <span class="n">lamb</span>
     <span class="n">normalization</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="n">analysis_time</span>

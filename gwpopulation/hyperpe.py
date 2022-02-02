@@ -24,8 +24,8 @@ class HyperparameterLikelihood(Likelihood):
 
     See Eq. (34) of https://arxiv.org/abs/1809.02293 for a definition.
 
-    For the uncertainty calculation see the Appendix of 
-    `Golomb and Talbot <https://arxiv.org/abs/2106.15745>`_ and 
+    For the uncertainty calculation see the Appendix of
+    `Golomb and Talbot <https://arxiv.org/abs/2106.15745>`_ and
     `Farr <https://arxiv.org/abs/1904.10879>`_.
     """
 

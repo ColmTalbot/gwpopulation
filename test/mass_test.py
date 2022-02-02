@@ -1,7 +1,6 @@
 import unittest
 
 import numpy as np
-
 from bilby.core.prior import PriorDict, Uniform
 
 from gwpopulation.cupy_utils import trapz, xp

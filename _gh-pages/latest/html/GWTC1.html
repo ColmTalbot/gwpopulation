@@ -328,6 +328,7 @@
 “from bilby.core.prior import LogUniform, PriorDict, Uniformn”,
 “from bilby.hyper.model import Modeln”,
 “import gwpopulation as gwpopn”,
+“n”,
 “xp = gwpop.cupy_utils.xp”</p>
 </div></blockquote>
 <p>],
@@ -368,28 +369,39 @@
 “source”: [</p>
 <blockquote>
 <div><p>“parameter_translator = dict(n”,
-”    mass_1_det=’m1_detector_frame_Msun’,n”,
-”    mass_2_det=’m2_detector_frame_Msun’,n”,
-”    luminosity_distance=’luminosity_distance_Mpc’,n”,
-”    a_1=’spin1’,n”,
-”    a_2=’spin2’,n”,
-”    cos_tilt_1=’costilt1’,n”,
-”    cos_tilt_2=’costilt2’)n”,
+”    mass_1_det=&quot;m1_detector_frame_Msun&quot;,n”,
+”    mass_2_det=&quot;m2_detector_frame_Msun&quot;,n”,
+”    luminosity_distance=&quot;luminosity_distance_Mpc&quot;,n”,
+”    a_1=&quot;spin1&quot;,n”,
+”    a_2=&quot;spin2&quot;,n”,
+”    cos_tilt_1=&quot;costilt1&quot;,n”,
+”    cos_tilt_2=&quot;costilt2&quot;,n”,
+“)n”,
 “n”,
 “posteriors = list()n”,
 “priors = list()n”,
 “n”,
-“file_str = ‘./GWTC-1_sample_release/GW{}_GWTC-1.hdf5’n”,
+“file_str = &quot;./GWTC-1_sample_release/GW{}_GWTC-1.hdf5&quot;n”,
 “n”,
-“events = [‘150914’, ‘151012’, ‘151226’, ‘170104’, ‘170608’,n”,
-”          ‘170729’, ‘170809’, ‘170814’, ‘170818’, ‘170823’]n”,
+“events = [n”,
+”    &quot;150914&quot;,n”,
+”    &quot;151012&quot;,n”,
+”    &quot;151226&quot;,n”,
+”    &quot;170104&quot;,n”,
+”    &quot;170608&quot;,n”,
+”    &quot;170729&quot;,n”,
+”    &quot;170809&quot;,n”,
+”    &quot;170814&quot;,n”,
+”    &quot;170818&quot;,n”,
+”    &quot;170823&quot;,n”,
+“]n”,
 “for event in events:n”,
 ”    _posterior = pd.DataFrame()n”,
 ”    _prior = pd.DataFrame()n”,
 ”    with h5py.File(file_str.format(event)) as ff:n”,
 ”        for my_key, gwtc_key in parameter_translator.items():n”,
-”            _posterior[my_key] = ff[‘IMRPhenomPv2_posterior’][gwtc_key]n”,
-”            _prior[my_key] = ff[‘prior’][gwtc_key]n”,
+”            _posterior[my_key] = ff[&quot;IMRPhenomPv2_posterior&quot;][gwtc_key]n”,
+”            _prior[my_key] = ff[&quot;prior&quot;][gwtc_key]n”,
 ”    posteriors.append(_posterior)n”,
 ”    priors.append(_prior)”</p>
 </div></blockquote>
@@ -411,18 +423,19 @@
 “source”: [</p>
 <blockquote>
 <div><p>“luminosity_distances = np.linspace(1, 10000, 1000)n”,
-“redshifts = np.array([n”,
-”    cosmology.z_at_value(n”,
-”        cosmology.Planck15.luminosity_distance, dl * units.Mpc)n”,
-”    for dl in luminosity_distances])n”,
+“redshifts = np.array(n”,
+”    [n”,
+”        cosmology.z_at_value(cosmology.Planck15.luminosity_distance, dl * units.Mpc)n”,
+”        for dl in luminosity_distancesn”,
+”    ]n”,
+“)n”,
 “dl_to_z = interp1d(luminosity_distances, redshifts)n”,
 “n”,
-“luminosity_prior = luminosity_distances ** 2n”,
+“luminosity_prior = luminosity_distances**2n”,
 “n”,
 “dz_ddl = np.gradient(redshifts, luminosity_distances)n”,
 “n”,
-“redshift_prior = interp1d(n”,
-”    redshifts, luminosity_prior / dz_ddl / (1 + redshifts))”</p>
+“redshift_prior = interp1d(redshifts, luminosity_prior / dz_ddl / (1 + redshifts))”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -463,10 +476,10 @@
 “source”: [</p>
 <blockquote>
 <div><p>“for posterior in posteriors:n”,
-”    posterior[‘redshift’] = dl_to_z(posterior[‘luminosity_distance’])n”,
-”    posterior[‘mass_1’] = posterior[‘mass_1_det’] / (1 + posterior[‘redshift’])n”,
-”    posterior[‘mass_2’] = posterior[‘mass_2_det’] / (1 + posterior[‘redshift’])n”,
-”    posterior[‘mass_ratio’] = posterior[‘mass_2’] / posterior[‘mass_1’]”</p>
+”    posterior[&quot;redshift&quot;] = dl_to_z(posterior[&quot;luminosity_distance&quot;])n”,
+”    posterior[&quot;mass_1&quot;] = posterior[&quot;mass_1_det&quot;] / (1 + posterior[&quot;redshift&quot;])n”,
+”    posterior[&quot;mass_2&quot;] = posterior[&quot;mass_2_det&quot;] / (1 + posterior[&quot;redshift&quot;])n”,
+”    posterior[&quot;mass_ratio&quot;] = posterior[&quot;mass_2&quot;] / posterior[&quot;mass_1&quot;]”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -498,7 +511,7 @@
 “n”,
 “<cite>gwpopulation.models.spin.iid_spin</cite>n”,
 “n”,
-“Where the spins of the two black holes are independently and identically distirbuted with a beta distribution for the magnitude and an isotropic + half-Gaussian for the cosine tilts.”</p>
+“Where the spins of the two black holes are independently and identically distributed with a beta distribution for the magnitude and an isotropic + half-Gaussian for the cosine tilts.”</p>
 </div></blockquote>
 <p>]</p>
 </div></blockquote>
@@ -567,11 +580,12 @@
 <div><p>“masses = xp.linspace(3, 100, 1000)n”,
 “vts = masses**1.6n”,
 “n”,
+“n”,
 “def toy_vt_calculator(kwargs):n”,
-”    params = {key: kwargs[key] for key in n”,
-”              [‘alpha’, ‘mmin’, ‘mmax’, ‘lam’, ‘mpp’, ‘sigpp’]}n”,
-”    p_m = gwpop.models.mass.two_component_single(n”,
-”        masses, <a href="#id1"><span class="problematic" id="id2">**</span></a>params)n”,
+”    params = {n”,
+”        key: kwargs[key] for key in [&quot;alpha&quot;, &quot;mmin&quot;, &quot;mmax&quot;, &quot;lam&quot;, &quot;mpp&quot;, &quot;sigpp&quot;]n”,
+”    }n”,
+”    p_m = gwpop.models.mass.two_component_single(masses, <a href="#id1"><span class="problematic" id="id2">**</span></a>params)n”,
 ”    return gwpop.cupy_utils.trapz(p_m * vts, masses)”</p>
 </div></blockquote>
 <p>],
@@ -624,8 +638,8 @@
 “source”: [</p>
 <blockquote>
 <div><p>“fast_likelihood = gwpop.hyperpe.HyperparameterLikelihood(n”,
-”    posteriors=posteriors, hyper_prior=model,n”,
-”    selection_function=toy_vt_calculator)”</p>
+”    posteriors=posteriors, hyper_prior=model, selection_function=toy_vt_calculatorn”,
+“)”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -671,18 +685,22 @@
 <div><p>“fast_priors = PriorDict()n”,
 “n”,
 “# massn”,
-“fast_priors[‘alpha’] = Uniform(minimum=-2, maximum=4, latex_label=’$\\alpha$’)n”,
-“fast_priors[‘beta’] = Uniform(minimum=-4, maximum=12, latex_label=’$\\beta$’)n”,
-“fast_priors[‘mmin’] = Uniform(minimum=5, maximum=10, latex_label=’$m_{\\min}$’)n”,
-“fast_priors[‘mmax’] = Uniform(minimum=20, maximum=60, latex_label=’$m_{\\max}$’)n”,
-“fast_priors[‘lam’] = Uniform(minimum=0, maximum=1, latex_label=’$\\lambda_{m}$’)n”,
-“fast_priors[‘mpp’] = Uniform(minimum=10, maximum=50, latex_label=’$\\mu_{m}$’)n”,
-“fast_priors[‘sigpp’] = Uniform(minimum=0, maximum=10, latex_label=’$\\sigma_{m}$’)n”,
+“fast_priors[&quot;alpha&quot;] = Uniform(minimum=-2, maximum=4, latex_label=&quot;$\\alpha$&quot;)n”,
+“fast_priors[&quot;beta&quot;] = Uniform(minimum=-4, maximum=12, latex_label=&quot;$\\beta$&quot;)n”,
+“fast_priors[&quot;mmin&quot;] = Uniform(minimum=5, maximum=10, latex_label=&quot;$m_{\\min}$&quot;)n”,
+“fast_priors[&quot;mmax&quot;] = Uniform(minimum=20, maximum=60, latex_label=&quot;$m_{\\max}$&quot;)n”,
+“fast_priors[&quot;lam&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\lambda_{m}$&quot;)n”,
+“fast_priors[&quot;mpp&quot;] = Uniform(minimum=10, maximum=50, latex_label=&quot;$\\mu_{m}$&quot;)n”,
+“fast_priors[&quot;sigpp&quot;] = Uniform(minimum=0, maximum=10, latex_label=&quot;$\\sigma_{m}$&quot;)n”,
 “# spinn”,
-“fast_priors[‘amax’] = 1n”,
-“fast_priors[‘alpha_chi’] = Uniform(minimum=-4, maximum=12, latex_label=’$\\alpha_{\\chi}$’)n”,
-“fast_priors[‘beta_chi’] = Uniform(minimum=-4, maximum=12, latex_label=’$\\beta_{\\chi}$’)n”,
-“fast_priors[‘xi_spin’] = Uniform(minimum=0, maximum=1, latex_label=’$\\xi$’)”</p>
+“fast_priors[&quot;amax&quot;] = 1n”,
+“fast_priors[&quot;alpha_chi&quot;] = Uniform(n”,
+”    minimum=-4, maximum=12, latex_label=&quot;$\\alpha_{\\chi}$&quot;n”,
+“)n”,
+“fast_priors[&quot;beta_chi&quot;] = Uniform(n”,
+”    minimum=-4, maximum=12, latex_label=&quot;$\\beta_{\\chi}$&quot;n”,
+“)n”,
+“fast_priors[&quot;xi_spin&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\xi$&quot;)”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -732,8 +750,12 @@
 “fast_likelihood.log_likelihood_ratio()n”,
 “n”,
 “fast_result = bb.run_sampler(n”,
-”    likelihood=fast_likelihood, priors=fast_priors, sampler=’dynesty’,n”,
-”    nlive=100, label=’fast’)”</p>
+”    likelihood=fast_likelihood,n”,
+”    priors=fast_priors,n”,
+”    sampler=&quot;dynesty&quot;,n”,
+”    nlive=100,n”,
+”    label=&quot;fast&quot;,n”,
+“)”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -800,10 +822,12 @@
 <blockquote>
 <div><p>“def truncated_gaussian_primary_secondary_identical(dataset, mu_bns, sigma_bns):n”,
 ”    prob = gwpop.utils.truncnorm(n”,
-”        dataset[‘mass_1’], mu=mu_bns, sigma=sigma_bns, low=1, high=2)n”,
+”        dataset[&quot;mass_1&quot;], mu=mu_bns, sigma=sigma_bns, low=1, high=2n”,
+”    )n”,
 ”    prob <a href="#id3"><span class="problematic" id="id4">*</span></a>= gwpop.utils.truncnorm(n”,
-”        dataset[‘mass_2’], mu=mu_bns, sigma=sigma_bns, low=1, high=2)n”,
-”    prob <a href="#id5"><span class="problematic" id="id6">*</span></a>= (dataset[‘mass_1’] &gt;= dataset[‘mass_2’])n”,
+”        dataset[&quot;mass_2&quot;], mu=mu_bns, sigma=sigma_bns, low=1, high=2n”,
+”    )n”,
+”    prob <a href="#id5"><span class="problematic" id="id6">*</span></a>= dataset[&quot;mass_1&quot;] &gt;= dataset[&quot;mass_2&quot;]n”,
 ”    prob <a href="#id7"><span class="problematic" id="id8">*</span></a>= 2n”,
 ”    return prob”</p>
 </div></blockquote>
@@ -844,17 +868,17 @@
 <blockquote>
 <div><p>“posterior = pd.DataFrame()n”,
 “prior = pd.DataFrame()n”,
-“with h5py.File(‘./GWTC-1_sample_release/GW170817_GWTC-1.hdf5’) as ff:n”,
+“with h5py.File(&quot;./GWTC-1_sample_release/GW170817_GWTC-1.hdf5&quot;) as ff:n”,
 ”    for my_key, gwtc_key in parameter_translator.items():n”,
 ”        try:n”,
-”            posterior[my_key] = ff[‘IMRPhenomPv2NRT_lowSpin_posterior’][gwtc_key]n”,
-”            prior[my_key] = ff[‘IMRPhenomPv2NRT_lowSpin_prior’][gwtc_key]n”,
+”            posterior[my_key] = ff[&quot;IMRPhenomPv2NRT_lowSpin_posterior&quot;][gwtc_key]n”,
+”            prior[my_key] = ff[&quot;IMRPhenomPv2NRT_lowSpin_prior&quot;][gwtc_key]n”,
 ”        except ValueError:n”,
 ”            passn”,
-”        n”,
-“posterior[‘redshift’] = dl_to_z(posterior[‘luminosity_distance’])n”,
-“posterior[‘mass_1’] = posterior[‘mass_1_det’] / (1 + posterior[‘redshift’])n”,
-“posterior[‘mass_2’] = posterior[‘mass_2_det’] / (1 + posterior[‘redshift’])”</p>
+“n”,
+“posterior[&quot;redshift&quot;] = dl_to_z(posterior[&quot;luminosity_distance&quot;])n”,
+“posterior[&quot;mass_1&quot;] = posterior[&quot;mass_1_det&quot;] / (1 + posterior[&quot;redshift&quot;])n”,
+“posterior[&quot;mass_2&quot;] = posterior[&quot;mass_2_det&quot;] / (1 + posterior[&quot;redshift&quot;])”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -879,7 +903,7 @@
 “_Note_:n”,
 “- This time we cast our posterior to a list while creating the likelihood.n”,
 “- We pass the function rather than a <cite>Model</cite> object as before, <cite>bilby</cite> will turn this into a <cite>Model</cite> for internal use.n”,
-“- We’ve removed the selection and conversion functions as they aren’t needed here (yes, a selection function is techinically needed).”</p>
+“- We’ve removed the selection and conversion functions as they aren’t needed here (yes, a selection function is technically needed).”</p>
 </div></blockquote>
 <p>]</p>
 </div></blockquote>
@@ -897,8 +921,8 @@
 “source”: [</p>
 <blockquote>
 <div><p>“bns_likelihood = gwpop.hyperpe.HyperparameterLikelihood(n”,
-”    posteriors=[posterior],n”,
-”    hyper_prior=truncated_gaussian_primary_secondary_identical)”</p>
+”    posteriors=[posterior], hyper_prior=truncated_gaussian_primary_secondary_identicaln”,
+“)”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -936,8 +960,10 @@
 “source”: [</p>
 <blockquote>
 <div><p>“bns_priors = PriorDict()n”,
-“bns_priors[‘mu_bns’] = Uniform(minimum=1, maximum=2, latex_label=’$\\mu_{bns}$’)n”,
-“bns_priors[‘sigma_bns’] = LogUniform(minimum=1e-2, maximum=1, latex_label=’$\\sigma_{bns}$’)”</p>
+“bns_priors[&quot;mu_bns&quot;] = Uniform(minimum=1, maximum=2, latex_label=&quot;$\\mu_{bns}$&quot;)n”,
+“bns_priors[&quot;sigma_bns&quot;] = LogUniform(n”,
+”    minimum=1e-2, maximum=1, latex_label=&quot;$\\sigma_{bns}$&quot;n”,
+“)”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -960,8 +986,8 @@
 “bns_likelihood.log_likelihood_ratio()n”,
 “n”,
 “bns_result = bb.run_sampler(n”,
-”    likelihood=bns_likelihood, priors=bns_priors, sampler=’dynesty’,n”,
-”    nlive=1000)”</p>
+”    likelihood=bns_likelihood, priors=bns_priors, sampler=&quot;dynesty&quot;, nlive=1000n”,
+“)”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -1025,11 +1051,14 @@
 “cell_type”: “code”,
 “source”: [</p>
 <blockquote>
-<div><p>“full_model = Model([n”,
-”    gwpop.models.mass.two_component_primary_mass_ratio,n”,
-”    gwpop.models.spin.iid_spin_magnitude_beta,n”,
-”    gwpop.models.spin.independent_spin_orientation_gaussian_isotropic,n”,
-”    gwpop.models.redshift.PowerLawRedshift()])”</p>
+<div><p>“full_model = Model(n”,
+”    [n”,
+”        gwpop.models.mass.two_component_primary_mass_ratio,n”,
+”        gwpop.models.spin.iid_spin_magnitude_beta,n”,
+”        gwpop.models.spin.independent_spin_orientation_gaussian_isotropic,n”,
+”        gwpop.models.redshift.PowerLawRedshift(),n”,
+”    ]n”,
+“)”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -1069,7 +1098,7 @@
 “source”: [</p>
 <blockquote>
 <div><p>“for posterior in posteriors:n”,
-”    posterior[‘prior’] = redshift_prior(posterior[‘redshift’])”</p>
+”    posterior[&quot;prior&quot;] = redshift_prior(posterior[&quot;redshift&quot;])”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -1109,7 +1138,8 @@
 “source”: [</p>
 <blockquote>
 <div><p>“full_likelihood = gwpop.hyperpe.RateLikelihood(n”,
-”    posteriors=posteriors, hyper_prior=full_model)”</p>
+”    posteriors=posteriors, hyper_prior=full_modeln”,
+“)”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -1149,25 +1179,29 @@
 <div><p>“full_priors = PriorDict()n”,
 “n”,
 “# raten”,
-“fast_priors[‘rate’] = LogUniform(minimum=1e-20, maximum=1e20, latex_label=’$R$’)n”,
+“fast_priors[&quot;rate&quot;] = LogUniform(minimum=1e-20, maximum=1e20, latex_label=&quot;$R$&quot;)n”,
 “# massn”,
-“full_priors[‘alpha’] = Uniform(minimum=-4, maximum=12, latex_label=’$\\alpha$’)n”,
-“full_priors[‘beta’] = Uniform(minimum=-4, maximum=12, latex_label=’$\\beta$’)n”,
-“full_priors[‘mmin’] = Uniform(minimum=5, maximum=10, latex_label=’$m_{\\min}$’)n”,
-“full_priors[‘mmax’] = Uniform(minimum=20, maximum=60, latex_label=’$m_{\\max}$’)n”,
-“full_priors[‘lam’] = Uniform(minimum=0, maximum=1, latex_label=’$\\lambda_{m}$’)n”,
-“full_priors[‘mpp’] = Uniform(minimum=20, maximum=50, latex_label=’$\\mu_{m}$’)n”,
-“full_priors[‘sigpp’] = Uniform(minimum=0, maximum=10, latex_label=’$\\sigma_{m}$’)n”,
+“full_priors[&quot;alpha&quot;] = Uniform(minimum=-4, maximum=12, latex_label=&quot;$\\alpha$&quot;)n”,
+“full_priors[&quot;beta&quot;] = Uniform(minimum=-4, maximum=12, latex_label=&quot;$\\beta$&quot;)n”,
+“full_priors[&quot;mmin&quot;] = Uniform(minimum=5, maximum=10, latex_label=&quot;$m_{\\min}$&quot;)n”,
+“full_priors[&quot;mmax&quot;] = Uniform(minimum=20, maximum=60, latex_label=&quot;$m_{\\max}$&quot;)n”,
+“full_priors[&quot;lam&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\lambda_{m}$&quot;)n”,
+“full_priors[&quot;mpp&quot;] = Uniform(minimum=20, maximum=50, latex_label=&quot;$\\mu_{m}$&quot;)n”,
+“full_priors[&quot;sigpp&quot;] = Uniform(minimum=0, maximum=10, latex_label=&quot;$\\sigma_{m}$&quot;)n”,
 “# spin magnituden”,
-“full_priors[‘amax’] = 1n”,
-“full_priors[‘alpha_chi’] = Uniform(minimum=-4, maximum=12, latex_label=’$\\alpha_{\\chi}$’)n”,
-“full_priors[‘beta_chi’] = Uniform(minimum=-4, maximum=12, latex_label=’$\\beta_{\\chi}$’)n”,
+“full_priors[&quot;amax&quot;] = 1n”,
+“full_priors[&quot;alpha_chi&quot;] = Uniform(n”,
+”    minimum=-4, maximum=12, latex_label=&quot;$\\alpha_{\\chi}$&quot;n”,
+“)n”,
+“full_priors[&quot;beta_chi&quot;] = Uniform(n”,
+”    minimum=-4, maximum=12, latex_label=&quot;$\\beta_{\\chi}$&quot;n”,
+“)n”,
 “# spin orientationn”,
-“full_priors[‘xi_spin’] = Uniform(minimum=0, maximum=1, latex_label=’$\\xi$’)n”,
-“full_priors[‘sigma_1’] = Uniform(minimum=0, maximum=4, latex_label=’$\\sigma{1}$’)n”,
-“full_priors[‘sigma_2’] = Uniform(minimum=0, maximum=4, latex_label=’$\\sigma{2}$’)n”,
+“full_priors[&quot;xi_spin&quot;] = Uniform(minimum=0, maximum=1, latex_label=&quot;$\\xi$&quot;)n”,
+“full_priors[&quot;sigma_1&quot;] = Uniform(minimum=0, maximum=4, latex_label=&quot;$\\sigma{1}$&quot;)n”,
+“full_priors[&quot;sigma_2&quot;] = Uniform(minimum=0, maximum=4, latex_label=&quot;$\\sigma{2}$&quot;)n”,
 “# redshift evolutionn”,
-“full_priors[‘lamb’] = Uniform(minimum=-25, maximum=25, latex_label=’$\\lambda_{z}$’)”</p>
+“full_priors[&quot;lamb&quot;] = Uniform(minimum=-25, maximum=25, latex_label=&quot;$\\lambda_{z}$&quot;)”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,
@@ -1190,8 +1224,8 @@
 “full_likelihood.log_likelihood_ratio()n”,
 “n”,
 “full_result = run_sampler(n”,
-”    likelihood=full_likelihood, priors=full_priors, sampler=’dynesty’,n”,
-”    nlive=100)”</p>
+”    likelihood=full_likelihood, priors=full_priors, sampler=&quot;dynesty&quot;, nlive=100n”,
+“)”</p>
 </div></blockquote>
 <p>],
 “execution_count”: 0,

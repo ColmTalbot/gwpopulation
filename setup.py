@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
-import subprocess
 import os
+import subprocess
+
+from setuptools import find_packages, setup
 
 
 def write_version_file(version):
@@ -79,6 +80,7 @@ setup(
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],

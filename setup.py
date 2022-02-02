@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
-import subprocess
 import os
+import subprocess
+
+from setuptools import find_packages, setup
 
 
 def write_version_file(version):

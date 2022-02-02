@@ -2,9 +2,8 @@
 Sensitive volume estimation.
 """
 
-from bilby.hyper.model import Model
-
 import numpy as np
+from bilby.hyper.model import Model
 
 from .cupy_utils import trapz, xp
 from .models.redshift import _Redshift, total_four_volume

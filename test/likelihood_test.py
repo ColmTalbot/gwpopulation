@@ -20,7 +20,7 @@ class Likelihoods(unittest.TestCase):
         one_data = pd.DataFrame({key: xp.ones(500) for key in self.params})
         self.data = [one_data] * 5
         self.ln_evidences = [0] * 5
-        self.selection_function = lambda args: 2
+        self.selection_function = lambda args: 2.0
         self.conversion_function = lambda args: (args, ["bar"])
 
     def tearDown(self):
@@ -93,7 +93,7 @@ class Likelihoods(unittest.TestCase):
 
     def test_hpe_likelihood_converts_nan_to_neginf(self):
         like = HyperparameterLikelihood(posteriors=self.data, hyper_prior=self.model)
-        like._get_selection_factor = lambda *args, **kwargs: np.nan
+        like._get_selection_factor = lambda *args, **kwargs: (np.nan, 0)
         like.parameters.update(self.params)
         self.assertEqual(like.log_likelihood_ratio(), np.nan_to_num(-np.inf))
 
@@ -116,6 +116,30 @@ class Likelihoods(unittest.TestCase):
         )
         like.parameters.update(self.params)
         self.assertEqual(like.log_likelihood_ratio(), like.log_likelihood())
+
+    def test_hpe_likelihood_population_variance_too_large_returns_neginf(self):
+        self.data[0]["a"] *= xp.random.uniform(0, 2, self.data[0]["a"].shape)
+        like = HyperparameterLikelihood(
+            posteriors=self.data, hyper_prior=self.model, maximum_uncertainty=0.01
+        )
+        like.parameters.update(self.params)
+        self.assertEqual(like.log_likelihood_ratio(), np.nan_to_num(-np.inf))
+
+    def test_hpe_likelihood_selection_variance_too_large_returns_neginf(self):
+        like = HyperparameterLikelihood(
+            posteriors=self.data, hyper_prior=self.model, maximum_uncertainty=0.1
+        )
+        like._get_selection_factor = lambda *args, **kwargs: (0, 1)
+        like.parameters.update(self.params)
+        self.assertEqual(like.log_likelihood_ratio(), np.nan_to_num(-np.inf))
+
+    def test_hpe_likelihood_variance_small_enough_returns_expected(self):
+        like = HyperparameterLikelihood(
+            posteriors=self.data, hyper_prior=self.model, maximum_uncertainty=0.1
+        )
+        like._get_selection_factor = lambda *args, **kwargs: (0, 0)
+        like.parameters.update(self.params)
+        self.assertEqual(like.log_likelihood_ratio(), 0.0)
 
     def test_hpe_likelihood_conversion_function_pops_parameters(self):
         like = HyperparameterLikelihood(
@@ -175,6 +199,12 @@ class Likelihoods(unittest.TestCase):
             "ln_bf_3": 0.0,
             "ln_bf_4": 0.0,
             "selection": 2.0,
+            "selection_variance": 0.0,
+            "var_0": 0.0,
+            "var_1": 0.0,
+            "var_2": 0.0,
+            "var_3": 0.0,
+            "var_4": 0.0,
             "bar": None,
         }
         self.assertDictEqual(expected, new_params)

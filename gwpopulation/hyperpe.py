@@ -36,6 +36,7 @@ class HyperparameterLikelihood(Likelihood):
         selection_function=lambda args: 1,
         conversion_function=lambda args: (args, None),
         cupy=True,
+        maximum_uncertainty=xp.inf,
     ):
         """
         Parameters
@@ -63,6 +64,10 @@ class HyperparameterLikelihood(Likelihood):
             If True and a compatible CUDA environment is available,
             cupy will be used for performance.
             Note: this requires setting up your hyper_prior properly.
+        maximum_uncertainty: float
+            The maximum allowed uncertainty in the likelihood, default=inf.
+            If the uncertainty is larger than this value a likelihood of -inf
+            will be returned.
         """
         if cupy and not CUPY_LOADED:
             logger.warning("Cannot import cupy, falling back to numpy.")
@@ -98,17 +103,39 @@ class HyperparameterLikelihood(Likelihood):
         self.selection_function = selection_function
 
         self.n_posteriors = len(posteriors)
+        self.maximum_uncertainty = maximum_uncertainty
+        self._max_variance = maximum_uncertainty**2
 
     __doc__ += __init__.__doc__
+
+    @property
+    def maximum_uncertainty(self):
+        return self._maximum_uncertainty
+
+    @maximum_uncertainty.setter
+    def maximum_uncertainty(self, value):
+        self._maximum_uncertainty = value
+        if value in [xp.inf, np.inf]:
+            self._max_variance = value
+        else:
+            self._max_variance = value**2
 
     def log_likelihood_ratio(self):
         self.parameters, added_keys = self.conversion_function(self.parameters)
         self.hyper_prior.parameters.update(self.parameters)
-        ln_l = xp.sum(self._compute_per_event_ln_bayes_factors())
-        ln_l += self._get_selection_factor()
-        if added_keys is not None:
-            for key in added_keys:
-                self.parameters.pop(key)
+        ln_bayes_factors, variances = self._compute_per_event_ln_bayes_factors()
+        ln_l = xp.sum(ln_bayes_factors)
+        variance = xp.sum(variances)
+        if variance > self._max_variance:
+            self._pop_added(added_keys)
+            return -INF
+        selection, selection_variance = self._get_selection_factor()
+        variance += selection_variance
+        if variance > self._max_variance:
+            self._pop_added(added_keys)
+            return -INF
+        ln_l += selection
+        self._pop_added(added_keys)
         if xp.isnan(ln_l):
             return -INF
         else:
@@ -120,13 +147,38 @@ class HyperparameterLikelihood(Likelihood):
     def log_likelihood(self):
         return self.noise_log_likelihood() + self.log_likelihood_ratio()
 
-    def _compute_per_event_ln_bayes_factors(self):
-        return -np.log(self.samples_per_posterior) + xp.log(
-            xp.sum(self.hyper_prior.prob(self.data) / self.sampling_prior, axis=-1)
-        )
+    def _pop_added(self, added_keys):
+        if added_keys is not None:
+            for key in added_keys:
+                self.parameters.pop(key)
 
-    def _get_selection_factor(self):
-        return -self.n_posteriors * xp.log(self.selection_function(self.parameters))
+    def _compute_per_event_ln_bayes_factors(self, return_uncertainty=True):
+        weights = self.hyper_prior.prob(self.data) / self.sampling_prior
+        expectation = xp.mean(weights, axis=-1)
+        if return_uncertainty:
+            square_expectation = xp.mean(weights**2, axis=-1)
+            variance = (square_expectation - expectation) ** 2 / (
+                self.samples_per_posterior * square_expectation
+            )
+            return xp.log(expectation), variance
+        else:
+            return xp.log(expectation)
+
+    def _get_selection_factor(self, return_uncertainty=True):
+        selection, variance = self._selection_function_with_uncertainty()
+        if return_uncertainty:
+            return -self.n_posteriors * xp.log(selection), self.n_posteriors * variance
+        else:
+            return -self.n_posteriors * xp.log(selection)
+
+    def _selection_function_with_uncertainty(self):
+        result = self.selection_function(self.parameters)
+        if isinstance(result, tuple):
+            selection, variance = result
+        else:
+            selection = result
+            variance = 0.0
+        return selection, variance
 
     def generate_extra_statistics(self, sample):
         """
@@ -148,10 +200,15 @@ class HyperparameterLikelihood(Likelihood):
         self.parameters.update(sample.copy())
         self.parameters, added_keys = self.conversion_function(self.parameters)
         self.hyper_prior.parameters.update(self.parameters)
-        ln_ls = self._compute_per_event_ln_bayes_factors()
+        ln_ls, variances = self._compute_per_event_ln_bayes_factors(
+            return_uncertainty=True
+        )
         for ii in range(self.n_posteriors):
             sample[f"ln_bf_{ii}"] = float(ln_ls[ii])
-        sample["selection"] = float(self.selection_function(self.parameters))
+            sample[f"var_{ii}"] = float(variances[ii])
+        selection, variance = self._selection_function_with_uncertainty()
+        sample["selection"] = selection
+        sample["selection_variance"] = variance
         if added_keys is not None:
             for key in added_keys:
                 self.parameters.pop(key)
@@ -297,10 +354,14 @@ class RateLikelihood(HyperparameterLikelihood):
 
     __doc__ += HyperparameterLikelihood.__init__.__doc__
 
-    def _get_selection_factor(self):
-        ln_l = -self.selection_function(self.parameters) * self.parameters["rate"]
+    def _get_selection_factor(self, return_uncertainty=True):
+        selection, variance = self._selection_function_with_uncertainty()
+        ln_l = -selection * self.parameters["rate"]
         ln_l += self.n_posteriors * xp.log(self.parameters["rate"])
-        return ln_l
+        if return_uncertainty:
+            return ln_l, self.n_posteriors * variance
+        else:
+            return ln_l
 
     def generate_rate_posterior_sample(self):
         """

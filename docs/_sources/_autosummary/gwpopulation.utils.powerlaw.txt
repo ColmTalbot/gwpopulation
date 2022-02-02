@@ -1,0 +1,6 @@
+gwpopulation.utils.powerlaw
+===========================
+
+.. currentmodule:: gwpopulation.utils
+
+.. autofunction:: powerlaw

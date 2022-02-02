@@ -1,0 +1,34 @@
+﻿gwpopulation.cupy\_utils
+========================
+
+.. currentmodule:: gwpopulation.cupy_utils
+
+.. automodule:: gwpopulation.cupy_utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      betaln
+      to_numpy
+      trapz
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

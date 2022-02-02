@@ -1,0 +1,6 @@
+gwpopulation.conversions.alpha\_beta\_max\_to\_mu\_var\_max
+===========================================================
+
+.. currentmodule:: gwpopulation.conversions
+
+.. autofunction:: alpha_beta_max_to_mu_var_max

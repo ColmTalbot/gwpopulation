@@ -1,0 +1,36 @@
+﻿gwpopulation.models
+===================
+
+.. currentmodule:: gwpopulation.models
+
+.. automodule:: gwpopulation.models
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   gwpopulation.models.mass
+   gwpopulation.models.redshift
+   gwpopulation.models.spin
+

@@ -63,6 +63,8 @@ VERSION = "0.7.0"
 version_file = write_version_file(VERSION)
 long_description = get_long_description()
 
+with open("requirements.txt", "r") as ff:
+    requirements = ff.readlines()
 setup(
     name="gwpopulation",
     description="Unified population inference",
@@ -76,7 +78,7 @@ setup(
     packages=find_packages(exclude=["test", "venv", "priors"]),
     package_dir={"gwpopulation": "gwpopulation"},
     package_data={"gwpopulation": [version_file]},
-    install_requires=["future", "numpy", "scipy", "astropy", "bilby"],
+    install_requires=requirements,
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",

@@ -5,16 +5,11 @@ Likelihoods for population inference
 import types
 
 import numpy as np
-import pandas as pd
 from bilby.core.likelihood import Likelihood
 from bilby.core.utils import logger
 from bilby.hyper.model import Model
-from scipy.stats import gamma
-from tqdm import tqdm
 
 from .cupy_utils import CUPY_LOADED, to_numpy, xp
-
-INF = np.nan_to_num(np.inf)
 
 
 class HyperparameterLikelihood(Likelihood):
@@ -107,6 +102,7 @@ class HyperparameterLikelihood(Likelihood):
         self.n_posteriors = len(posteriors)
         self.maximum_uncertainty = maximum_uncertainty
         self._max_variance = maximum_uncertainty**2
+        self._inf = np.nan_to_num(np.inf)
 
     __doc__ += __init__.__doc__
 
@@ -139,7 +135,7 @@ class HyperparameterLikelihood(Likelihood):
         ln_l += selection
         self._pop_added(added_keys)
         if xp.isnan(ln_l):
-            return -INF
+            return -self._inf
         else:
             return float(xp.nan_to_num(ln_l))
 
@@ -235,6 +231,8 @@ class HyperparameterLikelihood(Likelihood):
         rate: float
             A sample from the posterior distribution for rate.
         """
+        from scipy.stats import gamma
+
         if hasattr(self.selection_function, "detection_efficiency") and hasattr(
             self.selection_function, "surveyed_hypervolume"
         ):
@@ -303,6 +301,9 @@ class HyperparameterLikelihood(Likelihood):
         weights: array-like
             Weights to apply to the samples, only if return_weights == True.
         """
+        import pandas as pd
+        from tqdm.auto import tqdm
+
         if isinstance(samples, pd.DataFrame):
             samples = [dict(samples.iloc[ii]) for ii in range(len(samples))]
         elif isinstance(samples, dict):

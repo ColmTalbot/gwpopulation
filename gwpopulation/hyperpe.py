@@ -363,7 +363,7 @@ class RateLikelihood(HyperparameterLikelihood):
         n_expected = selection * self.parameters["rate"]
         ln_l = -n_expected + self.n_posteriors * xp.log(self.parameters["rate"])
         if return_uncertainty:
-            return ln_l, n_expected * variance
+            return ln_l, n_expected**2 * variance
         else:
             return ln_l
 

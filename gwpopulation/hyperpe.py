@@ -62,9 +62,9 @@ class HyperparameterLikelihood(Likelihood):
             cupy will be used for performance.
             Note: this requires setting up your hyper_prior properly.
         maximum_uncertainty: float
-            The maximum allowed uncertainty in the likelihood, default=inf.
-            If the uncertainty is larger than this value a likelihood of -inf
-            will be returned.
+            The maximum allowed uncertainty in the natural log likelihood.
+            If the uncertainty is larger than this value a log likelihood of
+            -inf will be returned. Default = inf
         """
         if cupy and not CUPY_LOADED:
             logger.warning("Cannot import cupy, falling back to numpy.")
@@ -101,7 +101,6 @@ class HyperparameterLikelihood(Likelihood):
 
         self.n_posteriors = len(posteriors)
         self.maximum_uncertainty = maximum_uncertainty
-        self._max_variance = maximum_uncertainty**2
         self._inf = np.nan_to_num(np.inf)
 
     __doc__ += __init__.__doc__
@@ -126,12 +125,12 @@ class HyperparameterLikelihood(Likelihood):
         variance = xp.sum(variances)
         if variance > self._max_variance:
             self._pop_added(added_keys)
-            return -INF
+            return -self._inf
         selection, selection_variance = self._get_selection_factor()
         variance += selection_variance
         if variance > self._max_variance:
             self._pop_added(added_keys)
-            return -INF
+            return -self._inf
         ln_l += selection
         self._pop_added(added_keys)
         if xp.isnan(ln_l):
@@ -155,7 +154,7 @@ class HyperparameterLikelihood(Likelihood):
         expectation = xp.mean(weights, axis=-1)
         if return_uncertainty:
             square_expectation = xp.mean(weights**2, axis=-1)
-            variance = (square_expectation - expectation) ** 2 / (
+            variance = (square_expectation - expectation**2) / (
                 self.samples_per_posterior * square_expectation
             )
             return xp.log(expectation), variance
@@ -164,10 +163,12 @@ class HyperparameterLikelihood(Likelihood):
 
     def _get_selection_factor(self, return_uncertainty=True):
         selection, variance = self._selection_function_with_uncertainty()
+        total_selection = -self.n_posteriors * xp.log(selection)
         if return_uncertainty:
-            return -self.n_posteriors * xp.log(selection), self.n_posteriors * variance
+            total_variance = self.n_posteriors**2 * variance
+            return total_selection, total_variance
         else:
-            return -self.n_posteriors * xp.log(selection)
+            return total_selection
 
     def _selection_function_with_uncertainty(self):
         result = self.selection_function(self.parameters)

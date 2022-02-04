@@ -155,7 +155,7 @@ class HyperparameterLikelihood(Likelihood):
         if return_uncertainty:
             square_expectation = xp.mean(weights**2, axis=-1)
             variance = (square_expectation - expectation**2) / (
-                self.samples_per_posterior * square_expectation
+                self.samples_per_posterior * expectation**2
             )
             return xp.log(expectation), variance
         else:

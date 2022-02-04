@@ -4,7 +4,19 @@ Helper functions for probability distributions.
 
 import os
 
+from bilby.hyper.model import Model as _Model
+
 from .cupy_utils import betaln, erf, xp
+
+
+class Model(_Model):
+    def _get_function_parameters(self, func):
+        """If the function is a class method we need to remove more arguments"""
+        if hasattr(func, "parameter_keys"):
+            parameters = {key: self.parameters[key] for key in func.parameter_keys}
+            return parameters
+        else:
+            return super(Model, self)._get_function_parameters(func)
 
 
 def beta_dist(xx, alpha, beta, scale=1):

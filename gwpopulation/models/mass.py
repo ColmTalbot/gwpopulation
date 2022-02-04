@@ -2,6 +2,8 @@
 Implemented mass models
 """
 
+import numpy as np
+
 from ..cupy_utils import trapz, xp
 from ..utils import powerlaw, truncnorm
 
@@ -864,4 +866,127 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
             mpp=mpp,
             sigpp=sigpp,
             gaussian_mass_maximum=self.mmax,
+        )
+
+
+class BaseInterpolatedPowerlaw(BaseSmoothedMassDistribution):
+    """
+    Base class for the Interpolated Powerlaw classes (vary the number of nodes)
+    """
+
+    def __init__(self, nodes=10, kind="cubic", mmin=2, mmax=100):
+        """ """
+        super(BaseInterpolatedPowerlaw, self).__init__(mmin=mmin, mmax=mmax)
+        self.nodes = nodes
+        self.norm_selector = None
+        self.spline_selector = None
+        self._norm_spline = None
+        self._data_spline = None
+        self.kind = kind
+
+    @property
+    def parameter_keys(self):
+        keys = [f"m{ii}" for ii in range(self.nodes)]
+        keys += [f"f{ii}" for ii in range(self.nodes)]
+        keys += ["alpha", "beta", "mmin", "mmax"]
+        return keys
+
+    def primary_model(self, mass, alpha, mmin, mmax):
+        return powerlaw(mass, alpha=-alpha, low=mmin, high=mmax)
+
+    def setup_interpolant(self, nodes, values):
+        from cached_interpolate import CachingInterpolant
+
+        kwargs = dict(x=nodes, y=values, kind=self.kind, backend=xp)
+        self._norm_spline = CachingInterpolant(**kwargs)
+        self._data_spline = CachingInterpolant(**kwargs)
+
+    def p_m1(self, dataset, **kwargs):
+        f_splines = np.array([kwargs.pop(f"f{i}") for i in range(self.nodes)])
+        m_splines = np.array([kwargs.pop(f"m{i}") for i in range(self.nodes)])
+
+        if self.spline_selector is None:
+            if self._norm_spline is None:
+                self.setup_interpolant(m_splines, f_splines)
+            self.spline_selector = (dataset["mass_1"] >= m_splines[0]) & (
+                dataset["mass_1"] <= m_splines[-1]
+            )
+
+        mmin = kwargs.get("mmin", self.mmin)
+        delta_m = kwargs.pop("delta_m", 0)
+
+        p_m = self.primary_model(dataset["mass_1"], **kwargs)
+        p_m *= self.smoothing(
+            dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
+        )
+
+        perturbation = self._data_spline(
+            x=dataset["mass_1"][self.spline_selector], y=f_splines
+        )
+        p_m[self.spline_selector] *= xp.exp(perturbation)
+
+        norm = self.norm_p_m1(
+            delta_m=delta_m, m_splines=m_splines, f_splines=f_splines, **kwargs
+        )
+        return p_m / norm
+
+    def norm_p_m1(self, delta_m, f_splines=None, m_splines=None, **kwargs):
+        if self.norm_selector is None:
+            self.norm_selector = (self.m1s >= m_splines[0]) & (
+                self.m1s <= m_splines[-1]
+            )
+        mmin = kwargs.get("mmin", self.mmin)
+        p_m = self.primary_model(self.m1s, **kwargs)
+        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
+        perturbation = self._norm_spline(x=self.m1s[self.norm_selector], y=f_splines)
+        p_m[self.norm_selector] *= xp.exp(perturbation)
+        norm = trapz(p_m, self.m1s)
+        return norm
+
+
+class InterpolatedPowerlaw10(BaseInterpolatedPowerlaw):
+    """
+    Subclass of the Base Interpolated Powerlaw to use 10 knots.
+    """
+
+    def __init__(self, kind="cubic", mmin=2, mmax=100):
+        """ """
+        super(BaseInterpolatedPowerlaw, self).__init__(
+            nodes=10, kind=kind, mmin=mmin, mmax=mmax
+        )
+
+
+class InterpolatedPowerlaw15(BaseInterpolatedPowerlaw):
+    """
+    Subclass of the Base Interpolated Powerlaw to use 15 knots.
+    """
+
+    def __init__(self, kind="cubic", mmin=2, mmax=100):
+        """ """
+        super(BaseInterpolatedPowerlaw, self).__init__(
+            nodes=15, kind=kind, mmin=mmin, mmax=mmax
+        )
+
+
+class InterpolatedPowerlaw20(BaseInterpolatedPowerlaw):
+    """
+    Subclass of the Base Interpolated Powerlaw to use 20 knots.
+    """
+
+    def __init__(self, kind="cubic", mmin=2, mmax=100):
+        """ """
+        super(BaseInterpolatedPowerlaw, self).__init__(
+            nodes=20, kind=kind, mmin=mmin, mmax=mmax
+        )
+
+
+class InterpolatedPowerlaw25(BaseInterpolatedPowerlaw):
+    """
+    Subclass of the Base Interpolated Powerlaw to use 25 knots.
+    """
+
+    def __init__(self, kind="cubic", mmin=2, mmax=100):
+        """ """
+        super(BaseInterpolatedPowerlaw, self).__init__(
+            nodes=25, kind=kind, mmin=mmin, mmax=mmax
         )

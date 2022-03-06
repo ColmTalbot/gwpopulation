@@ -12,8 +12,8 @@ from .cupy_utils import betaln, erf, xp
 class Model(_Model):
     def _get_function_parameters(self, func):
         """If the function is a class method we need to remove more arguments"""
-        if hasattr(func, "parameter_keys"):
-            parameters = {key: self.parameters[key] for key in func.parameter_keys}
+        if hasattr(func, "variable_names"):
+            parameters = {key: self.parameters[key] for key in func.variable_names}
             return parameters
         else:
             return super(Model, self)._get_function_parameters(func)

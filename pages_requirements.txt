@@ -1,4 +1,4 @@
-ipython-genutils
+ipython_genutils
 jinja2
 nbsphinx
 numpydoc

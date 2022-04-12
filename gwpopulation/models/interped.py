@@ -71,7 +71,7 @@ class InterpolatedNoBaseModelIdentical(object):
         f_splines = xp.array([kwargs[f"{key}"] for key in self.fkeys])
         x_splines = xp.array([kwargs[f"{key}"] for key in self.xkeys])
         
-        p_x = xp.ones(len(dataset[self.parameters[0]]))
+        p_x = xp.ones(xp.shape(dataset[self.parameters[0]]))
         
         for param in self.parameters:
             

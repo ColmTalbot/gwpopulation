@@ -51,7 +51,8 @@ class InterpolatedNoBaseModelIdentical(object):
             x=dataset[f"{parameter}"][self.spline_selector], y=f_splines
         )
         
-        p_x = xp.exp(perturbation)
+        p_x = xp.zeros(xp.shape(dataset[self.parameters[0]]))
+        p_x[self.spline_selector] = xp.exp(perturbation)
         
         return p_x
 
@@ -74,7 +75,6 @@ class InterpolatedNoBaseModelIdentical(object):
         p_x = xp.ones(xp.shape(dataset[self.parameters[0]]))
         
         for param in self.parameters:
-            print(param)
             p_x *= self.p_x_unnormed(dataset, param, x_splines=x_splines, f_splines = f_splines, **kwargs)
             
         norm = self.norm_p_x(f_splines = f_splines, x_splines = x_splines, **kwargs)

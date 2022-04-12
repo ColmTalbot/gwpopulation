@@ -2,7 +2,7 @@ from ..cupy_utils import trapz, xp
 
 class InterpolatedNoBaseModelIdentical(object):
     """
-    Base class for the Interpolated Powerlaw classes (vary the number of nodes)
+    Base class for the Interpolated classes with no base model
     """
 
     def __init__(self, parameters, minimum, maximum, nodes=10, kind="cubic"):

@@ -286,11 +286,7 @@ class SplineSpinMagnitudeIdentical(InterpolatedNoBaseModelIdentical):
         
     def __call__(self, dataset, **kwargs):
         
-        newkeys = dict()
-        for i in range(self.nodes):
-            newkeys[f'f{i}'] = kwargs[f'f_a{i}']
-            newkeys[f'x{i}'] = kwargs[f'a{i}']
-        return self.p_x_identical(dataset, **newkeys)
+        return self.p_x_identical(dataset, **kwargs)
     
 class SplineSpinTiltIdentical(InterpolatedNoBaseModelIdentical):
     

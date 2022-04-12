@@ -20,8 +20,14 @@ class InterpolatedNoBaseModelIdentical(object):
         
     @property
     def variable_names(self):
-        keys = [f"x{ii}" for ii in range(self.nodes)]
-        keys += [f"f{ii}" for ii in range(self.nodes)]       
+        
+        base = self.parameters[0].strip("_1")
+        
+        self.xkeys = [f"{base}{ii}" for ii in range(self.nodes)]
+        self.fkeys = [f"f{base}{ii}" for ii in range(self.nodes)]
+        
+        keys = self.xkeys + self.fkeys
+        
         return keys
 
     def setup_interpolant(self, nodes, values):
@@ -63,16 +69,15 @@ class InterpolatedNoBaseModelIdentical(object):
     
     def p_x_identical(self, dataset, **kwargs):
 
-        f_splines = xp.array([kwargs.pop(f"f{i}") for i in range(self.nodes)])
-        x_splines = xp.array([kwargs.pop(f"x{i}") for i in range(self.nodes)])
-        
-        
+        f_splines = xp.array(self.fkeys)
+        x_splines = xp.array(self.xkeys)
         
         p_x = xp.ones(len(dataset[self.parameters[0]]))
         
         for param in self.parameters:
             
             p_x *= self.p_x_unnormed(dataset, param, x_splines=x_splines, f_splines = f_splines, **kwargs)
+            
         norm = self.norm_p_x(f_splines = f_splines, x_splines = x_splines, **kwargs)
         p_x /= norm ** len(self.parameters)
         return p_x

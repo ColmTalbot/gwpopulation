@@ -18,13 +18,12 @@ class InterpolatedNoBaseModelIdentical(object):
         self.min = minimum
         self.max = maximum
         
-    @property
-    def variable_names(self):
-        
         base = self.parameters[0].strip("_1")
-        
         self.xkeys = [f"{base}{ii}" for ii in range(self.nodes)]
         self.fkeys = [f"f{base}{ii}" for ii in range(self.nodes)]
+        
+    @property
+    def variable_names(self):
         
         keys = self.xkeys + self.fkeys
         

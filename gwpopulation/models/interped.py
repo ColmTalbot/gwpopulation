@@ -95,5 +95,5 @@ class InterpolatedNoBaseModelIdentical(object):
                 
         if not nodes == self.nodes:
             print(f'Different number of nodes! Using {nodes} nodes instead of {self.nodes}')
-            self.__init__(self.parameters, self.min, self.max, nodes, self.kinds)
+            self.__init__(self.parameters, self.min, self.max, nodes, self.kind)
 

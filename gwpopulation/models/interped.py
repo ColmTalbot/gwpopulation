@@ -19,9 +19,9 @@ class InterpolatedNoBaseModelIdentical(object):
         self.min = minimum
         self.max = maximum
         
-        base = self.parameters[0].strip("_1")
-        self.xkeys = [f"{base}{ii}" for ii in range(self.nodes)]
-        self.fkeys = [f"f{base}{ii}" for ii in range(self.nodes)]
+        self.base = self.parameters[0].strip("_1")
+        self.xkeys = [f"{self.base}{ii}" for ii in range(self.nodes)]
+        self.fkeys = [f"f{self.base}{ii}" for ii in range(self.nodes)]
         
     @property
     def variable_names(self):
@@ -69,7 +69,9 @@ class InterpolatedNoBaseModelIdentical(object):
         return norm
     
     def p_x_identical(self, dataset, **kwargs):
-
+        
+        self.infer_n_nodes(**kwargs)
+        
         f_splines = np.array([kwargs[f"{key}"] for key in self.fkeys])
         x_splines = np.array([kwargs[f"{key}"] for key in self.xkeys])
         
@@ -81,3 +83,17 @@ class InterpolatedNoBaseModelIdentical(object):
         norm = self.norm_p_x(f_splines = f_splines, x_splines = x_splines, **kwargs)
         p_x /= norm ** len(self.parameters)
         return p_x
+    
+    def infer_n_nodes(self, **kwargs):
+        nodes = self.nodes
+        
+        while True:
+            if kwargs.has_key(f"f{self.base}{nodes}"):
+                nodes += 1
+            else:
+                break
+                
+        if not nodes == self.nodes:
+            print(f'Different number of nodes! Using {nodes} nodes instead of {self.nodes)')
+            self.__init__(self.parameters, self.min, self.max, nodes, self.kinds)
+

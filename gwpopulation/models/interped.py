@@ -88,7 +88,7 @@ class InterpolatedNoBaseModelIdentical(object):
         nodes = self.nodes
         
         while True:
-            if kwargs.has_key(f"f{self.base}{nodes}"):
+            if f"f{self.base}{nodes}" in kwargs:
                 nodes += 1
             else:
                 break

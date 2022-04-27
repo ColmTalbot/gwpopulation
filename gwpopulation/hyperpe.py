@@ -209,6 +209,7 @@ class HyperparameterLikelihood(Likelihood):
             max_samples = min(len(posterior), max_samples)
         data = {key: [] for key in posteriors[0]}
         logger.debug(f"Downsampling to {max_samples} samples per posterior.")
+        logger.info(f"Downsampling to {max_samples} samples per posterior.")
         self.samples_per_posterior = max_samples
         for posterior in posteriors:
             temp = posterior.sample(self.samples_per_posterior)

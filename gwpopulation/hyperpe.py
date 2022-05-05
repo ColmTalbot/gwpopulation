@@ -117,21 +117,26 @@ class HyperparameterLikelihood(Likelihood):
         else:
             self._max_variance = value**2
 
-    def log_likelihood_ratio(self):
+    def ln_likelihood_and_variance(self):
+        """
+        Compute the ln likelihood estimator and its variance.
+        """
         self.parameters, added_keys = self.conversion_function(self.parameters)
         self.hyper_prior.parameters.update(self.parameters)
         ln_bayes_factors, variances = self._compute_per_event_ln_bayes_factors()
         ln_l = xp.sum(ln_bayes_factors)
         variance = xp.sum(variances)
-        if variance > self._max_variance:
-            self._pop_added(added_keys)
-            return -self._inf
         selection, selection_variance = self._get_selection_factor()
         variance += selection_variance
+        ln_l += selection
+        self._pop_added(added_keys)
+        return ln_l, float(variance)
+
+    def log_likelihood_ratio(self):
+        ln_l, variance = self.ln_likelihood_and_variance()
         if variance > self._max_variance:
             self._pop_added(added_keys)
             return -self._inf
-        ln_l += selection
         self._pop_added(added_keys)
         if xp.isnan(ln_l):
             return -self._inf
@@ -202,12 +207,15 @@ class HyperparameterLikelihood(Likelihood):
         ln_ls, variances = self._compute_per_event_ln_bayes_factors(
             return_uncertainty=True
         )
+        total_variance = float(sum(variances[ii]))
         for ii in range(self.n_posteriors):
             sample[f"ln_bf_{ii}"] = float(ln_ls[ii])
             sample[f"var_{ii}"] = float(variances[ii])
         selection, variance = self._selection_function_with_uncertainty()
         sample["selection"] = selection
         sample["selection_variance"] = variance
+        total_variance += variance
+        sample["variance"] = float(total_variance)
         if added_keys is not None:
             for key in added_keys:
                 self.parameters.pop(key)

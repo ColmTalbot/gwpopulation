@@ -167,7 +167,7 @@ class HyperparameterLikelihood(Likelihood):
             return xp.log(expectation)
 
     def _get_selection_factor(self, return_uncertainty=True):
-        selection, variance = self._selection_function_with_uncertainty()
+        selection, variance = self.selection_function(self.parameters)
         total_selection = -self.n_posteriors * xp.log(selection)
         if return_uncertainty:
             total_variance = self.n_posteriors**2 * variance / selection**2
@@ -176,7 +176,7 @@ class HyperparameterLikelihood(Likelihood):
             return total_selection
 
     def _selection_function_with_uncertainty(self):
-        result = self.selection_function(self.parameters)
+        result = self._get_selection_factor(self.parameters)
         if isinstance(result, tuple):
             selection, variance = result
         else:

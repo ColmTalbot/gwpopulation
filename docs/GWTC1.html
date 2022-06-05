@@ -13,6 +13,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -317,6 +318,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -325,10 +327,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -340,12 +346,15 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
@@ -376,7 +385,7 @@ div.rendered_html tbody tr:hover {
 <p>Find the original <a class="reference external" href="https://github.com/ColmTalbot/gwpopulation/tree/master/examples/GWTC1.ipynb">here</a>.</p>
 <hr class="docutils" />
 <div class="section" id="Population-Inference-on-GWTC-1">
-<h1>Population Inference on GWTC-1<a class="headerlink" href="#Population-Inference-on-GWTC-1" title="Permalink to this headline"></a></h1>
+<h1>Population Inference on GWTC-1<a class="headerlink" href="#Population-Inference-on-GWTC-1" title="Permalink to this heading"></a></h1>
 <p>The first gravitational-wave transient catalog <a class="reference external" href="https://arxiv.org/abs/1811.12907">“GWTC-1”</a> includes all compact binary coalescences observed during Advanced LIGO/Virgo’s first and second observing runs.</p>
 <p><code class="docutils literal notranslate"><span class="pre">GWPopulation</span></code> builds upon <a class="reference external" href="git.ligo.org/lscsoft/bilby">bilby</a> (<a class="reference external" href="https://arxiv.org/abs/1811.02042">arXiv:1811.02042</a>) to provide simple, modular, user-friendly, population inference.</p>
 <p>Currently implemented models include:</p>
@@ -391,7 +400,7 @@ div.rendered_html tbody tr:hover {
 </ul>
 <p>For more information see the <a class="reference external" href="https://github.com/ColmTalbot/gwpopulation">git repository</a>, <a class="reference external" href="https://colmtalbot.github.io/gwpopulation/">documentation</a>.</p>
 <div class="section" id="Install-some-packages">
-<h2>Install some packages<a class="headerlink" href="#Install-some-packages" title="Permalink to this headline"></a></h2>
+<h2>Install some packages<a class="headerlink" href="#Install-some-packages" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">gwpopulation</span></code> has the population model code.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cupy</span></code> allows use to leverage the GPU.</p></li>
@@ -445,7 +454,7 @@ Requirement already satisfied: packaging in /usr/local/lib/python3.7/dist-packag
 </div>
 </div>
 <div class="section" id="Get-the-data">
-<h2>Get the data<a class="headerlink" href="#Get-the-data" title="Permalink to this headline"></a></h2>
+<h2>Get the data<a class="headerlink" href="#Get-the-data" title="Permalink to this heading"></a></h2>
 <p>Pull the posterior samples for each of the events from the LIGO dcc.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
@@ -489,7 +498,7 @@ GWTC-1_sample_relea 100%[===================&gt;]  85.73M  19.7MB/s    in 5.3s
 </div>
 </div>
 <div class="section" id="Imports">
-<h2>Imports<a class="headerlink" href="#Imports" title="Permalink to this headline"></a></h2>
+<h2>Imports<a class="headerlink" href="#Imports" title="Permalink to this heading"></a></h2>
 <p>Import the packages required for the script.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
@@ -522,7 +531,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 </div>
 <div class="section" id="Load-posteriors">
-<h2>Load posteriors<a class="headerlink" href="#Load-posteriors" title="Permalink to this headline"></a></h2>
+<h2>Load posteriors<a class="headerlink" href="#Load-posteriors" title="Permalink to this heading"></a></h2>
 <p>We’re using the posteriors from the GWTC-1 data release.</p>
 <p>We need to change the names of the parameters to make them work with the code.</p>
 <div class="nbinput nblast docutils container">
@@ -591,7 +600,7 @@ redshift_prior = interp1d(redshifts, luminosity_prior / dz_ddl / (1 + redshifts)
 </div>
 </div>
 <div class="section" id="Add-some-weights-to-posterior">
-<h2>Add some weights to posterior<a class="headerlink" href="#Add-some-weights-to-posterior" title="Permalink to this headline"></a></h2>
+<h2>Add some weights to posterior<a class="headerlink" href="#Add-some-weights-to-posterior" title="Permalink to this heading"></a></h2>
 <p>Make sure the posterior <code class="docutils literal notranslate"><span class="pre">DataFrames</span></code> contain the appropriate quantities.</p>
 <p>We could include a <code class="docutils literal notranslate"><span class="pre">prior</span></code> column, this is the prior used in the initial sampling stage. This is used to weight the samples in the likelihood.</p>
 <div class="nbinput nblast docutils container">
@@ -608,7 +617,7 @@ redshift_prior = interp1d(redshifts, luminosity_prior / dz_ddl / (1 + redshifts)
 </div>
 </div>
 <div class="section" id="Specify-the-model">
-<h2>Specify the model<a class="headerlink" href="#Specify-the-model" title="Permalink to this headline"></a></h2>
+<h2>Specify the model<a class="headerlink" href="#Specify-the-model" title="Permalink to this heading"></a></h2>
 <p>Choose which population models we want to use.</p>
 <p>For the mass distribution we use</p>
 <p><code class="docutils literal notranslate"><span class="pre">gwpopulation.models.mass.two_component_primary_mass_ratio</span></code>.</p>
@@ -628,7 +637,7 @@ redshift_prior = interp1d(redshifts, luminosity_prior / dz_ddl / (1 + redshifts)
 </div>
 </div>
 <div class="section" id="Selection-effects">
-<h2>Selection effects<a class="headerlink" href="#Selection-effects" title="Permalink to this headline"></a></h2>
+<h2>Selection effects<a class="headerlink" href="#Selection-effects" title="Permalink to this heading"></a></h2>
 <p>Gravitational-wave surveys suffer from Malmquist bias.</p>
 <p>In order to measure the true, astrophysical, distribution we must include a term to account for this in our population analyses.</p>
 <p>The way the likelihood is structured, this can be any object that evaluates to give the observed spactime volume as a function of the population parameters.</p>
@@ -654,7 +663,7 @@ def toy_vt_calculator(kwargs):
 </div>
 </div>
 <div class="section" id="Define-the-likelihood">
-<h2>Define the likelihood<a class="headerlink" href="#Define-the-likelihood" title="Permalink to this headline"></a></h2>
+<h2>Define the likelihood<a class="headerlink" href="#Define-the-likelihood" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">HyperparameterLikelihood</span></code> marginalises over the local merger rate, with a uniform-in-log prior.</p>
 <p>To also estimate the rate use the <code class="docutils literal notranslate"><span class="pre">RateLikelilhood</span></code> (see further on in the notebook).</p>
 <p>We provide: - <code class="docutils literal notranslate"><span class="pre">posteriors</span></code>: a list of <code class="docutils literal notranslate"><span class="pre">pandas</span></code> DataFrames - <code class="docutils literal notranslate"><span class="pre">hyper_prior</span></code>: our population model, as defined above - <code class="docutils literal notranslate"><span class="pre">selection_function</span></code>: anything which evaluates the selection function</p>
@@ -680,7 +689,7 @@ def toy_vt_calculator(kwargs):
 </div>
 </div>
 <div class="section" id="Define-the-prior">
-<h2>Define the prior<a class="headerlink" href="#Define-the-prior" title="Permalink to this headline"></a></h2>
+<h2>Define the prior<a class="headerlink" href="#Define-the-prior" title="Permalink to this heading"></a></h2>
 <p>This is the standard method to define the prior distribution within <code class="docutils literal notranslate"><span class="pre">bilby</span></code>.</p>
 <p>The labels are used in plotting.</p>
 <p>Numbers are converted to delta function priors and are not sampled.</p>
@@ -714,7 +723,7 @@ fast_priors[&quot;sigma_spin&quot;] = Uniform(minimum=0, maximum=4, latex_label=
 </div>
 </div>
 <div class="section" id="Run-the-sampler">
-<h2>Run the sampler<a class="headerlink" href="#Run-the-sampler" title="Permalink to this headline"></a></h2>
+<h2>Run the sampler<a class="headerlink" href="#Run-the-sampler" title="Permalink to this heading"></a></h2>
 <p>We’ll use the sampler <code class="docutils literal notranslate"><span class="pre">dynesty</span></code> and use a small number of live points to reduce the runtime.</p>
 <p>This is painfully slow without using the GPU version. If you have a GPU it will just work.</p>
 <p>Other samplers are available, <code class="docutils literal notranslate"><span class="pre">cpnest</span></code> gave the best results for the O1+O2 data, however it isn’t currently compatible with the GPU likelihood.</p>
@@ -826,9 +835,9 @@ plt.close()
 </div>
 </div>
 <div class="section" id="Define-a-new-model">
-<h2>Define a new model<a class="headerlink" href="#Define-a-new-model" title="Permalink to this headline"></a></h2>
+<h2>Define a new model<a class="headerlink" href="#Define-a-new-model" title="Permalink to this heading"></a></h2>
 <div class="section" id="Let’s-define-a-new-population-model-for-BNS.">
-<h3>Let’s define a new population model for BNS.<a class="headerlink" href="#Let’s-define-a-new-population-model-for-BNS." title="Permalink to this headline"></a></h3>
+<h3>Let’s define a new population model for BNS.<a class="headerlink" href="#Let’s-define-a-new-population-model-for-BNS." title="Permalink to this heading"></a></h3>
 <p>Just as an example we’ll use a Gaussian distribution bounded between <span class="math notranslate nohighlight">\([1 M_{\odot}, 2 M_{\odot}]\)</span>.</p>
 <div class="math notranslate nohighlight">
 \[p(m_1, m_2) = N \exp \left(- \frac{\left((m_1 - \mu)^2 + (m_2 - \mu)^2\right)}{2 \sigma^2}\right) \quad : \quad 1 \leq m_2 \leq m_1 \leq 2\]</div>
@@ -853,7 +862,7 @@ plt.close()
 </div>
 </div>
 <div class="section" id="Load-GW170817-posterior">
-<h2>Load GW170817 posterior<a class="headerlink" href="#Load-GW170817-posterior" title="Permalink to this headline"></a></h2>
+<h2>Load GW170817 posterior<a class="headerlink" href="#Load-GW170817-posterior" title="Permalink to this heading"></a></h2>
 <p>This is just the same as above.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
@@ -877,7 +886,7 @@ posterior[&quot;mass_2&quot;] = posterior[&quot;mass_2_det&quot;] / (1 + posteri
 </div>
 </div>
 <div class="section" id="Define-the-new-likelihood">
-<h2>Define the new likelihood<a class="headerlink" href="#Define-the-new-likelihood" title="Permalink to this headline"></a></h2>
+<h2>Define the new likelihood<a class="headerlink" href="#Define-the-new-likelihood" title="Permalink to this heading"></a></h2>
 <p>We use the same likelihood as before.</p>
 <p><em>Note</em>: - This time we cast our posterior to a list while creating the likelihood. - We pass the function rather than a <code class="docutils literal notranslate"><span class="pre">Model</span></code> object as before, <code class="docutils literal notranslate"><span class="pre">bilby</span></code> will turn this into a <code class="docutils literal notranslate"><span class="pre">Model</span></code> for internal use. - We’ve removed the selection and conversion functions as they aren’t needed here (yes, a selection function is technically needed).</p>
 <div class="nbinput docutils container">
@@ -900,7 +909,7 @@ posterior[&quot;mass_2&quot;] = posterior[&quot;mass_2_det&quot;] / (1 + posteri
 </div>
 </div>
 <div class="section" id="Define-the-new-prior">
-<h2>Define the new prior<a class="headerlink" href="#Define-the-new-prior" title="Permalink to this headline"></a></h2>
+<h2>Define the new prior<a class="headerlink" href="#Define-the-new-prior" title="Permalink to this heading"></a></h2>
 <p>Just as before.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
@@ -983,7 +992,7 @@ ln_bayes_factor:  0.919 +/-  0.194
 </div>
 </div>
 <div class="section" id="Do-it-all">
-<h2>Do it all<a class="headerlink" href="#Do-it-all" title="Permalink to this headline"></a></h2>
+<h2>Do it all<a class="headerlink" href="#Do-it-all" title="Permalink to this heading"></a></h2>
 <p>Let’s put together a run with models for the mass, spin and redshift distributions.</p>
 <p><strong>This will not give sensible answers because VT is not estimated.</strong></p>
 <p>The data for VT estimation isn’t available in this notebook.</p>
@@ -1005,7 +1014,7 @@ ln_bayes_factor:  0.919 +/-  0.194
 </div>
 </div>
 <div class="section" id="Update-sampling-prior">
-<h2>Update sampling prior<a class="headerlink" href="#Update-sampling-prior" title="Permalink to this headline"></a></h2>
+<h2>Update sampling prior<a class="headerlink" href="#Update-sampling-prior" title="Permalink to this heading"></a></h2>
 <p>We need to update the sampling prior to account for the new redshift evolution model.</p>
 <p>Fortunately, we defined an interpolant for this earlier.</p>
 <div class="nbinput nblast docutils container">
@@ -1019,7 +1028,7 @@ ln_bayes_factor:  0.919 +/-  0.194
 </div>
 </div>
 <div class="section" id="Likelihood">
-<h2>Likelihood<a class="headerlink" href="#Likelihood" title="Permalink to this headline"></a></h2>
+<h2>Likelihood<a class="headerlink" href="#Likelihood" title="Permalink to this heading"></a></h2>
 <p>We use a different likelihood class <code class="docutils literal notranslate"><span class="pre">RateLikelihood</span></code>, this will simultaneously estimate the local merger rate as well as the population distribution.</p>
 <p>This is created just as before.</p>
 <p>We note that this is not strictly necessary as we can always reconstruct the rate posterior in post-processing using the <code class="docutils literal notranslate"><span class="pre">HypmerparameterLikelihood</span></code>.</p>
@@ -1035,7 +1044,7 @@ ln_bayes_factor:  0.919 +/-  0.194
 </div>
 </div>
 <div class="section" id="Prior">
-<h2>Prior<a class="headerlink" href="#Prior" title="Permalink to this headline"></a></h2>
+<h2>Prior<a class="headerlink" href="#Prior" title="Permalink to this heading"></a></h2>
 <p>This is just a longer version of the previous.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:

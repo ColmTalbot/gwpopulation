@@ -43,6 +43,7 @@ jobs:
         conda install --file requirements.txt
         conda install pre-commit codespell
         conda install jupyter
+        conda update nbconvert
         pre-commit install
     - name: Install gwpopulation
       run: |

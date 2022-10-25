@@ -47,10 +47,10 @@ jobs:
         pre-commit install
     - name: Install gwpopulation
       run: |
-        python -m pip install .
+        conda install .
     - name: List installed
       run: |
-        python -m pip list
+        conda list
     - name: Run pre-commit checks
       run: |
         pre-commit run --all-files --verbose --show-diff-on-failure

@@ -1,0 +1,6 @@
+gwpopulation.utils.von\_mises
+=============================
+
+.. currentmodule:: gwpopulation.utils
+
+.. autofunction:: von_mises

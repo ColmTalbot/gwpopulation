@@ -84,7 +84,7 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">.cupy_utils</span> <span class="kn">import</span> <span class="n">betaln</span><span class="p">,</span> <span class="n">erf</span><span class="p">,</span> <span class="n">xp</span>
+<span class="kn">from</span> <span class="nn">.cupy_utils</span> <span class="kn">import</span> <span class="n">betaln</span><span class="p">,</span> <span class="n">erf</span><span class="p">,</span> <span class="n">i0e</span><span class="p">,</span> <span class="n">xp</span>
 
 
 <div class="viewcode-block" id="beta_dist"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.beta_dist.html#gwpopulation.utils.beta_dist">[docs]</a><span class="k">def</span> <span class="nf">beta_dist</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -242,6 +242,36 @@
         <span class="o">/</span> <span class="n">determinant</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">prob</span></div>
+
+
+<div class="viewcode-block" id="von_mises"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.von_mises.html#gwpopulation.utils.von_mises">[docs]</a><span class="k">def</span> <span class="nf">von_mises</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PDF of the von Mises distribution defined on the standard interval.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        p(x) =</span>
+<span class="sd">        \frac{\exp\left( \kappa \cos(x - \mu) \right)}{2 \pi \mathcal{I}_{0}(\kappa)}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    xx: array-like</span>
+<span class="sd">        Input points at which to evaluate the distribution</span>
+<span class="sd">    mu: float</span>
+<span class="sd">        The mean of the distribution</span>
+<span class="sd">    kappa: float</span>
+<span class="sd">        The scale parameter</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array-like</span>
+<span class="sd">        The probability</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For numerical stability, the factor of `exp(kappa)` from using `i0e`</span>
+<span class="sd">    is accounted for in the numerator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kappa</span> <span class="o">*</span> <span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">i0e</span><span class="p">(</span><span class="n">kappa</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="get_version_information"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.get_version_information.html#gwpopulation.utils.get_version_information">[docs]</a><span class="k">def</span> <span class="nf">get_version_information</span><span class="p">():</span>

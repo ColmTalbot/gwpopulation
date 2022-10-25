@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.utils.unnormalized_2d_gaussian &mdash; GWPopulation 0.7.0 documentation</title>
+  <title>gwpopulation.utils.von_mises &mdash; GWPopulation 0.7.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -21,8 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="gwpopulation.utils.von_mises" href="gwpopulation.utils.von_mises.html" />
-    <link rel="prev" title="gwpopulation.utils.truncnorm" href="gwpopulation.utils.truncnorm.html" /> 
+    <link rel="next" title="gwpopulation.vt" href="gwpopulation.vt.html" />
+    <link rel="prev" title="gwpopulation.utils.unnormalized_2d_gaussian" href="gwpopulation.utils.unnormalized_2d_gaussian.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -54,8 +54,8 @@
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.get_version_information.html">gwpopulation.utils.get_version_information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.powerlaw.html">gwpopulation.utils.powerlaw</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.truncnorm.html">gwpopulation.utils.truncnorm</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">gwpopulation.utils.unnormalized_2d_gaussian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.von_mises.html">gwpopulation.utils.von_mises</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.unnormalized_2d_gaussian.html">gwpopulation.utils.unnormalized_2d_gaussian</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">gwpopulation.utils.von_mises</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.vt.html">gwpopulation.vt</a></li>
@@ -80,9 +80,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="gwpopulation.utils.html">gwpopulation.utils</a> &raquo;</li>
-      <li>gwpopulation.utils.unnormalized_2d_gaussian</li>
+      <li>gwpopulation.utils.von_mises</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/gwpopulation.utils.unnormalized_2d_gaussian.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/gwpopulation.utils.von_mises.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -114,45 +114,36 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="gwpopulation-utils-unnormalized-2d-gaussian">
-<h1>gwpopulation.utils.unnormalized_2d_gaussian<a class="headerlink" href="#gwpopulation-utils-unnormalized-2d-gaussian" title="Permalink to this heading"></a></h1>
+<div class="section" id="gwpopulation-utils-von-mises">
+<h1>gwpopulation.utils.von_mises<a class="headerlink" href="#gwpopulation-utils-von-mises" title="Permalink to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="gwpopulation.utils.unnormalized_2d_gaussian">
-<span class="sig-prename descclassname"><span class="pre">gwpopulation.utils.</span></span><span class="sig-name descname"><span class="pre">unnormalized_2d_gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/utils.html#unnormalized_2d_gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.utils.unnormalized_2d_gaussian" title="Permalink to this definition"></a></dt>
-<dd><p>Compute the probability distribution for a correlated 2-dimensional Gaussian
-neglecting normalization terms.</p>
+<dt class="sig sig-object py" id="gwpopulation.utils.von_mises">
+<span class="sig-prename descclassname"><span class="pre">gwpopulation.utils.</span></span><span class="sig-name descname"><span class="pre">von_mises</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/utils.html#von_mises"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.utils.von_mises" title="Permalink to this definition"></a></dt>
+<dd><p>PDF of the von Mises distribution defined on the standard interval.</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\ln p(x) = (x - \mu_{x} y - \mu_{y}) \Sigma^{-1} (x - \mu_x y - \mu_{y})^{T} \\
-\Sigma = \begin{bmatrix}
-        \sigma^{2}_{x} &amp; \rho \sigma_{x} \sigma_{y} \\
-        \rho \sigma_{x} \sigma_{y} &amp; \sigma^{2}_{y}
-    \end{bmatrix}\end{split}\]</div>
+\[p(x) =
+\frac{\exp\left( \kappa \cos(x - \mu) \right)}{2 \pi \mathcal{I}_{0}(\kappa)}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>xx: array-like</strong></dt><dd><p>Input data in first dimension (<span class="math notranslate nohighlight">\(x\)</span>)</p>
+<dt><strong>xx: array-like</strong></dt><dd><p>Input points at which to evaluate the distribution</p>
 </dd>
-<dt><strong>yy: array-like</strong></dt><dd><p>Input data in second dimension (<span class="math notranslate nohighlight">\(y\)</span>)</p>
+<dt><strong>mu: float</strong></dt><dd><p>The mean of the distribution</p>
 </dd>
-<dt><strong>mu_x: float</strong></dt><dd><p>Mean in the first dimension (<span class="math notranslate nohighlight">\(\mu_{x}\)</span>)</p>
-</dd>
-<dt><strong>sigma_x: float</strong></dt><dd><p>Standard deviation in the first dimension (<span class="math notranslate nohighlight">\(\sigma_{x}\)</span>)</p>
-</dd>
-<dt><strong>mu_y: float</strong></dt><dd><p>Mean in the second dimension (<span class="math notranslate nohighlight">\(\mu_{y}\)</span>)</p>
-</dd>
-<dt><strong>sigma_y: float</strong></dt><dd><p>Standard deviation in the second dimension (<span class="math notranslate nohighlight">\(\sigma_{y}\)</span>)</p>
-</dd>
-<dt><strong>covariance: float</strong></dt><dd><p>The normalized covariance (bounded in [0, 1]) (<span class="math notranslate nohighlight">\(\rho\)</span>)</p>
+<dt><strong>kappa: float</strong></dt><dd><p>The scale parameter</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>prob: array-like</dt><dd><p>The unnormalized probability distribution (<span class="math notranslate nohighlight">\(p(x)\)</span>)</p>
+<dt>array-like</dt><dd><p>The probability</p>
 </dd>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>For numerical stability, the factor of <cite>exp(kappa)</cite> from using <cite>i0e</cite>
+is accounted for in the numerator</p>
 </dd></dl>
 
 </div>
@@ -161,8 +152,8 @@ neglecting normalization terms.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="gwpopulation.utils.truncnorm.html" class="btn btn-neutral float-left" title="gwpopulation.utils.truncnorm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="gwpopulation.utils.von_mises.html" class="btn btn-neutral float-right" title="gwpopulation.utils.von_mises" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="gwpopulation.utils.unnormalized_2d_gaussian.html" class="btn btn-neutral float-left" title="gwpopulation.utils.unnormalized_2d_gaussian" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gwpopulation.vt.html" class="btn btn-neutral float-right" title="gwpopulation.vt" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

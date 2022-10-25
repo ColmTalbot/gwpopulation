@@ -4,7 +4,7 @@ Helper functions for probability distributions.
 
 import os
 
-from .cupy_utils import betaln, erf, xp
+from .cupy_utils import betaln, erf, i0e, xp
 
 
 def beta_dist(xx, alpha, beta, scale=1):
@@ -162,6 +162,36 @@ def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
         / determinant
     )
     return prob
+
+
+def von_mises(xx, mu, kappa):
+    r"""
+    PDF of the von Mises distribution defined on the standard interval.
+
+    .. math::
+        p(x) =
+        \frac{\exp\left( \kappa \cos(x - \mu) \right)}{2 \pi \mathcal{I}_{0}(\kappa)}
+
+    Parameters
+    ----------
+    xx: array-like
+        Input points at which to evaluate the distribution
+    mu: float
+        The mean of the distribution
+    kappa: float
+        The scale parameter
+
+    Returns
+    -------
+    array-like
+        The probability
+
+    Notes
+    -----
+    For numerical stability, the factor of `exp(kappa)` from using `i0e`
+    is accounted for in the numerator
+    """
+    return xp.exp(kappa * (xp.cos(xx - mu) - 1)) / (2 * xp.pi * i0e(kappa))
 
 
 def get_version_information():

@@ -205,6 +205,7 @@ class Likelihoods(unittest.TestCase):
             "var_2": 0.0,
             "var_3": 0.0,
             "var_4": 0.0,
+            "variance": 0.0,
             "bar": None,
         }
         self.assertDictEqual(expected, new_params)

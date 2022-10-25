@@ -214,11 +214,7 @@
 
 <div class="viewcode-block" id="HyperparameterLikelihood.log_likelihood_ratio"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio">[docs]</a>    <span class="k">def</span> <span class="nf">log_likelihood_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ln_l</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ln_likelihood_and_variance</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">variance</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_variance</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_pop_added</span><span class="p">(</span><span class="n">added_keys</span><span class="p">)</span>
-            <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_inf</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pop_added</span><span class="p">(</span><span class="n">added_keys</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">xp</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ln_l</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">variance</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_variance</span> <span class="ow">or</span> <span class="n">xp</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ln_l</span><span class="p">):</span>
             <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_inf</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ln_l</span><span class="p">))</span></div>
@@ -247,7 +243,7 @@
             <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">expectation</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_selection_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">return_uncertainty</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">selection</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selection_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="n">selection</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_selection_function_with_uncertainty</span><span class="p">()</span>
         <span class="n">total_selection</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">return_uncertainty</span><span class="p">:</span>
             <span class="n">total_variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">variance</span> <span class="o">/</span> <span class="n">selection</span><span class="o">**</span><span class="mi">2</span>
@@ -256,7 +252,7 @@
             <span class="k">return</span> <span class="n">total_selection</span>
 
     <span class="k">def</span> <span class="nf">_selection_function_with_uncertainty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_selection_factor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selection_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="n">selection</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="n">result</span>
         <span class="k">else</span><span class="p">:</span>
@@ -287,7 +283,7 @@
         <span class="n">ln_ls</span><span class="p">,</span> <span class="n">variances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_per_event_ln_bayes_factors</span><span class="p">(</span>
             <span class="n">return_uncertainty</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
-        <span class="n">total_variance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">variances</span><span class="p">[</span><span class="n">ii</span><span class="p">]))</span>
+        <span class="n">total_variance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">variances</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span><span class="p">):</span>
             <span class="n">sample</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;ln_bf_</span><span class="si">{</span><span class="n">ii</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ln_ls</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
             <span class="n">sample</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;var_</span><span class="si">{</span><span class="n">ii</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">variances</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
@@ -459,11 +455,14 @@
     <span class="k">def</span> <span class="nf">_get_selection_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">return_uncertainty</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">selection</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_selection_function_with_uncertainty</span><span class="p">()</span>
         <span class="n">n_expected</span> <span class="o">=</span> <span class="n">selection</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">]</span>
-        <span class="n">ln_l</span> <span class="o">=</span> <span class="o">-</span><span class="n">n_expected</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">])</span>
+        <span class="n">total_selection</span> <span class="o">=</span> <span class="o">-</span><span class="n">n_expected</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">return_uncertainty</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ln_l</span><span class="p">,</span> <span class="n">n_expected</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">variance</span>
+            <span class="n">total_variance</span> <span class="o">=</span> <span class="n">n_expected</span> <span class="o">*</span> <span class="n">variance</span> <span class="o">/</span> <span class="n">selection</span><span class="o">**</span><span class="mi">2</span>
+            <span class="k">return</span> <span class="n">total_selection</span><span class="p">,</span> <span class="n">total_variance</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ln_l</span>
+            <span class="k">return</span> <span class="n">total_selection</span>
 
 <div class="viewcode-block" id="RateLikelihood.generate_rate_posterior_sample"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.RateLikelihood.html#gwpopulation.hyperpe.RateLikelihood.generate_rate_posterior_sample">[docs]</a>    <span class="k">def</span> <span class="nf">generate_rate_posterior_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

@@ -43,14 +43,15 @@ jobs:
         conda install --file requirements.txt
         conda install pre-commit codespell
         conda install jupyter
+        conda install pip setuptools
         conda update nbconvert
         pre-commit install
     - name: Install gwpopulation
       run: |
-        conda develop .
+        pip install .
     - name: List installed
       run: |
-        conda list
+        python -m pip list
     - name: Run pre-commit checks
       run: |
         pre-commit run --all-files --verbose --show-diff-on-failure

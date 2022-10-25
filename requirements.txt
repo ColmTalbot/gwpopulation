@@ -3,4 +3,4 @@ scipy
 pandas
 tqdm
 astropy
-bilby
+bilby>=1.2.0

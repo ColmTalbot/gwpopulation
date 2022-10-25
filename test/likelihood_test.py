@@ -200,3 +200,30 @@ class Likelihoods(unittest.TestCase):
         new_samples = like.posterior_predictive_resample(samples=samples)
         for key in new_samples:
             self.assertEqual(new_samples[key].shape, like.data[key].shape)
+
+    def test_meta_data(self):
+        like = HyperparameterLikelihood(
+            posteriors=self.data,
+            hyper_prior=self.model,
+            selection_function=self.selection_function,
+            ln_evidences=self.ln_evidences,
+        )
+        expected = dict(
+            model=["<lambda>"],
+            data=dict(
+                a=np.ones((5, 500)),
+                b=np.ones((5, 500)),
+                c=np.ones((5, 500)),
+            ),
+            n_events=5,
+            sampling_prior=1,
+            samples_per_posterior=500
+        )
+        for key in like.meta_data:
+            if key == "data":
+                for key_2 in like.meta_data[key]:
+                    self.assertTrue(np.max(abs(
+                        like.meta_data[key][key_2] - expected[key][key_2]
+                    )) == 0)
+            else:
+                self.assertEqual(like.meta_data[key], expected[key])

@@ -75,7 +75,7 @@ class HyperparameterLikelihood(Likelihood):
                 "or a class with attribute 'parameters' and method 'prob'"
             )
         self.hyper_prior = hyper_prior
-        Likelihood.__init__(self, hyper_prior.parameters)
+        super(HyperparameterLikelihood, self).__init__(hyper_prior.parameters)
 
         if "prior" in self.data:
             self.sampling_prior = self.data.pop("prior")
@@ -284,6 +284,16 @@ class HyperparameterLikelihood(Likelihood):
             return new_samples, weights
         else:
             return new_samples
+
+    @property
+    def meta_data(self):
+        return dict(
+            model=[model.__name__ for model in self.hyper_prior.models],
+            data={key: to_numpy(self.data[key]) for key in self.data},
+            n_events=self.n_posteriors,
+            sampling_prior=to_numpy(self.sampling_prior),
+            samples_per_posterior=self.samples_per_posterior,
+        )
 
 
 class RateLikelihood(HyperparameterLikelihood):

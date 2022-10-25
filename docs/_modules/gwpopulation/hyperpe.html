@@ -155,7 +155,7 @@
                 <span class="s2">&quot;or a class with attribute &#39;parameters&#39; and method &#39;prob&#39;&quot;</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hyper_prior</span> <span class="o">=</span> <span class="n">hyper_prior</span>
-        <span class="n">Likelihood</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hyper_prior</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">HyperparameterLikelihood</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">hyper_prior</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s2">&quot;prior&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sampling_prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;prior&quot;</span><span class="p">)</span>
@@ -363,7 +363,17 @@
         <span class="k">if</span> <span class="n">return_weights</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">new_samples</span><span class="p">,</span> <span class="n">weights</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">new_samples</span></div></div>
+            <span class="k">return</span> <span class="n">new_samples</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">meta_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyper_prior</span><span class="o">.</span><span class="n">models</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">to_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">},</span>
+            <span class="n">n_events</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span><span class="p">,</span>
+            <span class="n">sampling_prior</span><span class="o">=</span><span class="n">to_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_prior</span><span class="p">),</span>
+            <span class="n">samples_per_posterior</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samples_per_posterior</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RateLikelihood"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.RateLikelihood.html#gwpopulation.hyperpe.RateLikelihood">[docs]</a><span class="k">class</span> <span class="nc">RateLikelihood</span><span class="p">(</span><span class="n">HyperparameterLikelihood</span><span class="p">):</span>

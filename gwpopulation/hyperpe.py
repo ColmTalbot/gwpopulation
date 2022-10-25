@@ -134,11 +134,7 @@ class HyperparameterLikelihood(Likelihood):
 
     def log_likelihood_ratio(self):
         ln_l, variance = self.ln_likelihood_and_variance()
-        if variance > self._max_variance:
-            self._pop_added(added_keys)
-            return -self._inf
-        self._pop_added(added_keys)
-        if xp.isnan(ln_l):
+        if variance > self._max_variance or xp.isnan(ln_l):
             return -self._inf
         else:
             return float(xp.nan_to_num(ln_l))
@@ -167,7 +163,7 @@ class HyperparameterLikelihood(Likelihood):
             return xp.log(expectation)
 
     def _get_selection_factor(self, return_uncertainty=True):
-        selection, variance = self.selection_function(self.parameters)
+        selection, variance = self._selection_function_with_uncertainty()
         total_selection = -self.n_posteriors * xp.log(selection)
         if return_uncertainty:
             total_variance = self.n_posteriors**2 * variance / selection**2
@@ -176,7 +172,7 @@ class HyperparameterLikelihood(Likelihood):
             return total_selection
 
     def _selection_function_with_uncertainty(self):
-        result = self._get_selection_factor(self.parameters)
+        result = self.selection_function(self.parameters)
         if isinstance(result, tuple):
             selection, variance = result
         else:
@@ -207,7 +203,7 @@ class HyperparameterLikelihood(Likelihood):
         ln_ls, variances = self._compute_per_event_ln_bayes_factors(
             return_uncertainty=True
         )
-        total_variance = float(sum(variances[ii]))
+        total_variance = float(sum(variances))
         for ii in range(self.n_posteriors):
             sample[f"ln_bf_{ii}"] = float(ln_ls[ii])
             sample[f"var_{ii}"] = float(variances[ii])
@@ -379,11 +375,14 @@ class RateLikelihood(HyperparameterLikelihood):
     def _get_selection_factor(self, return_uncertainty=True):
         selection, variance = self._selection_function_with_uncertainty()
         n_expected = selection * self.parameters["rate"]
-        ln_l = -n_expected + self.n_posteriors * xp.log(self.parameters["rate"])
+        total_selection = -n_expected + self.n_posteriors * xp.log(
+            self.parameters["rate"]
+        )
         if return_uncertainty:
-            return ln_l, n_expected**2 * variance
+            total_variance = n_expected * variance / selection**2
+            return total_selection, total_variance
         else:
-            return ln_l
+            return total_selection
 
     def generate_rate_posterior_sample(self):
         """

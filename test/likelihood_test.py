@@ -222,8 +222,9 @@ class Likelihoods(unittest.TestCase):
         for key in like.meta_data:
             if key == "data":
                 for key_2 in like.meta_data[key]:
-                    self.assertTrue(np.max(
-                        abs(like.meta_data[key][key_2] - expected[key][key_2])
-                    ) == 0)
+                    self.assertTrue(
+                        np.max(abs(like.meta_data[key][key_2] - expected[key][key_2]))
+                        == 0
+                    )
             else:
                 self.assertEqual(like.meta_data[key], expected[key])

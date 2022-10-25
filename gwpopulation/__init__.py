@@ -17,7 +17,11 @@ The code is hosted at `<www.github.com/ColmTalbot/gwpopulation>`_.
 from . import conversions, cupy_utils, hyperpe, models, utils, vt
 from .hyperpe import RateLikelihood
 
-__version__ = utils.get_version_information()
+try:
+    from ._version import version as __version__
+except ModuleNotFoundError:  # development mode
+    __version__ = "unknown"
+
 
 __all_with_xp = [
     models.mass,

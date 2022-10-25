@@ -47,7 +47,7 @@ jobs:
         pre-commit install
     - name: Install gwpopulation
       run: |
-        conda install .
+        conda develop .
     - name: List installed
       run: |
         conda list

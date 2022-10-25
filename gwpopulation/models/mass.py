@@ -494,11 +494,11 @@ class BaseSmoothedMassDistribution(object):
 
     primary_model = None
 
-    def __init__(self, mmin=2, mmax=100):
+    def __init__(self, mmin=2, mmax=100, normalization_shape=(1000, 500)):
         self.mmin = mmin
         self.mmax = mmax
-        self.m1s = xp.linspace(mmin, mmax, 1000)
-        self.qs = xp.linspace(0.001, 1, 500)
+        self.m1s = xp.linspace(mmin, mmax, normalization_shape[0])
+        self.qs = xp.linspace(0.001, 1, normalization_shape[1])
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
@@ -778,12 +778,6 @@ class BrokenPowerLawSmoothedMassDistribution(BaseSmoothedMassDistribution):
             Minimum black hole mass.
         mmax: float
             Maximum mass in the powerlaw distributed component.
-        lam: float
-            Fraction of black holes in the Gaussian component.
-        mpp: float
-            Mean of the Gaussian component.
-        sigpp: float
-            Standard deviation of the Gaussian component.
         delta_m: float
             Rise length of the low end of the mass distribution.
         """

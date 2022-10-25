@@ -136,6 +136,39 @@
 <dt class="sig sig-object py" id="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gwpopulation.models.mass.</span></span><span class="sig-name descname"><span class="pre">BrokenPowerLawPeakSmoothedMassDistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1000,</span> <span class="pre">500)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/models/mass.html#BrokenPowerLawPeakSmoothedMassDistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution" title="gwpopulation.models.mass.BaseSmoothedMassDistribution"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSmoothedMassDistribution</span></code></a></p>
+<p>Broken power law for two-dimensional mass distribution with low
+mass smoothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dataset: dict</strong></dt><dd><p>Dictionary of numpy arrays for ‘mass_1’ and ‘mass_ratio’.</p>
+</dd>
+<dt><strong>alpha_1: float</strong></dt><dd><p>Powerlaw exponent for more massive black hole below break.</p>
+</dd>
+<dt><strong>alpha_2: float</strong></dt><dd><p>Powerlaw exponent for more massive black hole above break.</p>
+</dd>
+<dt><strong>beta: float</strong></dt><dd><p>Power law exponent of the mass ratio distribution.</p>
+</dd>
+<dt><strong>break_fraction: float</strong></dt><dd><p>Fraction between mmin and mmax primary mass distribution breaks at.</p>
+</dd>
+<dt><strong>mmin: float</strong></dt><dd><p>Minimum black hole mass.</p>
+</dd>
+<dt><strong>mmax: float</strong></dt><dd><p>Maximum mass in the powerlaw distributed component.</p>
+</dd>
+<dt><strong>lam: float</strong></dt><dd><p>Fraction of black holes in the Gaussian component.</p>
+</dd>
+<dt><strong>mpp: float</strong></dt><dd><p>Mean of the Gaussian component.</p>
+</dd>
+<dt><strong>sigpp: float</strong></dt><dd><p>Standard deviation of the Gaussian component.</p>
+</dd>
+<dt><strong>delta_m: float</strong></dt><dd><p>Rise length of the low end of the mass distribution.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The Gaussian component is bounded between [<cite>mmin</cite>, <cite>self.mmax</cite>].
+This means that the <cite>mmax</cite> parameter is _not_ the global maximum.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1000,</span> <span class="pre">500)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.__init__" title="Permalink to this definition"></a></dt>
@@ -168,6 +201,21 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.smoothing" title="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.smoothing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smoothing</span></code></a>(masses, mmin, mmax, delta_m)</p></td>
 <td><p>Apply a one sided window between mmin and mmin + delta_m to the mass pdf.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kwargs</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">variable_names</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>

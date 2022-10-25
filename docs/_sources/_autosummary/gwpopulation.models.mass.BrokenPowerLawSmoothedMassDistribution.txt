@@ -28,4 +28,11 @@ gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BrokenPowerLawSmoothedMassDistribution.kwargs
+      ~BrokenPowerLawSmoothedMassDistribution.variable_names
+   
    

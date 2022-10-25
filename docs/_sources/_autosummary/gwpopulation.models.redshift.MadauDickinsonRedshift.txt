@@ -26,4 +26,10 @@ gwpopulation.models.redshift.MadauDickinsonRedshift
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MadauDickinsonRedshift.variable_names
+   
    

@@ -81,6 +81,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Implemented mass models</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
 
 <span class="kn">from</span> <span class="nn">..cupy_utils</span> <span class="kn">import</span> <span class="n">trapz</span><span class="p">,</span> <span class="n">xp</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">powerlaw</span><span class="p">,</span> <span class="n">truncnorm</span>
@@ -574,6 +575,20 @@
 
     <span class="n">primary_model</span> <span class="o">=</span> <span class="kc">None</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">primary_model</span><span class="p">,</span>
+            <span class="s2">&quot;variable_names&quot;</span><span class="p">,</span>
+            <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_model</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">vars</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="s2">&quot;delta_m&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">vars</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+
 <div class="viewcode-block" id="BaseSmoothedMassDistribution.__init__"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">normalization_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">500</span><span class="p">)):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmin</span> <span class="o">=</span> <span class="n">mmin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mmax</span> <span class="o">=</span> <span class="n">mmax</span>
@@ -596,7 +611,7 @@
                 <span class="s2">&quot;</span><span class="si">{self.__class__}</span><span class="s2">: mmax (</span><span class="si">{mmax}</span><span class="s2">) &gt; self.mmax (</span><span class="si">{self.mmax}</span><span class="s2">)&quot;</span>
             <span class="p">)</span>
         <span class="n">delta_m</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;delta_m&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">p_m1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_m1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">p_m1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_m1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">p_q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_q</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
         <span class="n">prob</span> <span class="o">=</span> <span class="n">p_m1</span> <span class="o">*</span> <span class="n">p_q</span>
         <span class="k">return</span> <span class="n">prob</span>
@@ -701,244 +716,160 @@
 
 
 <div class="viewcode-block" id="SinglePeakSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">SinglePeakSmoothedMassDistribution</span><span class="p">(</span><span class="n">BaseSmoothedMassDistribution</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Powerlaw + peak model for two-dimensional mass distribution with low</span>
+<span class="sd">    mass smoothing.</span>
+
+<span class="sd">    https://arxiv.org/abs/1801.02699 Eq. (11) (T&amp;T18)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset: dict</span>
+<span class="sd">        Dictionary of numpy arrays for &#39;mass_1&#39; and &#39;mass_ratio&#39;.</span>
+<span class="sd">    alpha: float</span>
+<span class="sd">        Powerlaw exponent for more massive black hole.</span>
+<span class="sd">    beta: float</span>
+<span class="sd">        Power law exponent of the mass ratio distribution.</span>
+<span class="sd">    mmin: float</span>
+<span class="sd">        Minimum black hole mass.</span>
+<span class="sd">    mmax: float</span>
+<span class="sd">        Maximum mass in the powerlaw distributed component.</span>
+<span class="sd">    lam: float</span>
+<span class="sd">        Fraction of black holes in the Gaussian component.</span>
+<span class="sd">    mpp: float</span>
+<span class="sd">        Mean of the Gaussian component.</span>
+<span class="sd">    sigpp: float</span>
+<span class="sd">        Standard deviation of the Gaussian component.</span>
+<span class="sd">    delta_m: float</span>
+<span class="sd">        Rise length of the low end of the mass distribution.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The Gaussian component is bounded between [`mmin`, `self.mmax`].</span>
+<span class="sd">    This means that the `mmax` parameter is _not_ the global maximum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">primary_model</span> <span class="o">=</span> <span class="n">two_component_single</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">mpp</span><span class="p">,</span> <span class="n">sigpp</span><span class="p">,</span> <span class="n">delta_m</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Powerlaw + peak model for two-dimensional mass distribution with low</span>
-<span class="sd">        mass smoothing.</span>
-
-<span class="sd">        https://arxiv.org/abs/1801.02699 Eq. (11) (T&amp;T18)</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        dataset: dict</span>
-<span class="sd">            Dictionary of numpy arrays for &#39;mass_1&#39; and &#39;mass_ratio&#39;.</span>
-<span class="sd">        alpha: float</span>
-<span class="sd">            Powerlaw exponent for more massive black hole.</span>
-<span class="sd">        beta: float</span>
-<span class="sd">            Power law exponent of the mass ratio distribution.</span>
-<span class="sd">        mmin: float</span>
-<span class="sd">            Minimum black hole mass.</span>
-<span class="sd">        mmax: float</span>
-<span class="sd">            Maximum mass in the powerlaw distributed component.</span>
-<span class="sd">        lam: float</span>
-<span class="sd">            Fraction of black holes in the Gaussian component.</span>
-<span class="sd">        mpp: float</span>
-<span class="sd">            Mean of the Gaussian component.</span>
-<span class="sd">        sigpp: float</span>
-<span class="sd">            Standard deviation of the Gaussian component.</span>
-<span class="sd">        delta_m: float</span>
-<span class="sd">            Rise length of the low end of the mass distribution.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        The Gaussian component is bounded between [`mmin`, `self.mmax`].</span>
-<span class="sd">        This means that the `mmax` parameter is _not_ the global maximum.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SinglePeakSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
-            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
-            <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
-            <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
-            <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
-            <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span>
-        <span class="p">)</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MultiPeakSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">MultiPeakSmoothedMassDistribution</span><span class="p">(</span><span class="n">BaseSmoothedMassDistribution</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Powerlaw + two peak model for two-dimensional mass distribution with</span>
+<span class="sd">    low mass smoothing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset: dict</span>
+<span class="sd">        Dictionary of numpy arrays for &#39;mass_1&#39; and &#39;mass_ratio&#39;.</span>
+<span class="sd">    alpha: float</span>
+<span class="sd">        Powerlaw exponent for more massive black hole.</span>
+<span class="sd">    beta: float</span>
+<span class="sd">        Power law exponent of the mass ratio distribution.</span>
+<span class="sd">    mmin: float</span>
+<span class="sd">        Minimum black hole mass.</span>
+<span class="sd">    mmax: float</span>
+<span class="sd">        Maximum mass in the powerlaw distributed component.</span>
+<span class="sd">    lam: float</span>
+<span class="sd">        Fraction of black holes in the Gaussian component.</span>
+<span class="sd">    lam_1: float</span>
+<span class="sd">        Fraction of black holes in the lower mass Gaussian component.</span>
+<span class="sd">    mpp_1: float</span>
+<span class="sd">        Mean of the lower mass Gaussian component.</span>
+<span class="sd">    mpp_2: float</span>
+<span class="sd">        Mean of the upper mass Gaussian component.</span>
+<span class="sd">    sigpp_1: float</span>
+<span class="sd">        Standard deviation of the lower mass Gaussian component.</span>
+<span class="sd">    sigpp_2: float</span>
+<span class="sd">        Standard deviation of the upper mass Gaussian component.</span>
+<span class="sd">    delta_m: float</span>
+<span class="sd">        Rise length of the low end of the mass distribution.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The Gaussian components are bounded between [`mmin`, `self.mmax`].</span>
+<span class="sd">    This means that the `mmax` parameter is _not_ the global maximum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">primary_model</span> <span class="o">=</span> <span class="n">three_component_single</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dataset</span><span class="p">,</span>
-        <span class="n">alpha</span><span class="p">,</span>
-        <span class="n">beta</span><span class="p">,</span>
-        <span class="n">mmin</span><span class="p">,</span>
-        <span class="n">mmax</span><span class="p">,</span>
-        <span class="n">lam</span><span class="p">,</span>
-        <span class="n">lam_1</span><span class="p">,</span>
-        <span class="n">mpp_1</span><span class="p">,</span>
-        <span class="n">sigpp_1</span><span class="p">,</span>
-        <span class="n">mpp_2</span><span class="p">,</span>
-        <span class="n">sigpp_2</span><span class="p">,</span>
-        <span class="n">delta_m</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Powerlaw + two peak model for two-dimensional mass distribution with</span>
-<span class="sd">        low mass smoothing.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        dataset: dict</span>
-<span class="sd">            Dictionary of numpy arrays for &#39;mass_1&#39; and &#39;mass_ratio&#39;.</span>
-<span class="sd">        alpha: float</span>
-<span class="sd">            Powerlaw exponent for more massive black hole.</span>
-<span class="sd">        beta: float</span>
-<span class="sd">            Power law exponent of the mass ratio distribution.</span>
-<span class="sd">        mmin: float</span>
-<span class="sd">            Minimum black hole mass.</span>
-<span class="sd">        mmax: float</span>
-<span class="sd">            Maximum mass in the powerlaw distributed component.</span>
-<span class="sd">        lam: float</span>
-<span class="sd">            Fraction of black holes in the Gaussian component.</span>
-<span class="sd">        lam_1: float</span>
-<span class="sd">            Fraction of black holes in the lower mass Gaussian component.</span>
-<span class="sd">        mpp_1: float</span>
-<span class="sd">            Mean of the lower mass Gaussian component.</span>
-<span class="sd">        mpp_2: float</span>
-<span class="sd">            Mean of the upper mass Gaussian component.</span>
-<span class="sd">        sigpp_1: float</span>
-<span class="sd">            Standard deviation of the lower mass Gaussian component.</span>
-<span class="sd">        sigpp_2: float</span>
-<span class="sd">            Standard deviation of the upper mass Gaussian component.</span>
-<span class="sd">        delta_m: float</span>
-<span class="sd">            Rise length of the low end of the mass distribution.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        The Gaussian components are bounded between [`mmin`, `self.mmax`].</span>
-<span class="sd">        This means that the `mmax` parameter is _not_ the global maximum.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MultiPeakSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
-            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-            <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">lam_1</span><span class="o">=</span><span class="n">lam_1</span><span class="p">,</span>
-            <span class="n">mpp_1</span><span class="o">=</span><span class="n">mpp_1</span><span class="p">,</span>
-            <span class="n">mpp_2</span><span class="o">=</span><span class="n">mpp_2</span><span class="p">,</span>
-            <span class="n">sigpp_1</span><span class="o">=</span><span class="n">sigpp_1</span><span class="p">,</span>
-            <span class="n">sigpp_2</span><span class="o">=</span><span class="n">sigpp_2</span><span class="p">,</span>
-            <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
-            <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span>
-        <span class="p">)</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BrokenPowerLawSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">BrokenPowerLawSmoothedMassDistribution</span><span class="p">(</span><span class="n">BaseSmoothedMassDistribution</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Broken power law for two-dimensional mass distribution with low</span>
+<span class="sd">    mass smoothing.</span>
 
-    <span class="n">primary_model</span> <span class="o">=</span> <span class="n">double_power_law_primary_mass</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset: dict</span>
+<span class="sd">        Dictionary of numpy arrays for &#39;mass_1&#39; and &#39;mass_ratio&#39;.</span>
+<span class="sd">    alpha_1: float</span>
+<span class="sd">        Powerlaw exponent for more massive black hole below break.</span>
+<span class="sd">    alpha_2: float</span>
+<span class="sd">        Powerlaw exponent for more massive black hole above break.</span>
+<span class="sd">    beta: float</span>
+<span class="sd">        Power law exponent of the mass ratio distribution.</span>
+<span class="sd">    break_fraction: float</span>
+<span class="sd">        Fraction between mmin and mmax primary mass distribution breaks at.</span>
+<span class="sd">    mmin: float</span>
+<span class="sd">        Minimum black hole mass.</span>
+<span class="sd">    mmax: float</span>
+<span class="sd">        Maximum mass in the powerlaw distributed component.</span>
+<span class="sd">    delta_m: float</span>
+<span class="sd">        Rise length of the low end of the mass distribution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dataset</span><span class="p">,</span>
-        <span class="n">alpha_1</span><span class="p">,</span>
-        <span class="n">alpha_2</span><span class="p">,</span>
-        <span class="n">beta</span><span class="p">,</span>
-        <span class="n">mmin</span><span class="p">,</span>
-        <span class="n">mmax</span><span class="p">,</span>
-        <span class="n">delta_m</span><span class="p">,</span>
-        <span class="n">break_fraction</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Broken power law for two-dimensional mass distribution with low</span>
-<span class="sd">        mass smoothing.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        dataset: dict</span>
-<span class="sd">            Dictionary of numpy arrays for &#39;mass_1&#39; and &#39;mass_ratio&#39;.</span>
-<span class="sd">        alpha_1: float</span>
-<span class="sd">            Powerlaw exponent for more massive black hole below break.</span>
-<span class="sd">        alpha_2: float</span>
-<span class="sd">            Powerlaw exponent for more massive black hole above break.</span>
-<span class="sd">        beta: float</span>
-<span class="sd">            Power law exponent of the mass ratio distribution.</span>
-<span class="sd">        break_fraction: float</span>
-<span class="sd">            Fraction between mmin and mmax primary mass distribution breaks at.</span>
-<span class="sd">        mmin: float</span>
-<span class="sd">            Minimum black hole mass.</span>
-<span class="sd">        mmax: float</span>
-<span class="sd">            Maximum mass in the powerlaw distributed component.</span>
-<span class="sd">        delta_m: float</span>
-<span class="sd">            Rise length of the low end of the mass distribution.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">BrokenPowerLawSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
-            <span class="n">alpha_1</span><span class="o">=</span><span class="n">alpha_1</span><span class="p">,</span>
-            <span class="n">alpha_2</span><span class="o">=</span><span class="n">alpha_2</span><span class="p">,</span>
-            <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
-            <span class="n">break_fraction</span><span class="o">=</span><span class="n">break_fraction</span><span class="p">,</span>
-        <span class="p">)</span></div>
+    <span class="n">primary_model</span> <span class="o">=</span> <span class="n">double_power_law_primary_mass</span></div>
 
 
 <div class="viewcode-block" id="BrokenPowerLawPeakSmoothedMassDistribution"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution">[docs]</a><span class="k">class</span> <span class="nc">BrokenPowerLawPeakSmoothedMassDistribution</span><span class="p">(</span><span class="n">BaseSmoothedMassDistribution</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Broken power law for two-dimensional mass distribution with low</span>
+<span class="sd">    mass smoothing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset: dict</span>
+<span class="sd">        Dictionary of numpy arrays for &#39;mass_1&#39; and &#39;mass_ratio&#39;.</span>
+<span class="sd">    alpha_1: float</span>
+<span class="sd">        Powerlaw exponent for more massive black hole below break.</span>
+<span class="sd">    alpha_2: float</span>
+<span class="sd">        Powerlaw exponent for more massive black hole above break.</span>
+<span class="sd">    beta: float</span>
+<span class="sd">        Power law exponent of the mass ratio distribution.</span>
+<span class="sd">    break_fraction: float</span>
+<span class="sd">        Fraction between mmin and mmax primary mass distribution breaks at.</span>
+<span class="sd">    mmin: float</span>
+<span class="sd">        Minimum black hole mass.</span>
+<span class="sd">    mmax: float</span>
+<span class="sd">        Maximum mass in the powerlaw distributed component.</span>
+<span class="sd">    lam: float</span>
+<span class="sd">        Fraction of black holes in the Gaussian component.</span>
+<span class="sd">    mpp: float</span>
+<span class="sd">        Mean of the Gaussian component.</span>
+<span class="sd">    sigpp: float</span>
+<span class="sd">        Standard deviation of the Gaussian component.</span>
+<span class="sd">    delta_m: float</span>
+<span class="sd">        Rise length of the low end of the mass distribution.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The Gaussian component is bounded between [`mmin`, `self.mmax`].</span>
+<span class="sd">    This means that the `mmax` parameter is _not_ the global maximum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">primary_model</span> <span class="o">=</span> <span class="n">double_power_law_peak_primary_mass</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dataset</span><span class="p">,</span>
-        <span class="n">alpha_1</span><span class="p">,</span>
-        <span class="n">alpha_2</span><span class="p">,</span>
-        <span class="n">beta</span><span class="p">,</span>
-        <span class="n">mmin</span><span class="p">,</span>
-        <span class="n">mmax</span><span class="p">,</span>
-        <span class="n">delta_m</span><span class="p">,</span>
-        <span class="n">break_fraction</span><span class="p">,</span>
-        <span class="n">lam</span><span class="p">,</span>
-        <span class="n">mpp</span><span class="p">,</span>
-        <span class="n">sigpp</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Broken power law for two-dimensional mass distribution with low</span>
-<span class="sd">        mass smoothing.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        dataset: dict</span>
-<span class="sd">            Dictionary of numpy arrays for &#39;mass_1&#39; and &#39;mass_ratio&#39;.</span>
-<span class="sd">        alpha_1: float</span>
-<span class="sd">            Powerlaw exponent for more massive black hole below break.</span>
-<span class="sd">        alpha_2: float</span>
-<span class="sd">            Powerlaw exponent for more massive black hole above break.</span>
-<span class="sd">        beta: float</span>
-<span class="sd">            Power law exponent of the mass ratio distribution.</span>
-<span class="sd">        break_fraction: float</span>
-<span class="sd">            Fraction between mmin and mmax primary mass distribution breaks at.</span>
-<span class="sd">        mmin: float</span>
-<span class="sd">            Minimum black hole mass.</span>
-<span class="sd">        mmax: float</span>
-<span class="sd">            Maximum mass in the powerlaw distributed component.</span>
-<span class="sd">        lam: float</span>
-<span class="sd">            Fraction of black holes in the Gaussian component.</span>
-<span class="sd">        mpp: float</span>
-<span class="sd">            Mean of the Gaussian component.</span>
-<span class="sd">        sigpp: float</span>
-<span class="sd">            Standard deviation of the Gaussian component.</span>
-<span class="sd">        delta_m: float</span>
-<span class="sd">            Rise length of the low end of the mass distribution.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        The Gaussian component is bounded between [`mmin`, `self.mmax`].</span>
-<span class="sd">        This means that the `mmax` parameter is _not_ the global maximum.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">BrokenPowerLawPeakSmoothedMassDistribution</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
-            <span class="n">alpha_1</span><span class="o">=</span><span class="n">alpha_1</span><span class="p">,</span>
-            <span class="n">alpha_2</span><span class="o">=</span><span class="n">alpha_2</span><span class="p">,</span>
-            <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
-            <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span>
-            <span class="n">mmax</span><span class="o">=</span><span class="n">mmax</span><span class="p">,</span>
-            <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span>
-            <span class="n">break_fraction</span><span class="o">=</span><span class="n">break_fraction</span><span class="p">,</span>
-            <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-            <span class="n">mpp</span><span class="o">=</span><span class="n">mpp</span><span class="p">,</span>
-            <span class="n">sigpp</span><span class="o">=</span><span class="n">sigpp</span><span class="p">,</span>
-            <span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span>
-        <span class="p">)</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">gaussian_mass_maximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

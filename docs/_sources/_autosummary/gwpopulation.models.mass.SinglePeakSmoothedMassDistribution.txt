@@ -28,4 +28,11 @@ gwpopulation.models.mass.SinglePeakSmoothedMassDistribution
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SinglePeakSmoothedMassDistribution.kwargs
+      ~SinglePeakSmoothedMassDistribution.variable_names
+   
    

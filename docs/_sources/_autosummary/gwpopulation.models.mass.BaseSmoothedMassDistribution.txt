@@ -31,6 +31,8 @@ gwpopulation.models.mass.BaseSmoothedMassDistribution
 
    .. autosummary::
    
+      ~BaseSmoothedMassDistribution.kwargs
       ~BaseSmoothedMassDistribution.primary_model
+      ~BaseSmoothedMassDistribution.variable_names
    
    

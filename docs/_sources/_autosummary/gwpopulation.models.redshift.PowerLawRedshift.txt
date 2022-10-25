@@ -26,4 +26,10 @@ gwpopulation.models.redshift.PowerLawRedshift
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PowerLawRedshift.variable_names
+   
    

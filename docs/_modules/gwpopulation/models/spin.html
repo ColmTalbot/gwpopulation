@@ -340,6 +340,8 @@
                 <span class="n">spin_covariance</span><span class="o">=</span><span class="n">spin_covariance</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">prob</span> <span class="o">/=</span> <span class="n">normalization</span>
+            <span class="n">prob</span> <span class="o">*=</span> <span class="n">xp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;chi_eff&quot;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+            <span class="n">prob</span> <span class="o">*=</span> <span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;chi_p&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;chi_p&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">prob</span>
 
     <span class="k">def</span> <span class="nf">_normalization</span><span class="p">(</span>

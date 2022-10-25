@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+from scipy.stats import vonmises
 
 from gwpopulation import utils
 
@@ -47,7 +48,6 @@ class TestPowerLaw(unittest.TestCase):
         self.alphas = np.random.uniform(-10, 10, self.n_test)
         self.lows = np.random.uniform(5, 15, self.n_test)
         self.highs = np.random.uniform(20, 30, self.n_test)
-        pass
 
     def test_powerlaw_zero_below_low(self):
         equal_zero = True
@@ -119,3 +119,19 @@ class TestTruncNorm(unittest.TestCase):
     def test_truncnorm_sigma_below_zero_raises_value_error(self):
         with self.assertRaises(ValueError):
             utils.truncnorm(xx=0, mu=0, sigma=-1, high=10, low=-10)
+
+
+class TestVonMises(unittest.TestCase):
+    def setUp(self):
+        self.n_test = 100
+        self.mus = np.random.uniform(-np.pi, np.pi, self.n_test)
+        self.kappas = np.random.uniform(0, 15, self.n_test)
+        self.xx = np.linspace(0, 2 * np.pi, 1000)
+
+    def test_matches_scipy(self):
+        for ii in range(self.n_test):
+            mu = self.mus[ii]
+            kappa = self.kappas[ii]
+            gwpop_vals = utils.von_mises(self.xx, mu, kappa)
+            scipy_vals = vonmises(kappa=kappa, loc=mu).pdf(self.xx)
+            self.assertAlmostEqual(max(abs(gwpop_vals - scipy_vals)), 0)

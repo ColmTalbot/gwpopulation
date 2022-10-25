@@ -114,11 +114,14 @@
 <h1>gwpopulation.hyperpe.HyperparameterLikelihood<a class="headerlink" href="#gwpopulation-hyperpe-hyperparameterlikelihood" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gwpopulation.hyperpe.</span></span><span class="sig-name descname"><span class="pre">HyperparameterLikelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_evidences=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples=1e+100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cupy=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gwpopulation.hyperpe.</span></span><span class="sig-name descname"><span class="pre">HyperparameterLikelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_evidences=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples=1e+100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cupy=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_uncertainty=inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Likelihood</span></code></p>
 <p>A likelihood for inferring hyperparameter posterior distributions with
 including selection effects.</p>
 <p>See Eq. (34) of <a class="reference external" href="https://arxiv.org/abs/1809.02293">https://arxiv.org/abs/1809.02293</a> for a definition.</p>
+<p>For the uncertainty calculation see the Appendix of
+<a class="reference external" href="https://arxiv.org/abs/2106.15745">Golomb and Talbot</a> and
+<a class="reference external" href="https://arxiv.org/abs/1904.10879">Farr</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -145,12 +148,16 @@ dictionary of parameters of the population model.</p>
 cupy will be used for performance.
 Note: this requires setting up your hyper_prior properly.</p>
 </dd>
+<dt><strong>maximum_uncertainty: float</strong></dt><dd><p>The maximum allowed uncertainty in the natural log likelihood.
+If the uncertainty is larger than this value a log likelihood of
+-inf will be returned. Default = inf</p>
+</dd>
 </dl>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_evidences=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples=1e+100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cupy=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_evidences=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples=1e+100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cupy=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_uncertainty=inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.__init__" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -177,6 +184,10 @@ dictionary of parameters of the population model.</p>
 cupy will be used for performance.
 Note: this requires setting up your hyper_prior properly.</p>
 </dd>
+<dt><strong>maximum_uncertainty: float</strong></dt><dd><p>The maximum allowed uncertainty in the natural log likelihood.
+If the uncertainty is larger than this value a log likelihood of
+-inf will be returned. Default = inf</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -202,27 +213,30 @@ Note: this requires setting up your hyper_prior properly.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.generate_rate_posterior_sample" title="gwpopulation.hyperpe.HyperparameterLikelihood.generate_rate_posterior_sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_rate_posterior_sample</span></code></a>()</p></td>
 <td><p>Generate a sample from the posterior distribution for rate assuming a <span class="math notranslate nohighlight">\(1 / R\)</span> prior.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood" title="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.ln_likelihood_and_variance" title="gwpopulation.hyperpe.HyperparameterLikelihood.ln_likelihood_and_variance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ln_likelihood_and_variance</span></code></a>()</p></td>
+<td><p>Compute the ln likelihood estimator and its variance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood" title="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood</span></code></a>()</p></td>
 <td><p><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 </p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio" title="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood_ratio</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio" title="gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood_ratio</span></code></a>()</p></td>
 <td><p>Difference between log likelihood and noise log likelihood</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood" title="gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">noise_log_likelihood</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood" title="gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">noise_log_likelihood</span></code></a>()</p></td>
 <td><p><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 </p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample" title="gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">posterior_predictive_resample</span></code></a>(samples[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample" title="gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">posterior_predictive_resample</span></code></a>(samples[, ...])</p></td>
 <td><p>Resample the original single event posteriors to use the PPD from each of the other events as the prior.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors" title="gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resample_posteriors</span></code></a>(posteriors[, max_samples])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors" title="gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resample_posteriors</span></code></a>(posteriors[, max_samples])</p></td>
 <td><p>Convert list of pandas DataFrame object to dict of arrays.</p></td>
 </tr>
 </tbody>
@@ -237,7 +251,10 @@ Note: this requires setting up your hyper_prior properly.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">marginalized_parameters</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">meta_data</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_uncertainty</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">meta_data</span></code></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -283,6 +300,12 @@ of events being analyzed and <span class="math notranslate nohighlight">\(\mathc
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gwpopulation.hyperpe.HyperparameterLikelihood.ln_likelihood_and_variance">
+<span class="sig-name descname"><span class="pre">ln_likelihood_and_variance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#HyperparameterLikelihood.ln_likelihood_and_variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.HyperparameterLikelihood.ln_likelihood_and_variance" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the ln likelihood estimator and its variance.</p>
 </dd></dl>
 
 <dl class="py method">

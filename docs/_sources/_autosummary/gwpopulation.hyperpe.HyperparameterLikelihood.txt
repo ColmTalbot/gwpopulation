@@ -19,6 +19,7 @@ gwpopulation.hyperpe.HyperparameterLikelihood
       ~HyperparameterLikelihood.__init__
       ~HyperparameterLikelihood.generate_extra_statistics
       ~HyperparameterLikelihood.generate_rate_posterior_sample
+      ~HyperparameterLikelihood.ln_likelihood_and_variance
       ~HyperparameterLikelihood.log_likelihood
       ~HyperparameterLikelihood.log_likelihood_ratio
       ~HyperparameterLikelihood.noise_log_likelihood
@@ -34,6 +35,7 @@ gwpopulation.hyperpe.HyperparameterLikelihood
    .. autosummary::
    
       ~HyperparameterLikelihood.marginalized_parameters
+      ~HyperparameterLikelihood.maximum_uncertainty
       ~HyperparameterLikelihood.meta_data
    
    

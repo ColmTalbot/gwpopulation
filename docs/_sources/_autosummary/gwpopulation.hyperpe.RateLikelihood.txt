@@ -19,6 +19,7 @@ gwpopulation.hyperpe.RateLikelihood
       ~RateLikelihood.__init__
       ~RateLikelihood.generate_extra_statistics
       ~RateLikelihood.generate_rate_posterior_sample
+      ~RateLikelihood.ln_likelihood_and_variance
       ~RateLikelihood.log_likelihood
       ~RateLikelihood.log_likelihood_ratio
       ~RateLikelihood.noise_log_likelihood
@@ -34,6 +35,7 @@ gwpopulation.hyperpe.RateLikelihood
    .. autosummary::
    
       ~RateLikelihood.marginalized_parameters
+      ~RateLikelihood.maximum_uncertainty
       ~RateLikelihood.meta_data
    
    

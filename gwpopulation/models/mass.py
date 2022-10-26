@@ -500,9 +500,10 @@ class BaseSmoothedMassDistribution(object):
         vars = getattr(
             self.primary_model,
             "variable_names",
-            inspect.getfullargspec(self.primary_model).args,
+            inspect.getfullargspec(self.primary_model).args[1:],
         )
         vars += ["beta", "delta_m"]
+        vars = set(vars).difference(self.kwargs.keys())
         return vars
 
     @property

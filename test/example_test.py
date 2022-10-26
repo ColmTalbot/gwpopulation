@@ -1,3 +1,5 @@
+import glob
+
 import bilby
 import numpy as np
 import pandas as pd
@@ -53,3 +55,8 @@ def test_likelihood_evaluation():
 
     likelihood.parameters.update(priors.sample())
     assert abs(likelihood.log_likelihood_ratio() - 0.1319280773148961) < 0.01
+
+
+def test_prior_files_load():
+    for fname in glob.glob("priors/*.prior"):
+        priors = bilby.core.prior.PriorDict(fname)

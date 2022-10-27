@@ -80,6 +80,7 @@ class ResamplingVT(_BaseVT):
             self._surveyed_hypervolume = total_four_volume(
                 lamb=0, analysis_time=self.analysis_time
             )
+            
     def __call__(self, parameters):
         """
         Compute the expected number of detections given a set of injections.
@@ -95,11 +96,17 @@ class ResamplingVT(_BaseVT):
             The population parameters
         """
         mu, var = self.detection_efficiency(parameters)
-        if mu**2 <= 4 * self.n_events * var:
+        converged = self.check_convergence(mu, var)
+        if not converged:
             return np.inf
-        n_effective = mu**2 / var
         return mu
-                        
+
+    def check_convergence(self, mu, var):
+        if mu**2 <= 4 * self.n_events * var:
+            return False
+        else:
+            return True
+
     def vt_factor(self, parameters):
         """
         Compute the expected number of detections given a set of injections.
@@ -115,7 +122,8 @@ class ResamplingVT(_BaseVT):
             The population parameters
         """
         mu, var = self.detection_efficiency(parameters)
-        if mu**2 <= 4 * self.n_events * var:
+        converged = self.check_convergence(mu, var)
+        if not converged:
             return np.inf
         n_effective = mu**2 / var
         vt_factor = mu / np.exp((3 + self.n_events) / 2 / n_effective)

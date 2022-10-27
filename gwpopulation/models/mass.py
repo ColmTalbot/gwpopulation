@@ -1,6 +1,7 @@
 """
 Implemented mass models
 """
+import inspect
 
 from ..cupy_utils import trapz, xp
 from ..utils import powerlaw, truncnorm
@@ -494,11 +495,26 @@ class BaseSmoothedMassDistribution(object):
 
     primary_model = None
 
-    def __init__(self, mmin=2, mmax=100):
+    @property
+    def variable_names(self):
+        vars = getattr(
+            self.primary_model,
+            "variable_names",
+            inspect.getfullargspec(self.primary_model).args[1:],
+        )
+        vars += ["beta", "delta_m"]
+        vars = set(vars).difference(self.kwargs.keys())
+        return vars
+
+    @property
+    def kwargs(self):
+        return dict()
+
+    def __init__(self, mmin=2, mmax=100, normalization_shape=(1000, 500)):
         self.mmin = mmin
         self.mmax = mmax
-        self.m1s = xp.linspace(mmin, mmax, 1000)
-        self.qs = xp.linspace(0.001, 1, 500)
+        self.m1s = xp.linspace(mmin, mmax, normalization_shape[0])
+        self.qs = xp.linspace(0.001, 1, normalization_shape[1])
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
@@ -516,7 +532,7 @@ class BaseSmoothedMassDistribution(object):
                 "{self.__class__}: mmax ({mmax}) > self.mmax ({self.mmax})"
             )
         delta_m = kwargs.get("delta_m", 0)
-        p_m1 = self.p_m1(dataset, **kwargs)
+        p_m1 = self.p_m1(dataset, **kwargs, **self.kwargs)
         p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
         prob = p_m1 * p_q
         return prob
@@ -621,247 +637,157 @@ class BaseSmoothedMassDistribution(object):
 
 
 class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
+    """
+    Powerlaw + peak model for two-dimensional mass distribution with low
+    mass smoothing.
+
+    https://arxiv.org/abs/1801.02699 Eq. (11) (T&T18)
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+    alpha: float
+        Powerlaw exponent for more massive black hole.
+    beta: float
+        Power law exponent of the mass ratio distribution.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum mass in the powerlaw distributed component.
+    lam: float
+        Fraction of black holes in the Gaussian component.
+    mpp: float
+        Mean of the Gaussian component.
+    sigpp: float
+        Standard deviation of the Gaussian component.
+    delta_m: float
+        Rise length of the low end of the mass distribution.
+
+    Notes
+    -----
+    The Gaussian component is bounded between [`mmin`, `self.mmax`].
+    This means that the `mmax` parameter is _not_ the global maximum.
+    """
 
     primary_model = two_component_single
 
-    def __call__(self, dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, delta_m):
-        """
-        Powerlaw + peak model for two-dimensional mass distribution with low
-        mass smoothing.
-
-        https://arxiv.org/abs/1801.02699 Eq. (11) (T&T18)
-
-        Parameters
-        ----------
-        dataset: dict
-            Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
-        alpha: float
-            Powerlaw exponent for more massive black hole.
-        beta: float
-            Power law exponent of the mass ratio distribution.
-        mmin: float
-            Minimum black hole mass.
-        mmax: float
-            Maximum mass in the powerlaw distributed component.
-        lam: float
-            Fraction of black holes in the Gaussian component.
-        mpp: float
-            Mean of the Gaussian component.
-        sigpp: float
-            Standard deviation of the Gaussian component.
-        delta_m: float
-            Rise length of the low end of the mass distribution.
-
-        Notes
-        -----
-        The Gaussian component is bounded between [`mmin`, `self.mmax`].
-        This means that the `mmax` parameter is _not_ the global maximum.
-        """
-        return super(SinglePeakSmoothedMassDistribution, self).__call__(
-            dataset=dataset,
-            alpha=alpha,
-            mmin=mmin,
-            mmax=mmax,
-            lam=lam,
-            mpp=mpp,
-            sigpp=sigpp,
-            delta_m=delta_m,
-            beta=beta,
-            gaussian_mass_maximum=self.mmax,
-        )
+    @property
+    def kwargs(self):
+        return dict(gaussian_mass_maximum=self.mmax)
 
 
 class MultiPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
+    """
+    Powerlaw + two peak model for two-dimensional mass distribution with
+    low mass smoothing.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+    alpha: float
+        Powerlaw exponent for more massive black hole.
+    beta: float
+        Power law exponent of the mass ratio distribution.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum mass in the powerlaw distributed component.
+    lam: float
+        Fraction of black holes in the Gaussian component.
+    lam_1: float
+        Fraction of black holes in the lower mass Gaussian component.
+    mpp_1: float
+        Mean of the lower mass Gaussian component.
+    mpp_2: float
+        Mean of the upper mass Gaussian component.
+    sigpp_1: float
+        Standard deviation of the lower mass Gaussian component.
+    sigpp_2: float
+        Standard deviation of the upper mass Gaussian component.
+    delta_m: float
+        Rise length of the low end of the mass distribution.
+
+    Notes
+    -----
+    The Gaussian components are bounded between [`mmin`, `self.mmax`].
+    This means that the `mmax` parameter is _not_ the global maximum.
+    """
 
     primary_model = three_component_single
 
-    def __call__(
-        self,
-        dataset,
-        alpha,
-        beta,
-        mmin,
-        mmax,
-        lam,
-        lam_1,
-        mpp_1,
-        sigpp_1,
-        mpp_2,
-        sigpp_2,
-        delta_m,
-    ):
-        """
-        Powerlaw + two peak model for two-dimensional mass distribution with
-        low mass smoothing.
-
-        Parameters
-        ----------
-        dataset: dict
-            Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
-        alpha: float
-            Powerlaw exponent for more massive black hole.
-        beta: float
-            Power law exponent of the mass ratio distribution.
-        mmin: float
-            Minimum black hole mass.
-        mmax: float
-            Maximum mass in the powerlaw distributed component.
-        lam: float
-            Fraction of black holes in the Gaussian component.
-        lam_1: float
-            Fraction of black holes in the lower mass Gaussian component.
-        mpp_1: float
-            Mean of the lower mass Gaussian component.
-        mpp_2: float
-            Mean of the upper mass Gaussian component.
-        sigpp_1: float
-            Standard deviation of the lower mass Gaussian component.
-        sigpp_2: float
-            Standard deviation of the upper mass Gaussian component.
-        delta_m: float
-            Rise length of the low end of the mass distribution.
-
-        Notes
-        -----
-        The Gaussian components are bounded between [`mmin`, `self.mmax`].
-        This means that the `mmax` parameter is _not_ the global maximum.
-        """
-        return super(MultiPeakSmoothedMassDistribution, self).__call__(
-            dataset=dataset,
-            alpha=alpha,
-            beta=beta,
-            mmin=mmin,
-            mmax=mmax,
-            lam=lam,
-            lam_1=lam_1,
-            mpp_1=mpp_1,
-            mpp_2=mpp_2,
-            sigpp_1=sigpp_1,
-            sigpp_2=sigpp_2,
-            delta_m=delta_m,
-            gaussian_mass_maximum=self.mmax,
-        )
+    @property
+    def kwargs(self):
+        return dict(gaussian_mass_maximum=self.mmax)
 
 
 class BrokenPowerLawSmoothedMassDistribution(BaseSmoothedMassDistribution):
+    """
+    Broken power law for two-dimensional mass distribution with low
+    mass smoothing.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+    alpha_1: float
+        Powerlaw exponent for more massive black hole below break.
+    alpha_2: float
+        Powerlaw exponent for more massive black hole above break.
+    beta: float
+        Power law exponent of the mass ratio distribution.
+    break_fraction: float
+        Fraction between mmin and mmax primary mass distribution breaks at.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum mass in the powerlaw distributed component.
+    delta_m: float
+        Rise length of the low end of the mass distribution.
+    """
 
     primary_model = double_power_law_primary_mass
 
-    def __call__(
-        self,
-        dataset,
-        alpha_1,
-        alpha_2,
-        beta,
-        mmin,
-        mmax,
-        delta_m,
-        break_fraction,
-    ):
-        """
-        Broken power law for two-dimensional mass distribution with low
-        mass smoothing.
-
-        Parameters
-        ----------
-        dataset: dict
-            Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
-        alpha_1: float
-            Powerlaw exponent for more massive black hole below break.
-        alpha_2: float
-            Powerlaw exponent for more massive black hole above break.
-        beta: float
-            Power law exponent of the mass ratio distribution.
-        break_fraction: float
-            Fraction between mmin and mmax primary mass distribution breaks at.
-        mmin: float
-            Minimum black hole mass.
-        mmax: float
-            Maximum mass in the powerlaw distributed component.
-        lam: float
-            Fraction of black holes in the Gaussian component.
-        mpp: float
-            Mean of the Gaussian component.
-        sigpp: float
-            Standard deviation of the Gaussian component.
-        delta_m: float
-            Rise length of the low end of the mass distribution.
-        """
-        return super(BrokenPowerLawSmoothedMassDistribution, self).__call__(
-            dataset=dataset,
-            alpha_1=alpha_1,
-            alpha_2=alpha_2,
-            beta=beta,
-            mmin=mmin,
-            mmax=mmax,
-            delta_m=delta_m,
-            break_fraction=break_fraction,
-        )
-
 
 class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
+    """
+    Broken power law for two-dimensional mass distribution with low
+    mass smoothing.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+    alpha_1: float
+        Powerlaw exponent for more massive black hole below break.
+    alpha_2: float
+        Powerlaw exponent for more massive black hole above break.
+    beta: float
+        Power law exponent of the mass ratio distribution.
+    break_fraction: float
+        Fraction between mmin and mmax primary mass distribution breaks at.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum mass in the powerlaw distributed component.
+    lam: float
+        Fraction of black holes in the Gaussian component.
+    mpp: float
+        Mean of the Gaussian component.
+    sigpp: float
+        Standard deviation of the Gaussian component.
+    delta_m: float
+        Rise length of the low end of the mass distribution.
+
+    Notes
+    -----
+    The Gaussian component is bounded between [`mmin`, `self.mmax`].
+    This means that the `mmax` parameter is _not_ the global maximum.
+    """
 
     primary_model = double_power_law_peak_primary_mass
 
-    def __call__(
-        self,
-        dataset,
-        alpha_1,
-        alpha_2,
-        beta,
-        mmin,
-        mmax,
-        delta_m,
-        break_fraction,
-        lam,
-        mpp,
-        sigpp,
-    ):
-        """
-        Broken power law for two-dimensional mass distribution with low
-        mass smoothing.
-
-        Parameters
-        ----------
-        dataset: dict
-            Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
-        alpha_1: float
-            Powerlaw exponent for more massive black hole below break.
-        alpha_2: float
-            Powerlaw exponent for more massive black hole above break.
-        beta: float
-            Power law exponent of the mass ratio distribution.
-        break_fraction: float
-            Fraction between mmin and mmax primary mass distribution breaks at.
-        mmin: float
-            Minimum black hole mass.
-        mmax: float
-            Maximum mass in the powerlaw distributed component.
-        lam: float
-            Fraction of black holes in the Gaussian component.
-        mpp: float
-            Mean of the Gaussian component.
-        sigpp: float
-            Standard deviation of the Gaussian component.
-        delta_m: float
-            Rise length of the low end of the mass distribution.
-
-        Notes
-        -----
-        The Gaussian component is bounded between [`mmin`, `self.mmax`].
-        This means that the `mmax` parameter is _not_ the global maximum.
-        """
-        return super(BrokenPowerLawPeakSmoothedMassDistribution, self).__call__(
-            dataset=dataset,
-            alpha_1=alpha_1,
-            alpha_2=alpha_2,
-            beta=beta,
-            mmin=mmin,
-            mmax=mmax,
-            delta_m=delta_m,
-            break_fraction=break_fraction,
-            lam=lam,
-            mpp=mpp,
-            sigpp=sigpp,
-            gaussian_mass_maximum=self.mmax,
-        )
+    @property
+    def kwargs(self):
+        return dict(gaussian_mass_maximum=self.mmax)

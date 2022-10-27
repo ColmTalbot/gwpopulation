@@ -260,6 +260,8 @@ class GaussianChiEffChiP(object):
                 spin_covariance=spin_covariance,
             )
             prob /= normalization
+            prob *= xp.abs(dataset["chi_eff"]) <= 1
+            prob *= (dataset["chi_p"] <= 1) * (dataset["chi_p"] >= 0)
         return prob
 
     def _normalization(

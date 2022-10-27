@@ -80,8 +80,27 @@ class ResamplingVT(_BaseVT):
             self._surveyed_hypervolume = total_four_volume(
                 lamb=0, analysis_time=self.analysis_time
             )
-
     def __call__(self, parameters):
+        """
+        Compute the expected number of detections given a set of injections.
+
+        This should be implemented as in https://arxiv.org/abs/1904.10879
+
+        If n_effective < 4 * n_events we return np.inf so that the sample
+        is rejected.
+
+        Parameters
+        ----------
+        parameters: dict
+            The population parameters
+        """
+        mu, var = self.detection_efficiency(parameters)
+        if mu**2 <= 4 * self.n_events * var:
+            return np.inf
+        n_effective = mu**2 / var
+        return mu
+                        
+    def vt_factor(self, parameters):
         """
         Compute the expected number of detections given a set of injections.
 

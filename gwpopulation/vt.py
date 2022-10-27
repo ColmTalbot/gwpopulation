@@ -80,7 +80,7 @@ class ResamplingVT(_BaseVT):
             self._surveyed_hypervolume = total_four_volume(
                 lamb=0, analysis_time=self.analysis_time
             )
-            
+
     def __call__(self, parameters):
         """
         Compute the expected number of detections given a set of injections.

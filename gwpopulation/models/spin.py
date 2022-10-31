@@ -283,10 +283,15 @@ class GaussianChiEffChiP(object):
 
 
 class SplineSpinMagnitudeIdentical(InterpolatedNoBaseModelIdentical):
-
     def __init__(self, minimum=0, maximum=1, nodes=5, kind="cubic"):
-        
-        super(SplineSpinMagnitudeIdentical, self).__init__(parameters=['a_1', 'a_2'], minimum=minimum, maximum=maximum, nodes=nodes, kind=kind)
+
+        super(SplineSpinMagnitudeIdentical, self).__init__(
+            parameters=["a_1", "a_2"],
+            minimum=minimum,
+            maximum=maximum,
+            nodes=nodes,
+            kind=kind,
+        )
 
     def __call__(self, dataset, **kwargs):
 
@@ -294,10 +299,15 @@ class SplineSpinMagnitudeIdentical(InterpolatedNoBaseModelIdentical):
 
 
 class SplineSpinTiltIdentical(InterpolatedNoBaseModelIdentical):
-
     def __init__(self, minimum=-1, maximum=1, nodes=5, kind="cubic"):
 
-        super(SplineSpinTiltIdentical, self).__init__(parameters=['cos_tilt_1', 'cos_tilt_2'], minimum=minimum, maximum=maximum, nodes=nodes, kind=kind)
+        super(SplineSpinTiltIdentical, self).__init__(
+            parameters=["cos_tilt_1", "cos_tilt_2"],
+            minimum=minimum,
+            maximum=maximum,
+            nodes=nodes,
+            kind=kind,
+        )
 
     def __call__(self, dataset, **kwargs):
 

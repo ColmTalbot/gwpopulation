@@ -1,5 +1,6 @@
-from ..cupy_utils import trapz, xp
 import numpy as np
+
+from ..cupy_utils import trapz, xp
 
 
 class InterpolatedNoBaseModelIdentical(object):
@@ -35,7 +36,9 @@ class InterpolatedNoBaseModelIdentical(object):
 
         kwargs = dict(x=nodes, y=values, kind=self.kind, backend=xp)
         self._norm_spline = CachingInterpolant(**kwargs)
-        self._data_spline = {param: CachingInterpolant(**kwargs) for param in self.parameters}
+        self._data_spline = {
+            param: CachingInterpolant(**kwargs) for param in self.parameters
+        }
 
     def p_x_unnormed(self, dataset, parameter, x_splines, f_splines, **kwargs):
 
@@ -58,16 +61,17 @@ class InterpolatedNoBaseModelIdentical(object):
     def norm_p_x(self, f_splines=None, x_splines=None, **kwargs):
         if self.norm_selector is None:
             self.norm_selector = (self._xs >= x_splines[0]) & (
-                self._xs <= x_splines[-1])
+                self._xs <= x_splines[-1]
+            )
 
         perturbation = self._norm_spline(x=self._xs[self.norm_selector], y=f_splines)
         p_x = xp.zeros(len(self._xs))
         p_x[self.norm_selector] = xp.exp(perturbation)
         norm = trapz(p_x, self._xs)
         return norm
-    
+
     def p_x_identical(self, dataset, **kwargs):
-        
+
         self.infer_n_nodes(**kwargs)
 
         f_splines = np.array([kwargs[f"{key}"] for key in self.fkeys])
@@ -76,7 +80,9 @@ class InterpolatedNoBaseModelIdentical(object):
         p_x = xp.ones(xp.shape(dataset[self.parameters[0]]))
 
         for param in self.parameters:
-            p_x *= self.p_x_unnormed(dataset, param, x_splines=x_splines, f_splines=f_splines, **kwargs)
+            p_x *= self.p_x_unnormed(
+                dataset, param, x_splines=x_splines, f_splines=f_splines, **kwargs
+            )
 
         norm = self.norm_p_x(f_splines=f_splines, x_splines=x_splines, **kwargs)
         p_x /= norm ** len(self.parameters)
@@ -92,5 +98,7 @@ class InterpolatedNoBaseModelIdentical(object):
                 break
 
         if not nodes == self.nodes:
-            print(f'Different number of nodes! Using {nodes} nodes instead of {self.nodes}')
+            print(
+                f"Different number of nodes! Using {nodes} nodes instead of {self.nodes}"
+            )
             self.__init__(nodes=nodes)

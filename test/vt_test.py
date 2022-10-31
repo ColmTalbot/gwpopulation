@@ -55,8 +55,11 @@ class TestResamplingVT(unittest.TestCase):
         self.data = dict(a=xp.linspace(0, 1, 1000), prior=xp.ones(1000), vt=2)
         self.vt = vt.ResamplingVT(data=self.data, model=model, n_events=0)
 
-    def test_vt_correct(self):
+    def test_marginalized_vt_correct(self):
         self.assertEqual(self.vt(dict()), 0.38289325179141254)
+
+    def test_marginalized_vt_correct(self):
+        self.assertEqual(self.vt(dict()), 0.38289403358409585)
 
     def test_returns_inf_when_n_effective_too_small(self):
         self.vt.n_events = xp.inf

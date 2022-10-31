@@ -56,14 +56,14 @@ class TestResamplingVT(unittest.TestCase):
         self.vt = vt.ResamplingVT(data=self.data, model=model, n_events=0)
 
     def test_marginalized_vt_correct(self):
-        self.assertEqual(self.vt_factor(dict()), 0.38289325179141254)
+        self.assertEqual(self.vt.vt_factor(dict()), 0.38289325179141254)
 
     def test_vt_correct(self):
         self.assertEqual(self.vt(dict())[0], 0.38289403358409585)
 
     def test_returns_inf_when_n_effective_too_small(self):
         self.vt.n_events = xp.inf
-        self.assertEqual(self.vt(dict()), xp.inf)
+        self.assertEqual(self.vt.vt_factor(dict()), xp.inf)
 
     def test_observed_volume_with_no_redshift_model(self):
         self.assertEqual(

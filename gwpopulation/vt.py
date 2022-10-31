@@ -65,14 +65,20 @@ class ResamplingVT(_BaseVT):
         The found injections and relevant meta data
     n_events: int
         The number of events observed
+    marginalize_uncertainty: bool (Default: False)
+        Whether to return the uncertainty-marginalized pdet from Eq 11
+        in https://arxiv.org/abs/1904.10879. Recommend not to use this
+        as it is not completely understood if this uncertainty
+        marginalization is correct.
     """
 
-    def __init__(self, model, data, n_events=np.inf):
+    def __init__(self, model, data, n_events=np.inf, marginalize_uncertainty=False):
         super(ResamplingVT, self).__init__(model=model, data=data)
         self.n_events = n_events
         self.total_injections = data.get("total_generated", len(data["prior"]))
         self.analysis_time = data.get("analysis_time", 1)
         self.redshift_model = None
+        self.marginalize_uncertainty = marginalize_uncertainty
         for _model in self.model.models:
             if isinstance(_model, _Redshift):
                 self.redshift_model = _model
@@ -85,21 +91,29 @@ class ResamplingVT(_BaseVT):
         """
         Compute the expected number of detections given a set of injections.
 
-        This should be implemented as in https://arxiv.org/abs/1904.10879
+        Option to use the uncertainty-marginalized vt_factor from Equation 11
+        in https://arxiv.org/abs/1904.10879 by setting `marginalize_uncertainty`
+        to True, or use the estimator from Equation 8 (default behavior).
 
-        If n_effective < 4 * n_events we return np.inf so that the sample
-        is rejected.
+        Recommend not enabling marginalize_uncertainty and setting convergence
+        criteria based on uncertainty in total likelihood in HyperparameterLikelihood.
+
+        If using `marginalize_uncertainty` and n_effective < 4 * n_events we
+        return np.inf so that the sample is rejected.
+
+        Returns either vt_factor or mu and var.
 
         Parameters
         ----------
         parameters: dict
             The population parameters
         """
-        mu, var = self.detection_efficiency(parameters)
-        converged = self.check_convergence(mu, var)
-        if not converged:
-            return np.inf
-        return mu
+        if not self.marginalize_uncertainty:
+            mu, var = self.detection_efficiency(parameters)
+            return mu, var
+        else:
+            vt_factor = self.vt_factor(parameters)
+            return vt_factor
 
     def check_convergence(self, mu, var):
         if mu**2 <= 4 * self.n_events * var:

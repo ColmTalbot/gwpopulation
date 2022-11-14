@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.hyperpe &mdash; GWPopulation 0.1.dev1+gc859cd2 documentation</title>
+  <title>gwpopulation.hyperpe &mdash; GWPopulation 0.1.dev1+g5bcc53d documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -288,9 +288,11 @@
             <span class="n">sample</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;ln_bf_</span><span class="si">{</span><span class="n">ii</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ln_ls</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
             <span class="n">sample</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;var_</span><span class="si">{</span><span class="n">ii</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">variances</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
         <span class="n">selection</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_selection_function_with_uncertainty</span><span class="p">()</span>
+        <span class="n">variance</span> <span class="o">/=</span> <span class="n">selection</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">selection_variance</span> <span class="o">=</span> <span class="n">variance</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span><span class="o">**</span><span class="mi">2</span>
         <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;selection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">selection</span>
         <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;selection_variance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variance</span>
-        <span class="n">total_variance</span> <span class="o">+=</span> <span class="n">variance</span>
+        <span class="n">total_variance</span> <span class="o">+=</span> <span class="n">selection_variance</span>
         <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_variance</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">added_keys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">added_keys</span><span class="p">:</span>

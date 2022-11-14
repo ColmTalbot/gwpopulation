@@ -208,9 +208,11 @@ class HyperparameterLikelihood(Likelihood):
             sample[f"ln_bf_{ii}"] = float(ln_ls[ii])
             sample[f"var_{ii}"] = float(variances[ii])
         selection, variance = self._selection_function_with_uncertainty()
+        variance /= selection**2
+        selection_variance = variance * self.n_posteriors**2
         sample["selection"] = selection
         sample["selection_variance"] = variance
-        total_variance += variance
+        total_variance += selection_variance
         sample["variance"] = float(total_variance)
         if added_keys is not None:
             for key in added_keys:

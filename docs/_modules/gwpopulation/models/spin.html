@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.models.spin &mdash; GWPopulation 0.1.dev1+g5bcc53d documentation</title>
+  <title>gwpopulation.models.spin &mdash; GWPopulation 0.1.dev1+gc7cb374 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -84,6 +84,7 @@
 
 <span class="kn">from</span> <span class="nn">..cupy_utils</span> <span class="kn">import</span> <span class="n">xp</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">beta_dist</span><span class="p">,</span> <span class="n">truncnorm</span><span class="p">,</span> <span class="n">unnormalized_2d_gaussian</span>
+<span class="kn">from</span> <span class="nn">.interped</span> <span class="kn">import</span> <span class="n">InterpolatedNoBaseModelIdentical</span>
 
 
 <div class="viewcode-block" id="iid_spin"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.iid_spin.html#gwpopulation.models.spin.iid_spin">[docs]</a><span class="k">def</span> <span class="nf">iid_spin</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">xi_spin</span><span class="p">,</span> <span class="n">sigma_spin</span><span class="p">,</span> <span class="n">amax</span><span class="p">,</span> <span class="n">alpha_chi</span><span class="p">,</span> <span class="n">beta_chi</span><span class="p">):</span>
@@ -359,6 +360,30 @@
         <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span>
             <span class="n">y</span><span class="o">=</span><span class="n">xp</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">prob</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_eff</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_p</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SplineSpinMagnitudeIdentical"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinMagnitudeIdentical.html#gwpopulation.models.spin.SplineSpinMagnitudeIdentical">[docs]</a><span class="k">class</span> <span class="nc">SplineSpinMagnitudeIdentical</span><span class="p">(</span><span class="n">InterpolatedNoBaseModelIdentical</span><span class="p">):</span>
+<div class="viewcode-block" id="SplineSpinMagnitudeIdentical.__init__"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinMagnitudeIdentical.html#gwpopulation.models.spin.SplineSpinMagnitudeIdentical.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cubic&quot;</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">SplineSpinMagnitudeIdentical</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;a_1&quot;</span><span class="p">,</span> <span class="s2">&quot;a_2&quot;</span><span class="p">],</span>
+            <span class="n">minimum</span><span class="o">=</span><span class="n">minimum</span><span class="p">,</span>
+            <span class="n">maximum</span><span class="o">=</span><span class="n">maximum</span><span class="p">,</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SplineSpinTiltIdentical"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinTiltIdentical.html#gwpopulation.models.spin.SplineSpinTiltIdentical">[docs]</a><span class="k">class</span> <span class="nc">SplineSpinTiltIdentical</span><span class="p">(</span><span class="n">InterpolatedNoBaseModelIdentical</span><span class="p">):</span>
+<div class="viewcode-block" id="SplineSpinTiltIdentical.__init__"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinTiltIdentical.html#gwpopulation.models.spin.SplineSpinTiltIdentical.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cubic&quot;</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">SplineSpinTiltIdentical</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cos_tilt_1&quot;</span><span class="p">,</span> <span class="s2">&quot;cos_tilt_2&quot;</span><span class="p">],</span>
+            <span class="n">minimum</span><span class="o">=</span><span class="n">minimum</span><span class="p">,</span>
+            <span class="n">maximum</span><span class="o">=</span><span class="n">maximum</span><span class="p">,</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
 </pre></div>
 
            </div>

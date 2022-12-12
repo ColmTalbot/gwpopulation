@@ -1,0 +1,36 @@
+gwpopulation.models.interped.InterpolatedNoBaseModelIdentical
+=============================================================
+
+.. currentmodule:: gwpopulation.models.interped
+
+.. autoclass:: InterpolatedNoBaseModelIdentical
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~InterpolatedNoBaseModelIdentical.__init__
+      ~InterpolatedNoBaseModelIdentical.infer_n_nodes
+      ~InterpolatedNoBaseModelIdentical.norm_p_x
+      ~InterpolatedNoBaseModelIdentical.p_x_identical
+      ~InterpolatedNoBaseModelIdentical.p_x_unnormed
+      ~InterpolatedNoBaseModelIdentical.setup_interpolant
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~InterpolatedNoBaseModelIdentical.variable_names
+   
+   

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gwpopulation.models.spin.SplineSpinMagnitudeIdentical &mdash; GWPopulation 0.1.dev1+gc7cb374 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gwpopulation.models.spin.SplineSpinTiltIdentical" href="gwpopulation.models.spin.SplineSpinTiltIdentical.html" />
+    <link rel="prev" title="gwpopulation.models.spin.GaussianChiEffChiP" href="gwpopulation.models.spin.GaussianChiEffChiP.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> GWPopulation
+          </a>
+              <div class="version">
+                0.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="gwpopulation.models.html">gwpopulation.models</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.interped.html">gwpopulation.models.interped</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.mass.html">gwpopulation.models.mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.redshift.html">gwpopulation.models.redshift</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gwpopulation.models.spin.html">gwpopulation.models.spin</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.gaussian_chi_eff.html">gwpopulation.models.spin.gaussian_chi_eff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.gaussian_chi_p.html">gwpopulation.models.spin.gaussian_chi_p</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.iid_spin.html">gwpopulation.models.spin.iid_spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.iid_spin_magnitude_beta.html">gwpopulation.models.spin.iid_spin_magnitude_beta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.iid_spin_orientation_gaussian_isotropic.html">gwpopulation.models.spin.iid_spin_orientation_gaussian_isotropic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.independent_spin_magnitude_beta.html">gwpopulation.models.spin.independent_spin_magnitude_beta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic.html">gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.GaussianChiEffChiP.html">gwpopulation.models.spin.GaussianChiEffChiP</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gwpopulation.models.spin.SplineSpinMagnitudeIdentical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.spin.SplineSpinTiltIdentical.html">gwpopulation.models.spin.SplineSpinTiltIdentical</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.conversions.html">gwpopulation.conversions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.cupy_utils.html">gwpopulation.cupy_utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.vt.html">gwpopulation.vt</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../GWTC1.html">Population Inference on GWTC-1</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GWPopulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="gwpopulation.models.html">gwpopulation.models</a></li>
+          <li class="breadcrumb-item"><a href="gwpopulation.models.spin.html">gwpopulation.models.spin</a></li>
+      <li class="breadcrumb-item active">gwpopulation.models.spin.SplineSpinMagnitudeIdentical</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/gwpopulation.models.spin.SplineSpinMagnitudeIdentical.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="gwpopulation-models-spin-splinespinmagnitudeidentical">
+<h1>gwpopulation.models.spin.SplineSpinMagnitudeIdentical<a class="headerlink" href="#gwpopulation-models-spin-splinespinmagnitudeidentical" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="gwpopulation.models.spin.SplineSpinMagnitudeIdentical">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gwpopulation.models.spin.</span></span><span class="sig-name descname"><span class="pre">SplineSpinMagnitudeIdentical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minimum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cubic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/models/spin.html#SplineSpinMagnitudeIdentical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.models.spin.SplineSpinMagnitudeIdentical" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="gwpopulation.models.interped.InterpolatedNoBaseModelIdentical.html#gwpopulation.models.interped.InterpolatedNoBaseModelIdentical" title="gwpopulation.models.interped.InterpolatedNoBaseModelIdentical"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterpolatedNoBaseModelIdentical</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="gwpopulation.models.spin.SplineSpinMagnitudeIdentical.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minimum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cubic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/models/spin.html#SplineSpinMagnitudeIdentical.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.models.spin.SplineSpinMagnitudeIdentical.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.models.spin.SplineSpinMagnitudeIdentical.__init__" title="gwpopulation.models.spin.SplineSpinMagnitudeIdentical.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([minimum, maximum, nodes, kind])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer_n_nodes</span></code>(**kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm_p_x</span></code>([f_splines, x_splines])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p_x_identical</span></code>(dataset, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p_x_unnormed</span></code>(dataset, parameter, x_splines, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_interpolant</span></code>(nodes, values)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">variable_names</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gwpopulation.models.spin.GaussianChiEffChiP.html" class="btn btn-neutral float-left" title="gwpopulation.models.spin.GaussianChiEffChiP" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gwpopulation.models.spin.SplineSpinTiltIdentical.html" class="btn btn-neutral float-right" title="gwpopulation.models.spin.SplineSpinTiltIdentical" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Colm Talbot.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

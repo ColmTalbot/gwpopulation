@@ -35,6 +35,8 @@ gwpopulation.models.spin
       :template: custom-class-template.rst
    
       GaussianChiEffChiP
+      SplineSpinMagnitudeIdentical
+      SplineSpinTiltIdentical
    
    
 

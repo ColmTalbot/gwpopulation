@@ -4,6 +4,7 @@ Implemented spin models
 
 from ..cupy_utils import xp
 from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian
+from .interped import InterpolatedNoBaseModelIdentical
 
 
 def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
@@ -278,4 +279,28 @@ class GaussianChiEffChiP(object):
         )
         return xp.trapz(
             y=xp.trapz(y=prob, axis=-1, x=self.chi_eff), axis=-1, x=self.chi_p
+        )
+
+
+class SplineSpinMagnitudeIdentical(InterpolatedNoBaseModelIdentical):
+    def __init__(self, minimum=0, maximum=1, nodes=5, kind="cubic"):
+
+        super(SplineSpinMagnitudeIdentical, self).__init__(
+            parameters=["a_1", "a_2"],
+            minimum=minimum,
+            maximum=maximum,
+            nodes=nodes,
+            kind=kind,
+        )
+
+
+class SplineSpinTiltIdentical(InterpolatedNoBaseModelIdentical):
+    def __init__(self, minimum=-1, maximum=1, nodes=5, kind="cubic"):
+
+        super(SplineSpinTiltIdentical, self).__init__(
+            parameters=["cos_tilt_1", "cos_tilt_2"],
+            minimum=minimum,
+            maximum=maximum,
+            nodes=nodes,
+            kind=kind,
         )

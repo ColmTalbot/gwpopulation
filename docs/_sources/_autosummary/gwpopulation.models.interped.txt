@@ -1,0 +1,33 @@
+gwpopulation.models.interped
+============================
+
+.. currentmodule:: gwpopulation.models.interped
+
+.. automodule:: gwpopulation.models.interped
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      InterpolatedNoBaseModelIdentical
+   
+   
+
+   
+   
+   
+
+
+

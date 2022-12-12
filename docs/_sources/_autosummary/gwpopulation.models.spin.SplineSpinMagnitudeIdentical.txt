@@ -1,0 +1,36 @@
+gwpopulation.models.spin.SplineSpinMagnitudeIdentical
+=====================================================
+
+.. currentmodule:: gwpopulation.models.spin
+
+.. autoclass:: SplineSpinMagnitudeIdentical
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SplineSpinMagnitudeIdentical.__init__
+      ~SplineSpinMagnitudeIdentical.infer_n_nodes
+      ~SplineSpinMagnitudeIdentical.norm_p_x
+      ~SplineSpinMagnitudeIdentical.p_x_identical
+      ~SplineSpinMagnitudeIdentical.p_x_unnormed
+      ~SplineSpinMagnitudeIdentical.setup_interpolant
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SplineSpinMagnitudeIdentical.variable_names
+   
+   

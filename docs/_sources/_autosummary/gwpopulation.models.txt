@@ -30,6 +30,7 @@
    :template: custom-module-template.rst
    :recursive:
 
+   gwpopulation.models.interped
    gwpopulation.models.mass
    gwpopulation.models.redshift
    gwpopulation.models.spin

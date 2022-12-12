@@ -293,10 +293,6 @@ class SplineSpinMagnitudeIdentical(InterpolatedNoBaseModelIdentical):
             kind=kind,
         )
 
-    def __call__(self, dataset, **kwargs):
-
-        return self.p_x_identical(dataset, **kwargs)
-
 
 class SplineSpinTiltIdentical(InterpolatedNoBaseModelIdentical):
     def __init__(self, minimum=-1, maximum=1, nodes=5, kind="cubic"):
@@ -308,7 +304,3 @@ class SplineSpinTiltIdentical(InterpolatedNoBaseModelIdentical):
             nodes=nodes,
             kind=kind,
         )
-
-    def __call__(self, dataset, **kwargs):
-
-        return self.p_x_identical(dataset, **kwargs)

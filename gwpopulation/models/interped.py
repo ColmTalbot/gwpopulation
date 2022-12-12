@@ -25,6 +25,9 @@ class InterpolatedNoBaseModelIdentical(object):
         self.xkeys = [f"{self.base}{ii}" for ii in range(self.nodes)]
         self.fkeys = [f"f{self.base}{ii}" for ii in range(self.nodes)]
 
+    def __call__(self, dataset, **kwargs):
+        return self.p_x_identical(dataset, **kwargs)
+
     @property
     def variable_names(self):
 

@@ -217,4 +217,4 @@ def get_name(input):
     if hasattr(input, "__name__"):
         return input.__name__
     else:
-        return input.__class.__name__
+        return input.__class__.__name__

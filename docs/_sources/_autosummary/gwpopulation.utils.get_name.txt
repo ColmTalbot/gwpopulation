@@ -1,0 +1,6 @@
+gwpopulation.utils.get\_name
+============================
+
+.. currentmodule:: gwpopulation.utils
+
+.. autofunction:: get_name

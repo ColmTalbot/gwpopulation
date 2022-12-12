@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.conversions.mu_var_max_to_alpha_beta_max &mdash; GWPopulation 0.1.dev1+g07b022d documentation</title>
+  <title>gwpopulation.utils.get_name &mdash; GWPopulation 0.1.dev1+g07b022d documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -16,13 +16,11 @@
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="gwpopulation.cupy_utils" href="gwpopulation.cupy_utils.html" />
-    <link rel="prev" title="gwpopulation.conversions.convert_to_beta_parameters" href="gwpopulation.conversions.convert_to_beta_parameters.html" /> 
+    <link rel="next" title="gwpopulation.utils.get_version_information" href="gwpopulation.utils.get_version_information.html" />
+    <link rel="prev" title="gwpopulation.utils.beta_dist" href="gwpopulation.utils.beta_dist.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,15 +44,19 @@
               <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.models.html">gwpopulation.models</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="gwpopulation.conversions.html">gwpopulation.conversions</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.conversions.alpha_beta_max_to_mu_var_max.html">gwpopulation.conversions.alpha_beta_max_to_mu_var_max</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.conversions.convert_to_beta_parameters.html">gwpopulation.conversions.convert_to_beta_parameters</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">gwpopulation.conversions.mu_var_max_to_alpha_beta_max</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.conversions.html">gwpopulation.conversions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.cupy_utils.html">gwpopulation.cupy_utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.beta_dist.html">gwpopulation.utils.beta_dist</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">gwpopulation.utils.get_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.get_version_information.html">gwpopulation.utils.get_version_information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.powerlaw.html">gwpopulation.utils.powerlaw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.truncnorm.html">gwpopulation.utils.truncnorm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.unnormalized_2d_gaussian.html">gwpopulation.utils.unnormalized_2d_gaussian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.von_mises.html">gwpopulation.utils.von_mises</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.vt.html">gwpopulation.vt</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
@@ -76,10 +78,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="gwpopulation.conversions.html">gwpopulation.conversions</a></li>
-      <li class="breadcrumb-item active">gwpopulation.conversions.mu_var_max_to_alpha_beta_max</li>
+          <li class="breadcrumb-item"><a href="gwpopulation.utils.html">gwpopulation.utils</a></li>
+      <li class="breadcrumb-item active">gwpopulation.utils.get_name</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/gwpopulation.conversions.mu_var_max_to_alpha_beta_max.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/gwpopulation.utils.get_name.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -111,33 +113,23 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="gwpopulation-conversions-mu-var-max-to-alpha-beta-max">
-<h1>gwpopulation.conversions.mu_var_max_to_alpha_beta_max<a class="headerlink" href="#gwpopulation-conversions-mu-var-max-to-alpha-beta-max" title="Permalink to this heading"></a></h1>
+<div class="section" id="gwpopulation-utils-get-name">
+<h1>gwpopulation.utils.get_name<a class="headerlink" href="#gwpopulation-utils-get-name" title="Permalink to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="gwpopulation.conversions.mu_var_max_to_alpha_beta_max">
-<span class="sig-prename descclassname"><span class="pre">gwpopulation.conversions.</span></span><span class="sig-name descname"><span class="pre">mu_var_max_to_alpha_beta_max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/conversions.html#mu_var_max_to_alpha_beta_max"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.conversions.mu_var_max_to_alpha_beta_max" title="Permalink to this definition"></a></dt>
-<dd><p>Convert between parameters for beta distribution</p>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}\alpha &amp;= \frac{\mu^2 (a_\max - \mu) - \mu \sigma^2}{a_\max\sigma^2}\\\beta &amp;= \frac{\mu (a_\max - \mu)^2 - (a_\max - \mu) \sigma^2}{a_\max\sigma^2}\end{aligned}\end{align} \]</div>
+<dt class="sig sig-object py" id="gwpopulation.utils.get_name">
+<span class="sig-prename descclassname"><span class="pre">gwpopulation.utils.</span></span><span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/utils.html#get_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.utils.get_name" title="Permalink to this definition"></a></dt>
+<dd><p>Attempt to find the name of the the input. This either returns
+<code class="code docutils literal notranslate"><span class="pre">input.__name__</span></code> or <code class="code docutils literal notranslate"><span class="pre">input.__class__.__name__</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>mu: float</strong></dt><dd><p>The mean (<span class="math notranslate nohighlight">\(\mu\)</span>)</p>
-</dd>
-<dt><strong>var: float</strong></dt><dd><p>The variance (<span class="math notranslate nohighlight">\(\sigma^2\)</span>)</p>
-</dd>
-<dt><strong>amax: float</strong></dt><dd><p>The maximum value (<span class="math notranslate nohighlight">\(a_\max\)</span>)</p>
+<dt><strong>input: any</strong></dt><dd><p>The input to find the name for.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>alpha: float</dt><dd><p>The Beta alpha parameter (<span class="math notranslate nohighlight">\(\alpha\)</span>)</p>
-</dd>
-<dt>beta: float</dt><dd><p>The Beta beta parameter (<span class="math notranslate nohighlight">\(\beta\)</span>)</p>
-</dd>
-<dt>amax: float</dt><dd><p>The maximum spin (<span class="math notranslate nohighlight">\(a_\max\)</span>)</p>
-</dd>
+<dt>str: The name of the input.</dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -149,8 +141,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="gwpopulation.conversions.convert_to_beta_parameters.html" class="btn btn-neutral float-left" title="gwpopulation.conversions.convert_to_beta_parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="gwpopulation.cupy_utils.html" class="btn btn-neutral float-right" title="gwpopulation.cupy_utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="gwpopulation.utils.beta_dist.html" class="btn btn-neutral float-left" title="gwpopulation.utils.beta_dist" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gwpopulation.utils.get_version_information.html" class="btn btn-neutral float-right" title="gwpopulation.utils.get_version_information" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

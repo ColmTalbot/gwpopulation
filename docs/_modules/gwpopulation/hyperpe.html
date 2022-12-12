@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.hyperpe &mdash; GWPopulation 0.1.dev1+gc7cb374 documentation</title>
+  <title>gwpopulation.hyperpe &mdash; GWPopulation 0.1.dev1+g07b022d documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -90,6 +90,7 @@
 <span class="kn">from</span> <span class="nn">bilby.hyper.model</span> <span class="kn">import</span> <span class="n">Model</span>
 
 <span class="kn">from</span> <span class="nn">.cupy_utils</span> <span class="kn">import</span> <span class="n">CUPY_LOADED</span><span class="p">,</span> <span class="n">to_numpy</span><span class="p">,</span> <span class="n">xp</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_name</span>
 
 
 <div class="viewcode-block" id="HyperparameterLikelihood"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood">[docs]</a><span class="k">class</span> <span class="nc">HyperparameterLikelihood</span><span class="p">(</span><span class="n">Likelihood</span><span class="p">):</span>
@@ -435,7 +436,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">meta_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">model</span><span class="o">=</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyper_prior</span><span class="o">.</span><span class="n">models</span><span class="p">],</span>
+            <span class="n">model</span><span class="o">=</span><span class="p">[</span><span class="n">get_name</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyper_prior</span><span class="o">.</span><span class="n">models</span><span class="p">],</span>
             <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">to_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">},</span>
             <span class="n">n_events</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span><span class="p">,</span>
             <span class="n">sampling_prior</span><span class="o">=</span><span class="n">to_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_prior</span><span class="p">),</span>

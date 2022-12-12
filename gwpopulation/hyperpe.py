@@ -10,6 +10,7 @@ from bilby.core.utils import logger
 from bilby.hyper.model import Model
 
 from .cupy_utils import CUPY_LOADED, to_numpy, xp
+from .utils import get_name
 
 
 class HyperparameterLikelihood(Likelihood):
@@ -355,7 +356,7 @@ class HyperparameterLikelihood(Likelihood):
     @property
     def meta_data(self):
         return dict(
-            model=[model.__name__ for model in self.hyper_prior.models],
+            model=[get_name(model) for model in self.hyper_prior.models],
             data={key: to_numpy(self.data[key]) for key in self.data},
             n_events=self.n_posteriors,
             sampling_prior=to_numpy(self.sampling_prior),

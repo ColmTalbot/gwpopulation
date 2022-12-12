@@ -198,3 +198,23 @@ def get_version_information():
     from gwpopulation import __version__
 
     return __version__
+
+
+def get_name(input):
+    """
+    Attempt to find the name of the the input. This either returns
+    :code:`input.__name__` or :code:`input.__class__.__name__`
+
+    Parameters
+    ==========
+    input: any
+        The input to find the name for.
+
+    Returns
+    =======
+    str: The name of the input.
+    """
+    if hasattr(input, "__name__"):
+        return input.__name__
+    else:
+        return input.__class__.__name__

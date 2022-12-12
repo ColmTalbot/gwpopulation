@@ -17,6 +17,7 @@
       :toctree:
    
       beta_dist
+      get_name
       get_version_information
       powerlaw
       truncnorm

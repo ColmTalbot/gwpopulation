@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.utils &mdash; GWPopulation 0.1.dev1+gc7cb374 documentation</title>
+  <title>gwpopulation.utils &mdash; GWPopulation 0.1.dev1+g07b022d documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -49,6 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">gwpopulation.utils</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.beta_dist.html">gwpopulation.utils.beta_dist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.get_name.html">gwpopulation.utils.get_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.get_version_information.html">gwpopulation.utils.get_version_information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.powerlaw.html">gwpopulation.utils.powerlaw</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.truncnorm.html">gwpopulation.utils.truncnorm</a></li>
@@ -124,19 +125,22 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.beta_dist.html#gwpopulation.utils.beta_dist" title="gwpopulation.utils.beta_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta_dist</span></code></a>(xx, alpha, beta[, scale])</p></td>
 <td><p>Beta distribution probability</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.get_version_information.html#gwpopulation.utils.get_version_information" title="gwpopulation.utils.get_version_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_version_information</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.get_name.html#gwpopulation.utils.get_name" title="gwpopulation.utils.get_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_name</span></code></a>(input)</p></td>
+<td><p>Attempt to find the name of the the input.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.get_version_information.html#gwpopulation.utils.get_version_information" title="gwpopulation.utils.get_version_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_version_information</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.powerlaw.html#gwpopulation.utils.powerlaw" title="gwpopulation.utils.powerlaw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">powerlaw</span></code></a>(xx, alpha, high, low)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.powerlaw.html#gwpopulation.utils.powerlaw" title="gwpopulation.utils.powerlaw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">powerlaw</span></code></a>(xx, alpha, high, low)</p></td>
 <td><p>Power-law probability</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.truncnorm.html#gwpopulation.utils.truncnorm" title="gwpopulation.utils.truncnorm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">truncnorm</span></code></a>(xx, mu, sigma, high, low)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.truncnorm.html#gwpopulation.utils.truncnorm" title="gwpopulation.utils.truncnorm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">truncnorm</span></code></a>(xx, mu, sigma, high, low)</p></td>
 <td><p>Truncated normal probability</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.unnormalized_2d_gaussian.html#gwpopulation.utils.unnormalized_2d_gaussian" title="gwpopulation.utils.unnormalized_2d_gaussian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unnormalized_2d_gaussian</span></code></a>(xx, yy, mu_x, mu_y, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.unnormalized_2d_gaussian.html#gwpopulation.utils.unnormalized_2d_gaussian" title="gwpopulation.utils.unnormalized_2d_gaussian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unnormalized_2d_gaussian</span></code></a>(xx, yy, mu_x, mu_y, ...)</p></td>
 <td><p>Compute the probability distribution for a correlated 2-dimensional Gaussian neglecting normalization terms.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.von_mises.html#gwpopulation.utils.von_mises" title="gwpopulation.utils.von_mises"><code class="xref py py-obj docutils literal notranslate"><span class="pre">von_mises</span></code></a>(xx, mu, kappa)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.von_mises.html#gwpopulation.utils.von_mises" title="gwpopulation.utils.von_mises"><code class="xref py py-obj docutils literal notranslate"><span class="pre">von_mises</span></code></a>(xx, mu, kappa)</p></td>
 <td><p>PDF of the von Mises distribution defined on the standard interval.</p></td>
 </tr>
 </tbody>

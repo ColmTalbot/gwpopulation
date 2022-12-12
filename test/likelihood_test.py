@@ -9,8 +9,10 @@ except ImportError:
     xp = np
 
 from bilby.core.prior import PriorDict, Uniform
+from bilby.hyper.model import Model
 
 from gwpopulation.hyperpe import HyperparameterLikelihood, RateLikelihood
+from gwpopulation.models.mass import SinglePeakSmoothedMassDistribution
 
 
 class Likelihoods(unittest.TestCase):
@@ -233,14 +235,15 @@ class Likelihoods(unittest.TestCase):
             self.assertEqual(new_samples[key].shape, like.data[key].shape)
 
     def test_meta_data(self):
+        model = Model([self.model, SinglePeakSmoothedMassDistribution()])
         like = HyperparameterLikelihood(
             posteriors=self.data,
-            hyper_prior=self.model,
+            hyper_prior=model,
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
         )
         expected = dict(
-            model=["<lambda>"],
+            model=["<lambda>", "SinglePeakSmoothedMassDistribution"],
             data=dict(
                 a=np.ones((5, 500)),
                 b=np.ones((5, 500)),

@@ -95,7 +95,7 @@
 
 
 <div class="viewcode-block" id="betaln"><a class="viewcode-back" href="../../_autosummary/gwpopulation.cupy_utils.betaln.html#gwpopulation.cupy_utils.betaln">[docs]</a><span class="k">def</span> <span class="nf">betaln</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Logarithm of the Beta function</span>
 
 <span class="sd">    .. math::</span>
@@ -119,7 +119,7 @@
 
 
 <div class="viewcode-block" id="to_numpy"><a class="viewcode-back" href="../../_autosummary/gwpopulation.cupy_utils.to_numpy.html#gwpopulation.cupy_utils.to_numpy">[docs]</a><span class="k">def</span> <span class="nf">to_numpy</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Cast any array to numpy&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cast any array to numpy&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">CUPY_LOADED</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">array</span>
     <span class="k">else</span><span class="p">:</span>
@@ -127,7 +127,7 @@
 
 
 <div class="viewcode-block" id="trapz"><a class="viewcode-back" href="../../_autosummary/gwpopulation.cupy_utils.trapz.html#gwpopulation.cupy_utils.trapz">[docs]</a><span class="k">def</span> <span class="nf">trapz</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Lifted from `numpy &lt;https://github.com/numpy/numpy/blob/v1.15.1/numpy/lib/function_base.py#L3804-L3891&gt;`_.</span>
 
 <span class="sd">    Integrate along the given axis using the composite trapezoidal rule.</span>

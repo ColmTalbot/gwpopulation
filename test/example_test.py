@@ -54,7 +54,7 @@ def test_likelihood_evaluation():
     priors = bilby.core.prior.PriorDict("priors/bbh_population.prior")
 
     likelihood.parameters.update(priors.sample())
-    assert abs(likelihood.log_likelihood_ratio() - 0.1319280773148961) < 0.01
+    assert abs(likelihood.log_likelihood_ratio() - 0.06141098844907589) < 0.01
 
 
 def test_prior_files_load():

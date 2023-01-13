@@ -17,8 +17,10 @@ gwpopulation.vt.ResamplingVT
    .. autosummary::
    
       ~ResamplingVT.__init__
+      ~ResamplingVT.check_convergence
       ~ResamplingVT.detection_efficiency
       ~ResamplingVT.surveyed_hypervolume
+      ~ResamplingVT.vt_factor
    
    
 

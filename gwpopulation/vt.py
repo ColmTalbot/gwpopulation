@@ -75,7 +75,14 @@ class ResamplingVT(_BaseVT):
         This flag only acts when marignalize_uncertainty is False.
     """
 
-    def __init__(self, model, data, n_events=np.inf, marginalize_uncertainty=False, enforce_convergence=True):
+    def __init__(
+        self,
+        model,
+        data,
+        n_events=np.inf,
+        marginalize_uncertainty=False,
+        enforce_convergence=True,
+    ):
         super(ResamplingVT, self).__init__(model=model, data=data)
         self.n_events = n_events
         self.total_injections = data.get("total_generated", len(data["prior"]))
@@ -103,7 +110,8 @@ class ResamplingVT(_BaseVT):
         criteria based on uncertainty in total likelihood in HyperparameterLikelihood.
 
         If using `marginalize_uncertainty` and n_effective < 4 * n_events we
-        return np.inf so that the sample is rejected.
+        return np.inf so that the sample is rejected. This condition is also
+        enforced if `enforce_convergence` is True.
 
         Returns either vt_factor or mu and var.
 
@@ -114,14 +122,11 @@ class ResamplingVT(_BaseVT):
         """
         if not self.marginalize_uncertainty:
             mu, var = self.detection_efficiency(parameters)
-            if not self.enforce_convergence:
-                return mu, var
-            elif self.enforce_convergence:
+            if self.enforce_convergence:
                 converged = self.check_convergence(mu, var)
                 if not converged:
                     return xp.inf, var
-                else:
-                    return mu, var
+            return mu, var
         else:
             vt_factor = self.vt_factor(parameters)
             return vt_factor

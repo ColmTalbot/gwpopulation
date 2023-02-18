@@ -70,15 +70,26 @@ class ResamplingVT(_BaseVT):
         in https://arxiv.org/abs/1904.10879. Recommend not to use this
         as it is not completely understood if this uncertainty
         marginalization is correct.
+    enforce_convergence: bool (Default: True)
+        Whether to enforce the condition that n_effective > 4*n_obs.
+        This flag only acts when marignalize_uncertainty is False.
     """
 
-    def __init__(self, model, data, n_events=np.inf, marginalize_uncertainty=False):
+    def __init__(
+        self,
+        model,
+        data,
+        n_events=np.inf,
+        marginalize_uncertainty=False,
+        enforce_convergence=True,
+    ):
         super(ResamplingVT, self).__init__(model=model, data=data)
         self.n_events = n_events
         self.total_injections = data.get("total_generated", len(data["prior"]))
         self.analysis_time = data.get("analysis_time", 1)
         self.redshift_model = None
         self.marginalize_uncertainty = marginalize_uncertainty
+        self.enforce_convergence = enforce_convergence
         for _model in self.model.models:
             if isinstance(_model, _Redshift):
                 self.redshift_model = _model
@@ -99,7 +110,8 @@ class ResamplingVT(_BaseVT):
         criteria based on uncertainty in total likelihood in HyperparameterLikelihood.
 
         If using `marginalize_uncertainty` and n_effective < 4 * n_events we
-        return np.inf so that the sample is rejected.
+        return np.inf so that the sample is rejected. This condition is also
+        enforced if `enforce_convergence` is True.
 
         Returns either vt_factor or mu and var.
 
@@ -110,6 +122,10 @@ class ResamplingVT(_BaseVT):
         """
         if not self.marginalize_uncertainty:
             mu, var = self.detection_efficiency(parameters)
+            if self.enforce_convergence:
+                converged = self.check_convergence(mu, var)
+                if not converged:
+                    return xp.inf, var
             return mu, var
         else:
             vt_factor = self.vt_factor(parameters)
@@ -138,7 +154,7 @@ class ResamplingVT(_BaseVT):
         mu, var = self.detection_efficiency(parameters)
         converged = self.check_convergence(mu, var)
         if not converged:
-            return np.inf
+            return xp.inf
         n_effective = mu**2 / var
         vt_factor = mu / np.exp((3 + self.n_events) / 2 / n_effective)
         return vt_factor

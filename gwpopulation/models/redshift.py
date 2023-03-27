@@ -22,13 +22,13 @@ class _Redshift(object):
         self.zs = xp.asarray(self.zs_)
         self.dvc_dz_ = Planck15.differential_comoving_volume(self.zs_).value * 4 * np.pi
         self.dvc_dz = xp.asarray(self.dvc_dz_)
-        self.cached_dvc_dz = None
+        self.cached_dvc_dz = {}
 
     def __call__(self, dataset, **kwargs):
         return self.probability(dataset=dataset, **kwargs)
 
     def _cache_dvc_dz(self, redshifts):
-        self.cached_dvc_dz = xp.asarray(
+        self.cached_dvc_dz[redshifts.shape] = xp.asarray(
             np.interp(to_numpy(redshifts), self.zs_, self.dvc_dz_, left=0, right=0)
         )
 
@@ -84,10 +84,10 @@ class _Redshift(object):
         psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
         differential_volume = psi_of_z / (1 + dataset["redshift"])
         try:
-            differential_volume *= self.cached_dvc_dz
-        except (TypeError, ValueError):
+            differential_volume *= self.cached_dvc_dz[dataset["redshift"].shape]
+        except KeyError:
             self._cache_dvc_dz(dataset["redshift"])
-            differential_volume *= self.cached_dvc_dz
+            differential_volume *= self.cached_dvc_dz[dataset["redshift"].shape]
         return differential_volume
 
 

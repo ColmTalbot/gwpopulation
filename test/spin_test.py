@@ -227,3 +227,39 @@ class TestSplineSpinMagnitude(unittest.TestCase):
             norm = trapz(trapz(temp, self.a_array), self.a_array)
             norms.append(norm)
         self.assertAlmostEqual(float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 1)
+
+
+class TestSplineSpinTilt(unittest.TestCase):
+    def setUp(self):
+        self.cos_tilt_array = xp.linspace(-1, 1, 1000)
+        self.test_data = dict(
+            cos_tilt_1=xp.einsum(
+                "i,j->ij", self.cos_tilt_array, xp.ones_like(self.cos_tilt_array)
+            ),
+            cos_tilt_2=xp.einsum(
+                "i,j->ji", self.cos_tilt_array, xp.ones_like(self.cos_tilt_array)
+            ),
+        )
+        self.n_nodes = 10
+        self.prior = {
+            f"cos_tilt{i}": (1.4 + 1.2) / 10 * i - 1.2 for i in range(self.n_nodes)
+        }
+        self.prior.update({f"fcos_tilt{i}": Uniform(0, 1) for i in range(self.n_nodes)})
+        self.prior = PriorDict(self.prior)
+        self.n_test = 100
+        self.model = spin.SplineSpinTiltIdentical(minimum=-1, maximum=1, nodes=10)
+
+    def tearDown(self):
+        del self.test_data
+        del self.prior
+        del self.a_array
+        del self.n_test
+
+    def test_spin_tilt_normalised(self):
+        norms = list()
+        for ii in range(self.n_test):
+            parameters = self.prior.sample()
+            temp = self.model(self.test_data, **parameters)
+            norm = trapz(trapz(temp, self.cos_tilt_array), self.cos_tilt_array)
+            norms.append(norm)
+        self.assertAlmostEqual(float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 1)

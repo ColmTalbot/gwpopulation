@@ -1,6 +1,6 @@
 import unittest
 
-from bilby.core.prior import PriorDict, Uniform
+from bilby.core.prior import Normal, PriorDict, Uniform
 
 from gwpopulation.cupy_utils import trapz, xp
 from gwpopulation.models import spin
@@ -197,3 +197,33 @@ class TestGaussianSpin(unittest.TestCase):
                 )
             )
         )
+
+
+class TestSplineSpinMagnitude(unittest.TestCase):
+    def setUp(self):
+        self.a_array = xp.linspace(0, 1, 1000)
+        self.test_data = dict(
+            a_1=xp.einsum("i,j->ij", self.a_array, xp.ones_like(self.a_array)),
+            a_2=xp.einsum("i,j->ji", self.a_array, xp.ones_like(self.a_array)),
+        )
+        self.n_nodes = 10
+        self.prior = {f"a{i}": (1.2 + 0.2) / 10 * i - 0.2 for i in range(self.n_nodes)}
+        self.prior.update({f"fa{i}": Uniform(0, 1) for i in range(self.n_nodes)})
+        self.prior = PriorDict(self.prior)
+        self.n_test = 100
+        self.model = spin.SplineSpinMagnitudeIdentical(minimum=0, maximum=1, nodes=10)
+
+    def tearDown(self):
+        del self.test_data
+        del self.prior
+        del self.a_array
+        del self.n_test
+
+    def test_spin_magnitude_normalised(self):
+        norms = list()
+        for ii in range(self.n_test):
+            parameters = self.prior.sample()
+            temp = self.model(self.test_data, **parameters)
+            norm = trapz(trapz(temp, self.a_array), self.a_array)
+            norms.append(norm)
+        self.assertAlmostEqual(float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 1)

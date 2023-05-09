@@ -252,7 +252,7 @@ class TestSplineSpinTilt(unittest.TestCase):
     def tearDown(self):
         del self.test_data
         del self.prior
-        del self.a_array
+        del self.cos_tilt_array
         del self.n_test
 
     def test_spin_tilt_normalised(self):

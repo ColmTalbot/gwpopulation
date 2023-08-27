@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=528aeb57"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -91,7 +91,9 @@
 <span class="kn">from</span> <span class="nn">.cupy_utils</span> <span class="kn">import</span> <span class="n">betaln</span><span class="p">,</span> <span class="n">erf</span><span class="p">,</span> <span class="n">i0e</span><span class="p">,</span> <span class="n">xp</span>
 
 
-<div class="viewcode-block" id="beta_dist"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.beta_dist.html#gwpopulation.utils.beta_dist">[docs]</a><span class="k">def</span> <span class="nf">beta_dist</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="beta_dist">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.beta_dist.html#gwpopulation.utils.beta_dist">[docs]</a>
+<span class="k">def</span> <span class="nf">beta_dist</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Beta distribution probability</span>
 
@@ -128,7 +130,10 @@
     <span class="k">return</span> <span class="n">prob</span></div>
 
 
-<div class="viewcode-block" id="powerlaw"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.powerlaw.html#gwpopulation.utils.powerlaw">[docs]</a><span class="k">def</span> <span class="nf">powerlaw</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">):</span>
+
+<div class="viewcode-block" id="powerlaw">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.powerlaw.html#gwpopulation.utils.powerlaw">[docs]</a>
+<span class="k">def</span> <span class="nf">powerlaw</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Power-law probability</span>
 
@@ -164,7 +169,10 @@
     <span class="k">return</span> <span class="n">prob</span></div>
 
 
-<div class="viewcode-block" id="truncnorm"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.truncnorm.html#gwpopulation.utils.truncnorm">[docs]</a><span class="k">def</span> <span class="nf">truncnorm</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">):</span>
+
+<div class="viewcode-block" id="truncnorm">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.truncnorm.html#gwpopulation.utils.truncnorm">[docs]</a>
+<span class="k">def</span> <span class="nf">truncnorm</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Truncated normal probability</span>
 
@@ -203,7 +211,10 @@
     <span class="k">return</span> <span class="n">prob</span></div>
 
 
-<div class="viewcode-block" id="unnormalized_2d_gaussian"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.unnormalized_2d_gaussian.html#gwpopulation.utils.unnormalized_2d_gaussian">[docs]</a><span class="k">def</span> <span class="nf">unnormalized_2d_gaussian</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">mu_x</span><span class="p">,</span> <span class="n">mu_y</span><span class="p">,</span> <span class="n">sigma_x</span><span class="p">,</span> <span class="n">sigma_y</span><span class="p">,</span> <span class="n">covariance</span><span class="p">):</span>
+
+<div class="viewcode-block" id="unnormalized_2d_gaussian">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.unnormalized_2d_gaussian.html#gwpopulation.utils.unnormalized_2d_gaussian">[docs]</a>
+<span class="k">def</span> <span class="nf">unnormalized_2d_gaussian</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">mu_x</span><span class="p">,</span> <span class="n">mu_y</span><span class="p">,</span> <span class="n">sigma_x</span><span class="p">,</span> <span class="n">sigma_y</span><span class="p">,</span> <span class="n">covariance</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the probability distribution for a correlated 2-dimensional Gaussian</span>
 <span class="sd">    neglecting normalization terms.</span>
@@ -248,7 +259,10 @@
     <span class="k">return</span> <span class="n">prob</span></div>
 
 
-<div class="viewcode-block" id="von_mises"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.von_mises.html#gwpopulation.utils.von_mises">[docs]</a><span class="k">def</span> <span class="nf">von_mises</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
+
+<div class="viewcode-block" id="von_mises">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.von_mises.html#gwpopulation.utils.von_mises">[docs]</a>
+<span class="k">def</span> <span class="nf">von_mises</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    PDF of the von Mises distribution defined on the standard interval.</span>
 
@@ -278,13 +292,19 @@
     <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kappa</span> <span class="o">*</span> <span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">i0e</span><span class="p">(</span><span class="n">kappa</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="get_version_information"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.get_version_information.html#gwpopulation.utils.get_version_information">[docs]</a><span class="k">def</span> <span class="nf">get_version_information</span><span class="p">():</span>
+
+<div class="viewcode-block" id="get_version_information">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.get_version_information.html#gwpopulation.utils.get_version_information">[docs]</a>
+<span class="k">def</span> <span class="nf">get_version_information</span><span class="p">():</span>
     <span class="kn">from</span> <span class="nn">gwpopulation</span> <span class="kn">import</span> <span class="n">__version__</span>
 
     <span class="k">return</span> <span class="n">__version__</span></div>
 
 
-<div class="viewcode-block" id="get_name"><a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.get_name.html#gwpopulation.utils.get_name">[docs]</a><span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="nb">input</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_name">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.get_name.html#gwpopulation.utils.get_name">[docs]</a>
+<span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="nb">input</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Attempt to find the name of the the input. This either returns</span>
 <span class="sd">    :code:`input.__name__` or :code:`input.__class__.__name__`</span>
@@ -302,6 +322,7 @@
         <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="vm">__name__</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span></div>
+
 </pre></div>
 
            </div>

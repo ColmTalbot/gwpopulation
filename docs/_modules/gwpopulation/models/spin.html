@@ -10,11 +10,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=528aeb57"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -91,7 +91,9 @@
 <span class="kn">from</span> <span class="nn">.interped</span> <span class="kn">import</span> <span class="n">InterpolatedNoBaseModelIdentical</span>
 
 
-<div class="viewcode-block" id="iid_spin"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.iid_spin.html#gwpopulation.models.spin.iid_spin">[docs]</a><span class="k">def</span> <span class="nf">iid_spin</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">xi_spin</span><span class="p">,</span> <span class="n">sigma_spin</span><span class="p">,</span> <span class="n">amax</span><span class="p">,</span> <span class="n">alpha_chi</span><span class="p">,</span> <span class="n">beta_chi</span><span class="p">):</span>
+<div class="viewcode-block" id="iid_spin">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.iid_spin.html#gwpopulation.models.spin.iid_spin">[docs]</a>
+<span class="k">def</span> <span class="nf">iid_spin</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">xi_spin</span><span class="p">,</span> <span class="n">sigma_spin</span><span class="p">,</span> <span class="n">amax</span><span class="p">,</span> <span class="n">alpha_chi</span><span class="p">,</span> <span class="n">beta_chi</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Independently and identically distributed spins.</span>
 <span class="sd">    The magnitudes are assumed to follow a Beta distribution and the</span>
@@ -117,7 +119,10 @@
     <span class="k">return</span> <span class="n">prior</span></div>
 
 
-<div class="viewcode-block" id="iid_spin_magnitude_beta"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.iid_spin_magnitude_beta.html#gwpopulation.models.spin.iid_spin_magnitude_beta">[docs]</a><span class="k">def</span> <span class="nf">iid_spin_magnitude_beta</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">amax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha_chi</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">beta_chi</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+<div class="viewcode-block" id="iid_spin_magnitude_beta">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.iid_spin_magnitude_beta.html#gwpopulation.models.spin.iid_spin_magnitude_beta">[docs]</a>
+<span class="k">def</span> <span class="nf">iid_spin_magnitude_beta</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">amax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha_chi</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">beta_chi</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Independent and identically distributed beta distributions for both spin magnitudes.</span>
 
 <span class="sd">    https://arxiv.org/abs/1805.06442 Eq. (10)</span>
@@ -137,7 +142,10 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="independent_spin_magnitude_beta"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.independent_spin_magnitude_beta.html#gwpopulation.models.spin.independent_spin_magnitude_beta">[docs]</a><span class="k">def</span> <span class="nf">independent_spin_magnitude_beta</span><span class="p">(</span>
+
+<div class="viewcode-block" id="independent_spin_magnitude_beta">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.independent_spin_magnitude_beta.html#gwpopulation.models.spin.independent_spin_magnitude_beta">[docs]</a>
+<span class="k">def</span> <span class="nf">independent_spin_magnitude_beta</span><span class="p">(</span>
     <span class="n">dataset</span><span class="p">,</span> <span class="n">alpha_chi_1</span><span class="p">,</span> <span class="n">alpha_chi_2</span><span class="p">,</span> <span class="n">beta_chi_1</span><span class="p">,</span> <span class="n">beta_chi_2</span><span class="p">,</span> <span class="n">amax_1</span><span class="p">,</span> <span class="n">amax_2</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Independent beta distributions for both spin magnitudes.</span>
@@ -164,7 +172,10 @@
     <span class="k">return</span> <span class="n">prior</span></div>
 
 
-<div class="viewcode-block" id="iid_spin_orientation_gaussian_isotropic"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.iid_spin_orientation_gaussian_isotropic.html#gwpopulation.models.spin.iid_spin_orientation_gaussian_isotropic">[docs]</a><span class="k">def</span> <span class="nf">iid_spin_orientation_gaussian_isotropic</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">xi_spin</span><span class="p">,</span> <span class="n">sigma_spin</span><span class="p">):</span>
+
+<div class="viewcode-block" id="iid_spin_orientation_gaussian_isotropic">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.iid_spin_orientation_gaussian_isotropic.html#gwpopulation.models.spin.iid_spin_orientation_gaussian_isotropic">[docs]</a>
+<span class="k">def</span> <span class="nf">iid_spin_orientation_gaussian_isotropic</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">xi_spin</span><span class="p">,</span> <span class="n">sigma_spin</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A mixture model of spin orientations with isotropic and normally</span>
 <span class="sd">    distributed components. The distribution of primary and secondary spin</span>
 <span class="sd">    orientations are expected to be identical and independent.</span>
@@ -192,7 +203,10 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="independent_spin_orientation_gaussian_isotropic"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic.html#gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic">[docs]</a><span class="k">def</span> <span class="nf">independent_spin_orientation_gaussian_isotropic</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">xi_spin</span><span class="p">,</span> <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span><span class="p">):</span>
+
+<div class="viewcode-block" id="independent_spin_orientation_gaussian_isotropic">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic.html#gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic">[docs]</a>
+<span class="k">def</span> <span class="nf">independent_spin_orientation_gaussian_isotropic</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">xi_spin</span><span class="p">,</span> <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A mixture model of spin orientations with isotropic and normally</span>
 <span class="sd">    distributed components.</span>
 
@@ -224,7 +238,10 @@
     <span class="k">return</span> <span class="n">prior</span></div>
 
 
-<div class="viewcode-block" id="gaussian_chi_eff"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.gaussian_chi_eff.html#gwpopulation.models.spin.gaussian_chi_eff">[docs]</a><span class="k">def</span> <span class="nf">gaussian_chi_eff</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">mu_chi_eff</span><span class="p">,</span> <span class="n">sigma_chi_eff</span><span class="p">):</span>
+
+<div class="viewcode-block" id="gaussian_chi_eff">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.gaussian_chi_eff.html#gwpopulation.models.spin.gaussian_chi_eff">[docs]</a>
+<span class="k">def</span> <span class="nf">gaussian_chi_eff</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">mu_chi_eff</span><span class="p">,</span> <span class="n">sigma_chi_eff</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Gaussian in chi effective distribution</span>
 
@@ -253,7 +270,10 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="gaussian_chi_p"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.gaussian_chi_p.html#gwpopulation.models.spin.gaussian_chi_p">[docs]</a><span class="k">def</span> <span class="nf">gaussian_chi_p</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">mu_chi_p</span><span class="p">,</span> <span class="n">sigma_chi_p</span><span class="p">):</span>
+
+<div class="viewcode-block" id="gaussian_chi_p">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.gaussian_chi_p.html#gwpopulation.models.spin.gaussian_chi_p">[docs]</a>
+<span class="k">def</span> <span class="nf">gaussian_chi_p</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">mu_chi_p</span><span class="p">,</span> <span class="n">sigma_chi_p</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Gaussian distribution in precessing effective spin (chi p)</span>
 
@@ -280,7 +300,10 @@
     <span class="k">return</span> <span class="n">truncnorm</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;chi_p&quot;</span><span class="p">],</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu_chi_p</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma_chi_p</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="GaussianChiEffChiP"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.GaussianChiEffChiP.html#gwpopulation.models.spin.GaussianChiEffChiP">[docs]</a><span class="k">class</span> <span class="nc">GaussianChiEffChiP</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GaussianChiEffChiP">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.GaussianChiEffChiP.html#gwpopulation.models.spin.GaussianChiEffChiP">[docs]</a>
+<span class="k">class</span> <span class="nc">GaussianChiEffChiP</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A covariant Gaussian in effective aligned and precessing spins.</span>
 
@@ -310,10 +333,13 @@
 <span class="sd">        Covariance between the two parameters (:math:`\rho`)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="GaussianChiEffChiP.__init__"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.GaussianChiEffChiP.html#gwpopulation.models.spin.GaussianChiEffChiP.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GaussianChiEffChiP.__init__">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.GaussianChiEffChiP.html#gwpopulation.models.spin.GaussianChiEffChiP.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chi_eff</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chi_p</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chi_eff_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_p_grid</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_eff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_p</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">mu_chi_eff</span><span class="p">,</span> <span class="n">sigma_chi_eff</span><span class="p">,</span> <span class="n">mu_chi_p</span><span class="p">,</span> <span class="n">sigma_chi_p</span><span class="p">,</span> <span class="n">spin_covariance</span>
@@ -366,8 +392,13 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="SplineSpinMagnitudeIdentical"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinMagnitudeIdentical.html#gwpopulation.models.spin.SplineSpinMagnitudeIdentical">[docs]</a><span class="k">class</span> <span class="nc">SplineSpinMagnitudeIdentical</span><span class="p">(</span><span class="n">InterpolatedNoBaseModelIdentical</span><span class="p">):</span>
-<div class="viewcode-block" id="SplineSpinMagnitudeIdentical.__init__"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinMagnitudeIdentical.html#gwpopulation.models.spin.SplineSpinMagnitudeIdentical.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cubic&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SplineSpinMagnitudeIdentical">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinMagnitudeIdentical.html#gwpopulation.models.spin.SplineSpinMagnitudeIdentical">[docs]</a>
+<span class="k">class</span> <span class="nc">SplineSpinMagnitudeIdentical</span><span class="p">(</span><span class="n">InterpolatedNoBaseModelIdentical</span><span class="p">):</span>
+<div class="viewcode-block" id="SplineSpinMagnitudeIdentical.__init__">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinMagnitudeIdentical.html#gwpopulation.models.spin.SplineSpinMagnitudeIdentical.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cubic&quot;</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">SplineSpinMagnitudeIdentical</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;a_1&quot;</span><span class="p">,</span> <span class="s2">&quot;a_2&quot;</span><span class="p">],</span>
@@ -375,11 +406,17 @@
             <span class="n">maximum</span><span class="o">=</span><span class="n">maximum</span><span class="p">,</span>
             <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
             <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="SplineSpinTiltIdentical"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinTiltIdentical.html#gwpopulation.models.spin.SplineSpinTiltIdentical">[docs]</a><span class="k">class</span> <span class="nc">SplineSpinTiltIdentical</span><span class="p">(</span><span class="n">InterpolatedNoBaseModelIdentical</span><span class="p">):</span>
-<div class="viewcode-block" id="SplineSpinTiltIdentical.__init__"><a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinTiltIdentical.html#gwpopulation.models.spin.SplineSpinTiltIdentical.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cubic&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SplineSpinTiltIdentical">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinTiltIdentical.html#gwpopulation.models.spin.SplineSpinTiltIdentical">[docs]</a>
+<span class="k">class</span> <span class="nc">SplineSpinTiltIdentical</span><span class="p">(</span><span class="n">InterpolatedNoBaseModelIdentical</span><span class="p">):</span>
+<div class="viewcode-block" id="SplineSpinTiltIdentical.__init__">
+<a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.spin.SplineSpinTiltIdentical.html#gwpopulation.models.spin.SplineSpinTiltIdentical.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cubic&quot;</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">SplineSpinTiltIdentical</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cos_tilt_1&quot;</span><span class="p">,</span> <span class="s2">&quot;cos_tilt_2&quot;</span><span class="p">],</span>
@@ -387,7 +424,9 @@
             <span class="n">maximum</span><span class="o">=</span><span class="n">maximum</span><span class="p">,</span>
             <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
             <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

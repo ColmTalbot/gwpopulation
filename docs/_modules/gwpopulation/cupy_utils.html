@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=528aeb57"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -98,7 +98,9 @@
     <span class="n">CUPY_LOADED</span> <span class="o">=</span> <span class="kc">False</span>
 
 
-<div class="viewcode-block" id="betaln"><a class="viewcode-back" href="../../_autosummary/gwpopulation.cupy_utils.betaln.html#gwpopulation.cupy_utils.betaln">[docs]</a><span class="k">def</span> <span class="nf">betaln</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
+<div class="viewcode-block" id="betaln">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.cupy_utils.betaln.html#gwpopulation.cupy_utils.betaln">[docs]</a>
+<span class="k">def</span> <span class="nf">betaln</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Logarithm of the Beta function</span>
 
@@ -122,7 +124,10 @@
     <span class="k">return</span> <span class="n">ln_beta</span></div>
 
 
-<div class="viewcode-block" id="to_numpy"><a class="viewcode-back" href="../../_autosummary/gwpopulation.cupy_utils.to_numpy.html#gwpopulation.cupy_utils.to_numpy">[docs]</a><span class="k">def</span> <span class="nf">to_numpy</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+
+<div class="viewcode-block" id="to_numpy">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.cupy_utils.to_numpy.html#gwpopulation.cupy_utils.to_numpy">[docs]</a>
+<span class="k">def</span> <span class="nf">to_numpy</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Cast any array to numpy&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">CUPY_LOADED</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">array</span>
@@ -130,7 +135,10 @@
         <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">(</span><span class="n">array</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="trapz"><a class="viewcode-back" href="../../_autosummary/gwpopulation.cupy_utils.trapz.html#gwpopulation.cupy_utils.trapz">[docs]</a><span class="k">def</span> <span class="nf">trapz</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+
+<div class="viewcode-block" id="trapz">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.cupy_utils.trapz.html#gwpopulation.cupy_utils.trapz">[docs]</a>
+<span class="k">def</span> <span class="nf">trapz</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Lifted from `numpy &lt;https://github.com/numpy/numpy/blob/v1.15.1/numpy/lib/function_base.py#L3804-L3891&gt;`_.</span>
 
@@ -201,6 +209,7 @@
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ret</span></div>
+
 </pre></div>
 
            </div>

@@ -11,11 +11,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=528aeb57"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -104,10 +104,10 @@
            <div itemprop="articleBody">
              
   <section id="gwpopulation-hyperpe-ratelikelihood">
-<h1>gwpopulation.hyperpe.RateLikelihood<a class="headerlink" href="#gwpopulation-hyperpe-ratelikelihood" title="Permalink to this heading"></a></h1>
+<h1>gwpopulation.hyperpe.RateLikelihood<a class="headerlink" href="#gwpopulation-hyperpe-ratelikelihood" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.RateLikelihood">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gwpopulation.hyperpe.</span></span><span class="sig-name descname"><span class="pre">RateLikelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_evidences=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples=1e+100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cupy=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_uncertainty=inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#RateLikelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gwpopulation.hyperpe.</span></span><span class="sig-name descname"><span class="pre">RateLikelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_evidences=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples=1e+100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cupy=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_uncertainty=inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#RateLikelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood" title="gwpopulation.hyperpe.HyperparameterLikelihood"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperparameterLikelihood</span></code></a></p>
 <p>A likelihood for inferring hyperparameter posterior distributions
 and estimating rates with including selection effects.</p>
@@ -147,7 +147,7 @@ If the uncertainty is larger than this value a log likelihood of
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.RateLikelihood.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_evidences=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples=1e+100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cupy=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_uncertainty=inf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_evidences=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples=1e+100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion_function=&lt;function</span> <span class="pre">HyperparameterLikelihood.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cupy=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_uncertainty=inf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.__init__" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -243,7 +243,7 @@ If the uncertainty is larger than this value a log likelihood of
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.RateLikelihood.generate_extra_statistics">
-<span class="sig-name descname"><span class="pre">generate_extra_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.generate_extra_statistics" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_extra_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.generate_extra_statistics" title="Link to this definition"></a></dt>
 <dd><p>Given an input sample, add extra statistics</p>
 <p>Adds the ln BF for each of the events in the data and the selection
 function</p>
@@ -265,20 +265,20 @@ function</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.RateLikelihood.generate_rate_posterior_sample">
-<span class="sig-name descname"><span class="pre">generate_rate_posterior_sample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#RateLikelihood.generate_rate_posterior_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.generate_rate_posterior_sample" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_rate_posterior_sample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/hyperpe.html#RateLikelihood.generate_rate_posterior_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.generate_rate_posterior_sample" title="Link to this definition"></a></dt>
 <dd><p>Since the rate is a sampled parameter,
 this simply returns the current value of the rate parameter.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.RateLikelihood.ln_likelihood_and_variance">
-<span class="sig-name descname"><span class="pre">ln_likelihood_and_variance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.ln_likelihood_and_variance" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ln_likelihood_and_variance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.ln_likelihood_and_variance" title="Link to this definition"></a></dt>
 <dd><p>Compute the ln likelihood estimator and its variance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.RateLikelihood.log_likelihood">
-<span class="sig-name descname"><span class="pre">log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.log_likelihood" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.log_likelihood" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -290,7 +290,7 @@ this simply returns the current value of the rate parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.RateLikelihood.log_likelihood_ratio">
-<span class="sig-name descname"><span class="pre">log_likelihood_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.log_likelihood_ratio" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">log_likelihood_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.log_likelihood_ratio" title="Link to this definition"></a></dt>
 <dd><p>Difference between log likelihood and noise log likelihood</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -303,7 +303,7 @@ this simply returns the current value of the rate parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.RateLikelihood.noise_log_likelihood">
-<span class="sig-name descname"><span class="pre">noise_log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.noise_log_likelihood" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">noise_log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.noise_log_likelihood" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -315,7 +315,7 @@ this simply returns the current value of the rate parameter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.RateLikelihood.posterior_predictive_resample">
-<span class="sig-name descname"><span class="pre">posterior_predictive_resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.posterior_predictive_resample" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">posterior_predictive_resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.posterior_predictive_resample" title="Link to this definition"></a></dt>
 <dd><p>Resample the original single event posteriors to use the PPD from each
 of the other events as the prior.</p>
 <p>There may be something weird going on with rate.</p>
@@ -343,7 +343,7 @@ the events.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="gwpopulation.hyperpe.RateLikelihood.resample_posteriors">
-<span class="sig-name descname"><span class="pre">resample_posteriors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e+300</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.resample_posteriors" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">resample_posteriors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e+300</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.hyperpe.RateLikelihood.resample_posteriors" title="Link to this definition"></a></dt>
 <dd><p>Convert list of pandas DataFrame object to dict of arrays.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

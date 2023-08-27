@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=528aeb57"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -97,7 +97,9 @@
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_name</span>
 
 
-<div class="viewcode-block" id="HyperparameterLikelihood"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood">[docs]</a><span class="k">class</span> <span class="nc">HyperparameterLikelihood</span><span class="p">(</span><span class="n">Likelihood</span><span class="p">):</span>
+<div class="viewcode-block" id="HyperparameterLikelihood">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood">[docs]</a>
+<span class="k">class</span> <span class="nc">HyperparameterLikelihood</span><span class="p">(</span><span class="n">Likelihood</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A likelihood for inferring hyperparameter posterior distributions with</span>
 <span class="sd">    including selection effects.</span>
@@ -109,7 +111,9 @@
 <span class="sd">    `Farr &lt;https://arxiv.org/abs/1904.10879&gt;`_.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="HyperparameterLikelihood.__init__"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="HyperparameterLikelihood.__init__">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">posteriors</span><span class="p">,</span>
         <span class="n">hyper_prior</span><span class="p">,</span>
@@ -188,6 +192,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_uncertainty</span> <span class="o">=</span> <span class="n">maximum_uncertainty</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_inf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span></div>
 
+
     <span class="vm">__doc__</span> <span class="o">+=</span> <span class="fm">__init__</span><span class="o">.</span><span class="vm">__doc__</span>
 
     <span class="nd">@property</span>
@@ -202,7 +207,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_max_variance</span> <span class="o">=</span> <span class="n">value</span><span class="o">**</span><span class="mi">2</span>
 
-<div class="viewcode-block" id="HyperparameterLikelihood.ln_likelihood_and_variance"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.ln_likelihood_and_variance">[docs]</a>    <span class="k">def</span> <span class="nf">ln_likelihood_and_variance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HyperparameterLikelihood.ln_likelihood_and_variance">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.ln_likelihood_and_variance">[docs]</a>
+    <span class="k">def</span> <span class="nf">ln_likelihood_and_variance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the ln likelihood estimator and its variance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -217,18 +224,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_pop_added</span><span class="p">(</span><span class="n">added_keys</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ln_l</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">variance</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HyperparameterLikelihood.log_likelihood_ratio"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio">[docs]</a>    <span class="k">def</span> <span class="nf">log_likelihood_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HyperparameterLikelihood.log_likelihood_ratio">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio">[docs]</a>
+    <span class="k">def</span> <span class="nf">log_likelihood_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ln_l</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ln_likelihood_and_variance</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">variance</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_variance</span> <span class="ow">or</span> <span class="n">xp</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ln_l</span><span class="p">):</span>
             <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_inf</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ln_l</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="HyperparameterLikelihood.noise_log_likelihood"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood">[docs]</a>    <span class="k">def</span> <span class="nf">noise_log_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HyperparameterLikelihood.noise_log_likelihood">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.noise_log_likelihood">[docs]</a>
+    <span class="k">def</span> <span class="nf">noise_log_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_noise_evidence</span></div>
 
-<div class="viewcode-block" id="HyperparameterLikelihood.log_likelihood"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood">[docs]</a>    <span class="k">def</span> <span class="nf">log_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HyperparameterLikelihood.log_likelihood">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood">[docs]</a>
+    <span class="k">def</span> <span class="nf">log_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_log_likelihood</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihood_ratio</span><span class="p">()</span></div>
+
 
     <span class="k">def</span> <span class="nf">_pop_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">added_keys</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">added_keys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -265,7 +282,9 @@
             <span class="n">variance</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">return</span> <span class="n">selection</span><span class="p">,</span> <span class="n">variance</span>
 
-<div class="viewcode-block" id="HyperparameterLikelihood.generate_extra_statistics"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.generate_extra_statistics">[docs]</a>    <span class="k">def</span> <span class="nf">generate_extra_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+<div class="viewcode-block" id="HyperparameterLikelihood.generate_extra_statistics">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.generate_extra_statistics">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_extra_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given an input sample, add extra statistics</span>
 
@@ -304,7 +323,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sample</span></div>
 
-<div class="viewcode-block" id="HyperparameterLikelihood.generate_rate_posterior_sample"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.generate_rate_posterior_sample">[docs]</a>    <span class="k">def</span> <span class="nf">generate_rate_posterior_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HyperparameterLikelihood.generate_rate_posterior_sample">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.generate_rate_posterior_sample">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_rate_posterior_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a sample from the posterior distribution for rate assuming a</span>
 <span class="sd">        :math:`1 / R` prior.</span>
@@ -339,7 +361,10 @@
         <span class="n">rate</span> <span class="o">=</span> <span class="n">gamma</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_posteriors</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span> <span class="o">/</span> <span class="n">vt</span>
         <span class="k">return</span> <span class="n">rate</span></div>
 
-<div class="viewcode-block" id="HyperparameterLikelihood.resample_posteriors"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors">[docs]</a>    <span class="k">def</span> <span class="nf">resample_posteriors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">,</span> <span class="n">max_samples</span><span class="o">=</span><span class="mf">1e300</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HyperparameterLikelihood.resample_posteriors">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.resample_posteriors">[docs]</a>
+    <span class="k">def</span> <span class="nf">resample_posteriors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">,</span> <span class="n">max_samples</span><span class="o">=</span><span class="mf">1e300</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert list of pandas DataFrame object to dict of arrays.</span>
 
@@ -370,7 +395,10 @@
             <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
-<div class="viewcode-block" id="HyperparameterLikelihood.posterior_predictive_resample"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample">[docs]</a>    <span class="k">def</span> <span class="nf">posterior_predictive_resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">return_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HyperparameterLikelihood.posterior_predictive_resample">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.posterior_predictive_resample">[docs]</a>
+    <span class="k">def</span> <span class="nf">posterior_predictive_resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">return_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Resample the original single event posteriors to use the PPD from each</span>
 <span class="sd">        of the other events as the prior.</span>
@@ -437,6 +465,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">new_samples</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">meta_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
@@ -448,7 +477,10 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="RateLikelihood"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.RateLikelihood.html#gwpopulation.hyperpe.RateLikelihood">[docs]</a><span class="k">class</span> <span class="nc">RateLikelihood</span><span class="p">(</span><span class="n">HyperparameterLikelihood</span><span class="p">):</span>
+
+<div class="viewcode-block" id="RateLikelihood">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.RateLikelihood.html#gwpopulation.hyperpe.RateLikelihood">[docs]</a>
+<span class="k">class</span> <span class="nc">RateLikelihood</span><span class="p">(</span><span class="n">HyperparameterLikelihood</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A likelihood for inferring hyperparameter posterior distributions</span>
 <span class="sd">    and estimating rates with including selection effects.</span>
@@ -471,12 +503,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">total_selection</span>
 
-<div class="viewcode-block" id="RateLikelihood.generate_rate_posterior_sample"><a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.RateLikelihood.html#gwpopulation.hyperpe.RateLikelihood.generate_rate_posterior_sample">[docs]</a>    <span class="k">def</span> <span class="nf">generate_rate_posterior_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RateLikelihood.generate_rate_posterior_sample">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.RateLikelihood.html#gwpopulation.hyperpe.RateLikelihood.generate_rate_posterior_sample">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_rate_posterior_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Since the rate is a sampled parameter,</span>
 <span class="sd">        this simply returns the current value of the rate parameter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">]</span></div>
+</div>
+
 </pre></div>
 
            </div>

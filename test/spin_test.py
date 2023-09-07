@@ -229,15 +229,17 @@ class TestSplineSpinMagnitude(unittest.TestCase):
         self.assertAlmostEqual(float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 1)
 
     def test_spin_magnitude_bounded(self):
-
         probabilities = []
         for ii in range(self.n_test):
             parameters = self.prior.sample()
             test_data = dict()
             test_data["a_1"] = xp.linspace(
-                parameters[f"a{self.n_nodes-1}"], 2 * parameters[f"a{self.n_nodes-1}"]
+                parameters[f"a{self.n_nodes-1}"] + 0.01,
+                2 * parameters[f"a{self.n_nodes-1}"],
             )
-            test_data["a_2"] = xp.linspace(2 * parameters[f"a0"], parameters[f"a0"])
+            test_data["a_2"] = xp.linspace(
+                2 * parameters[f"a0"], parameters[f"a0"] - 0.01
+            )
             temp = self.model(test_data, **parameters)
             probabilities.append(xp.sum(temp))
         self.assertAlmostEqual(float(xp.max(xp.abs(probabilities))), 0.0)
@@ -277,3 +279,19 @@ class TestSplineSpinTilt(unittest.TestCase):
             norm = trapz(trapz(temp, self.cos_tilt_array), self.cos_tilt_array)
             norms.append(norm)
         self.assertAlmostEqual(float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 1)
+
+    def test_spin_tilt_bounded(self):
+        probabilities = []
+        for ii in range(self.n_test):
+            parameters = self.prior.sample()
+            test_data = dict()
+            test_data["cos_tilt_1"] = xp.linspace(
+                parameters[f"cos_tilt{self.n_nodes-1}"],
+                2 * parameters[f"cos_tilt{self.n_nodes-1}"],
+            )
+            test_data["cos_tilt_2"] = xp.linspace(
+                2 * parameters[f"cos_tilt0"], parameters[f"cos_tilt0"]
+            )
+            temp = self.model(test_data, **parameters)
+            probabilities.append(xp.sum(temp))
+        self.assertAlmostEqual(float(xp.max(xp.abs(probabilities))), 0.0)

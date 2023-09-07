@@ -240,6 +240,7 @@ class TestSplineSpinMagnitude(unittest.TestCase):
             test_data["a_2"] = xp.linspace(
                 2 * parameters[f"a0"], parameters[f"a0"] - 0.01
             )
+            print(test_data)
             temp = self.model(test_data, **parameters)
             probabilities.append(xp.sum(temp))
         self.assertAlmostEqual(float(xp.max(xp.abs(probabilities))), 0.0)

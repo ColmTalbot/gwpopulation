@@ -228,6 +228,20 @@ class TestSplineSpinMagnitude(unittest.TestCase):
             norms.append(norm)
         self.assertAlmostEqual(float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 1)
 
+    def test_spin_magnitude_bounded(self):
+
+        probabilities = []
+        for ii in range(self.n_test):
+            parameters = self.prior.sample()
+            test_data = dict()
+            test_data["a_1"] = xp.linspace(
+                parameters[f"a{self.n_nodes-1}"], 2 * parameters[f"a{self.n_nodes-1}"]
+            )
+            test_data["a_2"] = xp.linspace(2 * parameters[f"a0"], parameters[f"a0"])
+            temp = self.model(test_data, **parameters)
+            probabilities.append(xp.sum(temp))
+        self.assertAlmostEqual(float(xp.max(xp.abs(probabilities))), 0.0)
+
 
 class TestSplineSpinTilt(unittest.TestCase):
     def setUp(self):

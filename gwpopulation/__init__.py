@@ -18,7 +18,7 @@ from . import conversions, cupy_utils, hyperpe, models, utils, vt
 from .hyperpe import RateLikelihood
 
 try:
-    from ._version import version as __version__
+    from ._version import __version__
 except ModuleNotFoundError:  # development mode
     __version__ = "unknown"
 

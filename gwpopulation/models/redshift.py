@@ -4,7 +4,9 @@ Implemented redshift models
 
 import numpy as np
 
-from ..cupy_utils import to_numpy, trapz, xp
+from ..utils import to_numpy
+
+xp = np
 
 
 class _Redshift(object):
@@ -49,7 +51,7 @@ class _Redshift(object):
         (float, array-like): Total spacetime volume
         """
         psi_of_z = self.psi_of_z(redshift=self.zs, **parameters)
-        norm = trapz(psi_of_z * self.dvc_dz / (1 + self.zs), self.zs)
+        norm = xp.trapz(psi_of_z * self.dvc_dz / (1 + self.zs), self.zs)
         return norm
 
     def probability(self, dataset, **parameters):

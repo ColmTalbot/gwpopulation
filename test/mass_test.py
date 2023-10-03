@@ -3,8 +3,9 @@ import unittest
 import numpy as np
 from bilby.core.prior import PriorDict, Uniform
 
-from gwpopulation.cupy_utils import trapz, xp
 from gwpopulation.models import mass
+
+xp = np
 
 
 class TestDoublePowerLaw(unittest.TestCase):
@@ -209,7 +210,7 @@ class TestSmoothedMassDistribution(unittest.TestCase):
             parameters.update(self.gauss_prior.sample())
             parameters.update(self.smooth_prior.sample())
             p_m = mass.SinglePeakSmoothedMassDistribution()(self.dataset, **parameters)
-            norms.append(trapz(trapz(p_m, self.m1s), self.qs))
+            norms.append(xp.trapz(xp.trapz(p_m, self.m1s), self.qs))
         self.assertAlmostEqual(_max_abs_difference(norms, 1.0), 0.0, 2)
 
     def test_double_peak_normalised(self):
@@ -219,7 +220,7 @@ class TestSmoothedMassDistribution(unittest.TestCase):
             parameters.update(self.double_gauss_prior.sample())
             parameters.update(self.smooth_prior.sample())
             p_m = mass.MultiPeakSmoothedMassDistribution()(self.dataset, **parameters)
-            norms.append(trapz(trapz(p_m, self.m1s), self.qs))
+            norms.append(xp.trapz(xp.trapz(p_m, self.m1s), self.qs))
         self.assertAlmostEqual(_max_abs_difference(norms, 1.0), 0.0, 2)
 
     def test_broken_power_law_normalised(self):
@@ -230,7 +231,7 @@ class TestSmoothedMassDistribution(unittest.TestCase):
             p_m = mass.BrokenPowerLawSmoothedMassDistribution()(
                 self.dataset, **parameters
             )
-            norms.append(trapz(trapz(p_m, self.m1s), self.qs))
+            norms.append(xp.trapz(xp.trapz(p_m, self.m1s), self.qs))
         self.assertAlmostEqual(_max_abs_difference(norms, 1.0), 0.0, 2)
 
     def test_broken_power_law_peak_normalised(self):
@@ -241,7 +242,7 @@ class TestSmoothedMassDistribution(unittest.TestCase):
             p_m = mass.BrokenPowerLawPeakSmoothedMassDistribution()(
                 self.dataset, **parameters
             )
-            norms.append(trapz(trapz(p_m, self.m1s), self.qs))
+            norms.append(xp.trapz(xp.trapz(p_m, self.m1s), self.qs))
         self.assertAlmostEqual(_max_abs_difference(norms, 1.0), 0.0, 2)
 
     def test_set_minimum_and_maximum(self):
@@ -252,10 +253,10 @@ class TestSmoothedMassDistribution(unittest.TestCase):
         parameters["mpp"] = 130
         parameters["sigpp"] = 1
         parameters["lam"] = 0.5
-        parameters["mmin"] = 5
+        parameters["mmin"] = 6
         self.assertEqual(
             model(
-                dict(mass_1=8 * np.ones(5), mass_ratio=0.5 * np.ones(5)), **parameters
+                dict(mass_1=8 * np.ones(6), mass_ratio=0.5 * np.ones(6)), **parameters
             )[0],
             0,
         )

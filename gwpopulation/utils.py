@@ -1,10 +1,12 @@
 """
 Helper functions for probability distributions.
 """
+from numbers import Number
 
-import os
+import numpy as np
+from scipy import special as scs
 
-from .cupy_utils import betaln, erf, i0e, xp
+xp = np
 
 
 def beta_dist(xx, alpha, beta, scale=1):
@@ -36,7 +38,7 @@ def beta_dist(xx, alpha, beta, scale=1):
     if beta < 0:
         raise ValueError(f"Parameter beta must be greater or equal zero, low={beta}.")
     ln_beta = (alpha - 1) * xp.log(xx) + (beta - 1) * xp.log(scale - xx)
-    ln_beta -= betaln(alpha, beta)
+    ln_beta -= scs.betaln(alpha, beta)
     ln_beta -= (alpha + beta - 1) * xp.log(scale)
     prob = xp.exp(ln_beta)
     prob = xp.nan_to_num(prob)
@@ -112,7 +114,9 @@ def truncnorm(xx, mu, sigma, high, low):
     if sigma <= 0:
         raise ValueError(f"Sigma must be greater than 0, sigma={sigma}")
     norm = 2**0.5 / xp.pi**0.5 / sigma
-    norm /= erf((high - mu) / 2**0.5 / sigma) + erf((mu - low) / 2**0.5 / sigma)
+    norm /= scs.erf((high - mu) / 2**0.5 / sigma) + scs.erf(
+        (mu - low) / 2**0.5 / sigma
+    )
     prob = xp.exp(-xp.power(xx - mu, 2) / (2 * sigma**2))
     prob *= norm
     prob *= (xx <= high) & (xx >= low)
@@ -191,7 +195,7 @@ def von_mises(xx, mu, kappa):
     For numerical stability, the factor of `exp(kappa)` from using `i0e`
     is accounted for in the numerator
     """
-    return xp.exp(kappa * (xp.cos(xx - mu) - 1)) / (2 * xp.pi * i0e(kappa))
+    return xp.exp(kappa * (xp.cos(xx - mu) - 1)) / (2 * xp.pi * scs.i0e(kappa))
 
 
 def get_version_information():
@@ -218,3 +222,23 @@ def get_name(input):
         return input.__name__
     else:
         return input.__class__.__name__
+
+
+def to_numpy(array):
+    """
+    Convert an array to a numpy array.
+    Numeric types and pandas objects are returned unchanged.
+
+    Parameters
+    ==========
+    array: array-like
+        The array to convert.
+    """
+    if isinstance(array, (Number, np.ndarray)):
+        return array
+    elif "cupy" in array.__class__.__module__:
+        return xp.asnumpy(array)
+    elif "pandas" in array.__class__.__module__:
+        return array
+    else:
+        raise TypeError(f"Cannot convert {type(array)} to numpy array")

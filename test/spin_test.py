@@ -1,8 +1,8 @@
 import unittest
 
+import numpy as xp
 from bilby.core.prior import PriorDict, Uniform
 
-from gwpopulation.cupy_utils import trapz, xp
 from gwpopulation.models import spin
 from gwpopulation.utils import truncnorm
 
@@ -30,7 +30,7 @@ class TestSpinOrientation(unittest.TestCase):
             temp = spin.iid_spin_orientation_gaussian_isotropic(
                 self.test_data, **parameters
             )
-            norms.append(trapz(trapz(temp, self.costilts), self.costilts))
+            norms.append(xp.trapz(xp.trapz(temp, self.costilts), self.costilts))
         self.assertAlmostEqual(float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 5)
 
     def test_iid_matches_independent_tilts(self):
@@ -72,7 +72,7 @@ class TestSpinMagnitude(unittest.TestCase):
         for ii in range(self.n_test):
             parameters = self.prior.sample()
             temp = spin.iid_spin_magnitude_beta(self.test_data, **parameters)
-            norms.append(trapz(trapz(temp, self.a_array), self.a_array))
+            norms.append(xp.trapz(xp.trapz(temp, self.a_array), self.a_array))
         self.assertAlmostEqual(float(xp.max(xp.abs(1 - xp.asarray(norms)))), 0, 1)
 
     def test_returns_zero_alpha_beta_less_zero(self):

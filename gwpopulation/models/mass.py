@@ -586,7 +586,7 @@ class BaseSmoothedMassDistribution(object):
         p_q *= self.smoothing(
             self.m1s_grid * self.qs_grid, mmin=mmin, mmax=self.m1s_grid, delta_m=delta_m
         )
-        norms = xp.trapz(p_q, self.qs, axis=0)
+        norms = xp.nan_to_num(xp.trapz(p_q, self.qs, axis=0))
 
         return self._q_interpolant(norms)
 
@@ -597,10 +597,14 @@ class BaseSmoothedMassDistribution(object):
         """
         from functools import partial
 
-        from cached_interpolate import RegularCachingInterpolant
+        from cached_interpolate import RegularCachingInterpolant as CachingInterpolant
 
-        interpolant = RegularCachingInterpolant(self.m1s, self.m1s, kind="linear")
-        self._q_interpolant = partial(interpolant, masses)
+        from ..utils import to_numpy
+
+        nodes = to_numpy(self.m1s)
+        interpolant = CachingInterpolant(nodes, nodes, kind="cubic", backend=xp)
+        interpolant.conversion = xp.asarray(interpolant.conversion)
+        self._q_interpolant = partial(interpolant, xp.asarray(masses))
 
     @staticmethod
     def smoothing(masses, mmin, mmax, delta_m):

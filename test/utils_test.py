@@ -1,137 +1,121 @@
-import unittest
-
 import numpy as np
+import pytest
 from scipy.stats import vonmises
 
+import gwpopulation
 from gwpopulation import utils
 
+from . import TEST_BACKENDS
 
-class TestBetaDist(unittest.TestCase):
-    def setUp(self):
-        self.n_test = 100
-        self.alphas = np.random.uniform(0, 10, self.n_test)
-        self.betas = np.random.uniform(0, 10, self.n_test)
-        self.scales = np.random.uniform(0, 10, self.n_test)
-        pass
-
-    def test_beta_dist_zero_below_zero(self):
-        equal_zero = True
-        for ii in range(self.n_test):
-            vals = utils.beta_dist(
-                xx=-1, alpha=self.alphas[ii], beta=self.betas[ii], scale=self.scales[ii]
-            )
-            equal_zero = equal_zero & (vals == 0.0)
-        self.assertTrue(equal_zero)
-
-    def test_beta_dist_zero_above_scale(self):
-        equal_zero = True
-        for ii in range(self.n_test):
-            xx = self.scales[ii] + 1
-            vals = utils.beta_dist(
-                xx=xx, alpha=self.alphas[ii], beta=self.betas[ii], scale=self.scales[ii]
-            )
-            equal_zero = equal_zero & (vals == 0.0)
-        self.assertTrue(equal_zero)
-
-    def test_beta_dist_alpha_below_zero_raises_value_error(self):
-        with self.assertRaises(ValueError):
-            utils.beta_dist(xx=0.5, alpha=-1, beta=1, scale=1)
-
-    def test_beta_dist_beta_below_zero_raises_value_error(self):
-        with self.assertRaises(ValueError):
-            utils.beta_dist(xx=0.5, alpha=1, beta=-1, scale=1)
+N_TEST = 100
 
 
-class TestPowerLaw(unittest.TestCase):
-    def setUp(self):
-        self.n_test = 100
-        self.alphas = np.random.uniform(-10, 10, self.n_test)
-        self.lows = np.random.uniform(5, 15, self.n_test)
-        self.highs = np.random.uniform(20, 30, self.n_test)
+def test_beta_dist_zero_below_zero():
+    equal_zero = True
+    for _ in range(N_TEST):
+        vals = utils.beta_dist(-1, *np.random.uniform(0, 10, 3))
+        equal_zero = equal_zero & (vals == 0.0)
+    assert equal_zero
 
-    def test_powerlaw_zero_below_low(self):
-        equal_zero = True
-        for ii in range(self.n_test):
-            xx = self.lows[ii] - 1
-            vals = utils.powerlaw(
-                xx=xx, alpha=self.alphas[ii], low=self.lows[ii], high=self.highs[ii]
-            )
-            equal_zero = equal_zero & (vals == 0.0)
-        self.assertTrue(equal_zero)
 
-    def test_powerlaw_zero_above_high(self):
-        equal_zero = True
-        for ii in range(self.n_test):
-            xx = self.highs[ii] + 1
-            vals = utils.powerlaw(
-                xx=xx, alpha=self.alphas[ii], low=self.lows[ii], high=self.highs[ii]
-            )
-            equal_zero = equal_zero & (vals == 0.0)
-        self.assertTrue(equal_zero)
+def test_beta_dist_zero_above_scale():
+    equal_zero = True
+    for _ in range(N_TEST):
+        vals = utils.beta_dist(20, *np.random.uniform(0, 10, 3))
+        equal_zero = equal_zero & (vals == 0.0)
+    assert equal_zero
 
-    def test_powerlaw_low_below_zero_raises_value_error(self):
-        with self.assertRaises(ValueError):
-            utils.powerlaw(xx=0, alpha=3, high=10, low=-4)
 
-    def test_powerlaw_alpha_equal_zero(self):
-        self.assertEqual(
-            utils.powerlaw(xx=1.0, alpha=-1, low=0.5, high=2), 1 / np.log(4)
+def test_beta_dist_alpha_below_zero_raises_value_error():
+    with pytest.raises(ValueError):
+        utils.beta_dist(xx=0.5, alpha=-1, beta=1, scale=1)
+
+
+def test_beta_dist_beta_below_zero_raises_value_error():
+    with pytest.raises(ValueError):
+        utils.beta_dist(xx=0.5, alpha=1, beta=-1, scale=1)
+
+
+def test_powerlaw_zero_below_low():
+    equal_zero = True
+    for ii in range(N_TEST):
+        vals = utils.powerlaw(
+            xx=1,
+            alpha=np.random.uniform(-10, 10),
+            low=np.random.uniform(5, 15),
+            high=np.random.uniform(20, 30),
         )
+        equal_zero = equal_zero & (vals == 0.0)
+    assert equal_zero
 
 
-class TestTruncNorm(unittest.TestCase):
-    def setUp(self):
-        self.n_test = 100
-        self.mus = np.random.uniform(-10, 10, self.n_test)
-        self.sigmas = np.random.uniform(0, 10, self.n_test)
-        self.lows = np.random.uniform(-30, -20, self.n_test)
-        self.highs = np.random.uniform(20, 30, self.n_test)
-        pass
-
-    def test_truncnorm_zero_below_low(self):
-        equal_zero = True
-        for ii in range(self.n_test):
-            xx = self.lows[ii] - 1
-            vals = utils.truncnorm(
-                xx=xx,
-                mu=self.mus[ii],
-                sigma=self.sigmas[ii],
-                low=self.lows[ii],
-                high=self.highs[ii],
-            )
-            equal_zero = equal_zero & (vals == 0.0)
-        self.assertTrue(equal_zero)
-
-    def test_truncnorm_zero_above_high(self):
-        equal_zero = True
-        for ii in range(self.n_test):
-            xx = self.highs[ii] + 1
-            vals = utils.truncnorm(
-                xx=xx,
-                mu=self.mus[ii],
-                sigma=self.sigmas[ii],
-                low=self.lows[ii],
-                high=self.highs[ii],
-            )
-            equal_zero = equal_zero & (vals == 0.0)
-        self.assertTrue(equal_zero)
-
-    def test_truncnorm_sigma_below_zero_raises_value_error(self):
-        with self.assertRaises(ValueError):
-            utils.truncnorm(xx=0, mu=0, sigma=-1, high=10, low=-10)
+def test_powerlaw_zero_above_high():
+    equal_zero = True
+    for ii in range(N_TEST):
+        vals = utils.powerlaw(
+            xx=40,
+            alpha=np.random.uniform(-10, 10),
+            low=np.random.uniform(5, 15),
+            high=np.random.uniform(20, 30),
+        )
+        equal_zero = equal_zero & (vals == 0.0)
+    assert equal_zero
 
 
-class TestVonMises(unittest.TestCase):
-    def setUp(self):
-        self.n_test = 100
-        self.mus = np.random.uniform(-np.pi, np.pi, self.n_test)
-        self.kappas = np.random.uniform(0, 15, self.n_test)
-        self.xx = np.linspace(0, 2 * np.pi, 1000)
+def test_powerlaw_low_below_zero_raises_value_error():
+    with pytest.raises(ValueError):
+        utils.powerlaw(xx=0, alpha=3, high=10, low=-4)
 
-    def test_matches_scipy(self):
-        for ii in range(self.n_test):
-            mu = self.mus[ii]
-            kappa = self.kappas[ii]
-            gwpop_vals = utils.von_mises(self.xx, mu, kappa)
-            scipy_vals = vonmises(kappa=kappa, loc=mu).pdf(self.xx)
-            self.assertAlmostEqual(max(abs(gwpop_vals - scipy_vals)), 0)
+
+def test_powerlaw_alpha_equal_zero():
+    assert utils.powerlaw(xx=1.0, alpha=-1, low=0.5, high=2) == 1 / np.log(4)
+
+
+def test_truncnorm_zero_below_low():
+    equal_zero = True
+    for _ in range(N_TEST):
+        vals = utils.truncnorm(
+            -40,
+            mu=np.random.uniform(-10, 10),
+            sigma=np.random.uniform(0, 10),
+            low=np.random.uniform(-30, -20),
+            high=np.random.uniform(20, 30),
+        )
+        equal_zero = equal_zero & (vals == 0.0)
+    assert equal_zero
+
+
+def test_truncnorm_zero_above_high():
+    equal_zero = True
+    for _ in range(N_TEST):
+        vals = utils.truncnorm(
+            40,
+            mu=np.random.uniform(-10, 10),
+            sigma=np.random.uniform(0, 10),
+            low=np.random.uniform(-30, -20),
+            high=np.random.uniform(20, 30),
+        )
+        equal_zero = equal_zero & (vals == 0.0)
+    assert equal_zero
+
+
+def test_truncnorm_sigma_below_zero_raises_value_error():
+    with pytest.raises(ValueError):
+        utils.truncnorm(xx=0, mu=0, sigma=-1, high=10, low=-10)
+
+
+@pytest.mark.parametrize("backend", TEST_BACKENDS)
+def test_matches_scipy(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(0, 2 * np.pi, 1000)
+    for ii in range(N_TEST):
+        mu = np.random.uniform(-np.pi, np.pi)
+        kappa = np.random.uniform(0, 15)
+        gwpop_vals = utils.to_numpy(utils.von_mises(xx, mu, kappa))
+        scipy_vals = vonmises(kappa=kappa, loc=mu).pdf(utils.to_numpy(xx))
+        assert max(abs(gwpop_vals - scipy_vals)) < 1e-3
+
+
+def test_get_version():
+    assert gwpopulation.__version__ == utils.get_version_information()

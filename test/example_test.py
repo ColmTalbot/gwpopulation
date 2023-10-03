@@ -38,9 +38,7 @@ def test_likelihood_evaluation():
         prior=(1, 1),
     )
     posteriors = [
-        pd.DataFrame(
-            {key: rng.uniform(*bound, 100) for key, bound in bounds.items()}
-        )
+        pd.DataFrame({key: rng.uniform(*bound, 100) for key, bound in bounds.items()})
         for _ in range(10)
     ]
     vt_data = {key: rng.uniform(*bound, 10000) for key, bound in bounds.items()}

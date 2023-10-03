@@ -2,21 +2,19 @@ import unittest
 
 import numpy as np
 import pandas as pd
-
-try:
-    import cupy as xp
-except ImportError:
-    xp = np
-
 from bilby.core.prior import PriorDict, Uniform
 from bilby.hyper.model import Model
 
+import gwpopulation
 from gwpopulation.hyperpe import HyperparameterLikelihood, RateLikelihood
 from gwpopulation.models.mass import SinglePeakSmoothedMassDistribution
+
+xp = np
 
 
 class Likelihoods(unittest.TestCase):
     def setUp(self):
+        gwpopulation.set_backend("numpy")
         self.params = dict(a=1, b=1, c=1)
         self.model = lambda dataset, a, b, c: dataset["a"]
         one_data = pd.DataFrame({key: xp.ones(500) for key in self.params})

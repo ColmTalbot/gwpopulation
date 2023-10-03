@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..cupy_utils import trapz, xp
+xp = np
 
 
 class InterpolatedNoBaseModelIdentical(object):
@@ -70,7 +70,7 @@ class InterpolatedNoBaseModelIdentical(object):
         perturbation = self._norm_spline(x=self._xs[self.norm_selector], y=f_splines)
         p_x = xp.zeros(len(self._xs))
         p_x[self.norm_selector] = xp.exp(perturbation)
-        norm = trapz(p_x, self._xs)
+        norm = xp.trapz(p_x, self._xs)
         return norm
 
     def p_x_identical(self, dataset, **kwargs):

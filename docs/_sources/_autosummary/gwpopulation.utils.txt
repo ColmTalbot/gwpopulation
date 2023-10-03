@@ -20,6 +20,7 @@
       get_name
       get_version_information
       powerlaw
+      to_numpy
       truncnorm
       unnormalized_2d_gaussian
       von_mises

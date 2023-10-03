@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.models.mass &mdash; GWPopulation 0.1.dev1+gfd07a67 documentation</title>
+  <title>gwpopulation.models.mass &mdash; GWPopulation 0.1.dev1+g858c68c documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -12,7 +12,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=c1cd9af7"></script>
+        <script src="../../../_static/documentation_options.js?v=e21fed48"></script>
         <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -47,7 +47,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.models.html">gwpopulation.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.conversions.html">gwpopulation.conversions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.cupy_utils.html">gwpopulation.cupy_utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.utils.html">gwpopulation.utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/gwpopulation.vt.html">gwpopulation.vt</a></li>
@@ -87,8 +86,12 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 
-<span class="kn">from</span> <span class="nn">..cupy_utils</span> <span class="kn">import</span> <span class="n">trapz</span><span class="p">,</span> <span class="n">xp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">scs</span>
+
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">powerlaw</span><span class="p">,</span> <span class="n">truncnorm</span>
+
+<span class="n">xp</span> <span class="o">=</span> <span class="n">np</span>
 
 
 <div class="viewcode-block" id="double_power_law_primary_mass">
@@ -679,7 +682,7 @@
         <span class="n">p_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">primary_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">p_m</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">)</span>
 
-        <span class="n">norm</span> <span class="o">=</span> <span class="n">trapz</span><span class="p">(</span><span class="n">p_m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">)</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">p_m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">norm</span></div>
 
 
@@ -709,13 +712,9 @@
         <span class="n">p_q</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m1s_grid</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qs_grid</span><span class="p">,</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s_grid</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span>
         <span class="p">)</span>
-        <span class="n">norms</span> <span class="o">=</span> <span class="n">trapz</span><span class="p">(</span><span class="n">p_q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">norms</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">p_q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
 
-        <span class="n">all_norms</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">norms</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_below</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">)</span> <span class="o">+</span> <span class="n">norms</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_above</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">all_norms</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_interpolant</span><span class="p">(</span><span class="n">norms</span><span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="nf">_cache_q_norms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">masses</span><span class="p">):</span>
@@ -723,16 +722,16 @@
 <span class="sd">        Cache the information necessary for linear interpolation of the mass</span>
 <span class="sd">        ratio normalisation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_below</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">masses</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="n">m_below</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">masses</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">n_below</span> <span class="o">+=</span> <span class="n">masses</span> <span class="o">&gt;</span> <span class="n">mm</span>
-            <span class="n">m_below</span><span class="p">[</span><span class="n">masses</span> <span class="o">&gt;</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="n">mm</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_above</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_below</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">max_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_below</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_below</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_above</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_above</span> <span class="o">==</span> <span class="n">max_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_idx</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">minimum</span><span class="p">((</span><span class="n">masses</span> <span class="o">-</span> <span class="n">m_below</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dm</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+        <span class="kn">from</span> <span class="nn">cached_interpolate</span> <span class="kn">import</span> <span class="n">RegularCachingInterpolant</span> <span class="k">as</span> <span class="n">CachingInterpolant</span>
+
+        <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">to_numpy</span>
+
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">to_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m1s</span><span class="p">)</span>
+        <span class="n">interpolant</span> <span class="o">=</span> <span class="n">CachingInterpolant</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cubic&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">xp</span><span class="p">)</span>
+        <span class="n">interpolant</span><span class="o">.</span><span class="n">conversion</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">interpolant</span><span class="o">.</span><span class="n">conversion</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_q_interpolant</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">interpolant</span><span class="p">,</span> <span class="n">xp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">masses</span><span class="p">))</span>
 
 <div class="viewcode-block" id="BaseSmoothedMassDistribution.smoothing">
 <a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution.smoothing">[docs]</a>
@@ -753,17 +752,14 @@
 
 <span class="sd">        See also, https://en.wikipedia.org/wiki/Window_function#Planck-taper_window</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">window</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">masses</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">delta_m</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="n">smoothing_region</span> <span class="o">=</span> <span class="p">(</span><span class="n">masses</span> <span class="o">&gt;=</span> <span class="n">mmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">masses</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">mmin</span> <span class="o">+</span> <span class="n">delta_m</span><span class="p">))</span>
-            <span class="n">shifted_mass</span> <span class="o">=</span> <span class="n">masses</span><span class="p">[</span><span class="n">smoothing_region</span><span class="p">]</span> <span class="o">-</span> <span class="n">mmin</span>
-            <span class="k">if</span> <span class="n">shifted_mass</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
-                <span class="n">exponent</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span>
-                    <span class="n">delta_m</span> <span class="o">/</span> <span class="n">shifted_mass</span> <span class="o">+</span> <span class="n">delta_m</span> <span class="o">/</span> <span class="p">(</span><span class="n">shifted_mass</span> <span class="o">-</span> <span class="n">delta_m</span><span class="p">)</span>
-                <span class="p">)</span>
-                <span class="n">window</span><span class="p">[</span><span class="n">smoothing_region</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">exponent</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">window</span><span class="p">[(</span><span class="n">masses</span> <span class="o">&lt;</span> <span class="n">mmin</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">masses</span> <span class="o">&gt;</span> <span class="n">mmax</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="n">window</span></div>
+            <span class="n">shifted_mass</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">masses</span> <span class="o">-</span> <span class="n">mmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">delta_m</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">1e-6</span><span class="p">)</span>
+            <span class="n">exponent</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">shifted_mass</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">shifted_mass</span><span class="p">)</span>
+            <span class="n">window</span> <span class="o">=</span> <span class="n">scs</span><span class="o">.</span><span class="n">expit</span><span class="p">(</span><span class="o">-</span><span class="n">exponent</span><span class="p">)</span>
+            <span class="n">window</span> <span class="o">*=</span> <span class="p">(</span><span class="n">masses</span> <span class="o">&gt;=</span> <span class="n">mmin</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">masses</span> <span class="o">&lt;=</span> <span class="n">mmax</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">window</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">masses</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div>
 </div>
 
 

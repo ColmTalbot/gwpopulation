@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.cupy_utils &mdash; GWPopulation 0.1.dev1+gfd07a67 documentation</title>
+  <title>gwpopulation.utils.to_numpy &mdash; GWPopulation 0.1.dev1+g858c68c documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -13,15 +13,15 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=c1cd9af7"></script>
+        <script src="../_static/documentation_options.js?v=e21fed48"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="gwpopulation.cupy_utils.betaln" href="gwpopulation.cupy_utils.betaln.html" />
-    <link rel="prev" title="gwpopulation.conversions.mu_var_max_to_alpha_beta_max" href="gwpopulation.conversions.mu_var_max_to_alpha_beta_max.html" /> 
+    <link rel="next" title="gwpopulation.utils.truncnorm" href="gwpopulation.utils.truncnorm.html" />
+    <link rel="prev" title="gwpopulation.utils.powerlaw" href="gwpopulation.utils.powerlaw.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,14 +50,21 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.models.html">gwpopulation.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.conversions.html">gwpopulation.conversions</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">gwpopulation.cupy_utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.cupy_utils.betaln.html">gwpopulation.cupy_utils.betaln</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.cupy_utils.to_numpy.html">gwpopulation.cupy_utils.to_numpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.cupy_utils.trapz.html">gwpopulation.cupy_utils.trapz</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.beta_dist.html">gwpopulation.utils.beta_dist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.get_name.html">gwpopulation.utils.get_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.get_version_information.html">gwpopulation.utils.get_version_information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.powerlaw.html">gwpopulation.utils.powerlaw</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">gwpopulation.utils.to_numpy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gwpopulation.utils.to_numpy"><code class="docutils literal notranslate"><span class="pre">to_numpy()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.truncnorm.html">gwpopulation.utils.truncnorm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.unnormalized_2d_gaussian.html">gwpopulation.utils.unnormalized_2d_gaussian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.von_mises.html">gwpopulation.utils.von_mises</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.vt.html">gwpopulation.vt</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
@@ -79,9 +86,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">gwpopulation.cupy_utils</li>
+          <li class="breadcrumb-item"><a href="gwpopulation.utils.html">gwpopulation.utils</a></li>
+      <li class="breadcrumb-item active">gwpopulation.utils.to_numpy</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/gwpopulation.cupy_utils.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/gwpopulation.utils.to_numpy.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -89,31 +97,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-gwpopulation.cupy_utils">
-<span id="gwpopulation-cupy-utils"></span><h1>gwpopulation.cupy_utils<a class="headerlink" href="#module-gwpopulation.cupy_utils" title="Link to this heading"></a></h1>
-<p>Helper functions for missing functionality in cupy.</p>
-<p class="rubric">Functions</p>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.cupy_utils.betaln.html#gwpopulation.cupy_utils.betaln" title="gwpopulation.cupy_utils.betaln"><code class="xref py py-obj docutils literal notranslate"><span class="pre">betaln</span></code></a>(alpha, beta)</p></td>
-<td><p>Logarithm of the Beta function</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.cupy_utils.to_numpy.html#gwpopulation.cupy_utils.to_numpy" title="gwpopulation.cupy_utils.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a>(array)</p></td>
-<td><p>Cast any array to numpy</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.cupy_utils.trapz.html#gwpopulation.cupy_utils.trapz" title="gwpopulation.cupy_utils.trapz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trapz</span></code></a>(y[, x, dx, axis])</p></td>
-<td><p>Lifted from <a class="reference external" href="https://github.com/numpy/numpy/blob/v1.15.1/numpy/lib/function_base.py#L3804-L3891">numpy</a>.</p></td>
-</tr>
-</tbody>
-</table>
+  <section id="gwpopulation-utils-to-numpy">
+<h1>gwpopulation.utils.to_numpy<a class="headerlink" href="#gwpopulation-utils-to-numpy" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="gwpopulation.utils.to_numpy">
+<span class="sig-prename descclassname"><span class="pre">gwpopulation.utils.</span></span><span class="sig-name descname"><span class="pre">to_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/utils.html#to_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.utils.to_numpy" title="Link to this definition"></a></dt>
+<dd><p>Convert an array to a numpy array.
+Numeric types and pandas objects are returned unchanged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>array: array-like</strong></dt><dd><p>The array to convert.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="gwpopulation.conversions.mu_var_max_to_alpha_beta_max.html" class="btn btn-neutral float-left" title="gwpopulation.conversions.mu_var_max_to_alpha_beta_max" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="gwpopulation.cupy_utils.betaln.html" class="btn btn-neutral float-right" title="gwpopulation.cupy_utils.betaln" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="gwpopulation.utils.powerlaw.html" class="btn btn-neutral float-left" title="gwpopulation.utils.powerlaw" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gwpopulation.utils.truncnorm.html" class="btn btn-neutral float-right" title="gwpopulation.utils.truncnorm" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

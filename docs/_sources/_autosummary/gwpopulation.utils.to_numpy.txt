@@ -1,0 +1,6 @@
+gwpopulation.utils.to\_numpy
+============================
+
+.. currentmodule:: gwpopulation.utils
+
+.. autofunction:: to_numpy

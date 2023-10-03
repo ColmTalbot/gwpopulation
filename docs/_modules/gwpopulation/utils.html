@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.utils &mdash; GWPopulation 0.1.dev1+gfd07a67 documentation</title>
+  <title>gwpopulation.utils &mdash; GWPopulation 0.1.dev1+g858c68c documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -12,7 +12,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=c1cd9af7"></script>
+        <script src="../../_static/documentation_options.js?v=e21fed48"></script>
         <script src="../../_static/doctools.js?v=888ff710"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -47,7 +47,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/gwpopulation.models.html">gwpopulation.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/gwpopulation.conversions.html">gwpopulation.conversions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../_autosummary/gwpopulation.cupy_utils.html">gwpopulation.cupy_utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/gwpopulation.utils.html">gwpopulation.utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_autosummary/gwpopulation.vt.html">gwpopulation.vt</a></li>
@@ -85,10 +84,12 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Helper functions for probability distributions.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span> <span class="k">as</span> <span class="n">scs</span>
 
-<span class="kn">from</span> <span class="nn">.cupy_utils</span> <span class="kn">import</span> <span class="n">betaln</span><span class="p">,</span> <span class="n">erf</span><span class="p">,</span> <span class="n">i0e</span><span class="p">,</span> <span class="n">xp</span>
+<span class="n">xp</span> <span class="o">=</span> <span class="n">np</span>
 
 
 <div class="viewcode-block" id="beta_dist">
@@ -122,7 +123,7 @@
     <span class="k">if</span> <span class="n">beta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameter beta must be greater or equal zero, low=</span><span class="si">{</span><span class="n">beta</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
     <span class="n">ln_beta</span> <span class="o">=</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">beta</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">scale</span> <span class="o">-</span> <span class="n">xx</span><span class="p">)</span>
-    <span class="n">ln_beta</span> <span class="o">-=</span> <span class="n">betaln</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+    <span class="n">ln_beta</span> <span class="o">-=</span> <span class="n">scs</span><span class="o">.</span><span class="n">betaln</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
     <span class="n">ln_beta</span> <span class="o">-=</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
     <span class="n">prob</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">ln_beta</span><span class="p">)</span>
     <span class="n">prob</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
@@ -204,7 +205,9 @@
     <span class="k">if</span> <span class="n">sigma</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sigma must be greater than 0, sigma=</span><span class="si">{</span><span class="n">sigma</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">norm</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">xp</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">sigma</span>
-    <span class="n">norm</span> <span class="o">/=</span> <span class="n">erf</span><span class="p">((</span><span class="n">high</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">+</span> <span class="n">erf</span><span class="p">((</span><span class="n">mu</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="n">norm</span> <span class="o">/=</span> <span class="n">scs</span><span class="o">.</span><span class="n">erf</span><span class="p">((</span><span class="n">high</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">+</span> <span class="n">scs</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">mu</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">sigma</span>
+    <span class="p">)</span>
     <span class="n">prob</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">xp</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="n">mu</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
     <span class="n">prob</span> <span class="o">*=</span> <span class="n">norm</span>
     <span class="n">prob</span> <span class="o">*=</span> <span class="p">(</span><span class="n">xx</span> <span class="o">&lt;=</span> <span class="n">high</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">xx</span> <span class="o">&gt;=</span> <span class="n">low</span><span class="p">)</span>
@@ -289,7 +292,7 @@
 <span class="sd">    For numerical stability, the factor of `exp(kappa)` from using `i0e`</span>
 <span class="sd">    is accounted for in the numerator</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kappa</span> <span class="o">*</span> <span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">i0e</span><span class="p">(</span><span class="n">kappa</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kappa</span> <span class="o">*</span> <span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">scs</span><span class="o">.</span><span class="n">i0e</span><span class="p">(</span><span class="n">kappa</span><span class="p">))</span></div>
 
 
 
@@ -322,6 +325,29 @@
         <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="vm">__name__</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span></div>
+
+
+
+<div class="viewcode-block" id="to_numpy">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.to_numpy.html#gwpopulation.utils.to_numpy">[docs]</a>
+<span class="k">def</span> <span class="nf">to_numpy</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert an array to a numpy array.</span>
+<span class="sd">    Numeric types and pandas objects are returned unchanged.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    array: array-like</span>
+<span class="sd">        The array to convert.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="p">(</span><span class="n">Number</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">array</span>
+    <span class="k">elif</span> <span class="s2">&quot;cupy&quot;</span> <span class="ow">in</span> <span class="n">array</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s2">&quot;pandas&quot;</span> <span class="ow">in</span> <span class="n">array</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">array</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot convert </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">array</span><span class="p">)</span><span class="si">}</span><span class="s2"> to numpy array&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 

@@ -14,7 +14,8 @@ This includes:
 
 The code is hosted at `<www.github.com/ColmTalbot/gwpopulation>`_.
 """
-from . import conversions, cupy_utils, hyperpe, models, utils, vt
+from . import conversions, hyperpe, models, utils, vt
+from .backend import SUPPORTED_BACKENDS, disable_cupy, enable_cupy, set_backend
 from .hyperpe import RateLikelihood
 
 try:
@@ -22,31 +23,7 @@ try:
 except ModuleNotFoundError:  # development mode
     __version__ = "unknown"
 
-
-__all_with_xp = [
-    models.mass,
-    models.redshift,
-    models.spin,
-    cupy_utils,
-    hyperpe,
-    utils,
-    vt,
-]
-
-
-def disable_cupy():
-    import numpy as np
-
-    for module in __all_with_xp:
-        module.xp = np
-
-
-def enable_cupy():
-    try:
-        import cupy as cp
-    except ImportError:
-        import numpy as cp
-
-        print("Cannot import cupy, falling back to numpy.")
-    for module in __all_with_xp:
-        module.xp = cp
+try:
+    set_backend("cupy")
+except ModuleNotFoundError:
+    set_backend("numpy")

@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
     - uses: actions/checkout@v2
@@ -52,7 +52,7 @@ jobs:
         pip install .
     - name: List installed
       run: |
-        python -m pip list
+        conda list
     - name: Run pre-commit checks
       run: |
         pre-commit run --all-files --verbose --show-diff-on-failure

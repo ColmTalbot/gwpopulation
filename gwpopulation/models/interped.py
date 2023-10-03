@@ -35,12 +35,12 @@ class InterpolatedNoBaseModelIdentical(object):
         return keys
 
     def setup_interpolant(self, nodes, values):
-        from cached_interpolate import CachingInterpolant
+        from cached_interpolate import RegularCachingInterpolant
 
         kwargs = dict(x=nodes, y=values, kind=self.kind, backend=xp)
-        self._norm_spline = CachingInterpolant(**kwargs)
+        self._norm_spline = RegularCachingInterpolant(**kwargs)
         self._data_spline = {
-            param: CachingInterpolant(**kwargs) for param in self.parameters
+            param: RegularCachingInterpolant(**kwargs) for param in self.parameters
         }
 
     def p_x_unnormed(self, dataset, parameter, x_splines, f_splines, **kwargs):

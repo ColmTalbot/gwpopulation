@@ -493,7 +493,7 @@ class BaseSmoothedMassDistribution(object):
         The maximum mass considered for numerical normalization
     """
 
-    primary_model = None
+    _primary_model = None
 
     @property
     def variable_names(self):
@@ -510,7 +510,11 @@ class BaseSmoothedMassDistribution(object):
     def kwargs(self):
         return dict()
 
-    def __init__(self, mmin=2, mmax=100, normalization_shape=(1000, 500)):
+    @property
+    def primary_model(self):
+        return self._primary_model
+
+    def __init__(self, mmin=2, mmax=100, normalization_shape=(1000, 500), primary_model=None):
         self.mmin = mmin
         self.mmax = mmax
         self.m1s = xp.linspace(mmin, mmax, normalization_shape[0])
@@ -518,8 +522,16 @@ class BaseSmoothedMassDistribution(object):
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
+        if self.__class__._primary_model is None:
+            self._primary_model = primary_model
+        elif primary_model is not None:
+            raise ValueError(
+                f"Attempting to overwrite primary model for {self.__class__.__name__}"
+            )
+        else:
+            self._primary_model = self.__class__._primary_model
 
-    def __call__(self, dataset, *args, **kwargs):
+    def __call__(self, dataset, **kwargs):
         beta = kwargs.pop("beta")
         mmin = kwargs.get("mmin", self.mmin)
         mmax = kwargs.get("mmax", self.mmax)
@@ -540,7 +552,7 @@ class BaseSmoothedMassDistribution(object):
     def p_m1(self, dataset, **kwargs):
         mmin = kwargs.get("mmin", self.mmin)
         delta_m = kwargs.pop("delta_m", 0)
-        p_m = self.__class__.primary_model(dataset["mass_1"], **kwargs)
+        p_m = self.__class__.primary_model(mass=dataset["mass_1"], **kwargs)
         p_m *= self.smoothing(
             dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
         )
@@ -552,7 +564,7 @@ class BaseSmoothedMassDistribution(object):
         mmin = kwargs.get("mmin", self.mmin)
         if delta_m == 0:
             return 1
-        p_m = self.__class__.primary_model(self.m1s, **kwargs)
+        p_m = self.__class__.primary_model(mass=self.m1s, **kwargs)
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
 
         norm = trapz(p_m, self.m1s)
@@ -670,7 +682,34 @@ class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     This means that the `mmax` parameter is _not_ the global maximum.
     """
 
-    primary_model = two_component_single
+    _primary_model = two_component_single
+
+    @property
+    def kwargs(self):
+        return dict(gaussian_mass_maximum=self.mmax)
+
+
+class VariableSinglePeakSmoothedMassDistribution(SinglePeakSmoothedMassDistribution):
+
+    def p_m1(self, dataset, **kwargs):
+        lam = kwargs.pop("lam")
+        mpp = kwargs.pop("mpp")
+        sigpp = kwargs.pop("sigpp")
+        corr_lam = kwargs.pop("corr_lam", 0)
+        corr_mpp = kwargs.pop("corr_mpp", 0)
+        corr_sigpp = kwargs.pop("corr_sigpp", 0)
+        lam = xp.minimum(xp.maximum(lam + corr_lam * (dataset["redshift"] - 0.2), 0), 1)
+        mpp = xp.minimum(xp.maximum(mpp + corr_mpp * (dataset["redshift"] - 0.2), kwargs["mmin"]), kwargs["gaussian_mass_maximum"])
+        sigpp = xp.minimum(xp.maximum(sigpp + corr_sigpp * (dataset["redshift"] - 0.2), 1), 10)
+        return super(VariableSinglePeakSmoothedMassDistribution, self).p_m1(
+            dataset, **kwargs, lam=lam, mpp=mpp, sigpp=sigpp
+        )
+
+    @property
+    def variable_names(self):
+        names = super(VariableSinglePeakSmoothedMassDistribution, self).variable_names
+        names.update({"corr_lam", "corr_mpp", "corr_sigpp"})
+        return names
 
     @property
     def kwargs(self):
@@ -715,7 +754,7 @@ class MultiPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     This means that the `mmax` parameter is _not_ the global maximum.
     """
 
-    primary_model = three_component_single
+    _primary_model = three_component_single
 
     @property
     def kwargs(self):
@@ -747,7 +786,7 @@ class BrokenPowerLawSmoothedMassDistribution(BaseSmoothedMassDistribution):
         Rise length of the low end of the mass distribution.
     """
 
-    primary_model = double_power_law_primary_mass
+    _primary_model = double_power_law_primary_mass
 
 
 class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
@@ -786,8 +825,179 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     This means that the `mmax` parameter is _not_ the global maximum.
     """
 
-    primary_model = double_power_law_peak_primary_mass
+    _primary_model = double_power_law_peak_primary_mass
 
     @property
     def kwargs(self):
         return dict(gaussian_mass_maximum=self.mmax)
+
+
+class BaseInterpolatedPowerlaw(BaseSmoothedMassDistribution):
+    """
+    Base class for the Interpolated Powerlaw classes (vary the number of nodes)
+    """
+
+    def __init__(self, nodes=10, kind="cubic", mmin=2, mmax=100):
+        """ """
+        super(BaseInterpolatedPowerlaw, self).__init__(mmin=mmin, mmax=mmax)
+        self.nodes = nodes
+        self.norm_selector = None
+        self.spline_selector = None
+        self._norm_spline = None
+        self._data_spline = None
+        self.kind = kind
+
+    @property
+    def variable_names(self):
+        keys = [f"fm{ii}" for ii in range(self.nodes)]
+        keys += [f"m{ii}" for ii in range(self.nodes)]
+        keys += ["alpha", "beta", "mmin", "mmax"]
+        return keys
+
+    def primary_model(self, mass, alpha, mmin, mmax):
+        return powerlaw(mass, alpha=-alpha, low=mmin, high=mmax)
+
+    def setup_interpolant(self, nodes, values):
+        from cached_interpolate import RegularCachingInterpolant
+
+        kwargs = dict(x=nodes, y=values, kind=self.kind, backend=xp)
+        self._norm_spline = RegularCachingInterpolant(**kwargs)
+        self._data_spline = RegularCachingInterpolant(**kwargs)
+
+    def p_m1(self, dataset, **kwargs):
+        import numpy as np
+        f_splines = np.array([kwargs.pop(f"fm{i}") for i in range(self.nodes)])
+        m_splines = np.log([kwargs.pop(f"m{i}") for i in range(self.nodes)])
+        log_mass = xp.log(dataset["mass_1"])
+
+        if self.spline_selector is None:
+            if self._norm_spline is None:
+                self.setup_interpolant(m_splines, f_splines)
+            self.spline_selector = (log_mass >= m_splines[0]) & (
+                log_mass <= m_splines[-1]
+            )
+
+        mmin = kwargs.get("mmin", self.mmin)
+        delta_m = kwargs.pop("delta_m", 0)
+
+        p_m = self.primary_model(dataset["mass_1"], **kwargs)
+        p_m *= self.smoothing(
+            dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
+        )
+
+        perturbation = self._data_spline(
+            x=log_mass[self.spline_selector], y=f_splines
+        )
+        p_m[self.spline_selector] *= xp.exp(perturbation)
+
+        norm = self.norm_p_m1(
+            delta_m=delta_m, m_splines=m_splines, f_splines=f_splines, **kwargs
+        )
+        return p_m / norm
+
+    def norm_p_m1(self, delta_m, f_splines=None, m_splines=None, **kwargs):
+        if self.norm_selector is None:
+            self.norm_selector = (self.m1s >= m_splines[0]) & (
+                self.m1s <= m_splines[-1]
+            )
+        mmin = kwargs.get("mmin", self.mmin)
+        p_m = self.primary_model(self.m1s, **kwargs)
+        p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
+        perturbation = self._norm_spline(x=self.m1s[self.norm_selector], y=f_splines)
+        p_m[self.norm_selector] *= xp.exp(perturbation)
+        norm = trapz(p_m, self.m1s)
+        return norm
+
+
+class Vamana:
+    def __init__(self, n_components, base_model=None, reference_parameters=None):
+        self.n_components = n_components
+        self.base_model = base_model
+        self.reference_parameters = reference_parameters
+        self.chirp_masses = xp.linspace(2, 100, 1000)
+        self.mmin = self.chirp_masses[0]
+        self.mmax = self.chirp_masses[-1]
+
+    @property
+    def variable_names(self):
+        names = [f"weight_{ii}" for ii in range(self.n_components - 1)]
+        names += [f"mu_m_{ii}" for ii in range(self.n_components - 1)]
+        names += [f"sigma_m_{ii}" for ii in range(self.n_components)]
+        names += [f"mu_sz_{ii}" for ii in range(self.n_components)]
+        names += [f"sigma_sz_{ii}" for ii in range(self.n_components)]
+        names += [f"alpha_q_{ii}" for ii in range(self.n_components)]
+        names += [f"qmin_{ii}" for ii in range(self.n_components)]
+        return names
+
+    def reference_model(self, mass):
+        if self.base_model is None:
+            return xp.ones(mass.shape)
+        elif self.reference_parameters is None:
+            raise ValueError("No reference parameters provided for base_model")
+        return self.base_model(mass, **self.reference_parameters)
+
+    def __call__(self, dataset, **kwargs):
+        import numpy as np
+        prob = xp.zeros(dataset["chirp_mass"].shape)
+        final_weight = 1 - sum(
+            [kwargs[f"weight_{ii}"] for ii in range(self.n_components - 1)]
+        )
+        if final_weight < 0:
+            return prob
+        else:
+            kwargs[f"weight_{self.n_components - 1}"] = final_weight
+        self.base_prob = self.reference_model(dataset["chirp_mass"])
+        self.norm_base_prob = self.reference_model(self.chirp_masses)
+        masses = [kwargs[f"mu_m_{ii}"] for ii in range(self.n_components - 1)]
+        masses.append(1 - sum(masses))
+        masses = np.cumsum(masses)
+        for ii in range(self.n_components):
+            kwargs[f"mu_m_{ii}"] = self.mmin * (self.mmax / self.mmin)**masses[ii]
+            prob += (
+                kwargs[f"weight_{ii}"]
+                * self.p_mc(dataset["chirp_mass"], kwargs, ii)
+                * self.p_chi(dataset["chi_1"], kwargs, ii)
+                * self.p_chi(dataset["chi_2"], kwargs, ii)
+                * self.p_mass_ratio(dataset["mass_ratio"], kwargs, ii)
+            )
+        return prob
+
+    def p_mc(self, mass, kwargs, ii):
+        prob = truncnorm(
+            mass,
+            mu=kwargs[f"mu_m_{ii}"],
+            sigma=kwargs[f"sigma_m_{ii}"] * kwargs[f"mu_m_{ii}"],
+            high=100,
+            low=2,
+        )
+        if self.base_model is not None:
+            norm_prob = trapz(
+                self.norm_base_prob
+                * truncnorm(
+                    self.chirp_mass,
+                    mu=kwargs[f"mu_m_{ii}"],
+                    sigma=kwargs[f"sigma_m_{ii}"] * kwargs[f"mu_m_{ii}"],
+                    high=100,
+                    low=2,
+                ),
+                self.chirp_mass,
+            )
+            prob *= self.base_prob / norm_prob
+        return prob
+
+    def p_chi(self, spin, kwargs, ii):
+        return truncnorm(
+            spin,
+            mu=kwargs[f"mu_sz_{ii}"],
+            sigma=kwargs[f"sigma_sz_{ii}"],
+            high=1,
+            low=-1,
+        )
+
+    def p_mass_ratio(self, mass_ratio, kwargs, ii):
+        return powerlaw(
+            mass_ratio,
+            alpha=kwargs[f"alpha_q_{ii}"],
+            high=1,
+            low=kwargs[f"qmin_{ii}"],
+        )

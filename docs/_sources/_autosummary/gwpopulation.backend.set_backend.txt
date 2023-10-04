@@ -1,0 +1,6 @@
+gwpopulation.backend.set\_backend
+=================================
+
+.. currentmodule:: gwpopulation.backend
+
+.. autofunction:: set_backend

@@ -1,0 +1,6 @@
+gwpopulation.backend.disable\_cupy
+==================================
+
+.. currentmodule:: gwpopulation.backend
+
+.. autofunction:: disable_cupy

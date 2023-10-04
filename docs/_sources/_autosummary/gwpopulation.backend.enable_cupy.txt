@@ -1,0 +1,6 @@
+gwpopulation.backend.enable\_cupy
+=================================
+
+.. currentmodule:: gwpopulation.backend
+
+.. autofunction:: enable_cupy

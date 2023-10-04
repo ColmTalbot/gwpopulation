@@ -19,11 +19,11 @@ from .backend import SUPPORTED_BACKENDS, disable_cupy, enable_cupy, set_backend
 from .hyperpe import RateLikelihood
 
 try:
-    from ._version import version as __version__
+    from ._version import __version__
 except ModuleNotFoundError:  # development mode
     __version__ = "unknown"
 
 try:
     set_backend("cupy")
-except ModuleNotFoundError:
+except ImportError:
     set_backend("numpy")

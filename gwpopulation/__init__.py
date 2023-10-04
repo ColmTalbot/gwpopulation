@@ -25,5 +25,5 @@ except ModuleNotFoundError:  # development mode
 
 try:
     set_backend("cupy")
-except ModuleNotFoundError:
+except ImportError:
     set_backend("numpy")

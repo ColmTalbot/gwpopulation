@@ -1,8 +1,8 @@
-import numpy as np
-import pytest
 from itertools import product
 
-from bilby.core.prior import Normal , PriorDict, Uniform
+import numpy as np
+import pytest
+from bilby.core.prior import Normal, PriorDict, Uniform
 
 import gwpopulation
 from gwpopulation.models import spin
@@ -246,13 +246,12 @@ def _setup_spin_model(variable):
     elif variable == "a":
         bounds = (0, 1)
         func = spin.SplineSpinMagnitudeIdentical
-    variable = "cos_tilt"
 
     model = func(minimum=bounds[0], maximum=bounds[1], nodes=n_nodes)
 
     prior = {
-      f"{variable}{ii}": val * 1.2 for ii, val in
-      enumerate(np.linspace(bounds[0] - 0.2, bounds[1] + 0.2, n_nodes))
+        f"{variable}{ii}": val
+        for ii, val in enumerate(np.linspace(bounds[0] - 0.2, bounds[1] + 0.2, n_nodes))
     }
     prior.update({f"f{variable}{i}": Uniform(0, 1) for i in range(n_nodes)})
     prior = PriorDict(prior)
@@ -260,15 +259,15 @@ def _setup_spin_model(variable):
 
 
 @pytest.mark.parametrize("backend,variable", product(TEST_BACKENDS, ["cos_tilt", "a"]))
-def test_spin_model_normalised(backend, variable):
+def test_spline_spin_model_normalised(backend, variable):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
     prior, model = _setup_spin_model(variable)
 
     if variable == "cos_tilt":
-      x_array, test_data = tilt_test_data(xp)
+        x_array, test_data = tilt_test_data(xp)
     elif variable == "a":
-      x_array, test_data = magnitude_test_data(xp)
+        x_array, test_data = magnitude_test_data(xp)
 
     norms = list()
     for ii in range(N_TEST):
@@ -280,19 +279,14 @@ def test_spin_model_normalised(backend, variable):
 
 
 @pytest.mark.parametrize("backend,variable", product(TEST_BACKENDS, ["cos_tilt", "a"]))
-def test_spin_model_bounded(backend, variable):
+def test_spline_spin_model_bounded(backend, variable):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
     prior, model = _setup_spin_model(variable)
 
     test_data = dict()
-    test_data[f"{variable}_1"] = xp.linspace(
-        parameters[f"cos_tilt{n_nodes-1}"],
-        2 * parameters[f"cos_tilt{n_nodes-1}"],
-    )
-    test_data[f"{variable}_2"] = xp.linspace(
-        2 * parameters[f"{variable}0"], parameters[f"{variable}0"]
-    )
+    test_data[f"{variable}_1"] = xp.linspace(model._xs[-1] + 0.1, model._xs[-1] + 0.5)
+    test_data[f"{variable}_2"] = xp.linspace(model._xs[0] - 0.5, model._xs[0] - 0.1)
 
     probabilities = list()
     for ii in range(N_TEST):

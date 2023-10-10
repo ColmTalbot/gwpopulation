@@ -1,8 +1,8 @@
 """
 Implemented spin models
 """
+import numpy as xp
 
-from ..cupy_utils import xp
 from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian
 from .interped import InterpolatedNoBaseModelIdentical
 

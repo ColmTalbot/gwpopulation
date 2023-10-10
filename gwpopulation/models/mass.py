@@ -3,8 +3,12 @@ Implemented mass models
 """
 import inspect
 
-from ..cupy_utils import trapz, xp
+import numpy as np
+import scipy.special as scs
+
 from ..utils import powerlaw, truncnorm
+
+xp = np
 
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
@@ -555,7 +559,7 @@ class BaseSmoothedMassDistribution(object):
         p_m = self.__class__.primary_model(self.m1s, **kwargs)
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
 
-        norm = trapz(p_m, self.m1s)
+        norm = xp.trapz(p_m, self.m1s)
         return norm
 
     def p_q(self, dataset, beta, mmin, delta_m):
@@ -582,29 +586,25 @@ class BaseSmoothedMassDistribution(object):
         p_q *= self.smoothing(
             self.m1s_grid * self.qs_grid, mmin=mmin, mmax=self.m1s_grid, delta_m=delta_m
         )
-        norms = trapz(p_q, self.qs, axis=0)
+        norms = xp.nan_to_num(xp.trapz(p_q, self.qs, axis=0))
 
-        all_norms = (
-            norms[self.n_below] * (1 - self.step) + norms[self.n_above] * self.step
-        )
-
-        return all_norms
+        return self._q_interpolant(norms)
 
     def _cache_q_norms(self, masses):
         """
         Cache the information necessary for linear interpolation of the mass
         ratio normalisation
         """
-        self.n_below = xp.zeros_like(masses, dtype=int) - 1
-        m_below = xp.zeros_like(masses)
-        for mm in self.m1s:
-            self.n_below += masses > mm
-            m_below[masses > mm] = mm
-        self.n_above = self.n_below + 1
-        max_idx = len(self.m1s)
-        self.n_below[self.n_below < 0] = 0
-        self.n_above[self.n_above == max_idx] = max_idx - 1
-        self.step = xp.minimum((masses - m_below) / self.dm, 1)
+        from functools import partial
+
+        from cached_interpolate import RegularCachingInterpolant as CachingInterpolant
+
+        from ..utils import to_numpy
+
+        nodes = to_numpy(self.m1s)
+        interpolant = CachingInterpolant(nodes, nodes, kind="cubic", backend=xp)
+        interpolant.conversion = xp.asarray(interpolant.conversion)
+        self._q_interpolant = partial(interpolant, xp.asarray(masses))
 
     @staticmethod
     def smoothing(masses, mmin, mmax, delta_m):
@@ -623,17 +623,14 @@ class BaseSmoothedMassDistribution(object):
 
         See also, https://en.wikipedia.org/wiki/Window_function#Planck-taper_window
         """
-        window = xp.ones_like(masses)
         if delta_m > 0.0:
-            smoothing_region = (masses >= mmin) & (masses < (mmin + delta_m))
-            shifted_mass = masses[smoothing_region] - mmin
-            if shifted_mass.size:
-                exponent = xp.nan_to_num(
-                    delta_m / shifted_mass + delta_m / (shifted_mass - delta_m)
-                )
-                window[smoothing_region] = 1 / (xp.exp(exponent) + 1)
-        window[(masses < mmin) | (masses > mmax)] = 0
-        return window
+            shifted_mass = xp.clip((masses - mmin) / delta_m, 1e-6, 1 - 1e-6)
+            exponent = 1 / shifted_mass - 1 / (1 - shifted_mass)
+            window = scs.expit(-exponent)
+            window *= (masses >= mmin) * (masses <= mmax)
+            return window
+        else:
+            return xp.ones(masses.shape)
 
 
 class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):

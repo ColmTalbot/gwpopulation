@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
     - uses: actions/checkout@v2
@@ -40,24 +40,20 @@ jobs:
         conda-channels: anaconda, conda-forge
     - name: Install dependencies
       run: |
-        conda install flake8 pytest-cov
-        conda install --file requirements.txt
-        conda install pre-commit codespell
-        conda install jupyter
         conda install pip setuptools
-        conda update nbconvert
+        conda install --file requirements.txt
+        conda install --file test_requirements.txt
         pre-commit install
     - name: Install gwpopulation
       run: |
         pip install .
     - name: List installed
       run: |
-        python -m pip list
+        conda list
     - name: Run pre-commit checks
       run: |
         pre-commit run --all-files --verbose --show-diff-on-failure
         jupyter nbconvert --clear-output --inplace examples/*.ipynb
-        codespell examples/*.ipynb -L "hist"
         git reset --hard
     - name: Test with pytest
       run: |

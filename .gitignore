@@ -12,3 +12,4 @@ venv/
 .idea/
 **/.version
 **/_version.py
+.vscode

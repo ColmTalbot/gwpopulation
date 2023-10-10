@@ -232,6 +232,8 @@ def test_2d_gaussian_no_covariance_matches_independent(backend):
                 )
             )
         )
+        < 1e-3
+    )
 
 
 def _setup_spin_model(variable):

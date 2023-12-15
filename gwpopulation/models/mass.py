@@ -37,15 +37,13 @@ def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_frac
         Maximum mass in the powerlaw distributed component (:math:`m_\max`).
     """
 
-    prob = xp.zeros_like(mass)
     m_break = mmin + break_fraction * (mmax - mmin)
     correction = powerlaw(m_break, alpha=-alpha_2, low=m_break, high=mmax) / powerlaw(
         m_break, alpha=-alpha_1, low=mmin, high=m_break
     )
-    low_part = powerlaw(mass[mass < m_break], alpha=-alpha_1, low=mmin, high=m_break)
-    prob[mass < m_break] = low_part * correction
-    high_part = powerlaw(mass[mass >= m_break], alpha=-alpha_2, low=m_break, high=mmax)
-    prob[mass >= m_break] = high_part
+    low_part = powerlaw(mass, alpha=-alpha_1, low=mmin, high=m_break)
+    high_part = powerlaw(mass, alpha=-alpha_2, low=m_break, high=mmax)
+    prob = low_part * (mass < m_break) * correction + high_part * (mass >= m_break)
     return prob / (1 + correction)
 
 
@@ -527,14 +525,15 @@ class BaseSmoothedMassDistribution(object):
         beta = kwargs.pop("beta")
         mmin = kwargs.get("mmin", self.mmin)
         mmax = kwargs.get("mmax", self.mmax)
-        if mmin < self.mmin:
-            raise ValueError(
-                "{self.__class__}: mmin ({mmin}) < self.mmin ({self.mmin})"
-            )
-        if mmax > self.mmax:
-            raise ValueError(
-                "{self.__class__}: mmax ({mmax}) > self.mmax ({self.mmax})"
-            )
+        if "jax" not in xp.__name__:
+            if mmin < self.mmin:
+                raise ValueError(
+                    "{self.__class__}: mmin ({mmin}) < self.mmin ({self.mmin})"
+                )
+            if mmax > self.mmax:
+                raise ValueError(
+                    "{self.__class__}: mmax ({mmax}) > self.mmax ({self.mmax})"
+                )
         delta_m = kwargs.get("delta_m", 0)
         p_m1 = self.p_m1(dataset, **kwargs, **self.kwargs)
         p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
@@ -549,18 +548,24 @@ class BaseSmoothedMassDistribution(object):
             dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
         )
         norm = self.norm_p_m1(delta_m=delta_m, **kwargs)
+        print(
+            norm,
+            self.smoothing(
+                dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
+            ),
+        )
         return p_m / norm
 
     def norm_p_m1(self, delta_m, **kwargs):
         """Calculate the normalisation factor for the primary mass"""
         mmin = kwargs.get("mmin", self.mmin)
-        if delta_m == 0:
+        if "jax" not in xp.__name__ and delta_m == 0:
             return 1
         p_m = self.__class__.primary_model(self.m1s, **kwargs)
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
 
         norm = xp.trapz(p_m, self.m1s)
-        return norm
+        return norm ** (delta_m > 0)
 
     def p_q(self, dataset, beta, mmin, delta_m):
         p_q = powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
@@ -580,13 +585,11 @@ class BaseSmoothedMassDistribution(object):
 
     def norm_p_q(self, beta, mmin, delta_m):
         """Calculate the mass ratio normalisation by linear interpolation"""
-        if delta_m == 0.0:
-            return 1
         p_q = powerlaw(self.qs_grid, beta, 1, mmin / self.m1s_grid)
         p_q *= self.smoothing(
             self.m1s_grid * self.qs_grid, mmin=mmin, mmax=self.m1s_grid, delta_m=delta_m
         )
-        norms = xp.nan_to_num(xp.trapz(p_q, self.qs, axis=0))
+        norms = xp.nan_to_num(xp.trapz(p_q, self.qs, axis=0)) ** (delta_m > 0)
 
         return self._q_interpolant(norms)
 
@@ -595,16 +598,11 @@ class BaseSmoothedMassDistribution(object):
         Cache the information necessary for linear interpolation of the mass
         ratio normalisation
         """
-        from functools import partial
+        from .interped import _setup_interpolant
 
-        from cached_interpolate import RegularCachingInterpolant as CachingInterpolant
-
-        from ..utils import to_numpy
-
-        nodes = to_numpy(self.m1s)
-        interpolant = CachingInterpolant(nodes, nodes, kind="cubic", backend=xp)
-        interpolant.conversion = xp.asarray(interpolant.conversion)
-        self._q_interpolant = partial(interpolant, xp.asarray(masses))
+        self._q_interpolant = _setup_interpolant(
+            self.m1s, masses, kind="cubic", backend=xp
+        )
 
     @staticmethod
     def smoothing(masses, mmin, mmax, delta_m):
@@ -623,8 +621,9 @@ class BaseSmoothedMassDistribution(object):
 
         See also, https://en.wikipedia.org/wiki/Window_function#Planck-taper_window
         """
-        if delta_m > 0.0:
-            shifted_mass = xp.clip((masses - mmin) / delta_m, 1e-6, 1 - 1e-6)
+        if "jax" in xp.__name__ or delta_m > 0.0:
+            shifted_mass = xp.nan_to_num((masses - mmin) / delta_m, nan=0)
+            shifted_mass = xp.clip(shifted_mass, 1e-6, 1 - 1e-6)
             exponent = 1 / shifted_mass - 1 / (1 - shifted_mass)
             window = scs.expit(-exponent)
             window *= (masses >= mmin) * (masses <= mmax)

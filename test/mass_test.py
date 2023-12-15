@@ -212,29 +212,31 @@ def test_single_peak_delta_m_zero_matches_two_component_primary_mass_ratio(backe
     max_diffs = list()
     prior = power_prior()
     prior.update(gauss_prior())
+    model = mass.SinglePeakSmoothedMassDistribution()
     for _ in range(N_TEST):
         parameters = prior.sample()
         p_m1 = mass.two_component_primary_mass_ratio(dataset, **parameters)
         parameters["delta_m"] = 0
-        p_m2 = mass.SinglePeakSmoothedMassDistribution()(dataset, **parameters)
+        p_m2 = model(dataset, **parameters)
         max_diffs.append(_max_abs_difference(p_m1, p_m2, xp=xp))
     assert max(max_diffs) < 1e-5
 
 
 @pytest.mark.parametrize("backend", TEST_BACKENDS)
-def test_double_peak_delta_m_zero_matches_two_component_primary_mass_ratio(backend):
+def test_double_peak_delta_m_zero_matches_three_component_primary_mass_ratio(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
     _, _, dataset = get_smoothed_data(xp)
     max_diffs = list()
     prior = power_prior()
     prior.update(double_gauss_prior())
+    model = mass.MultiPeakSmoothedMassDistribution()
     for _ in range(N_TEST):
         parameters = prior.sample()
         del parameters["beta"]
         p_m1 = mass.three_component_single(mass=dataset["mass_1"], **parameters)
         parameters["delta_m"] = 0
-        p_m2 = mass.MultiPeakSmoothedMassDistribution().p_m1(dataset, **parameters)
+        p_m2 = model.p_m1(dataset, **parameters)
         max_diffs.append(_max_abs_difference(p_m1, p_m2, xp=xp))
     assert max(max_diffs) < 1e-5
 
@@ -317,6 +319,7 @@ def test_set_minimum_and_maximum(backend):
 
 
 def test_mmin_below_global_minimum_raises_error():
+    gwpopulation.set_backend("numpy")
     model = mass.SinglePeakSmoothedMassDistribution(mmin=5, mmax=150)
     parameters = gauss_prior().sample()
     parameters.update(power_prior().sample())
@@ -327,6 +330,7 @@ def test_mmin_below_global_minimum_raises_error():
 
 
 def test_mmax_above_global_maximum_raises_error():
+    gwpopulation.set_backend("numpy")
     model = mass.SinglePeakSmoothedMassDistribution(mmin=5, mmax=150)
     parameters = gauss_prior().sample()
     parameters.update(power_prior().sample())

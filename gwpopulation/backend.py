@@ -9,8 +9,9 @@ __all_with_xp = [
 ]
 __all_with_scs = ["models.mass", "utils"]
 __backend__ = ""
-SUPPORTED_BACKENDS = ["numpy", "cupy"]
-_scipy_module = dict(numpy="scipy", cupy="cupyx.scipy")
+SUPPORTED_BACKENDS = ["numpy", "cupy", "jax"]
+_np_module = dict(numpy="numpy", cupy="cupy", jax="jax.numpy")
+_scipy_module = dict(numpy="scipy", cupy="cupyx.scipy", jax="jax.scipy")
 
 
 def disable_cupy():
@@ -42,13 +43,27 @@ def set_backend(backend="numpy"):
     elif backend == __backend__:
         return
 
+    if backend == "jax":
+        from jax import config
+
+        config.update("jax_enable_x64", True)
+
     from importlib import import_module
 
     try:
-        xp = import_module(backend)
+        xp = import_module(_np_module[backend])
         scs = import_module(_scipy_module[backend]).special
     except ModuleNotFoundError:
         raise ModuleNotFoundError(f"{backend} not installed")
+    except ImportError:
+        raise ImportError(f"{backend} installed but not importable")
+    if backend == "jax":
+        try:
+            from jax.scipy.integrate import trapezoid
+
+            xp.trapz = trapezoid
+        except ModuleNotFoundError:
+            pass
     for module in __all_with_xp:
         __backend__ = backend
         import_module(f".{module}", package="gwpopulation").xp = xp

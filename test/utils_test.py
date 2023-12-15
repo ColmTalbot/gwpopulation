@@ -27,11 +27,13 @@ def test_beta_dist_zero_above_scale():
 
 
 def test_beta_dist_alpha_below_zero_raises_value_error():
+    gwpopulation.set_backend("numpy")
     with pytest.raises(ValueError):
         utils.beta_dist(xx=0.5, alpha=-1, beta=1, scale=1)
 
 
 def test_beta_dist_beta_below_zero_raises_value_error():
+    gwpopulation.set_backend("numpy")
     with pytest.raises(ValueError):
         utils.beta_dist(xx=0.5, alpha=1, beta=-1, scale=1)
 
@@ -67,8 +69,12 @@ def test_powerlaw_low_below_zero_raises_value_error():
         utils.powerlaw(xx=0, alpha=3, high=10, low=-4)
 
 
-def test_powerlaw_alpha_equal_zero():
-    assert utils.powerlaw(xx=1.0, alpha=-1, low=0.5, high=2) == 1 / np.log(4)
+@pytest.mark.parametrize("backend", TEST_BACKENDS)
+def test_powerlaw_alpha_equal_zero(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    assert utils.powerlaw(xx=1.0, alpha=-1, low=0.5, high=2) == 1 / xp.log(4)
+    gwpopulation.set_backend("numpy")
 
 
 def test_truncnorm_zero_below_low():

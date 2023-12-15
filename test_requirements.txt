@@ -2,3 +2,4 @@ pytest-cov
 pre-commit
 jupyter
 nbconvert
+jax

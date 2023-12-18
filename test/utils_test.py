@@ -123,6 +123,7 @@ def test_matches_scipy(backend):
         scipy_vals = vonmises(kappa=kappa, loc=mu).pdf(utils.to_numpy(xx))
         assert max(abs(gwpop_vals - scipy_vals)) < 1e-3
 
+
 def test_to_numpy_leaves_pandas_changed():
     test = pd.Series([1, 2, 3])
     assert type(test) == type(utils.to_numpy(test))

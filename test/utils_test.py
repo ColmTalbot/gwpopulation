@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import pytest
 from scipy.stats import vonmises
 
@@ -121,6 +122,15 @@ def test_matches_scipy(backend):
         gwpop_vals = utils.to_numpy(utils.von_mises(xx, mu, kappa))
         scipy_vals = vonmises(kappa=kappa, loc=mu).pdf(utils.to_numpy(xx))
         assert max(abs(gwpop_vals - scipy_vals)) < 1e-3
+
+def test_to_numpy_leaves_pandas_changed():
+    test = pd.Series([1, 2, 3])
+    assert type(test) == type(utils.to_numpy(test))
+
+
+def test_to_numpy_non_array_type_raises_error():
+    with pytest.raises(TypeError):
+        utils.to_numpy([1, 2, 3])
 
 
 def test_get_version():

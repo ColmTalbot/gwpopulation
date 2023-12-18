@@ -43,6 +43,8 @@ def apply_conditions(conditions):
                         raise ValueError(f"Condition {condition} not met")
                 else:
                     op, val = condition
+                    if "cupy" in xp.__name__:
+                        value = xp.asarray(value)
                     if callable(op):
                         if not xp.all(op(value, val)):
                             raise ValueError(

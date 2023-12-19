@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.utils &mdash; GWPopulation 0.1.dev1+g3db35c5 documentation</title>
+  <title>gwpopulation.utils &mdash; GWPopulation 0.1.dev1+g189bcc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -15,14 +15,14 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=bea02c59"></script>
+        <script src="../_static/documentation_options.js?v=be76339d"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="gwpopulation.utils.beta_dist" href="gwpopulation.utils.beta_dist.html" />
+    <link rel="next" title="gwpopulation.utils.apply_conditions" href="gwpopulation.utils.apply_conditions.html" />
     <link rel="prev" title="gwpopulation.hyperpe.RateLikelihood" href="gwpopulation.hyperpe.RateLikelihood.html" /> 
 </head>
 
@@ -55,10 +55,12 @@
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.conversions.html">gwpopulation.conversions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">gwpopulation.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.apply_conditions.html">gwpopulation.utils.apply_conditions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.beta_dist.html">gwpopulation.utils.beta_dist</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.get_name.html">gwpopulation.utils.get_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.get_version_information.html">gwpopulation.utils.get_version_information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.powerlaw.html">gwpopulation.utils.powerlaw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.to_number.html">gwpopulation.utils.to_number</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.to_numpy.html">gwpopulation.utils.to_numpy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.truncnorm.html">gwpopulation.utils.truncnorm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.unnormalized_2d_gaussian.html">gwpopulation.utils.unnormalized_2d_gaussian</a></li>
@@ -102,17 +104,23 @@
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.beta_dist.html#gwpopulation.utils.beta_dist" title="gwpopulation.utils.beta_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta_dist</span></code></a>(xx, alpha, beta[, scale])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.apply_conditions.html#gwpopulation.utils.apply_conditions" title="gwpopulation.utils.apply_conditions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_conditions</span></code></a>(conditions)</p></td>
+<td><p>A decorator to apply conditions to inputs of a function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.beta_dist.html#gwpopulation.utils.beta_dist" title="gwpopulation.utils.beta_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta_dist</span></code></a>(xx, alpha, beta[, scale])</p></td>
 <td><p>Beta distribution probability</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.get_name.html#gwpopulation.utils.get_name" title="gwpopulation.utils.get_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_name</span></code></a>(input)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.get_name.html#gwpopulation.utils.get_name" title="gwpopulation.utils.get_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_name</span></code></a>(input)</p></td>
 <td><p>Attempt to find the name of the the input.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.get_version_information.html#gwpopulation.utils.get_version_information" title="gwpopulation.utils.get_version_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_version_information</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.get_version_information.html#gwpopulation.utils.get_version_information" title="gwpopulation.utils.get_version_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_version_information</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.powerlaw.html#gwpopulation.utils.powerlaw" title="gwpopulation.utils.powerlaw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">powerlaw</span></code></a>(xx, alpha, high, low)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.powerlaw.html#gwpopulation.utils.powerlaw" title="gwpopulation.utils.powerlaw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">powerlaw</span></code></a>(xx, alpha, high, low)</p></td>
 <td><p>Power-law probability</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.utils.to_number.html#gwpopulation.utils.to_number" title="gwpopulation.utils.to_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_number</span></code></a>(value, func)</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.utils.to_numpy.html#gwpopulation.utils.to_numpy" title="gwpopulation.utils.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a>(array)</p></td>
 <td><p>Convert an array to a numpy array.</p></td>
@@ -135,7 +143,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="gwpopulation.hyperpe.RateLikelihood.html" class="btn btn-neutral float-left" title="gwpopulation.hyperpe.RateLikelihood" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="gwpopulation.utils.beta_dist.html" class="btn btn-neutral float-right" title="gwpopulation.utils.beta_dist" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="gwpopulation.utils.apply_conditions.html" class="btn btn-neutral float-right" title="gwpopulation.utils.apply_conditions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

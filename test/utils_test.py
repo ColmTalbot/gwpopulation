@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import pytest
 from scipy.stats import vonmises
 
@@ -27,11 +28,13 @@ def test_beta_dist_zero_above_scale():
 
 
 def test_beta_dist_alpha_below_zero_raises_value_error():
+    gwpopulation.set_backend("numpy")
     with pytest.raises(ValueError):
         utils.beta_dist(xx=0.5, alpha=-1, beta=1, scale=1)
 
 
 def test_beta_dist_beta_below_zero_raises_value_error():
+    gwpopulation.set_backend("numpy")
     with pytest.raises(ValueError):
         utils.beta_dist(xx=0.5, alpha=1, beta=-1, scale=1)
 
@@ -67,8 +70,12 @@ def test_powerlaw_low_below_zero_raises_value_error():
         utils.powerlaw(xx=0, alpha=3, high=10, low=-4)
 
 
-def test_powerlaw_alpha_equal_zero():
-    assert utils.powerlaw(xx=1.0, alpha=-1, low=0.5, high=2) == 1 / np.log(4)
+@pytest.mark.parametrize("backend", TEST_BACKENDS)
+def test_powerlaw_alpha_equal_zero(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    assert utils.powerlaw(xx=1.0, alpha=-1, low=0.5, high=2) == 1 / xp.log(4)
+    gwpopulation.set_backend("numpy")
 
 
 def test_truncnorm_zero_below_low():
@@ -117,5 +124,42 @@ def test_matches_scipy(backend):
         assert max(abs(gwpop_vals - scipy_vals)) < 1e-3
 
 
+def test_to_numpy_leaves_pandas_changed():
+    test = pd.Series([1, 2, 3])
+    assert type(test) == type(utils.to_numpy(test))
+
+
+def test_to_numpy_non_array_type_raises_error():
+    with pytest.raises(TypeError):
+        utils.to_numpy([1, 2, 3])
+
+
 def test_get_version():
     assert gwpopulation.__version__ == utils.get_version_information()
+
+
+@gwpopulation.utils.apply_conditions(dict(a=lambda a: a > 0))
+def _condition_func(a):
+    return a
+
+
+def test_callable_condition_not_satisfied():
+    gwpopulation.set_backend("numpy")
+    with pytest.raises(ValueError):
+        _condition_func(a=-1)
+
+
+def test_callable_condition_satisfied():
+    gwpopulation.set_backend("numpy")
+    assert _condition_func(a=1) == 1
+
+
+def test_non_callable_op_raises_error():
+    gwpopulation.set_backend("numpy")
+
+    @gwpopulation.utils.apply_conditions(dict(a=("ge", 0)))
+    def _condition_func(a):
+        return
+
+    with pytest.raises(ValueError):
+        _condition_func(a=1)

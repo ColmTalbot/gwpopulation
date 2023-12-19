@@ -1,0 +1,6 @@
+gwpopulation.utils.apply\_conditions
+====================================
+
+.. currentmodule:: gwpopulation.utils
+
+.. autofunction:: apply_conditions

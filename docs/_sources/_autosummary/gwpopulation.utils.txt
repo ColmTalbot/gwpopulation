@@ -16,10 +16,12 @@
    .. autosummary::
       :toctree:
    
+      apply_conditions
       beta_dist
       get_name
       get_version_information
       powerlaw
+      to_number
       to_numpy
       truncnorm
       unnormalized_2d_gaussian

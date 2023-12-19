@@ -6,6 +6,7 @@ import numpy as np
 from bilby.hyper.model import Model
 
 from .models.redshift import _Redshift, total_four_volume
+from .utils import to_number
 
 xp = np
 
@@ -126,19 +127,19 @@ class ResamplingVT(_BaseVT):
         if not self.marginalize_uncertainty:
             mu, var = self.detection_efficiency(parameters)
             if self.enforce_convergence:
-                converged = self.check_convergence(mu, var)
-                if not converged:
-                    return xp.inf, var
+                _, correction = self.check_convergence(mu, var)
+                mu += correction
             return mu, var
         else:
             vt_factor = self.vt_factor(parameters)
             return vt_factor
 
     def check_convergence(self, mu, var):
-        if mu**2 <= 4 * self.n_events * var:
-            return False
-        else:
-            return True
+        converged = mu**2 > 4 * self.n_events * var
+        return (
+            converged,
+            xp.nan_to_num(xp.inf * (1 - converged), nan=0, posinf=xp.inf),
+        )
 
     def vt_factor(self, parameters):
         """
@@ -155,20 +156,20 @@ class ResamplingVT(_BaseVT):
             The population parameters
         """
         mu, var = self.detection_efficiency(parameters)
-        converged = self.check_convergence(mu, var)
-        if not converged:
-            return xp.inf
+        _, correction = self.check_convergence(mu, var)
         n_effective = mu**2 / var
-        vt_factor = mu / np.exp((3 + self.n_events) / 2 / n_effective)
+        vt_factor = mu / xp.exp((3 + self.n_events) / 2 / n_effective)
+        vt_factor += correction
         return vt_factor
 
     def detection_efficiency(self, parameters):
         self.model.parameters.update(parameters)
         weights = self.model.prob(self.data) / self.data["prior"]
-        mu = float(xp.sum(weights) / self.total_injections)
-        var = float(
+        mu = to_number(xp.sum(weights) / self.total_injections, float)
+        var = to_number(
             xp.sum(weights**2) / self.total_injections**2
-            - mu**2 / self.total_injections
+            - mu**2 / self.total_injections,
+            float,
         )
         return mu, var
 

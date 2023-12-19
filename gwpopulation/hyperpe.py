@@ -9,7 +9,7 @@ from bilby.core.likelihood import Likelihood
 from bilby.core.utils import logger
 from bilby.hyper.model import Model
 
-from .utils import get_name, to_numpy
+from .utils import get_name, to_number, to_numpy
 
 xp = np
 
@@ -137,14 +137,13 @@ class HyperparameterLikelihood(Likelihood):
         variance += selection_variance
         ln_l += selection
         self._pop_added(added_keys)
-        return ln_l, float(variance)
+        return ln_l, to_number(variance, float)
 
     def log_likelihood_ratio(self):
         ln_l, variance = self.ln_likelihood_and_variance()
-        if variance > self._max_variance or xp.isnan(ln_l):
-            return -self._inf
-        else:
-            return float(xp.nan_to_num(ln_l))
+        ln_l = xp.nan_to_num(ln_l, nan=-xp.inf)
+        ln_l -= xp.nan_to_num(xp.inf * (self.maximum_uncertainty < variance), nan=0)
+        return to_number(xp.nan_to_num(ln_l), float)
 
     def noise_log_likelihood(self):
         return self.total_noise_evidence

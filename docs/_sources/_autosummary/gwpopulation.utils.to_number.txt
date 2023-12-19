@@ -1,0 +1,6 @@
+gwpopulation.utils.to\_number
+=============================
+
+.. currentmodule:: gwpopulation.utils
+
+.. autofunction:: to_number

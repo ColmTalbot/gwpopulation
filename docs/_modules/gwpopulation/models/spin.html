@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.models.spin &mdash; GWPopulation 0.1.dev1+g3db35c5 documentation</title>
+  <title>gwpopulation.models.spin &mdash; GWPopulation 0.1.dev1+g189bcc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=bea02c59"></script>
+        <script src="../../../_static/documentation_options.js?v=be76339d"></script>
         <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -166,8 +166,6 @@
 <span class="sd">    amax_1, amax_2: float</span>
 <span class="sd">        Maximum spin of the more/less massive black hole.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">alpha_chi_1</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">beta_chi_1</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">alpha_chi_2</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">beta_chi_2</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">0</span>
     <span class="n">prior</span> <span class="o">=</span> <span class="n">beta_dist</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;a_1&quot;</span><span class="p">],</span> <span class="n">alpha_chi_1</span><span class="p">,</span> <span class="n">beta_chi_1</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">amax_1</span>
     <span class="p">)</span> <span class="o">*</span> <span class="n">beta_dist</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;a_2&quot;</span><span class="p">],</span> <span class="n">alpha_chi_2</span><span class="p">,</span> <span class="n">beta_chi_2</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">amax_2</span><span class="p">)</span>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.utils.truncnorm &mdash; GWPopulation 0.1.dev1+g189bcc1 documentation</title>
+  <title>gwpopulation.utils.apply_conditions &mdash; GWPopulation 0.1.dev1+g189bcc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -19,13 +19,11 @@
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="gwpopulation.utils.unnormalized_2d_gaussian" href="gwpopulation.utils.unnormalized_2d_gaussian.html" />
-    <link rel="prev" title="gwpopulation.utils.to_numpy" href="gwpopulation.utils.to_numpy.html" /> 
+    <link rel="next" title="gwpopulation.utils.beta_dist" href="gwpopulation.utils.beta_dist.html" />
+    <link rel="prev" title="gwpopulation.utils" href="gwpopulation.utils.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -57,17 +55,17 @@
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.conversions.html">gwpopulation.conversions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.apply_conditions.html">gwpopulation.utils.apply_conditions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">gwpopulation.utils.apply_conditions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gwpopulation.utils.apply_conditions"><code class="docutils literal notranslate"><span class="pre">apply_conditions()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.beta_dist.html">gwpopulation.utils.beta_dist</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.get_name.html">gwpopulation.utils.get_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.get_version_information.html">gwpopulation.utils.get_version_information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.powerlaw.html">gwpopulation.utils.powerlaw</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.to_number.html">gwpopulation.utils.to_number</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.to_numpy.html">gwpopulation.utils.to_numpy</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">gwpopulation.utils.truncnorm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#gwpopulation.utils.truncnorm"><code class="docutils literal notranslate"><span class="pre">truncnorm()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.truncnorm.html">gwpopulation.utils.truncnorm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.unnormalized_2d_gaussian.html">gwpopulation.utils.unnormalized_2d_gaussian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gwpopulation.utils.von_mises.html">gwpopulation.utils.von_mises</a></li>
 </ul>
@@ -94,9 +92,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="gwpopulation.utils.html">gwpopulation.utils</a></li>
-      <li class="breadcrumb-item active">gwpopulation.utils.truncnorm</li>
+      <li class="breadcrumb-item active">gwpopulation.utils.apply_conditions</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/gwpopulation.utils.truncnorm.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/gwpopulation.utils.apply_conditions.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -104,35 +102,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="gwpopulation-utils-truncnorm">
-<h1>gwpopulation.utils.truncnorm<a class="headerlink" href="#gwpopulation-utils-truncnorm" title="Link to this heading"></a></h1>
+  <section id="gwpopulation-utils-apply-conditions">
+<h1>gwpopulation.utils.apply_conditions<a class="headerlink" href="#gwpopulation-utils-apply-conditions" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="gwpopulation.utils.truncnorm">
-<span class="sig-prename descclassname"><span class="pre">gwpopulation.utils.</span></span><span class="sig-name descname"><span class="pre">truncnorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/utils.html#truncnorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.utils.truncnorm" title="Link to this definition"></a></dt>
-<dd><p>Truncated normal probability</p>
-<div class="math notranslate nohighlight">
-\[p(x) =
-\sqrt{\frac{2}{\pi\sigma^2}}
-\left[\text{erf}\left(\frac{x_\max - \mu}{\sqrt{2}}\right) + \text{erf}\left(\frac{\mu - x_\min}{\sqrt{2}}\right)\right]^{-1}
-\exp\left(-\frac{(\mu - x)^2}{2 \sigma^2}\right)\]</div>
+<dt class="sig sig-object py" id="gwpopulation.utils.apply_conditions">
+<span class="sig-prename descclassname"><span class="pre">gwpopulation.utils.</span></span><span class="sig-name descname"><span class="pre">apply_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/utils.html#apply_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.utils.apply_conditions" title="Link to this definition"></a></dt>
+<dd><p>A decorator to apply conditions to inputs of a function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>xx: float, array-like</strong></dt><dd><p>The abscissa values (<span class="math notranslate nohighlight">\(x\)</span>)</p>
+<dt><strong>func: callable</strong></dt><dd><p>The function to decorate.</p>
 </dd>
-<dt><strong>mu: float, array-like</strong></dt><dd><p>The mean of the normal distribution (<span class="math notranslate nohighlight">\(\mu\)</span>)</p>
-</dd>
-<dt><strong>sigma: float</strong></dt><dd><p>The standard deviation of the distribution (<span class="math notranslate nohighlight">\(\sigma\)</span>)</p>
-</dd>
-<dt><strong>high: float, array-like</strong></dt><dd><p>The maximum of the distribution (<span class="math notranslate nohighlight">\(x_\min\)</span>)</p>
-</dd>
-<dt><strong>low: float, array-like</strong></dt><dd><p>The minimum of the distribution (<span class="math notranslate nohighlight">\(x_\max\)</span>)</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>prob: float, array-like</dt><dd><p>The distribution evaluated at <cite>xx</cite></p>
+<dt><strong>conditions: dict</strong></dt><dd><p>A dictionary of conditions to apply to the function. The keys are the
+argument names and the values are the conditions. The conditions can be
+should be in the form (op, value) where op is a comparison operator and
+value is the value to compare to. The conditions can also be a callable
+which takes the value as an argument and returns a boolean. The variable
+must be specified as a keyword argument for the test to be applied.</p>
 </dd>
 </dl>
 </dd>
@@ -145,8 +131,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="gwpopulation.utils.to_numpy.html" class="btn btn-neutral float-left" title="gwpopulation.utils.to_numpy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="gwpopulation.utils.unnormalized_2d_gaussian.html" class="btn btn-neutral float-right" title="gwpopulation.utils.unnormalized_2d_gaussian" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="gwpopulation.utils.html" class="btn btn-neutral float-left" title="gwpopulation.utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gwpopulation.utils.beta_dist.html" class="btn btn-neutral float-right" title="gwpopulation.utils.beta_dist" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

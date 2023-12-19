@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.backend &mdash; GWPopulation 0.1.dev1+g3db35c5 documentation</title>
+  <title>gwpopulation.backend &mdash; GWPopulation 0.1.dev1+g189bcc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=bea02c59"></script>
+        <script src="../../_static/documentation_options.js?v=be76339d"></script>
         <script src="../../_static/doctools.js?v=888ff710"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -84,7 +84,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for gwpopulation.backend</h1><div class="highlight"><pre>
-<span></span><span class="n">__all_with_xp</span> <span class="o">=</span> <span class="p">[</span>
+<span></span><span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
+
+<span class="n">__all_with_xp</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;hyperpe&quot;</span><span class="p">,</span>
     <span class="s2">&quot;models.interped&quot;</span><span class="p">,</span>
     <span class="s2">&quot;models.mass&quot;</span><span class="p">,</span>
@@ -95,8 +97,9 @@
 <span class="p">]</span>
 <span class="n">__all_with_scs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;models.mass&quot;</span><span class="p">,</span> <span class="s2">&quot;utils&quot;</span><span class="p">]</span>
 <span class="n">__backend__</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-<span class="n">SUPPORTED_BACKENDS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="s2">&quot;cupy&quot;</span><span class="p">]</span>
-<span class="n">_scipy_module</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">numpy</span><span class="o">=</span><span class="s2">&quot;scipy&quot;</span><span class="p">,</span> <span class="n">cupy</span><span class="o">=</span><span class="s2">&quot;cupyx.scipy&quot;</span><span class="p">)</span>
+<span class="n">SUPPORTED_BACKENDS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="s2">&quot;cupy&quot;</span><span class="p">,</span> <span class="s2">&quot;jax&quot;</span><span class="p">]</span>
+<span class="n">_np_module</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">numpy</span><span class="o">=</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="n">cupy</span><span class="o">=</span><span class="s2">&quot;cupy&quot;</span><span class="p">,</span> <span class="n">jax</span><span class="o">=</span><span class="s2">&quot;jax.numpy&quot;</span><span class="p">)</span>
+<span class="n">_scipy_module</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">numpy</span><span class="o">=</span><span class="s2">&quot;scipy&quot;</span><span class="p">,</span> <span class="n">cupy</span><span class="o">=</span><span class="s2">&quot;cupyx.scipy&quot;</span><span class="p">,</span> <span class="n">jax</span><span class="o">=</span><span class="s2">&quot;jax.scipy&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="disable_cupy">
@@ -125,6 +128,14 @@
 
 
 
+<span class="k">def</span> <span class="nf">_configure_jax</span><span class="p">(</span><span class="n">xp</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">config</span>
+    <span class="kn">from</span> <span class="nn">jax.scipy.integrate</span> <span class="kn">import</span> <span class="n">trapezoid</span>
+
+    <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">xp</span><span class="o">.</span><span class="n">trapz</span> <span class="o">=</span> <span class="n">trapezoid</span>
+
+
 <div class="viewcode-block" id="set_backend">
 <a class="viewcode-back" href="../../_autosummary/gwpopulation.backend.set_backend.html#gwpopulation.backend.set_backend">[docs]</a>
 <span class="k">def</span> <span class="nf">set_backend</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;numpy&quot;</span><span class="p">):</span>
@@ -136,13 +147,17 @@
     <span class="k">elif</span> <span class="n">backend</span> <span class="o">==</span> <span class="n">__backend__</span><span class="p">:</span>
         <span class="k">return</span>
 
-    <span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
-
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">xp</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+        <span class="n">xp</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">_np_module</span><span class="p">[</span><span class="n">backend</span><span class="p">])</span>
         <span class="n">scs</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">_scipy_module</span><span class="p">[</span><span class="n">backend</span><span class="p">])</span><span class="o">.</span><span class="n">special</span>
     <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> not installed&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> not installed for gwpopulation&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> installed but not importable for gwpopulation&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;jax&quot;</span><span class="p">:</span>
+        <span class="n">_configure_jax</span><span class="p">(</span><span class="n">xp</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">__all_with_xp</span><span class="p">:</span>
         <span class="n">__backend__</span> <span class="o">=</span> <span class="n">backend</span>
         <span class="n">import_module</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="s2">&quot;gwpopulation&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">xp</span> <span class="o">=</span> <span class="n">xp</span>

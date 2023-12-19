@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.utils &mdash; GWPopulation 0.1.dev1+g3db35c5 documentation</title>
+  <title>gwpopulation.utils &mdash; GWPopulation 0.1.dev1+g189bcc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=bea02c59"></script>
+        <script src="../../_static/documentation_options.js?v=be76339d"></script>
         <script src="../../_static/doctools.js?v=888ff710"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -88,6 +88,7 @@
 <span class="sd">Helper functions for probability distributions.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">eq</span><span class="p">,</span> <span class="n">ge</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">le</span><span class="p">,</span> <span class="n">lt</span><span class="p">,</span> <span class="n">ne</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span> <span class="k">as</span> <span class="n">scs</span>
@@ -95,8 +96,61 @@
 <span class="n">xp</span> <span class="o">=</span> <span class="n">np</span>
 
 
+<div class="viewcode-block" id="apply_conditions">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.apply_conditions.html#gwpopulation.utils.apply_conditions">[docs]</a>
+<span class="k">def</span> <span class="nf">apply_conditions</span><span class="p">(</span><span class="n">conditions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A decorator to apply conditions to inputs of a function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    func: callable</span>
+<span class="sd">        The function to decorate.</span>
+<span class="sd">    conditions: dict</span>
+<span class="sd">        A dictionary of conditions to apply to the function. The keys are the</span>
+<span class="sd">        argument names and the values are the conditions. The conditions can be</span>
+<span class="sd">        should be in the form (op, value) where op is a comparison operator and</span>
+<span class="sd">        value is the value to compare to. The conditions can also be a callable</span>
+<span class="sd">        which takes the value as an argument and returns a boolean. The variable</span>
+<span class="sd">        must be specified as a keyword argument for the test to be applied.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapped_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;jax&quot;</span> <span class="ow">in</span> <span class="n">xp</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">conditions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">condition</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">condition</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Condition </span><span class="si">{</span><span class="n">condition</span><span class="si">}</span><span class="s2"> not met&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">op</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">condition</span>
+                    <span class="k">if</span> <span class="s2">&quot;cupy&quot;</span> <span class="ow">in</span> <span class="n">xp</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">op</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">xp</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">op</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">val</span><span class="p">)):</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> does not satisfy </span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Operator </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2"> not supported&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapped_function</span>
+
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+
 <div class="viewcode-block" id="beta_dist">
 <a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.beta_dist.html#gwpopulation.utils.beta_dist">[docs]</a>
+<span class="nd">@apply_conditions</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">scale</span><span class="o">=</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
 <span class="k">def</span> <span class="nf">beta_dist</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Beta distribution probability</span>
@@ -121,10 +175,6 @@
 <span class="sd">        The distribution evaluated at `xx`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">alpha</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameter alpha must be greater or equal zero, low=</span><span class="si">{</span><span class="n">alpha</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">beta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameter beta must be greater or equal zero, low=</span><span class="si">{</span><span class="n">beta</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
     <span class="n">ln_beta</span> <span class="o">=</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">beta</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">scale</span> <span class="o">-</span> <span class="n">xx</span><span class="p">)</span>
     <span class="n">ln_beta</span> <span class="o">-=</span> <span class="n">scs</span><span class="o">.</span><span class="n">betaln</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
     <span class="n">ln_beta</span> <span class="o">-=</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
@@ -137,6 +187,7 @@
 
 <div class="viewcode-block" id="powerlaw">
 <a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.powerlaw.html#gwpopulation.utils.powerlaw">[docs]</a>
+<span class="nd">@apply_conditions</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="p">(</span><span class="n">ge</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">alpha</span><span class="o">=</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
 <span class="k">def</span> <span class="nf">powerlaw</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Power-law probability</span>
@@ -161,12 +212,11 @@
 <span class="sd">        The distribution evaluated at `xx`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">xp</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">low</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameter low must be greater or equal zero, low=</span><span class="si">{</span><span class="n">low</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">alpha</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">high</span> <span class="o">/</span> <span class="n">low</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">high</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">-</span> <span class="n">low</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">))</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">xp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span> <span class="o">/</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">high</span> <span class="o">/</span> <span class="n">low</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="n">xp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">high</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">-</span> <span class="n">low</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)),</span>
+    <span class="p">)</span>
     <span class="n">prob</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
     <span class="n">prob</span> <span class="o">*=</span> <span class="n">norm</span>
     <span class="n">prob</span> <span class="o">*=</span> <span class="p">(</span><span class="n">xx</span> <span class="o">&lt;=</span> <span class="n">high</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">xx</span> <span class="o">&gt;=</span> <span class="n">low</span><span class="p">)</span>
@@ -176,6 +226,7 @@
 
 <div class="viewcode-block" id="truncnorm">
 <a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.truncnorm.html#gwpopulation.utils.truncnorm">[docs]</a>
+<span class="nd">@apply_conditions</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
 <span class="k">def</span> <span class="nf">truncnorm</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Truncated normal probability</span>
@@ -205,8 +256,6 @@
 <span class="sd">        The distribution evaluated at `xx`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">sigma</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sigma must be greater than 0, sigma=</span><span class="si">{</span><span class="n">sigma</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">norm</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">xp</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">sigma</span>
     <span class="n">norm</span> <span class="o">/=</span> <span class="n">scs</span><span class="o">.</span><span class="n">erf</span><span class="p">((</span><span class="n">high</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">+</span> <span class="n">scs</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span>
         <span class="p">(</span><span class="n">mu</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">sigma</span>
@@ -331,6 +380,16 @@
 
 
 
+<div class="viewcode-block" id="to_number">
+<a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.to_number.html#gwpopulation.utils.to_number">[docs]</a>
+<span class="k">def</span> <span class="nf">to_number</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s2">&quot;jax&quot;</span> <span class="ow">in</span> <span class="n">xp</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="to_numpy">
 <a class="viewcode-back" href="../../_autosummary/gwpopulation.utils.to_numpy.html#gwpopulation.utils.to_numpy">[docs]</a>
 <span class="k">def</span> <span class="nf">to_numpy</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
@@ -349,6 +408,8 @@
         <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
     <span class="k">elif</span> <span class="s2">&quot;pandas&quot;</span> <span class="ow">in</span> <span class="n">array</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">array</span>
+    <span class="k">elif</span> <span class="s2">&quot;jax&quot;</span> <span class="ow">in</span> <span class="n">array</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot convert </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">array</span><span class="p">)</span><span class="si">}</span><span class="s2"> to numpy array&quot;</span><span class="p">)</span></div>
 

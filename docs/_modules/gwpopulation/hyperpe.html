@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.hyperpe &mdash; GWPopulation 0.1.dev1+g3db35c5 documentation</title>
+  <title>gwpopulation.hyperpe &mdash; GWPopulation 0.1.dev1+g189bcc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=bea02c59"></script>
+        <script src="../../_static/documentation_options.js?v=be76339d"></script>
         <script src="../../_static/doctools.js?v=888ff710"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -95,7 +95,7 @@
 <span class="kn">from</span> <span class="nn">bilby.core.utils</span> <span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span> <span class="nn">bilby.hyper.model</span> <span class="kn">import</span> <span class="n">Model</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_name</span><span class="p">,</span> <span class="n">to_numpy</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_name</span><span class="p">,</span> <span class="n">to_number</span><span class="p">,</span> <span class="n">to_numpy</span>
 
 <span class="n">xp</span> <span class="o">=</span> <span class="n">np</span>
 
@@ -230,17 +230,16 @@
         <span class="n">variance</span> <span class="o">+=</span> <span class="n">selection_variance</span>
         <span class="n">ln_l</span> <span class="o">+=</span> <span class="n">selection</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pop_added</span><span class="p">(</span><span class="n">added_keys</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ln_l</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">variance</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">ln_l</span><span class="p">,</span> <span class="n">to_number</span><span class="p">(</span><span class="n">variance</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="HyperparameterLikelihood.log_likelihood_ratio">
 <a class="viewcode-back" href="../../_autosummary/gwpopulation.hyperpe.HyperparameterLikelihood.html#gwpopulation.hyperpe.HyperparameterLikelihood.log_likelihood_ratio">[docs]</a>
     <span class="k">def</span> <span class="nf">log_likelihood_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ln_l</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ln_likelihood_and_variance</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">variance</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_variance</span> <span class="ow">or</span> <span class="n">xp</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ln_l</span><span class="p">):</span>
-            <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_inf</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ln_l</span><span class="p">))</span></div>
+        <span class="n">ln_l</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ln_l</span><span class="p">,</span> <span class="n">nan</span><span class="o">=-</span><span class="n">xp</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="n">ln_l</span> <span class="o">-=</span> <span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">inf</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maximum_uncertainty</span> <span class="o">&lt;</span> <span class="n">variance</span><span class="p">),</span> <span class="n">nan</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">to_number</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ln_l</span><span class="p">),</span> <span class="nb">float</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="HyperparameterLikelihood.noise_log_likelihood">

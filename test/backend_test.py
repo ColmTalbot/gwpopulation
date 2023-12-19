@@ -45,6 +45,7 @@ def test_import_error_caught_for_mangled_install():
 
     FIXME: figure out how to replace this with mock
     """
+
     def _import(module):
         raise ImportError
 

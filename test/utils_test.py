@@ -156,6 +156,7 @@ def test_callable_condition_satisfied():
 
 def test_non_callable_op_raises_error():
     gwpopulation.set_backend("numpy")
+
     @gwpopulation.utils.apply_conditions(dict(a=("ge", 0)))
     def _condition_func(a):
         return

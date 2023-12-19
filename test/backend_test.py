@@ -26,14 +26,14 @@ def test_set_backend(backend):
 def test_enable_cupy_deprecated():
     with pytest.deprecated_call():
         try:
-            gwpopulation.enable_cupy()
+            gwpopulation.backend.enable_cupy()
         except ImportError:
             pass
 
 
 def test_disable_cupy_deprecated():
     with pytest.deprecated_call():
-        gwpopulation.disable_cupy()
+        gwpopulation.backend.disable_cupy()
 
 
 def test_import_error_caught_for_mangled_install():

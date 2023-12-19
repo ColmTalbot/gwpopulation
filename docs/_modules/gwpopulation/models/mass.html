@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.models.mass &mdash; GWPopulation 0.1.dev1+g189bcc1 documentation</title>
+  <title>gwpopulation.models.mass &mdash; GWPopulation 0.1.dev1+gb1a4cf5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=be76339d"></script>
+        <script src="../../../_static/documentation_options.js?v=beea0d96"></script>
         <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -672,12 +672,6 @@
             <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span>
         <span class="p">)</span>
         <span class="n">norm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_p_m1</span><span class="p">(</span><span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="n">norm</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">(</span>
-                <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span> <span class="n">mmin</span><span class="o">=</span><span class="n">mmin</span><span class="p">,</span> <span class="n">mmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mmax</span><span class="p">,</span> <span class="n">delta_m</span><span class="o">=</span><span class="n">delta_m</span>
-            <span class="p">),</span>
-        <span class="p">)</span>
         <span class="k">return</span> <span class="n">p_m</span> <span class="o">/</span> <span class="n">norm</span>
 
 <div class="viewcode-block" id="BaseSmoothedMassDistribution.norm_p_m1">

@@ -1,0 +1,6 @@
+gwpopulation.backend.modules\_to\_update
+========================================
+
+.. currentmodule:: gwpopulation.backend
+
+.. autofunction:: modules_to_update

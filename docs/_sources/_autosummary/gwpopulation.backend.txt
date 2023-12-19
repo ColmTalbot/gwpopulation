@@ -18,6 +18,7 @@
    
       disable_cupy
       enable_cupy
+      modules_to_update
       set_backend
    
    

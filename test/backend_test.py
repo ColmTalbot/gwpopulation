@@ -34,3 +34,23 @@ def test_enable_cupy_deprecated():
 def test_disable_cupy_deprecated():
     with pytest.deprecated_call():
         gwpopulation.disable_cupy()
+
+
+def test_import_error_caught_for_mangled_install():
+    """
+    Replace importlib.import_module with a dummy function raise
+    the required error.
+
+    Two calls are needed to avoid caching of the backend.
+
+    FIXME: figure out how to replace this with mock
+    """
+    def _import(module):
+        raise ImportError
+
+    gwpopulation.backend.import_module = _import
+    with pytest.raises(ImportError):
+        gwpopulation.set_backend("numpy")
+        gwpopulation.set_backend("jax")
+
+    gwpopulation.backend.import_module = importlib.import_module

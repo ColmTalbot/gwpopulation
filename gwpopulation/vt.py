@@ -127,15 +127,19 @@ class ResamplingVT(_BaseVT):
         if not self.marginalize_uncertainty:
             mu, var = self.detection_efficiency(parameters)
             if self.enforce_convergence:
-                converged = self.check_convergence(mu, var)
-                mu += xp.nan_to_num(xp.inf * (1 - converged), nan=0, posinf=xp.inf)
+                _, correction = self.check_convergence(mu, var)
+                mu += correction
             return mu, var
         else:
             vt_factor = self.vt_factor(parameters)
             return vt_factor
 
     def check_convergence(self, mu, var):
-        return mu**2 > 4 * self.n_events * var
+        converged = mu**2 > 4 * self.n_events * var
+        return (
+            converged,
+            xp.nan_to_num(xp.inf * (1 - converged), nan=0, posinf=xp.inf)
+        )
 
     def vt_factor(self, parameters):
         """
@@ -152,10 +156,10 @@ class ResamplingVT(_BaseVT):
             The population parameters
         """
         mu, var = self.detection_efficiency(parameters)
-        converged = self.check_convergence(mu, var)
+        _, correction = self.check_convergence(mu, var)
         n_effective = mu**2 / var
         vt_factor = mu / xp.exp((3 + self.n_events) / 2 / n_effective)
-        vt_factor += xp.nan_to_num(xp.inf * (1 - converged), nan=0, posinf=xp.inf)
+        vt_factor += correction
         return vt_factor
 
     def detection_efficiency(self, parameters):

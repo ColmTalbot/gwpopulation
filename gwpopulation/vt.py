@@ -138,7 +138,7 @@ class ResamplingVT(_BaseVT):
         converged = mu**2 > 4 * self.n_events * var
         return (
             converged,
-            xp.nan_to_num(xp.inf * (1 - converged), nan=0, posinf=xp.inf)
+            xp.nan_to_num(xp.inf * (1 - converged), nan=0, posinf=xp.inf),
         )
 
     def vt_factor(self, parameters):

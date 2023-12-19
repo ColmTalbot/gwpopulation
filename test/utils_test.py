@@ -136,3 +136,29 @@ def test_to_numpy_non_array_type_raises_error():
 
 def test_get_version():
     assert gwpopulation.__version__ == utils.get_version_information()
+
+
+@gwpopulation.utils.apply_conditions(dict(a=lambda a: a > 0))
+def _condition_func(a):
+    return a
+
+
+def test_callable_condition_not_satisfied():
+    gwpopulation.set_backend("numpy")
+    with pytest.raises(ValueError):
+        _condition_func(a=-1)
+
+
+def test_callable_condition_satisfied():
+    gwpopulation.set_backend("numpy")
+    assert _condition_func(a=1) == 1
+
+
+def test_non_callable_op_raises_error():
+    gwpopulation.set_backend("numpy")
+    @gwpopulation.utils.apply_conditions(dict(a=("ge", 0)))
+    def _condition_func(a):
+        return
+
+    with pytest.raises(ValueError):
+        _condition_func(a=1)

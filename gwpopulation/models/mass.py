@@ -548,12 +548,6 @@ class BaseSmoothedMassDistribution(object):
             dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
         )
         norm = self.norm_p_m1(delta_m=delta_m, **kwargs)
-        print(
-            norm,
-            self.smoothing(
-                dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
-            ),
-        )
         return p_m / norm
 
     def norm_p_m1(self, delta_m, **kwargs):

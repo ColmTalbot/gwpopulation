@@ -338,14 +338,28 @@ class HyperparameterLikelihood(Likelihood):
         weights = (weights.T / xp.sum(weights, axis=-1)).T
         new_idxs = xp.empty_like(weights, dtype=int)
         for ii in range(self.n_posteriors):
-            new_idxs[ii] = xp.asarray(
-                np.random.choice(
-                    range(self.samples_per_posterior),
-                    size=self.samples_per_posterior,
-                    replace=True,
-                    p=to_numpy(weights[ii]),
+            if "jax" in xp.__name__:
+                from jax import random
+
+                rng_key = random.PRNGKey(np.random.randint(10000000))
+                new_idxs = new_idxs.at[ii].set(
+                    random.choice(
+                        rng_key,
+                        xp.arange(self.samples_per_posterior),
+                        shape=(self.samples_per_posterior,),
+                        replace=True,
+                        p=weights[ii],
+                    )
                 )
-            )
+            else:
+                new_idxs[ii] = xp.asarray(
+                    np.random.choice(
+                        range(self.samples_per_posterior),
+                        size=self.samples_per_posterior,
+                        replace=True,
+                        p=to_numpy(weights[ii]),
+                    )
+                )
         new_samples = {
             key: xp.vstack(
                 [self.data[key][ii, new_idxs[ii]] for ii in range(self.n_posteriors)]

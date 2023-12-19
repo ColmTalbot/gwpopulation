@@ -8,6 +8,7 @@ _scipy_module = dict(numpy="scipy", cupy="cupyx.scipy", jax="jax.scipy")
 
 def modules_to_update():
     import sys
+
     if sys.version_info < (3, 10):
         from importlib_metadata import entry_points
     else:
@@ -21,9 +22,13 @@ def modules_to_update():
         ".utils",
         ".vt",
     ]
-    all_with_xp.extend([module.value for module in entry_points(group="gwpopulation.xp")])
+    all_with_xp.extend(
+        [module.value for module in entry_points(group="gwpopulation.xp")]
+    )
     all_with_scs = [".models.mass", ".utils"]
-    all_with_scs.extend([module.value for module in entry_points(group="gwpopulation.scs")])
+    all_with_scs.extend(
+        [module.value for module in entry_points(group="gwpopulation.scs")]
+    )
     return all_with_xp, all_with_scs
 
 
@@ -72,9 +77,9 @@ def _load_numpy_and_scipy(backend):
 
 def _set_in_module(module, name, value):
     if module.startswith("."):
-        package="gwpopulation"
+        package = "gwpopulation"
     else:
-        package=None
+        package = None
     setattr(import_module(module, package=package), name, value)
 
 
@@ -87,7 +92,7 @@ def set_backend(backend="numpy"):
     elif backend == __backend__:
         return
 
-    xp, scs = _load_numpy_and_scipy(backend)       
+    xp, scs = _load_numpy_and_scipy(backend)
 
     __backend__ = backend
     all_with_xp, all_with_scs = modules_to_update()

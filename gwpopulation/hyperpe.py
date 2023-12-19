@@ -172,7 +172,9 @@ class HyperparameterLikelihood(Likelihood):
         selection, variance = self._selection_function_with_uncertainty()
         total_selection = -self.n_posteriors * xp.log(selection)
         if return_uncertainty:
-            total_variance = self.n_posteriors**2 * xp.divide(variance, selection**2)
+            total_variance = self.n_posteriors**2 * xp.divide(
+                variance, selection**2
+            )
             return total_selection, total_variance
         else:
             return total_selection

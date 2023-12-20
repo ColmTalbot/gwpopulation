@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from bilby.core.prior import PriorDict, Uniform
+from bilby.core.prior import DeltaFunction, Normal, PriorDict, Uniform
 
 import gwpopulation
 from gwpopulation.models import mass
@@ -55,6 +55,15 @@ def smooth_prior():
     smooth_prior = PriorDict()
     smooth_prior["delta_m"] = Uniform(minimum=0, maximum=10)
     return smooth_prior
+
+
+def interpolated_prior(n_nodes):
+    prior = PriorDict()
+    nodes = np.logspace(np.log10(2), np.log10(100), n_nodes)
+    for ii in range(n_nodes):
+        prior[f"mass{ii}"] = DeltaFunction(nodes[ii])
+        prior[f"fmass{ii}"] = Normal(0, 1e-5)
+    return prior
 
 
 @pytest.mark.parametrize("backend", TEST_BACKENDS)
@@ -242,7 +251,19 @@ def test_double_peak_delta_m_zero_matches_three_component_primary_mass_ratio(bac
 
 
 def _normalised(model, prior, xp):
+    """
+    Add jit to jax testing as these functions involve
+    caching and so we burn a call and then jit.
+    """
     m1s, qs, dataset = get_smoothed_data(xp)
+    parameters = prior.sample()
+    _ = model(dataset, **parameters)
+
+    if "jax" in xp.__name__:
+        import jax
+
+        model = jax.jit(model)
+
     norms = list()
     for _ in range(N_TEST):
         parameters = prior.sample()
@@ -338,6 +359,26 @@ def test_mmax_above_global_maximum_raises_error():
     parameters["mmax"] = 200
     with pytest.raises(ValueError):
         model(dict(mass_1=5, mass_ratio=0.9), **parameters)
+
+
+@pytest.mark.parametrize("backend", TEST_BACKENDS)
+def test_interpolated_power_law_p_m1_normalised(backend):
+    """
+    Numerical normalization is not very accuracte for the the interpolated
+    powerlaw, fortunately, we don't have to worry about the normalization of
+    the primary mass distribution if we are including selection effects, only
+    the mass ratio which is conditional.
+
+    To test that this normalization isn't broken by the interpolant, we set
+    the perturbation to be very small.
+    """
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    model = mass.InterpolatedPowerlaw()
+    prior = interpolated_prior(10)
+    prior.update(smooth_prior())
+    prior.update(power_prior())
+    _normalised(model, prior, xp)
 
 
 def _max_abs_difference(array, comparison, xp=np):

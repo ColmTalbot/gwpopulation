@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import pytest
 from bilby.core.prior import DeltaFunction, Normal, PriorDict, Uniform
@@ -101,6 +103,7 @@ def get_primary_mass_ratio_data(xp):
     qs = xp.linspace(0.01, 1, 500)
     m1s_grid, qs_grid = xp.meshgrid(m1s, qs)
     dataset = dict(mass_1=m1s_grid, mass_ratio=qs_grid)
+    dataset["mass_2"] = dataset["mass_1"] * dataset["mass_ratio"]
     return m1s, qs, dataset
 
 
@@ -120,97 +123,69 @@ def get_smoothed_data(xp):
     return m1s, qs, dataset
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
-def test_power_law_primary_mass_ratio_zero_below_mmin(backend):
+analytic_models = {
+    "single": mass.power_law_primary_mass_ratio,
+    "double": mass.double_power_law_primary_power_law_mass_ratio,
+    "identical": mass.power_law_primary_secondary_identical,
+    "independent": mass.power_law_primary_secondary_independent,
+    "two": mass.two_component_primary_mass_ratio,
+    "two-identical": mass.two_component_primary_secondary_identical,
+    "two-independent": mass.two_component_primary_secondary_independent,
+}
+
+
+def analytic_prior(model):
+    if model in ["single", "independent"]:
+        return power_prior()
+    elif model == "double":
+        return double_power_prior()
+    elif model == "identical":
+        prior = power_prior()
+        del prior["beta"]
+        return prior
+    elif model in ["two", "two-independent"]:
+        prior = power_prior()
+        prior.update(gauss_prior())
+        prior["gaussian_mass_maximum"] = 80
+        return prior
+    elif model == "two-identical":
+        prior = power_prior()
+        prior.update(gauss_prior())
+        prior["gaussian_mass_maximum"] = 80
+        del prior["beta"]
+        return prior
+    raise ValueError(f"{model} not known")
+
+
+@pytest.mark.parametrize("backend,model", itertools.product(TEST_BACKENDS, analytic_models.keys()))
+def test_zero_below_mmin(backend, model):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
     to_numpy = gwpopulation.utils.to_numpy
     _, _, dataset = get_primary_mass_ratio_data(xp)
-    prior = power_prior()
-    m2s = dataset["mass_1"] * dataset["mass_ratio"]
+    prior = analytic_prior(model)
+    model = analytic_models[model]
+    m2s = dataset["mass_2"]
     for _ in range(N_TEST):
         parameters = prior.sample()
-        p_m = mass.power_law_primary_mass_ratio(dataset, **parameters)
-        p_m = to_numpy(p_m)
+        p_m = to_numpy(model(dataset, **parameters))
         assert np.max(p_m[to_numpy(m2s) < parameters["mmin"]]) == 0.0
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
-def test_power_law_primary_mass_ratio_zero_above_mmax(backend):
+@pytest.mark.parametrize("backend,model", itertools.product(TEST_BACKENDS, analytic_models.keys()))
+def test_zero_above_mmax(backend, model):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
     to_numpy = gwpopulation.utils.to_numpy
     _, _, dataset = get_primary_mass_ratio_data(xp)
-    prior = power_prior()
+    prior = analytic_prior(model)
+    model = analytic_models[model]
     m1s = dataset["mass_1"]
     for _ in range(N_TEST):
         parameters = prior.sample()
-        p_m = mass.power_law_primary_mass_ratio(dataset, **parameters)
-        p_m = to_numpy(p_m)
-        assert np.max(p_m[to_numpy(m1s) > parameters["mmax"]]) == 0.0
-
-
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
-def test_two_component_primary_mass_ratio_zero_below_mmin(backend):
-    gwpopulation.set_backend(backend)
-    xp = gwpopulation.utils.xp
-    to_numpy = gwpopulation.utils.to_numpy
-    _, _, dataset = get_primary_mass_ratio_data(xp)
-    prior = power_prior()
-    prior.update(gauss_prior())
-    m2s = dataset["mass_1"] * dataset["mass_ratio"]
-    for _ in range(N_TEST):
-        parameters = prior.sample()
-        p_m = mass.two_component_primary_mass_ratio(dataset, **parameters)
-        p_m = to_numpy(p_m)
-        assert np.max(p_m[to_numpy(m2s) <= parameters["mmin"]]) == 0.0
-
-
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
-def test_power_law_primary_secondary_zero_below_mmin(backend):
-    gwpopulation.set_backend(backend)
-    xp = gwpopulation.utils.xp
-    to_numpy = gwpopulation.utils.to_numpy
-    _, _, dataset = get_primary_secondary_data(xp)
-    prior = power_prior()
-    m2s = dataset["mass_2"]
-    for _ in range(N_TEST):
-        parameters = prior.sample()
-        p_m = mass.power_law_primary_secondary_independent(dataset, **parameters)
-        p_m = to_numpy(p_m)
-        assert np.max(p_m[to_numpy(m2s) <= parameters["mmin"]]) == 0.0
-
-
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
-def test_power_law_primary_secondary_zero_above_mmax(backend):
-    gwpopulation.set_backend(backend)
-    xp = gwpopulation.utils.xp
-    to_numpy = gwpopulation.utils.to_numpy
-    _, _, dataset = get_primary_secondary_data(xp)
-    prior = power_prior()
-    del prior["beta"]
-    m1s = dataset["mass_1"]
-    for _ in range(N_TEST):
-        parameters = prior.sample()
-        p_m = mass.power_law_primary_secondary_identical(dataset, **parameters)
-        p_m = to_numpy(p_m)
-        assert np.max(p_m[to_numpy(m1s) >= parameters["mmax"]]) == 0.0
-
-
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
-def test_two_component_primary_secondary_zero_below_mmin(backend):
-    gwpopulation.set_backend(backend)
-    xp = gwpopulation.utils.xp
-    to_numpy = gwpopulation.utils.to_numpy
-    _, _, dataset = get_primary_secondary_data(xp)
-    prior = power_prior()
-    prior.update(gauss_prior())
-    del prior["beta"]
-    m2s = dataset["mass_2"]
-    for _ in range(N_TEST):
-        parameters = prior.sample()
-        p_m = mass.two_component_primary_secondary_identical(dataset, **parameters)
-        assert np.max(p_m[to_numpy(m2s) <= parameters["mmin"]]) == 0.0
+        p_m = to_numpy(model(dataset, **parameters))
+        mmax = max(parameters["mmax"], parameters.get("gaussian_mass_maximum", 0))
+        assert np.max(p_m[to_numpy(m1s) > mmax]) == 0.0
 
 
 @pytest.mark.parametrize("backend", TEST_BACKENDS)

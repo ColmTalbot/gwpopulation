@@ -21,16 +21,31 @@ def _setup_interpolant(nodes, values, kind="cubic", backend=xp):
     return interpolant
 
 
-class InterpolatedNoBaseModelIdentical(object):
+class InterpolatedNoBaseModelIdentical:
     """
     Base class for the Interpolated classes with no base model
+
+    Parameters
+    ==========
+    parameters: list
+        List of parameters to interpolate over, e.g., :code:`["a_1", "a_2"]`
+    minimum: float
+        Minimum value to normalize the spline over
+    maximum: float
+        Maximum value to normalize the spline over
+    nodes: int
+        Number of nodes to use in the spline, default=10
+    kind: str
+        The interpolation order of the spline, default="cubic"
+    log_nodes: bool
+        Whether to use log-spaced nodes, default=False
     """
 
-    def __init__(self, parameters, minimum, maximum, nodes=10, kind="cubic"):
+    def __init__(
+        self, parameters, minimum, maximum, nodes=10, kind="cubic", log_nodes=False
+    ):
         """ """
         self.nodes = nodes
-        self.norm_selector = None
-        self.spline_selector = None
         self._norm_spline = None
         self._data_spline = dict()
         self.kind = kind
@@ -38,6 +53,7 @@ class InterpolatedNoBaseModelIdentical(object):
         self.parameters = parameters
         self.min = minimum
         self.max = maximum
+        self.log_nodes = log_nodes
 
         self.base = self.parameters[0].strip("_1")
         self.xkeys = [f"{self.base}{ii}" for ii in range(self.nodes)]
@@ -53,10 +69,14 @@ class InterpolatedNoBaseModelIdentical(object):
         return keys
 
     def setup_interpolant(self, nodes, values):
+        if self.log_nodes:
+            func = xp.log
+        else:
+            func = xp.array
         kwargs = dict(kind=self.kind, backend=xp)
-        self._norm_spline = _setup_interpolant(nodes, self._xs, **kwargs)
+        self._norm_spline = _setup_interpolant(func(nodes), func(self._xs), **kwargs)
         self._data_spline = {
-            param: _setup_interpolant(nodes, values[param], **kwargs)
+            param: _setup_interpolant(func(nodes), func(values[param]), **kwargs)
             for param in self.parameters
         }
 

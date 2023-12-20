@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.models.interped &mdash; GWPopulation 0.1.dev1+gb1a4cf5 documentation</title>
+  <title>gwpopulation.models.interped &mdash; GWPopulation 0.1.dev1+g2d43f7c documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=beea0d96"></script>
+        <script src="../../../_static/documentation_options.js?v=0b821790"></script>
         <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -109,18 +109,33 @@
 
 <div class="viewcode-block" id="InterpolatedNoBaseModelIdentical">
 <a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.interped.InterpolatedNoBaseModelIdentical.html#gwpopulation.models.interped.InterpolatedNoBaseModelIdentical">[docs]</a>
-<span class="k">class</span> <span class="nc">InterpolatedNoBaseModelIdentical</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">InterpolatedNoBaseModelIdentical</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for the Interpolated classes with no base model</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    parameters: list</span>
+<span class="sd">        List of parameters to interpolate over, e.g., :code:`[&quot;a_1&quot;, &quot;a_2&quot;]`</span>
+<span class="sd">    minimum: float</span>
+<span class="sd">        Minimum value to normalize the spline over</span>
+<span class="sd">    maximum: float</span>
+<span class="sd">        Maximum value to normalize the spline over</span>
+<span class="sd">    nodes: int</span>
+<span class="sd">        Number of nodes to use in the spline, default=10</span>
+<span class="sd">    kind: str</span>
+<span class="sd">        The interpolation order of the spline, default=&quot;cubic&quot;</span>
+<span class="sd">    log_nodes: bool</span>
+<span class="sd">        Whether to use log-spaced nodes, default=False</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="InterpolatedNoBaseModelIdentical.__init__">
 <a class="viewcode-back" href="../../../_autosummary/gwpopulation.models.interped.InterpolatedNoBaseModelIdentical.html#gwpopulation.models.interped.InterpolatedNoBaseModelIdentical.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">minimum</span><span class="p">,</span> <span class="n">maximum</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cubic&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">minimum</span><span class="p">,</span> <span class="n">maximum</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cubic&quot;</span><span class="p">,</span> <span class="n">log_nodes</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">norm_selector</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">spline_selector</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_norm_spline</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_spline</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">kind</span>
@@ -128,6 +143,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">=</span> <span class="n">minimum</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="o">=</span> <span class="n">maximum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_nodes</span> <span class="o">=</span> <span class="n">log_nodes</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_1&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xkeys</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="si">}{</span><span class="n">ii</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)]</span>
@@ -144,10 +160,14 @@
         <span class="k">return</span> <span class="n">keys</span>
 
     <span class="k">def</span> <span class="nf">setup_interpolant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_nodes</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">log</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">array</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">xp</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_norm_spline</span> <span class="o">=</span> <span class="n">_setup_interpolant</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_norm_spline</span> <span class="o">=</span> <span class="n">_setup_interpolant</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_xs</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_spline</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">param</span><span class="p">:</span> <span class="n">_setup_interpolant</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">param</span><span class="p">:</span> <span class="n">_setup_interpolant</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span> <span class="n">func</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">param</span><span class="p">]),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span>
         <span class="p">}</span>
 

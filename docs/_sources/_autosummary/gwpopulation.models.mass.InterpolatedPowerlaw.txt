@@ -1,0 +1,43 @@
+gwpopulation.models.mass.InterpolatedPowerlaw
+=============================================
+
+.. currentmodule:: gwpopulation.models.mass
+
+.. autoclass:: InterpolatedPowerlaw
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~InterpolatedPowerlaw.__init__
+      ~InterpolatedPowerlaw.infer_n_nodes
+      ~InterpolatedPowerlaw.norm_p_m1
+      ~InterpolatedPowerlaw.norm_p_q
+      ~InterpolatedPowerlaw.norm_p_x
+      ~InterpolatedPowerlaw.p_m1
+      ~InterpolatedPowerlaw.p_q
+      ~InterpolatedPowerlaw.p_x_identical
+      ~InterpolatedPowerlaw.p_x_unnormed
+      ~InterpolatedPowerlaw.primary_model
+      ~InterpolatedPowerlaw.setup_interpolant
+      ~InterpolatedPowerlaw.smoothing
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~InterpolatedPowerlaw.kwargs
+      ~InterpolatedPowerlaw.variable_names
+   
+   

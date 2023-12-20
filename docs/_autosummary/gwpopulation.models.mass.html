@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gwpopulation.models.mass &mdash; GWPopulation 0.1.dev1+gb1a4cf5 documentation</title>
+  <title>gwpopulation.models.mass &mdash; GWPopulation 0.1.dev1+g2d43f7c documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=beea0d96"></script>
+        <script src="../_static/documentation_options.js?v=0b821790"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -56,6 +56,7 @@
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.double_power_law_peak_primary_mass.html">gwpopulation.models.mass.double_power_law_peak_primary_mass</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.double_power_law_primary_mass.html">gwpopulation.models.mass.double_power_law_primary_mass</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.double_power_law_primary_power_law_mass_ratio.html">gwpopulation.models.mass.double_power_law_primary_power_law_mass_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.power_law_mass.html">gwpopulation.models.mass.power_law_mass</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_mass_ratio.html">gwpopulation.models.mass.power_law_primary_mass_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_secondary_identical.html">gwpopulation.models.mass.power_law_primary_secondary_identical</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_secondary_independent.html">gwpopulation.models.mass.power_law_primary_secondary_independent</a></li>
@@ -67,6 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BaseSmoothedMassDistribution.html">gwpopulation.models.mass.BaseSmoothedMassDistribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html">gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html">gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.InterpolatedPowerlaw.html">gwpopulation.models.mass.InterpolatedPowerlaw</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html">gwpopulation.models.mass.MultiPeakSmoothedMassDistribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html">gwpopulation.models.mass.SinglePeakSmoothedMassDistribution</a></li>
 </ul>
@@ -126,28 +128,31 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.double_power_law_primary_power_law_mass_ratio.html#gwpopulation.models.mass.double_power_law_primary_power_law_mass_ratio" title="gwpopulation.models.mass.double_power_law_primary_power_law_mass_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">double_power_law_primary_power_law_mass_ratio</span></code></a>(...)</p></td>
 <td><p>Power law model for two-dimensional mass distribution, modelling primary mass and conditional mass ratio distribution.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_mass_ratio.html#gwpopulation.models.mass.power_law_primary_mass_ratio" title="gwpopulation.models.mass.power_law_primary_mass_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power_law_primary_mass_ratio</span></code></a>(dataset, alpha, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.power_law_mass.html#gwpopulation.models.mass.power_law_mass" title="gwpopulation.models.mass.power_law_mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power_law_mass</span></code></a>(mass, alpha, mmin, mmax)</p></td>
+<td><p>Power law model for one-dimensional mass distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_mass_ratio.html#gwpopulation.models.mass.power_law_primary_mass_ratio" title="gwpopulation.models.mass.power_law_primary_mass_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power_law_primary_mass_ratio</span></code></a>(dataset, alpha, ...)</p></td>
 <td><p>Power law model for two-dimensional mass distribution, modelling primary mass and conditional mass ratio distribution.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_secondary_identical.html#gwpopulation.models.mass.power_law_primary_secondary_identical" title="gwpopulation.models.mass.power_law_primary_secondary_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power_law_primary_secondary_identical</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_secondary_identical.html#gwpopulation.models.mass.power_law_primary_secondary_identical" title="gwpopulation.models.mass.power_law_primary_secondary_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power_law_primary_secondary_identical</span></code></a>(...)</p></td>
 <td><p>Power law model for two-dimensional mass distribution, modelling the primary and secondary masses as following independent distributions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_secondary_independent.html#gwpopulation.models.mass.power_law_primary_secondary_independent" title="gwpopulation.models.mass.power_law_primary_secondary_independent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power_law_primary_secondary_independent</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_secondary_independent.html#gwpopulation.models.mass.power_law_primary_secondary_independent" title="gwpopulation.models.mass.power_law_primary_secondary_independent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power_law_primary_secondary_independent</span></code></a>(...)</p></td>
 <td><p>Power law model for two-dimensional mass distribution, modelling the primary and secondary masses as following independent distributions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.three_component_single.html#gwpopulation.models.mass.three_component_single" title="gwpopulation.models.mass.three_component_single"><code class="xref py py-obj docutils literal notranslate"><span class="pre">three_component_single</span></code></a>(mass, alpha, mmin, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.three_component_single.html#gwpopulation.models.mass.three_component_single" title="gwpopulation.models.mass.three_component_single"><code class="xref py py-obj docutils literal notranslate"><span class="pre">three_component_single</span></code></a>(mass, alpha, mmin, ...)</p></td>
 <td><p>Power law model for one-dimensional mass distribution with two Gaussian components.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_mass_ratio.html#gwpopulation.models.mass.two_component_primary_mass_ratio" title="gwpopulation.models.mass.two_component_primary_mass_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">two_component_primary_mass_ratio</span></code></a>(dataset, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_mass_ratio.html#gwpopulation.models.mass.two_component_primary_mass_ratio" title="gwpopulation.models.mass.two_component_primary_mass_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">two_component_primary_mass_ratio</span></code></a>(dataset, ...)</p></td>
 <td><p>Power law model for two-dimensional mass distribution, modelling primary mass and conditional mass ratio distribution.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_secondary_identical.html#gwpopulation.models.mass.two_component_primary_secondary_identical" title="gwpopulation.models.mass.two_component_primary_secondary_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">two_component_primary_secondary_identical</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_secondary_identical.html#gwpopulation.models.mass.two_component_primary_secondary_identical" title="gwpopulation.models.mass.two_component_primary_secondary_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">two_component_primary_secondary_identical</span></code></a>(...)</p></td>
 <td><p>Power law model for two-dimensional mass distribution, modelling the primary and secondary masses as following independent distributions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_secondary_independent.html#gwpopulation.models.mass.two_component_primary_secondary_independent" title="gwpopulation.models.mass.two_component_primary_secondary_independent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">two_component_primary_secondary_independent</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_secondary_independent.html#gwpopulation.models.mass.two_component_primary_secondary_independent" title="gwpopulation.models.mass.two_component_primary_secondary_independent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">two_component_primary_secondary_independent</span></code></a>(...)</p></td>
 <td><p>Power law model for two-dimensional mass distribution, modelling the primary and secondary masses as following independent distributions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.two_component_single.html#gwpopulation.models.mass.two_component_single" title="gwpopulation.models.mass.two_component_single"><code class="xref py py-obj docutils literal notranslate"><span class="pre">two_component_single</span></code></a>(mass, alpha, mmin, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.two_component_single.html#gwpopulation.models.mass.two_component_single" title="gwpopulation.models.mass.two_component_single"><code class="xref py py-obj docutils literal notranslate"><span class="pre">two_component_single</span></code></a>(mass, alpha, mmin, ...)</p></td>
 <td><p>Power law model for one-dimensional mass distribution with a Gaussian component.</p></td>
 </tr>
 </tbody>
@@ -164,10 +169,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html#gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BrokenPowerLawSmoothedMassDistribution</span></code></a>([...])</p></td>
 <td><p>Broken power law for two-dimensional mass distribution with low mass smoothing.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution" title="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiPeakSmoothedMassDistribution</span></code></a>([mmin, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.InterpolatedPowerlaw.html#gwpopulation.models.mass.InterpolatedPowerlaw" title="gwpopulation.models.mass.InterpolatedPowerlaw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InterpolatedPowerlaw</span></code></a>([nodes, kind, mmin, ...])</p></td>
+<td><p>Interpolated powerlaw primary mass distribution with powerlaw mass ratio distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html#gwpopulation.models.mass.MultiPeakSmoothedMassDistribution" title="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiPeakSmoothedMassDistribution</span></code></a>([mmin, ...])</p></td>
 <td><p>Powerlaw + two peak model for two-dimensional mass distribution with low mass smoothing.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution" title="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SinglePeakSmoothedMassDistribution</span></code></a>([mmin, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html#gwpopulation.models.mass.SinglePeakSmoothedMassDistribution" title="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SinglePeakSmoothedMassDistribution</span></code></a>([mmin, ...])</p></td>
 <td><p>Powerlaw + peak model for two-dimensional mass distribution with low mass smoothing.</p></td>
 </tr>
 </tbody>

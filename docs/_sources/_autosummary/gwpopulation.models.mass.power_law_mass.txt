@@ -1,0 +1,6 @@
+gwpopulation.models.mass.power\_law\_mass
+=========================================
+
+.. currentmodule:: gwpopulation.models.mass
+
+.. autofunction:: power_law_mass

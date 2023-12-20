@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gwpopulation.models.mass.InterpolatedPowerlaw &mdash; GWPopulation 0.1.dev1+g2d43f7c documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=0b821790"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution" href="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html" />
+    <link rel="prev" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution" href="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            GWPopulation
+          </a>
+              <div class="version">
+                0.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="gwpopulation.models.html">gwpopulation.models</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.interped.html">gwpopulation.models.interped</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gwpopulation.models.mass.html">gwpopulation.models.mass</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.double_power_law_peak_primary_mass.html">gwpopulation.models.mass.double_power_law_peak_primary_mass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.double_power_law_primary_mass.html">gwpopulation.models.mass.double_power_law_primary_mass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.double_power_law_primary_power_law_mass_ratio.html">gwpopulation.models.mass.double_power_law_primary_power_law_mass_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.power_law_mass.html">gwpopulation.models.mass.power_law_mass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_mass_ratio.html">gwpopulation.models.mass.power_law_primary_mass_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_secondary_identical.html">gwpopulation.models.mass.power_law_primary_secondary_identical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.power_law_primary_secondary_independent.html">gwpopulation.models.mass.power_law_primary_secondary_independent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.three_component_single.html">gwpopulation.models.mass.three_component_single</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_mass_ratio.html">gwpopulation.models.mass.two_component_primary_mass_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_secondary_identical.html">gwpopulation.models.mass.two_component_primary_secondary_identical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.two_component_primary_secondary_independent.html">gwpopulation.models.mass.two_component_primary_secondary_independent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.two_component_single.html">gwpopulation.models.mass.two_component_single</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BaseSmoothedMassDistribution.html">gwpopulation.models.mass.BaseSmoothedMassDistribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution.html">gwpopulation.models.mass.BrokenPowerLawPeakSmoothedMassDistribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html">gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gwpopulation.models.mass.InterpolatedPowerlaw</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gwpopulation.models.mass.InterpolatedPowerlaw"><code class="docutils literal notranslate"><span class="pre">InterpolatedPowerlaw</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html">gwpopulation.models.mass.MultiPeakSmoothedMassDistribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gwpopulation.models.mass.SinglePeakSmoothedMassDistribution.html">gwpopulation.models.mass.SinglePeakSmoothedMassDistribution</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.redshift.html">gwpopulation.models.redshift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gwpopulation.models.spin.html">gwpopulation.models.spin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.backend.html">gwpopulation.backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.conversions.html">gwpopulation.conversions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.hyperpe.html">gwpopulation.hyperpe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.utils.html">gwpopulation.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gwpopulation.vt.html">gwpopulation.vt</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../GWTC1.html">Population Inference on GWTC-1</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GWPopulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="gwpopulation.models.html">gwpopulation.models</a></li>
+          <li class="breadcrumb-item"><a href="gwpopulation.models.mass.html">gwpopulation.models.mass</a></li>
+      <li class="breadcrumb-item active">gwpopulation.models.mass.InterpolatedPowerlaw</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/gwpopulation.models.mass.InterpolatedPowerlaw.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gwpopulation-models-mass-interpolatedpowerlaw">
+<h1>gwpopulation.models.mass.InterpolatedPowerlaw<a class="headerlink" href="#gwpopulation-models-mass-interpolatedpowerlaw" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="gwpopulation.models.mass.InterpolatedPowerlaw">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gwpopulation.models.mass.</span></span><span class="sig-name descname"><span class="pre">InterpolatedPowerlaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cubic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1000,</span> <span class="pre">500)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/models/mass.html#InterpolatedPowerlaw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.models.mass.InterpolatedPowerlaw" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="gwpopulation.models.mass.BaseSmoothedMassDistribution.html#gwpopulation.models.mass.BaseSmoothedMassDistribution" title="gwpopulation.models.mass.BaseSmoothedMassDistribution"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSmoothedMassDistribution</span></code></a>, <a class="reference internal" href="gwpopulation.models.interped.InterpolatedNoBaseModelIdentical.html#gwpopulation.models.interped.InterpolatedNoBaseModelIdentical" title="gwpopulation.models.interped.InterpolatedNoBaseModelIdentical"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterpolatedNoBaseModelIdentical</span></code></a></p>
+<p>Interpolated powerlaw primary mass distribution with powerlaw mass ratio distribution.</p>
+<p>See <a class="reference external" href="https://arxiv.org/abs/2109.06137">https://arxiv.org/abs/2109.06137</a> for details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dataset: dict</strong></dt><dd><p>Dictionary of numpy arrays for ‘mass_1’ and ‘mass_ratio’.</p>
+</dd>
+<dt><strong>alpha: float</strong></dt><dd><p>Powerlaw exponent for more massive black hole.</p>
+</dd>
+<dt><strong>beta: float</strong></dt><dd><p>Power law exponent of the mass ratio distribution.</p>
+</dd>
+<dt><strong>mmin: float</strong></dt><dd><p>Minimum black hole mass.</p>
+</dd>
+<dt><strong>mmax: float</strong></dt><dd><p>Maximum mass in the powerlaw distributed component.</p>
+</dd>
+<dt><strong>delta_m: float</strong></dt><dd><p>Rise length of the low end of the mass distribution.</p>
+</dd>
+<dt><strong>mass{ii}: float</strong></dt><dd><p>The locations of the spline nodes for the primary mass distribution.</p>
+</dd>
+<dt><strong>fmass{ii}: float</strong></dt><dd><p>The values of the spline nodes for the primary mass distribution.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gwpopulation.models.mass.InterpolatedPowerlaw.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cubic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1000,</span> <span class="pre">500)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/models/mass.html#InterpolatedPowerlaw.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.models.mass.InterpolatedPowerlaw.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes: int</strong></dt><dd><p>Number of spline nodes to use for interpolation, default=10.</p>
+</dd>
+<dt><strong>kind: str</strong></dt><dd><p>Order of the spline to use for interpolation, default=”cubic”.</p>
+</dd>
+<dt><strong>mmin: float</strong></dt><dd><p>The minimum mass considered for numerical normalization, default=2.</p>
+</dd>
+<dt><strong>mmax: float</strong></dt><dd><p>The maximum mass considered for numerical normalization, default=100.</p>
+</dd>
+<dt><strong>normalization_shape: tuple</strong></dt><dd><p>Shape of the grid used for numerical normalization, default=(1000, 500).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.models.mass.InterpolatedPowerlaw.__init__" title="gwpopulation.models.mass.InterpolatedPowerlaw.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([nodes, kind, mmin, mmax, ...])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer_n_nodes</span></code>(**kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gwpopulation.models.mass.InterpolatedPowerlaw.norm_p_m1" title="gwpopulation.models.mass.InterpolatedPowerlaw.norm_p_m1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm_p_m1</span></code></a>(delta_m[, f_splines])</p></td>
+<td><p>Calculate the normalisation factor for the primary mass</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.models.mass.InterpolatedPowerlaw.norm_p_q" title="gwpopulation.models.mass.InterpolatedPowerlaw.norm_p_q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm_p_q</span></code></a>(beta, mmin, delta_m)</p></td>
+<td><p>Calculate the mass ratio normalisation by linear interpolation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm_p_x</span></code>([f_splines, x_splines])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p_m1</span></code>(dataset, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p_q</span></code>(dataset, beta, mmin, delta_m)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p_x_identical</span></code>(dataset, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p_x_unnormed</span></code>(dataset, parameter, x_splines, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.models.mass.InterpolatedPowerlaw.primary_model" title="gwpopulation.models.mass.InterpolatedPowerlaw.primary_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">primary_model</span></code></a>(alpha, mmin, mmax)</p></td>
+<td><p>Power law model for one-dimensional mass distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_interpolant</span></code>(nodes, values)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gwpopulation.models.mass.InterpolatedPowerlaw.smoothing" title="gwpopulation.models.mass.InterpolatedPowerlaw.smoothing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smoothing</span></code></a>(masses, mmin, mmax, delta_m)</p></td>
+<td><p>Apply a one sided window between mmin and mmin + delta_m to the mass pdf.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kwargs</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">variable_names</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="gwpopulation.models.mass.InterpolatedPowerlaw.norm_p_m1">
+<span class="sig-name descname"><span class="pre">norm_p_m1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_splines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gwpopulation/models/mass.html#InterpolatedPowerlaw.norm_p_m1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gwpopulation.models.mass.InterpolatedPowerlaw.norm_p_m1" title="Link to this definition"></a></dt>
+<dd><p>Calculate the normalisation factor for the primary mass</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gwpopulation.models.mass.InterpolatedPowerlaw.norm_p_q">
+<span class="sig-name descname"><span class="pre">norm_p_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_m</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.InterpolatedPowerlaw.norm_p_q" title="Link to this definition"></a></dt>
+<dd><p>Calculate the mass ratio normalisation by linear interpolation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gwpopulation.models.mass.InterpolatedPowerlaw.primary_model">
+<span class="sig-name descname"><span class="pre">primary_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.InterpolatedPowerlaw.primary_model" title="Link to this definition"></a></dt>
+<dd><p>Power law model for one-dimensional mass distribution.</p>
+<div class="math notranslate nohighlight">
+\[p(m) &amp;\propto m^{-\alpha} : m_\min \leq m &lt; m_\max\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mass: array-like</strong></dt><dd><p>Array of mass values (<span class="math notranslate nohighlight">\(m\)</span>).</p>
+</dd>
+<dt><strong>alpha: float</strong></dt><dd><p>Negative power law exponent for the black hole distribution (<span class="math notranslate nohighlight">\(\alpha\)</span>).</p>
+</dd>
+<dt><strong>mmin: float</strong></dt><dd><p>Minimum black hole mass (<span class="math notranslate nohighlight">\(m_\min\)</span>).</p>
+</dd>
+<dt><strong>mmax: float</strong></dt><dd><p>Maximum black hole mass (<span class="math notranslate nohighlight">\(m_\max\)</span>).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gwpopulation.models.mass.InterpolatedPowerlaw.smoothing">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">smoothing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_m</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gwpopulation.models.mass.InterpolatedPowerlaw.smoothing" title="Link to this definition"></a></dt>
+<dd><p>Apply a one sided window between mmin and mmin + delta_m to the
+mass pdf.</p>
+<p>The upper cut off is a step function,
+the lower cutoff is a logistic rise over delta_m solar masses.</p>
+<p>See T&amp;T18 Eqs 7-8
+Note that there is a sign error in that paper.</p>
+<p>S = (f(m - mmin, delta_m) + 1)^{-1}
+f(m’) = delta_m / m’ + delta_m / (m’ - delta_m)</p>
+<p>See also, <a class="reference external" href="https://en.wikipedia.org/wiki/Window_function#Planck-taper_window">https://en.wikipedia.org/wiki/Window_function#Planck-taper_window</a></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution.html" class="btn btn-neutral float-left" title="gwpopulation.models.mass.BrokenPowerLawSmoothedMassDistribution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution.html" class="btn btn-neutral float-right" title="gwpopulation.models.mass.MultiPeakSmoothedMassDistribution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Colm Talbot.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

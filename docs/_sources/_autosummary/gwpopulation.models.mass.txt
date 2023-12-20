@@ -19,6 +19,7 @@ gwpopulation.models.mass
       double_power_law_peak_primary_mass
       double_power_law_primary_mass
       double_power_law_primary_power_law_mass_ratio
+      power_law_mass
       power_law_primary_mass_ratio
       power_law_primary_secondary_identical
       power_law_primary_secondary_independent
@@ -41,6 +42,7 @@ gwpopulation.models.mass
       BaseSmoothedMassDistribution
       BrokenPowerLawPeakSmoothedMassDistribution
       BrokenPowerLawSmoothedMassDistribution
+      InterpolatedPowerlaw
       MultiPeakSmoothedMassDistribution
       SinglePeakSmoothedMassDistribution
    

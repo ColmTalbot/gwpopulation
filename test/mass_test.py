@@ -157,7 +157,9 @@ def analytic_prior(model):
     raise ValueError(f"{model} not known")
 
 
-@pytest.mark.parametrize("backend,model", itertools.product(TEST_BACKENDS, analytic_models.keys()))
+@pytest.mark.parametrize(
+    "backend,model", itertools.product(TEST_BACKENDS, analytic_models.keys())
+)
 def test_zero_below_mmin(backend, model):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -172,7 +174,9 @@ def test_zero_below_mmin(backend, model):
         assert np.max(p_m[to_numpy(m2s) < parameters["mmin"]]) == 0.0
 
 
-@pytest.mark.parametrize("backend,model", itertools.product(TEST_BACKENDS, analytic_models.keys()))
+@pytest.mark.parametrize(
+    "backend,model", itertools.product(TEST_BACKENDS, analytic_models.keys())
+)
 def test_zero_above_mmax(backend, model):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp

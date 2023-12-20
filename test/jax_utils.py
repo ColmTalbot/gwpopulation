@@ -36,8 +36,7 @@ class NonCachingModel(Model):
             model.
         """
         probability = 1.0
-        for ii, function in enumerate(self.models):
-            function_parameters = self._get_function_parameters(function)
+        for function in self.models:
             new_probability = function(data, **self._get_function_parameters(function))
             probability *= new_probability
         return probability
@@ -50,8 +49,12 @@ class JittedLikelihood(Likelihood):
         if kwargs is None:
             kwargs = dict()
         self.kwargs = kwargs
+        self._likelihood = likelihood
         self.likelihood_func = jit(partial(likelihood_func, likelihood))
         super().__init__(dict())
+
+    def __getattr__(self, name):
+        return getattr(self._likelihood, name)
 
     def log_likelihood_ratio(self):
         return float(

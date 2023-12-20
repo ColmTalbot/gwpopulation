@@ -7,6 +7,7 @@ import numpy as np
 import scipy.special as scs
 
 from ..utils import powerlaw, truncnorm
+from .interped import InterpolatedNoBaseModelIdentical
 
 xp = np
 
@@ -249,6 +250,27 @@ def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
     )
 
 
+def power_law_mass(mass, alpha, mmin, mmax):
+    r"""
+    Power law model for one-dimensional mass distribution.
+
+    .. math::
+        p(m) &\propto m^{-\alpha} : m_\min \leq m < m_\max
+
+    Parameters
+    ----------
+    mass: array-like
+        Array of mass values (:math:`m`).
+    alpha: float
+        Negative power law exponent for the black hole distribution (:math:`\alpha`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum black hole mass (:math:`m_\max`).
+    """
+    return powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
+
+
 def two_component_single(
     mass, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
 ):
@@ -480,7 +502,7 @@ def two_component_primary_secondary_identical(
     )
 
 
-class BaseSmoothedMassDistribution(object):
+class BaseSmoothedMassDistribution:
     """
     Generic smoothed mass distribution base class.
 
@@ -558,8 +580,8 @@ class BaseSmoothedMassDistribution(object):
         p_m = self.__class__.primary_model(self.m1s, **kwargs)
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
 
-        norm = xp.trapz(p_m, self.m1s)
-        return norm ** (delta_m > 0)
+        norm = xp.where(delta_m > 0, xp.trapz(p_m, self.m1s), 1)
+        return norm
 
     def p_q(self, dataset, beta, mmin, delta_m):
         p_q = powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
@@ -583,7 +605,11 @@ class BaseSmoothedMassDistribution(object):
         p_q *= self.smoothing(
             self.m1s_grid * self.qs_grid, mmin=mmin, mmax=self.m1s_grid, delta_m=delta_m
         )
-        norms = xp.nan_to_num(xp.trapz(p_q, self.qs, axis=0)) ** (delta_m > 0)
+        norms = xp.where(
+            delta_m > 0,
+            xp.nan_to_num(xp.trapz(p_q, self.qs, axis=0)),
+            xp.ones(self.m1s.shape),
+        )
 
         return self._q_interpolant(norms)
 
@@ -781,3 +807,107 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     @property
     def kwargs(self):
         return dict(gaussian_mass_maximum=self.mmax)
+
+
+class InterpolatedPowerlaw(
+    BaseSmoothedMassDistribution, InterpolatedNoBaseModelIdentical
+):
+    """
+    Interpolated powerlaw primary mass distribution with powerlaw mass ratio distribution.
+
+    See https://arxiv.org/abs/2109.06137 for details.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+    alpha: float
+        Powerlaw exponent for more massive black hole.
+    beta: float
+        Power law exponent of the mass ratio distribution.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum mass in the powerlaw distributed component.
+    delta_m: float
+        Rise length of the low end of the mass distribution.
+    mass{ii}: float
+        The locations of the spline nodes for the primary mass distribution.
+    fmass{ii}: float
+        The values of the spline nodes for the primary mass distribution.
+    """
+
+    primary_model = power_law_mass
+
+    def __init__(
+        self, nodes=10, kind="cubic", mmin=2, mmax=100, normalization_shape=(1000, 500)
+    ):
+        """
+        Parameters
+        ==========
+        nodes: int
+            Number of spline nodes to use for interpolation, default=10.
+        kind: str
+            Order of the spline to use for interpolation, default="cubic".
+        mmin: float
+            The minimum mass considered for numerical normalization, default=2.
+        mmax: float
+            The maximum mass considered for numerical normalization, default=100.
+        normalization_shape: tuple
+            Shape of the grid used for numerical normalization, default=(1000, 500).
+        """
+        BaseSmoothedMassDistribution.__init__(
+            self,
+            mmin=mmin,
+            mmax=mmax,
+            normalization_shape=normalization_shape,
+        )
+        InterpolatedNoBaseModelIdentical.__init__(
+            self,
+            minimum=mmin,
+            maximum=mmax,
+            parameters=["mass_1"],
+            nodes=nodes,
+            kind=kind,
+            log_nodes=True,
+        )
+        self._xs = self.m1s
+
+    @property
+    def variable_names(self):
+        variable_names = super().variable_names.union(
+            InterpolatedNoBaseModelIdentical.variable_names.fget(self)
+        )
+        return variable_names
+
+    def p_m1(self, dataset, **kwargs):
+
+        f_splines = xp.array([kwargs[key] for key in self.fkeys])
+        m_splines = xp.array([kwargs[key] for key in self.xkeys])
+
+        mmin = kwargs.get("mmin", self.mmin)
+        delta_m = kwargs.pop("delta_m", 0)
+        p_m = self.__class__.primary_model(
+            dataset["mass_1"], **{key: kwargs[key] for key in ["alpha", "mmin", "mmax"]}
+        )
+        p_m *= self.smoothing(
+            dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
+        )
+        p_m *= self.p_x_unnormed(dataset, "mass_1", m_splines, f_splines, **kwargs)
+
+        norm = self.norm_p_m1(delta_m=delta_m, f_splines=f_splines, **kwargs)
+        return p_m / norm
+
+    def norm_p_m1(self, delta_m, f_splines=None, **kwargs):
+        mmin = kwargs.get("mmin", self.mmin)
+        p_m = self.__class__.primary_model(
+            self.m1s, **{key: kwargs[key] for key in ["alpha", "mmin", "mmax"]}
+        )
+        p_m = xp.where(
+            delta_m > 0,
+            p_m * self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m),
+            p_m,
+        )
+        p_m *= xp.exp(self._norm_spline(y=f_splines))
+        norm = xp.trapz(p_m, self.m1s)
+        return norm

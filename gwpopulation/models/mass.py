@@ -815,6 +815,8 @@ class InterpolatedPowerlaw(
     """
     Interpolated powerlaw primary mass distribution with powerlaw mass ratio distribution.
 
+    See https://arxiv.org/abs/2109.06137 for details.
+
     Parameters
     ----------
     dataset: dict

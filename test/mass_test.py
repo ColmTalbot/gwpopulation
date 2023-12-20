@@ -62,7 +62,7 @@ def interpolated_prior(n_nodes):
     nodes = np.logspace(np.log10(2), np.log10(100), n_nodes)
     for ii in range(n_nodes):
         prior[f"mass{ii}"] = DeltaFunction(nodes[ii])
-        prior[f"fmass{ii}"] = Normal(0, 1e-5)
+        prior[f"fmass{ii}"] = Normal(0, 1)
     return prior
 
 
@@ -363,15 +363,6 @@ def test_mmax_above_global_maximum_raises_error():
 
 @pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_interpolated_power_law_p_m1_normalised(backend):
-    """
-    Numerical normalization is not very accuracte for the the interpolated
-    powerlaw, fortunately, we don't have to worry about the normalization of
-    the primary mass distribution if we are including selection effects, only
-    the mass ratio which is conditional.
-
-    To test that this normalization isn't broken by the interpolant, we set
-    the perturbation to be very small.
-    """
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
     model = mass.InterpolatedPowerlaw()
@@ -379,6 +370,14 @@ def test_interpolated_power_law_p_m1_normalised(backend):
     prior.update(smooth_prior())
     prior.update(power_prior())
     _normalised(model, prior, xp)
+
+
+def test_interpolated_power_law_p_m1_variable_names():
+    model = mass.InterpolatedPowerlaw()
+    prior = interpolated_prior(10)
+    prior.update(smooth_prior())
+    prior.update(power_prior())
+    assert model.variable_names == set(prior.keys())
 
 
 def _max_abs_difference(array, comparison, xp=np):

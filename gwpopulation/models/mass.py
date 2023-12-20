@@ -250,6 +250,27 @@ def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
     )
 
 
+def power_law_mass(mass, alpha, mmin, mmax):
+    r"""
+    Power law model for one-dimensional mass distribution.
+
+    .. math::
+        p(m) &\propto m^{-\alpha} : m_\min \leq m < m_\max
+
+    Parameters
+    ----------
+    mass: array-like
+        Array of mass values (:math:`m`).
+    alpha: float
+        Negative power law exponent for the black hole distribution (:math:`\alpha`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum black hole mass (:math:`m_\max`).
+    """
+    return powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
+
+
 def two_component_single(
     mass, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
 ):
@@ -814,7 +835,7 @@ class InterpolatedPowerlaw(
         The values of the spline nodes for the primary mass distribution.
     """
 
-    primary_variable_names = ["alpha", "mmin", "mmax"]
+    primary_model = power_law_mass
 
     def __init__(
         self, nodes=10, kind="cubic", mmin=2, mmax=100, normalization_shape=(1000, 500)
@@ -848,16 +869,14 @@ class InterpolatedPowerlaw(
             kind=kind,
             log_nodes=True,
         )
-        self._xs = xp.log(self.m1s)
+        self._xs = self.m1s
 
     @property
     def variable_names(self):
-        return super().variable_names + InterpolatedNoBaseModelIdentical.variable_names(
-            self
+        variable_names = super().variable_names.union(
+            InterpolatedNoBaseModelIdentical.variable_names.fget(self)
         )
-
-    def primary_model(self, mass, alpha, mmin, mmax):
-        return powerlaw(mass, alpha=-alpha, low=mmin, high=mmax)
+        return variable_names
 
     def p_m1(self, dataset, **kwargs):
 
@@ -866,8 +885,7 @@ class InterpolatedPowerlaw(
 
         mmin = kwargs.get("mmin", self.mmin)
         delta_m = kwargs.pop("delta_m", 0)
-
-        p_m = self.primary_model(
+        p_m = self.__class__.primary_model(
             dataset["mass_1"], **{key: kwargs[key] for key in ["alpha", "mmin", "mmax"]}
         )
         p_m *= self.smoothing(
@@ -880,7 +898,7 @@ class InterpolatedPowerlaw(
 
     def norm_p_m1(self, delta_m, f_splines=None, **kwargs):
         mmin = kwargs.get("mmin", self.mmin)
-        p_m = self.primary_model(
+        p_m = self.__class__.primary_model(
             self.m1s, **{key: kwargs[key] for key in ["alpha", "mmin", "mmax"]}
         )
         p_m = xp.where(

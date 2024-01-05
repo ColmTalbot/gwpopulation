@@ -93,7 +93,7 @@ def alpha_beta_max_to_mu_var_max(alpha, beta, amax):
         The maximum spin (:math:`a_\max`)
     """
     mu = alpha / (alpha + beta) * amax
-    var = alpha * beta / ((alpha + beta) ** 2 * (alpha + beta + 1)) * amax ** 2
+    var = alpha * beta / ((alpha + beta) ** 2 * (alpha + beta + 1)) * amax**2
     return mu, var, amax
 
 
@@ -125,7 +125,7 @@ def mu_var_max_to_alpha_beta_max(mu, var, amax):
         The maximum spin (:math:`a_\max`)
     """
     mu /= amax
-    var /= amax ** 2
-    alpha = (mu ** 2 * (1 - mu) - mu * var) / var
+    var /= amax**2
+    alpha = (mu**2 * (1 - mu) - mu * var) / var
     beta = (mu * (1 - mu) ** 2 - (1 - mu) * var) / var
     return alpha, beta, amax

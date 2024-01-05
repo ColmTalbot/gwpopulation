@@ -1,0 +1,16 @@
+codecov:
+  require_ci_to_pass: true
+  branch: master
+
+coverage:
+  precision: 2
+  range: 50..100
+  round: nearest
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1
+    patch:
+      default:
+        target: 90

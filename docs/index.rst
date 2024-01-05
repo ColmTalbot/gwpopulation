@@ -16,8 +16,8 @@ API:
    :recursive:
 
    models
+   backend
    conversions
-   cupy_utils
    hyperpe
    utils
    vt

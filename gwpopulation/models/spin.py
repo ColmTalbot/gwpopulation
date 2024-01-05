@@ -1,9 +1,10 @@
 """
 Implemented spin models
 """
+import numpy as xp
 
-from ..cupy_utils import xp
 from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian
+from .interped import InterpolatedNoBaseModelIdentical
 
 
 def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
@@ -71,8 +72,6 @@ def independent_spin_magnitude_beta(
     amax_1, amax_2: float
         Maximum spin of the more/less massive black hole.
     """
-    if alpha_chi_1 < 0 or beta_chi_1 < 0 or alpha_chi_2 < 0 or beta_chi_2 < 0:
-        return 0
     prior = beta_dist(
         dataset["a_1"], alpha_chi_1, beta_chi_1, scale=amax_1
     ) * beta_dist(dataset["a_2"], alpha_chi_2, beta_chi_2, scale=amax_2)
@@ -260,6 +259,8 @@ class GaussianChiEffChiP(object):
                 spin_covariance=spin_covariance,
             )
             prob /= normalization
+            prob *= xp.abs(dataset["chi_eff"]) <= 1
+            prob *= (dataset["chi_p"] <= 1) * (dataset["chi_p"] >= 0)
         return prob
 
     def _normalization(
@@ -276,4 +277,28 @@ class GaussianChiEffChiP(object):
         )
         return xp.trapz(
             y=xp.trapz(y=prob, axis=-1, x=self.chi_eff), axis=-1, x=self.chi_p
+        )
+
+
+class SplineSpinMagnitudeIdentical(InterpolatedNoBaseModelIdentical):
+    def __init__(self, minimum=0, maximum=1, nodes=5, kind="cubic"):
+
+        super(SplineSpinMagnitudeIdentical, self).__init__(
+            parameters=["a_1", "a_2"],
+            minimum=minimum,
+            maximum=maximum,
+            nodes=nodes,
+            kind=kind,
+        )
+
+
+class SplineSpinTiltIdentical(InterpolatedNoBaseModelIdentical):
+    def __init__(self, minimum=-1, maximum=1, nodes=5, kind="cubic"):
+
+        super(SplineSpinTiltIdentical, self).__init__(
+            parameters=["cos_tilt_1", "cos_tilt_2"],
+            minimum=minimum,
+            maximum=maximum,
+            nodes=nodes,
+            kind=kind,
         )

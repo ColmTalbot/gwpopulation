@@ -3,4 +3,5 @@ scipy
 pandas
 tqdm
 astropy
-bilby
+bilby>=2.2.0
+cached_interpolate

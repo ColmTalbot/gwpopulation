@@ -174,8 +174,8 @@ def double_power_law_peak_primary_mass(
     prob = (1 - lam) * p_pow + lam * p_norm
     return prob
 
-def power_law_dip_break(dataset, A, NSmin, NSmax,
-    BHmin, BHmax, n0, n1, n2, n3, mbreak, alpha_1, alpha_2, beta_q
+def power_law_dip_break_masses(dataset, A, mmin, NSmax,
+    BHmin, mmax, n0, n1, n2, n3, mbreak, alpha_1, alpha_2, beta_q
 ):
     r"""
     Two-dimenstional mass distribution considered in Fishbach, Essick, Holz. Does
@@ -209,10 +209,10 @@ def power_law_dip_break(dataset, A, NSmin, NSmax,
         depth of the dip between NSmax and BHmin (A).
     """
 
-    p_m1 = power_law_dip_break_1d(dataset["mass_1"], A, NSmin, NSmax, BHmin, BHmax, 
+    p_m1 = power_law_dip_break_1d(dataset["mass_1"], A, mmin, NSmax, BHmin, mmax, 
                           n0, n1, n2, n3, mbreak, alpha_1, alpha_2)
-    p_m2 = power_law_dip_break_1d(dataset["mass_2"], A, NSmin, 
-                          NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
+    p_m2 = power_law_dip_break_1d(dataset["mass_2"], A, mmin, 
+                          NSmax, BHmin, mmax, n0, n1, n2, n3, mbreak, 
                           alpha_1, alpha_2)
     prob = _primary_secondary_plaw_pairing(dataset, p_m1, p_m2, beta_q)
     # get rid of areas where there are no injections

@@ -39,10 +39,13 @@ class InterpolatedNoBaseModelIdentical:
         The interpolation order of the spline, default="cubic"
     log_nodes: bool
         Whether to use log-spaced nodes, default=False
+    regularize: bool
+        Whether to regularize the spline node values to have root-mean-square value
+        :code:`rms{name}`, default=False
     """
 
     def __init__(
-        self, parameters, minimum, maximum, nodes=10, kind="cubic", log_nodes=False
+        self, parameters, minimum, maximum, nodes=10, kind="cubic", log_nodes=False, regularize=False
     ):
         """ """
         self.nodes = nodes
@@ -58,6 +61,7 @@ class InterpolatedNoBaseModelIdentical:
         self.base = self.parameters[0].strip("_1")
         self.xkeys = [f"{self.base}{ii}" for ii in range(self.nodes)]
         self.fkeys = [f"f{self.base}{ii}" for ii in range(self.nodes)]
+        self.regularize = regularize
 
     def __call__(self, dataset, **kwargs):
         return self.p_x_identical(dataset, **kwargs)
@@ -66,6 +70,8 @@ class InterpolatedNoBaseModelIdentical:
     def variable_names(self):
 
         keys = self.xkeys + self.fkeys
+        if self.regularize:
+            keys += [f"rms{self.base}"]
         return keys
 
     def setup_interpolant(self, nodes, values):
@@ -81,6 +87,8 @@ class InterpolatedNoBaseModelIdentical:
         }
 
     def p_x_unnormed(self, dataset, parameter, x_splines, f_splines, **kwargs):
+        if self.regularize:
+            f_splines = f_splines * kwargs[f"rms{self.base}"] / xp.sum(f_splines**2)**0.5
 
         if self._norm_spline is None:
             self.setup_interpolant(x_splines, dataset)

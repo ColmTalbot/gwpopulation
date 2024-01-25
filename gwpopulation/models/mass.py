@@ -840,7 +840,7 @@ class InterpolatedPowerlaw(
     primary_model = power_law_mass
 
     def __init__(
-        self, nodes=10, kind="cubic", mmin=2, mmax=100, normalization_shape=(1000, 500)
+        self, nodes=10, kind="cubic", mmin=2, mmax=100, normalization_shape=(1000, 500), regularize=True
     ):
         """
         Parameters
@@ -855,6 +855,9 @@ class InterpolatedPowerlaw(
             The maximum mass considered for numerical normalization, default=100.
         normalization_shape: tuple
             Shape of the grid used for numerical normalization, default=(1000, 500).
+        regularize: bool
+            Whether to regularize the spline node values to have root-mean-square value
+            :code:`rms{name}`, default=False
         """
         BaseSmoothedMassDistribution.__init__(
             self,
@@ -870,6 +873,7 @@ class InterpolatedPowerlaw(
             nodes=nodes,
             kind=kind,
             log_nodes=True,
+            regularize=regularize,
         )
         self._xs = self.m1s
 

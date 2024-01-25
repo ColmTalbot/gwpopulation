@@ -6,6 +6,23 @@ _np_module = dict(numpy="numpy", cupy="cupy", jax="jax.numpy")
 _scipy_module = dict(numpy="scipy", cupy="cupyx.scipy", jax="jax.scipy")
 
 
+__doc__ = f"""
+:code:`GWPopulation` provides a unified interface to a number of :code:`numpy/scipy` like APIs.
+
+The backend can be set using :code:`gwpopulation.set_backend(backend)`, where
+:code:`backend` is one of :code:`{', '.join(SUPPORTED_BACKENDS)}`.
+
+Downstream packages can automatically track the active backend using :code:`entry_points`.
+With this set up, packages can use :code:`xp` and :code:`scs` in specified modules.
+
+..note::
+    Each module that wants to use the :code:`GWPopulation` backend must be specified independently
+    for the automatic propagation to work.
+
+If there is a backend that you would like to use that is not currently supported, please open an issue.
+"""
+
+
 def modules_to_update():
     import sys
 

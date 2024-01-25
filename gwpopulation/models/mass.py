@@ -369,6 +369,82 @@ def three_component_single(
     return prob
 
 
+class MixtureOfPowerLawsAndGaussians:
+
+    def __init__(self, n_powerlaws, n_gaussians, gaussian_maximum=100):
+        self.n_powerlaws = n_powerlaws
+        self.n_gaussians = n_gaussians
+        self.gaussian_maximum = gaussian_maximum
+
+    @property
+    def variable_names(self):
+        variables = list()
+        if self.n_powerlaws > 1:
+            variables += [f"alpha_{ii + 1}" for ii in range(self.n_powerlaws)]
+            variables += [f"break_{ii}" for ii in range(1, self.n_powerlaws)]
+        elif self.n_powerlaws == 1:
+            variables += ["alpha"]
+        if self.n_gaussians > 1:
+            variables += [f"lam_{ii + 1}" for ii in range(self.n_gaussians)]
+            variables += [f"mpp_{ii + 1}" for ii in range(self.n_gaussians)]
+            variables += [f"sigpp_{ii + 1}" for ii in range(self.n_gaussians)]
+        elif self.n_gaussians == 1:
+            variables += ["lam", "mpp", "sigpp"]
+        variables += ["mmin", "mmax"]
+        return variables
+
+    def gaussian_component(self, mass, **kwds):
+        if self.n_gaussians == 0:
+            return 0
+        elif self.n_gaussians == 1:
+            return truncnorm(
+                mass,
+                mu=kwds["mpp"],
+                sigma=kwds["sigpp"],
+                high=self.gaussian_maximum,
+                low=kwds["mmin"],
+            )
+        else:
+            return xp.sum(xp.array([
+                kwds[f"lam_{ii + 1}"] * truncnorm(
+                    mass,
+                    mu=kwds[f"mpp_{ii + 1}"],
+                    sigma=kwds[f"sigpp_{ii + 1}"],
+                    high=self.gaussian_maximum,
+                    low=kwds["mmin"],
+                ) for ii in range(self.n_gaussians)]),
+                axis=0,
+            ) / xp.sum(xp.array([kwds[f"lam_{ii + 1}"] for ii in range(self.n_gaussians)]))
+
+    def powerlaw_component(self, mass, **kwds):
+        if self.n_powerlaws == 0:
+            return 0
+        elif self.n_powerlaws == 1:
+            return powerlaw(mass, alpha=-kwds["alpha"], high=kwds["mmax"], low=kwds["mmin"])
+        else:
+            mmins = [kwds["mmin"]] + [kwds[f"break_{ii + 1}"] for ii in range(self.n_powerlaws - 1)]
+            mmaxs = [kwds[f"break_{ii + 1}"] for ii in range(self.n_powerlaws - 1)] + [kwds["mmax"]]
+            corrections = xp.cumprod(xp.array([1.0] + [
+                powerlaw(kwds[f"break_{ii}"], alpha=-kwds[f"alpha_{ii}"], low=mmins[ii - 1], high=mmaxs[ii - 1])
+                / powerlaw(kwds[f"break_{ii}"], alpha=-kwds[f"alpha_{ii + 1}"], low=mmins[ii], high=mmaxs[ii])
+                for ii in range(1, self.n_powerlaws)
+            ]))
+            return xp.sum(
+                xp.array([
+                    corrections[ii] * powerlaw(mass, alpha=-kwds[f"alpha_{ii + 1}"], high=mmaxs[ii], low=mmins[ii])
+                    for ii in range(self.n_powerlaws)
+                ]),
+                axis=0,
+            ) / xp.sum(corrections)
+
+    def __call__(self, mass, **kwds):
+        mix = xp.clip(xp.sum(xp.array([kwds[f"lam_{ii + 1}"] for ii in range(self.n_gaussians)])), 0, 1)
+        return (
+            (1 - mix) * self.powerlaw_component(mass, **kwds)
+            + mix * self.gaussian_component(mass, **kwds)
+        )
+        
+
 def two_component_primary_mass_ratio(
     dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
 ):
@@ -521,11 +597,14 @@ class BaseSmoothedMassDistribution:
 
     @property
     def variable_names(self):
-        vars = getattr(
-            self.primary_model,
-            "variable_names",
-            inspect.getfullargspec(self.primary_model).args[1:],
-        )
+        if hasattr(self.primary_model, "variable_names"):
+            vars = self.primary_model.variable_names
+        else:
+            vars = getattr(
+                self.primary_model,
+                "variable_names",
+                inspect.getfullargspec(self.primary_model).args[1:],
+            )
         vars += ["beta", "delta_m"]
         vars = set(vars).difference(self.kwargs.keys())
         return vars
@@ -807,6 +886,22 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     @property
     def kwargs(self):
         return dict(gaussian_mass_maximum=self.mmax)
+
+
+class SmoothedPowersAndGaussians(BaseSmoothedMassDistribution):
+
+    def __init__(self, n_powerlaws, n_gaussians, gaussian_maximum=100, mmin=2, mmax=100, normalization_shape=(1000, 500)):
+        super().__init__(mmin=mmin, mmax=mmax, normalization_shape=normalization_shape)
+        self.n_powerlaws = n_powerlaws
+        self.n_gaussians = n_gaussians
+        self.gaussian_maximum = gaussian_maximum
+        self.primary_model = MixtureOfPowerLawsAndGaussians(n_powerlaws, n_gaussians, gaussian_maximum=gaussian_maximum)
+    
+    def __call__(self, dataset, *args, **kwargs):
+        self.__class__.primary_model = self.primary_model
+        prob = super().__call__(dataset, *args, **kwargs)
+        self.__class__.primary_model = None
+        return prob
 
 
 class InterpolatedPowerlaw(

@@ -72,11 +72,6 @@ def independent_spin_magnitude_beta(
     amax_1, amax_2: float
         Maximum spin of the more/less massive black hole.
     """
-
-    # modify spin distribution for NSs to avoid areas with no injections
-    amax_1 = xp.where(dataset["mass_1"]<2.5, 0.4, amax_1)
-    amax_2 = xp.where(dataset["mass_2"]<2.5, 0.4, amax_2)
-
     prior = beta_dist(
         dataset["a_1"], alpha_chi_1, beta_chi_1, scale=amax_1
     ) * beta_dist(dataset["a_2"], alpha_chi_2, beta_chi_2, scale=amax_2)

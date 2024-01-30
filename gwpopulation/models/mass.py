@@ -61,17 +61,13 @@ def power_law_dip_break_1d(mass, A, NSmin, NSmax, BHmin, BHmax,
     A: float
         depth of the dip between NSmax and BHmin (A).
     """
-    mbreak=BHmin
-    logprob = xp.where((mass >= 1)*(mass <= 100), 
-                       -xp.log(1 + (NSmin/mass)**n0) \
-                       + xp.log(1.0 - A/((1 + (NSmax/mass)**n1) * (1 + (mass/BHmin)**n2))) \
-                       - xp.log(1 + (mass/BHmax)**n3)\
-                       + xp.where(mass <= mbreak, 
-                                  alpha_1,
-                                  alpha_2
-                                  )*(xp.log(mass) - xp.log(mbreak)),
-                       -xp.infty)
-    return xp.exp(logprob)
+    mbreak = BHmin
+    prob = xp.where((mass >= 1)*(mass <= 100), 
+                    (1.0 - A/((1 + (NSmax/mass)**n1) * (1 + (mass/BHmin)**n2))) \
+                       / ((1 + (mass/BHmax)**n3) * (1 + (NSmin/mass)**n0))
+                       * (mass/mbreak) ** xp.where(mass <= mbreak, alpha_1, alpha_2),
+                    0.)
+    return prob
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
     r"""

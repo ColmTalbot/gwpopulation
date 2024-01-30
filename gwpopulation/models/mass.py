@@ -12,8 +12,9 @@ from .interped import InterpolatedNoBaseModelIdentical
 xp = np
 
 
-def power_law_dip_break_1d(mass, A, NSmin, NSmax, BHmin, BHmax, 
-                   n0, n1, n2, n3, mbreak, alpha_1, alpha_2):
+def power_law_dip_break_1d(
+    mass, A, NSmin, NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, alpha_1, alpha_2
+):
     r"""
     the single-mass distribution considered in Fishbach, Essick, Holz. Does
     Matter Matter? ApJ Lett 899, 1 (2020) : arXiv:2006.13178
@@ -62,12 +63,15 @@ def power_law_dip_break_1d(mass, A, NSmin, NSmax, BHmin, BHmax,
         depth of the dip between NSmax and BHmin (A).
     """
     mbreak = BHmin
-    prob = xp.where((mass >= 1)*(mass <= 100), 
-                    (1.0 - A/((1 + (NSmax/mass)**n1) * (1 + (mass/BHmin)**n2))) \
-                       / ((1 + (mass/BHmax)**n3) * (1 + (NSmin/mass)**n0))
-                       * (mass/mbreak) ** xp.where(mass <= mbreak, alpha_1, alpha_2),
-                    0.)
+    prob = xp.where(
+        (mass >= 1) * (mass <= 100),
+        (1.0 - A / ((1 + (NSmax / mass) ** n1) * (1 + (mass / BHmin) ** n2)))
+        / ((1 + (mass / BHmax) ** n3) * (1 + (NSmin / mass) ** n0))
+        * (mass / mbreak) ** xp.where(mass <= mbreak, alpha_1, alpha_2),
+        0.0,
+    )
     return prob
+
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
     r"""
@@ -170,8 +174,22 @@ def double_power_law_peak_primary_mass(
     prob = (1 - lam) * p_pow + lam * p_norm
     return prob
 
-def power_law_dip_break(dataset, A, NSmin, NSmax,
-    BHmin, BHmax, n0, n1, n2, n3, mbreak, alpha_1, alpha_2, beta_q
+
+def power_law_dip_break(
+    dataset,
+    A,
+    NSmin,
+    NSmax,
+    BHmin,
+    BHmax,
+    n0,
+    n1,
+    n2,
+    n3,
+    mbreak,
+    alpha_1,
+    alpha_2,
+    beta_q,
 ):
     r"""
     Two-dimenstional mass distribution considered in Fishbach, Essick, Holz. Does
@@ -181,7 +199,7 @@ def power_law_dip_break(dataset, A, NSmin, NSmax,
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays for 'mass_1' (:math:`m_1`) and 
+        Dictionary of numpy arrays for 'mass_1' (:math:`m_1`) and
         'mass_ratio' q (:math:`m_2=m_1*q`).
     alpha_1: float
         Powerlaw exponent for compact object below break (:math:`\alpha_1`).
@@ -189,7 +207,7 @@ def power_law_dip_break(dataset, A, NSmin, NSmax,
         Powerlaw exponent for compact object above break (:math:`\alpha_2`).
     mbreak: float
         Mass at which the power law exponent switches from alpha_1 to alpha_2.
-        Pinned for now to be at BHmin (:math:`\m_{break}`). 
+        Pinned for now to be at BHmin (:math:`\m_{break}`).
     NSmin: float
         Minimum compact object mass (:math:`m_\min`).
     NSmax: float
@@ -200,18 +218,44 @@ def power_law_dip_break(dataset, A, NSmin, NSmax,
         Maximum mass in the powerlaw distributed component (:math:`m_\max`).
     n{0,1,2,3}: float
         Exponents to set the sharpness of the low mass cutoff, low edge of dip,
-        high edge of dip, and high mass cutoff, respectively (:math:`\eta_i`). 
+        high edge of dip, and high mass cutoff, respectively (:math:`\eta_i`).
     A: float
         depth of the dip between NSmax and BHmin (A).
     """
 
-    p_m1 = power_law_dip_break_1d(dataset["mass_1"], A, NSmin, NSmax, BHmin, BHmax, 
-                          n0, n1, n2, n3, mbreak, alpha_1, alpha_2)
-    p_m2 = power_law_dip_break_1d(dataset["mass_2"], A, NSmin, 
-                          NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
-                          alpha_1, alpha_2)
+    p_m1 = power_law_dip_break_1d(
+        dataset["mass_1"],
+        A,
+        NSmin,
+        NSmax,
+        BHmin,
+        BHmax,
+        n0,
+        n1,
+        n2,
+        n3,
+        mbreak,
+        alpha_1,
+        alpha_2,
+    )
+    p_m2 = power_law_dip_break_1d(
+        dataset["mass_2"],
+        A,
+        NSmin,
+        NSmax,
+        BHmin,
+        BHmax,
+        n0,
+        n1,
+        n2,
+        n3,
+        mbreak,
+        alpha_1,
+        alpha_2,
+    )
     prob = _primary_secondary_power_law_pairing(dataset, p_m1, p_m2, beta_q)
     return prob
+
 
 def double_power_law_primary_power_law_mass_ratio(
     dataset, alpha_1, alpha_2, beta, mmin, mmax, break_fraction
@@ -293,14 +337,15 @@ def power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
 def _primary_secondary_general(dataset, p_m1, p_m2):
     return p_m1 * p_m2 * (dataset["mass_1"] >= dataset["mass_2"]) * 2
 
+
 def _primary_secondary_power_law_pairing(dataset, p_m1, p_m2, beta_pair):
-    r""" Utility to create two-dimensional mass distributions with a 
-    pairing function that is a power law in mass ratio (as described 
+    r"""Utility to create two-dimensional mass distributions with a
+    pairing function that is a power law in mass ratio (as described
     in https://ui.adsabs.harvard.edu/abs/2020ApJ...891L..27F/abstract).
     The one-dimensional mass distributions can be arbitrarily described
     by `p_m1` and `p_m2`
     .. math::
-        p(m_1, m_2) &= p_1(m_1) p_2(m_2) q^{\beta} : m_1 \geq m_2 
+        p(m_1, m_2) &= p_1(m_1) p_2(m_2) q^{\beta} : m_1 \geq m_2
 
         q &= m_2/m_1
 
@@ -309,16 +354,16 @@ def _primary_secondary_power_law_pairing(dataset, p_m1, p_m2, beta_pair):
     dataset: dict
         Dictionary of numpy arrays for 'mass_1' (:math:`m_1`) and 'mass_2' (:math:`m_2`).
     p_m1: array
-        Array of shape `dataset['mass_1'].shape` that gives the one-dimensional 
+        Array of shape `dataset['mass_1'].shape` that gives the one-dimensional
         probability of the primary mass
     p_m2: array
-        Array of shape `dataset['mass_2'].shape` that gives the one-dimensional 
+        Array of shape `dataset['mass_2'].shape` that gives the one-dimensional
         probability of the secondary mass. `p_m1.shape` should equal `p_m2.shape`
     beta_pair: float
         Power law exponent for the mass ratio pairing function
     """
-    q = dataset["mass_2"]/dataset["mass_1"]
-    return _primary_secondary_general(dataset, p_m1, p_m2) * (q ** beta_pair)
+    q = dataset["mass_2"] / dataset["mass_1"]
+    return _primary_secondary_general(dataset, p_m1, p_m2) * (q**beta_pair)
 
 
 def power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):

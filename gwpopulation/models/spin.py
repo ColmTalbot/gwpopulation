@@ -75,7 +75,7 @@ def independent_spin_magnitude_beta(
     prior = beta_dist(
         dataset["a_1"], alpha_chi_1, beta_chi_1, scale=amax_1
     ) * beta_dist(dataset["a_2"], alpha_chi_2, beta_chi_2, scale=amax_2)
-    
+
     return prior
 
 

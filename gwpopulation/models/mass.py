@@ -840,7 +840,13 @@ class InterpolatedPowerlaw(
     primary_model = power_law_mass
 
     def __init__(
-        self, nodes=10, kind="cubic", mmin=2, mmax=100, normalization_shape=(1000, 500), regularize=True
+        self,
+        nodes=10,
+        kind="cubic",
+        mmin=2,
+        mmax=100,
+        normalization_shape=(1000, 500),
+        regularize=True,
     ):
         """
         Parameters

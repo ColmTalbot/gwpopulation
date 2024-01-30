@@ -45,7 +45,14 @@ class InterpolatedNoBaseModelIdentical:
     """
 
     def __init__(
-        self, parameters, minimum, maximum, nodes=10, kind="cubic", log_nodes=False, regularize=False
+        self,
+        parameters,
+        minimum,
+        maximum,
+        nodes=10,
+        kind="cubic",
+        log_nodes=False,
+        regularize=False,
     ):
         """ """
         self.nodes = nodes
@@ -88,7 +95,9 @@ class InterpolatedNoBaseModelIdentical:
 
     def p_x_unnormed(self, dataset, parameter, x_splines, f_splines, **kwargs):
         if self.regularize:
-            f_splines = f_splines * kwargs[f"rms{self.base}"] / xp.sum(f_splines**2)**0.5
+            f_splines = (
+                f_splines * kwargs[f"rms{self.base}"] / xp.sum(f_splines**2) ** 0.5
+            )
 
         if self._norm_spline is None:
             self.setup_interpolant(x_splines, dataset)

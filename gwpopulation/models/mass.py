@@ -214,7 +214,7 @@ def power_law_dip_break(dataset, A, NSmin, NSmax,
     p_m2 = power_law_dip_break_1d(dataset["mass_2"], A, NSmin, 
                           NSmax, BHmin, BHmax, n0, n1, n2, n3, mbreak, 
                           alpha_1, alpha_2)
-    prob = _primary_secondary_plaw_pairing(dataset, p_m1, p_m2, beta_q)
+    prob = _primary_secondary_power_law_pairing(dataset, p_m1, p_m2, beta_q)
     return prob
 
 def double_power_law_primary_power_law_mass_ratio(
@@ -297,7 +297,30 @@ def power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
 def _primary_secondary_general(dataset, p_m1, p_m2):
     return p_m1 * p_m2 * (dataset["mass_1"] >= dataset["mass_2"]) * 2
 
-def _primary_secondary_plaw_pairing(dataset, p_m1, p_m2, beta_pair):
+def _primary_secondary_power_law_pairing(dataset, p_m1, p_m2, beta_pair):
+    r""" Utility to create two-dimensional mass distributions with a 
+    pairing function that is a power law in mass ratio (as described 
+    in https://ui.adsabs.harvard.edu/abs/2020ApJ...891L..27F/abstract).
+    The one-dimensional mass distributions can be arbitrarily described
+    by `p_m1` and `p_m2`
+    .. math::
+        p(m_1, m_2) &= p_1(m_1) p_2(m_2) q^{\beta} : m_1 \geq m_2 
+
+        q &= m_2/m_1
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' (:math:`m_1`) and 'mass_2' (:math:`m_2`).
+    p_m1: array
+        Array of shape `dataset['mass_1'].shape` that gives the one-dimensional 
+        probability of the primary mass
+    p_m2: array
+        Array of shape `dataset['mass_2'].shape` that gives the one-dimensional 
+        probability of the secondary mass. `p_m1.shape` should equal `p_m2.shape`
+    beta_pair: float
+        Power law exponent for the mass ratio pairing function
+    """
     q = dataset["mass_2"]/dataset["mass_1"]
     return _primary_secondary_general(dataset, p_m1, p_m2) * (q ** beta_pair)
 

@@ -18,6 +18,7 @@ API:
    models
    backend
    conversions
+   experimental
    hyperpe
    utils
    vt

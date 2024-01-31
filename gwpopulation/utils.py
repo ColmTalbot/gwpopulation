@@ -1,5 +1,5 @@
 """
-Helper functions for probability distributions.
+Helper functions for probability distributions and backend switching.
 """
 from numbers import Number
 from operator import eq, ge, gt, le, lt, ne

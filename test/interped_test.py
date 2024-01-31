@@ -13,6 +13,23 @@ from gwpopulation.models.interped import (
 from . import TEST_BACKENDS
 
 
+@pytest.mark.parametrize("regularize", [True, False])
+def test_regularization_works(regularize):
+    model = InterpolatedNoBaseModelIdentical(
+        parameters=["a_1"], minimum=0, maximum=1, regularize=regularize
+    )
+    parameters = {key: value for key, value in zip(model.xkeys, np.linspace(0, 1, 10))}
+    parameters.update({key: 1.0 for key in model.fkeys})
+    if regularize:
+        parameters["rmsa"] = 0.1
+    values = model.extract_spline_points(parameters)[0]
+    if regularize:
+        expected = 0.1
+    else:
+        expected = 1
+    assert abs((values**2).mean() ** 0.5 - expected) < 1e-10
+
+
 def test_regularize_option_adds_rms_variable():
     for regularize in [True, False]:
         model = InterpolatedNoBaseModelIdentical(

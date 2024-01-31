@@ -892,8 +892,7 @@ class InterpolatedPowerlaw(
 
     def p_m1(self, dataset, **kwargs):
 
-        f_splines = xp.array([kwargs[key] for key in self.fkeys])
-        m_splines = xp.array([kwargs[key] for key in self.xkeys])
+        f_splines, m_splines = self.extract_spline_points(kwargs)
 
         mmin = kwargs.get("mmin", self.mmin)
         delta_m = kwargs.pop("delta_m", 0)

@@ -97,10 +97,6 @@ class InterpolatedNoBaseModelIdentical:
         }
 
     def p_x_unnormed(self, dataset, parameter, x_splines, f_splines, **kwargs):
-        if self.regularize:
-            f_splines = (
-                f_splines * kwargs[f"rms{self.base}"] / xp.sum(f_splines**2) ** 0.5
-            )
 
         if self._norm_spline is None:
             self.setup_interpolant(x_splines, dataset)
@@ -121,12 +117,36 @@ class InterpolatedNoBaseModelIdentical:
         norm = xp.trapz(p_x, self._xs)
         return norm
 
+    def extract_spline_points(self, kwargs):
+        """
+        Extract the node positions and values from the dictionary of parameters
+
+        Parameters
+        ==========
+        kwargs: dict
+            Dictionary containing :code:`{self.base}_ii, f{self.base_ii}` and
+            optionally :code`rms{self.base}`
+
+        Returns
+        =======
+        f_splines: array-like
+            The values at the spline nodes
+        x_splines: array-like
+            The positions of the spline nodes
+        """
+        f_splines = xp.array([kwargs[key] for key in self.fkeys])
+        print(f_splines, xp.mean(f_splines**2) ** 0.5)
+        if self.regularize:
+            f_splines *= kwargs[f"rms{self.base}"] / xp.mean(f_splines**2) ** 0.5
+        print(f_splines, xp.mean(f_splines**2) ** 0.5)
+        x_splines = xp.array([kwargs[key] for key in self.xkeys])
+        return f_splines, x_splines
+
     def p_x_identical(self, dataset, **kwargs):
 
         self.infer_n_nodes(**kwargs)
 
-        f_splines = xp.array([kwargs[key] for key in self.fkeys])
-        x_splines = xp.array([kwargs[key] for key in self.xkeys])
+        f_splines, x_splines = self.extract_spline_points(kwargs)
 
         p_x = xp.ones(xp.shape(dataset[self.parameters[0]]))
 

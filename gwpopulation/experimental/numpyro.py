@@ -79,9 +79,7 @@ def construct_numpyro_model(
         ln_l = jnp.nan_to_num(
             likelihood_func(likelihood, parameters, **kwargs), nan=-jnp.inf
         )
-        # deterministic("final_ln_l", ln_l * 1)
         sample("log_likelihood", Unit(ln_l), obs=ln_l)
-        # factor("log_likelihood", ln_l)
 
     return model
 

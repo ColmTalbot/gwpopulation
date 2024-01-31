@@ -846,7 +846,7 @@ class InterpolatedPowerlaw(
         mmin=2,
         mmax=100,
         normalization_shape=(1000, 500),
-        regularize=True,
+        regularize=False,
     ):
         """
         Parameters

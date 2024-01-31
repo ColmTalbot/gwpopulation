@@ -7,17 +7,20 @@ from ..utils import to_numpy
 xp = np
 
 
-def _setup_interpolant(nodes, values, kind="cubic", backend=xp):
+def _setup_interpolant(nodes, values, kind="cubic", backend=None):
     """
     Cache the information necessary for linear interpolation of the mass
     ratio normalisation
     """
     from cached_interpolate import RegularCachingInterpolant as CachingInterpolant
 
+    if backend is None:
+        backend = xp
+
     nodes = to_numpy(nodes)
     interpolant = CachingInterpolant(nodes, nodes, kind=kind, backend=backend)
-    interpolant.conversion = xp.asarray(interpolant.conversion)
-    interpolant = partial(interpolant, xp.asarray(values))
+    interpolant.conversion = backend.array(interpolant.conversion)
+    interpolant = partial(interpolant, backend.array(values))
     return interpolant
 
 

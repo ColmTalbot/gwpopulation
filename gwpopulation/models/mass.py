@@ -580,7 +580,7 @@ class BaseSmoothedMassDistribution:
         p_m = self.__class__.primary_model(self.m1s, **kwargs)
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
 
-        norm = xp.where(delta_m > 0, xp.trapz(p_m, self.m1s), 1)
+        norm = xp.where(xp.array(delta_m) > 0, xp.trapz(p_m, self.m1s), 1)
         return norm
 
     def p_q(self, dataset, beta, mmin, delta_m):
@@ -606,7 +606,7 @@ class BaseSmoothedMassDistribution:
             self.m1s_grid * self.qs_grid, mmin=mmin, mmax=self.m1s_grid, delta_m=delta_m
         )
         norms = xp.where(
-            delta_m > 0,
+            xp.array(delta_m) > 0,
             xp.nan_to_num(xp.trapz(p_q, self.qs, axis=0)),
             xp.ones(self.m1s.shape),
         )

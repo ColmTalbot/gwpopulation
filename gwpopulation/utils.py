@@ -168,6 +168,20 @@ def truncnorm(xx, mu, sigma, high, low):
     prob *= (xx <= high) & (xx >= low)
     return prob
 
+def skewnorm_dist(xx, mu, sigma, eta):
+
+        '''A non-normalized skew-normal distribution'''
+
+
+        sig_x = xp.exp(log_sig_x)
+
+        prob_gauss =  xp.exp(-xp.power(chi_eff - mu_x, 2) / (2 * sig_x**2))
+        prob_skew = 0.5 * (1 + scs.erf(eta_x * (chi_eff - mu_x) / (sig_x * (2**0.5))))
+
+        return prob_gauss * prob_skew
+
+
+
 
 def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
     r"""

@@ -3,7 +3,7 @@ Implemented spin models
 """
 import numpy as xp
 
-from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian
+from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian, skewnorm
 from .interped import InterpolatedNoBaseModelIdentical
 
 
@@ -138,7 +138,7 @@ def independent_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_1, s
     return prior
 
 
-def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):
+def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff, **kwargs):
     r"""
     A Gaussian in chi effective distribution
 
@@ -165,6 +165,18 @@ def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):
     return truncnorm(
         dataset["chi_eff"], mu=mu_chi_eff, sigma=sigma_chi_eff, low=-1, high=1
     )
+
+
+def skewnorm_chi_eff(dataset, mu_chi_eff, sigma_chi_eff, **kwargs):
+
+    eta_chi_eff = kwargs.pop('eta_x')
+
+    pdf = skewnorm(dataset, mu=mu_chi_eff, sigma=sigma_chi_eff, eta=eta_chi_eff)
+
+    chi_arr = {'chi_eff':xp.array([0.005 * i for i in range(-200, 201, 1)])}
+    norm = 0.005 * xp.sum(skewnorm(chi_arr, mu=mu_chi_eff, sigma=sigma_chi_eff, eta=eta_chi_eff))
+
+    return pdf/norm
 
 
 def gaussian_chi_p(dataset, mu_chi_p, sigma_chi_p):

@@ -1,6 +1,8 @@
+from itertools import product
+
 import numpy as np
 import pytest
-from bilby.core.prior import PriorDict, Uniform
+from bilby.core.prior import Normal, PriorDict, Uniform
 
 import gwpopulation
 from gwpopulation.models import spin
@@ -232,3 +234,63 @@ def test_2d_gaussian_no_covariance_matches_independent(backend):
         )
         < 1e-3
     )
+
+
+def _setup_spin_model(variable):
+    xp = gwpopulation.utils.xp
+    n_nodes = 10
+
+    if variable == "cos_tilt":
+        bounds = (-1, 1)
+        func = spin.SplineSpinTiltIdentical
+    elif variable == "a":
+        bounds = (0, 1)
+        func = spin.SplineSpinMagnitudeIdentical
+
+    model = func(minimum=bounds[0], maximum=bounds[1], nodes=n_nodes)
+
+    prior = {
+        f"{variable}{ii}": val
+        for ii, val in enumerate(np.linspace(bounds[0] - 0.2, bounds[1] + 0.2, n_nodes))
+    }
+    prior.update({f"f{variable}{i}": Uniform(0, 1) for i in range(n_nodes)})
+    prior = PriorDict(prior)
+    return prior, model
+
+
+@pytest.mark.parametrize("backend,variable", product(TEST_BACKENDS, ["cos_tilt", "a"]))
+def test_spline_spin_model_normalised(backend, variable):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    prior, model = _setup_spin_model(variable)
+
+    if variable == "cos_tilt":
+        x_array, test_data = tilt_test_data(xp)
+    elif variable == "a":
+        x_array, test_data = magnitude_test_data(xp)
+
+    norms = list()
+    for ii in range(N_TEST):
+        parameters = prior.sample()
+        temp = model(test_data, **parameters)
+        norm = xp.trapz(xp.trapz(temp, x_array), x_array)
+        norms.append(norm)
+    assert float(xp.max(xp.abs(1 - xp.asarray(norms)))) < 0.1
+
+
+@pytest.mark.parametrize("backend,variable", product(TEST_BACKENDS, ["cos_tilt", "a"]))
+def test_spline_spin_model_bounded(backend, variable):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    prior, model = _setup_spin_model(variable)
+
+    test_data = dict()
+    test_data[f"{variable}_1"] = xp.linspace(model._xs[-1] + 0.1, model._xs[-1] + 0.5)
+    test_data[f"{variable}_2"] = xp.linspace(model._xs[0] - 0.5, model._xs[0] - 0.1)
+
+    probabilities = list()
+    for ii in range(N_TEST):
+        parameters = prior.sample()
+        temp = model(test_data, **parameters)
+        probabilities.append(xp.sum(temp))
+    assert float(xp.max(xp.abs(probabilities))) < 1e-8

@@ -167,13 +167,11 @@ def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff, **kwargs):
     )
 
 
-def skewnorm_chi_eff(dataset, mu_chi_eff, sigma_chi_eff, **kwargs):
+def skewnorm_chi_eff(dataset, mu_chi_eff, sigma_chi_eff, eta_chi_eff):
 
-    eta_chi_eff = kwargs.pop('eta_x')
+    pdf = skewnorm(dataset["chi_eff"], mu=mu_chi_eff, sigma=sigma_chi_eff, eta=eta_chi_eff)
 
-    pdf = skewnorm(dataset, mu=mu_chi_eff, sigma=sigma_chi_eff, eta=eta_chi_eff)
-
-    chi_arr = {'chi_eff':xp.array([0.005 * i for i in range(-200, 201, 1)])}
+    chi_arr = xp.array([0.005 * i for i in range(-200, 201, 1)])
     norm = 0.005 * xp.sum(skewnorm(chi_arr, mu=mu_chi_eff, sigma=sigma_chi_eff, eta=eta_chi_eff))
 
     return pdf/norm

@@ -840,7 +840,13 @@ class InterpolatedPowerlaw(
     primary_model = power_law_mass
 
     def __init__(
-        self, nodes=10, kind="cubic", mmin=2, mmax=100, normalization_shape=(1000, 500)
+        self,
+        nodes=10,
+        kind="cubic",
+        mmin=2,
+        mmax=100,
+        normalization_shape=(1000, 500),
+        regularize=False,
     ):
         """
         Parameters
@@ -855,6 +861,9 @@ class InterpolatedPowerlaw(
             The maximum mass considered for numerical normalization, default=100.
         normalization_shape: tuple
             Shape of the grid used for numerical normalization, default=(1000, 500).
+        regularize: bool
+            Whether to regularize the spline node values to have root-mean-square value
+            :code:`rms{name}`, default=False
         """
         BaseSmoothedMassDistribution.__init__(
             self,
@@ -870,6 +879,7 @@ class InterpolatedPowerlaw(
             nodes=nodes,
             kind=kind,
             log_nodes=True,
+            regularize=regularize,
         )
         self._xs = self.m1s
 
@@ -882,8 +892,7 @@ class InterpolatedPowerlaw(
 
     def p_m1(self, dataset, **kwargs):
 
-        f_splines = xp.array([kwargs[key] for key in self.fkeys])
-        m_splines = xp.array([kwargs[key] for key in self.xkeys])
+        f_splines, m_splines = self.extract_spline_points(kwargs)
 
         mmin = kwargs.get("mmin", self.mmin)
         delta_m = kwargs.pop("delta_m", 0)

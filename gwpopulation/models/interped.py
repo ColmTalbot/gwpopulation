@@ -135,10 +135,8 @@ class InterpolatedNoBaseModelIdentical:
             The positions of the spline nodes
         """
         f_splines = xp.array([kwargs[key] for key in self.fkeys])
-        print(f_splines, xp.mean(f_splines**2) ** 0.5)
         if self.regularize:
             f_splines *= kwargs[f"rms{self.base}"] / xp.mean(f_splines**2) ** 0.5
-        print(f_splines, xp.mean(f_splines**2) ** 0.5)
         x_splines = xp.array([kwargs[key] for key in self.xkeys])
         return f_splines, x_splines
 

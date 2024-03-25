@@ -15,7 +15,7 @@ The backend can be set using :code:`gwpopulation.set_backend(backend)`, where
 Downstream packages can automatically track the active backend using :code:`entry_points`.
 With this set up, packages can use :code:`xp` and :code:`scs` in specified modules.
 
-..note::
+.. note::
     Each module that wants to use the :code:`GWPopulation` backend must be specified independently
     for the automatic propagation to work.
 

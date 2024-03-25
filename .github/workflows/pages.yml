@@ -17,6 +17,8 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
 
       - name: Setup Python
         uses: actions/setup-python@v5

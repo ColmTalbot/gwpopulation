@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-tags: true
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -54,6 +54,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     needs: build
     steps:
       - name: Deploy to GitHub Pages

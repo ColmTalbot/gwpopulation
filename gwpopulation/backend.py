@@ -38,6 +38,9 @@ def modules_to_update():
         ".models.spin",
         ".utils",
         ".vt",
+        ".experimental.cosmo_likelihood",
+        ".experimental.cosmo_models",
+        ".experimental.cosmo_vt",
     ]
     all_with_xp.extend(
         [module.value for module in entry_points(group="gwpopulation.xp")]

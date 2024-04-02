@@ -13,3 +13,4 @@ venv/
 **/.version
 **/_version.py
 .vscode
+*/*/.ipynb*

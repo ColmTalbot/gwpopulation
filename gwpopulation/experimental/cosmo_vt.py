@@ -5,6 +5,7 @@ import numpy as np
 
 from gwpopulation.experimental.cosmo_models import _CosmoRedshift
 from gwpopulation.utils import to_number
+from gwpopulation.vt import ResamplingVT
 
 xp = np
 

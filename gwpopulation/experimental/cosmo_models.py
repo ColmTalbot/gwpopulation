@@ -122,8 +122,16 @@ class CosmoPowerLawRedshift(_CosmoRedshift):
                 samples['mass_ratio'] = samples['mass_2']/samples['mass_1']
             else:
                 samples['mass_ratio'] = data['mass_ratio']
-            samples['a_1'] = data['a_1']
-            samples['a_2'] = data['a_2']
+            try:
+                samples['a_1'] = data['a_1']
+                samples['a_2'] = data['a_2']
+            except:
+                None
+            try:
+                samples['cos_tilt_1'] = data['cos_tilt_1']
+                samples['cos_tilt_2'] = data['cos_tilt_2']
+            except:
+                None
         else:
             zs = to_numpy(self.zs)
             dl = cosmo.luminosity_distance(to_numpy(zs)).value
@@ -136,8 +144,16 @@ class CosmoPowerLawRedshift(_CosmoRedshift):
                 samples['mass_ratio'] = samples['mass_2']/samples['mass_1']
             else:
                 samples['mass_ratio'] = data['mass_ratio']
-            samples['a_1'] = data['a_1']
-            samples['a_2'] = data['a_2']
+            try:
+                samples['a_1'] = data['a_1']
+                samples['a_2'] = data['a_2']
+            except:
+                None
+            try:
+                samples['cos_tilt_1'] = data['cos_tilt_1']
+                samples['cos_tilt_2'] = data['cos_tilt_2']
+            except:
+                None
 
         return samples
 
@@ -229,8 +245,16 @@ class CosmoMadauDickinsonRedshift(_CosmoRedshift):
                 samples['mass_ratio'] = samples['mass_2']/samples['mass_1']
             else:
                 samples['mass_ratio'] = data['mass_ratio']
-            samples['a_1'] = data['a_1']
-            samples['a_2'] = data['a_2']
+            try:
+                samples['a_1'] = data['a_1']
+                samples['a_2'] = data['a_2']
+            except:
+                None
+            try:
+                samples['cos_tilt_1'] = data['cos_tilt_1']
+                samples['cos_tilt_2'] = data['cos_tilt_2']
+            except:
+                None
         else:
             zs = to_numpy(self.zs)
             dl = cosmo.luminosity_distance(to_numpy(zs)).value
@@ -243,8 +267,16 @@ class CosmoMadauDickinsonRedshift(_CosmoRedshift):
                 samples['mass_ratio'] = samples['mass_2']/samples['mass_1']
             else:
                 samples['mass_ratio'] = data['mass_ratio']
-            samples['a_1'] = data['a_1']
-            samples['a_2'] = data['a_2']
+            try:
+                samples['a_1'] = data['a_1']
+                samples['a_2'] = data['a_2']
+            except:
+                None
+            try:
+                samples['cos_tilt_1'] = data['cos_tilt_1']
+                samples['cos_tilt_2'] = data['cos_tilt_2']
+            except:
+                None
 
         return samples
 

@@ -591,11 +591,17 @@ class BaseSmoothedMassDistribution:
             mmax=dataset["mass_1"],
             delta_m=delta_m,
         )
+
         try:
-            p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
+            if dataset["mass_1"] == self.data_m1: 
+                p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
+            else:
+                self._cache_q_norms(dataset["mass_1"])
+                p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
         except (AttributeError, TypeError, ValueError):
             self._cache_q_norms(dataset["mass_1"])
             p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
+        
 
         return xp.nan_to_num(p_q)
 
@@ -619,7 +625,8 @@ class BaseSmoothedMassDistribution:
         ratio normalisation
         """
         from .interped import _setup_interpolant
-
+        
+        self.data_m1 = masses.copy()
         self._q_interpolant = _setup_interpolant(
             self.m1s, masses, kind="cubic", backend=xp
         )

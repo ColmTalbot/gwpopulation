@@ -593,7 +593,7 @@ class BaseSmoothedMassDistribution:
         )
 
         try:
-            if dataset["mass_1"] == self.data_m1: 
+            if all(dataset["mass_1"] == self.data_m1):
                 p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
             else:
                 self._cache_q_norms(dataset["mass_1"])

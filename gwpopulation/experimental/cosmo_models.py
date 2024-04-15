@@ -20,62 +20,70 @@ class _CosmoRedshift(object):
     def __init__(self, z_max=2.3):
 
         self.z_max = z_max
-        self.zs_ = np.linspace(1e-3, z_max, 1000)
+        self.zs_ = np.linspace(1e-6, z_max, 2500)
         self.zs = xp.asarray(self.zs_)
 
     def __call__(self, dataset, **kwargs):
         return self.probability(dataset=dataset, **kwargs)
 
-    def normalisation(self, parameters):
-        r"""
-        Compute the normalization or differential spacetime volume.
-        .. math::
-            \mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
-        Parameters
-        ----------
-        parameters: dict
-            Dictionary of parameters
-        Returns
-        -------
-        (float, array-like): Total spacetime volume
-        """
+    # def normalisation(self, parameters):
+    #     r"""
+    #     Compute the normalization or differential spacetime volume.
+    #     .. math::
+    #         \mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+    #     Parameters
+    #     ----------
+    #     parameters: dict
+    #         Dictionary of parameters
+    #     Returns
+    #     -------
+    #     (float, array-like): Total spacetime volume
+    #     """
+    #     psi_of_z = self.psi_of_z(redshift=self.zs, **parameters)
+    #     dvc_dz = self.dvc_dz(redshift=self.zs, **parameters)
+    #     norm = xp.trapz(psi_of_z * dvc_dz / (1 + self.zs), self.zs)
+    #     return norm
+
+    def probability(self, dataset, **parameters):
+        #normalization factor
         psi_of_z = self.psi_of_z(redshift=self.zs, **parameters)
         dvc_dz = self.dvc_dz(redshift=self.zs, **parameters)
         norm = xp.trapz(psi_of_z * dvc_dz / (1 + self.zs), self.zs)
-        return norm
-
-    def probability(self, dataset, **parameters):
-        normalisation = self.normalisation(parameters=parameters)
-        differential_volume = self.differential_spacetime_volume(
-            dataset=dataset, **parameters
-        )
+        
+        differential_volume = self.psi_of_z(redshift=dataset["redshift"], **parameters)/(1 + dataset["redshift"])
+        differential_volume *= xp.reshape(xp.interp(xp.ravel(dataset["redshift"]),self.zs,dvc_dz), dataset["redshift"].shape)
+        
+        # normalisation = self.normalisation(parameters=parameters)
+        # differential_volume = self.differential_spacetime_volume(
+        #     dataset=dataset, **parameters
+        # )
         in_bounds = dataset["redshift"] <= self.z_max
         return differential_volume / normalisation * in_bounds
 
     def psi_of_z(self, redshift, **parameters):
         raise NotImplementedError
 
-    def differential_spacetime_volume(self, dataset, **parameters):
-        r"""
-        Compute the differential spacetime volume.
-        .. math::
-            d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
-        Parameters
-        ----------
-        dataset: dict
-            Dictionary containing entry "redshift"
-        parameters: dict
-            Dictionary of parameters
-        Returns
-        -------
-        differential_volume: (float, array-like)
-            Differential spacetime volume
-        """
-        psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
-        differential_volume = psi_of_z / (1 + dataset["redshift"])
-        differential_volume *= self.dvc_dz(redshift=dataset["redshift"], **parameters)
+#     def differential_spacetime_volume(self, dataset, **parameters):
+#         r"""
+#         Compute the differential spacetime volume.
+#         .. math::
+#             d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+#         Parameters
+#         ----------
+#         dataset: dict
+#             Dictionary containing entry "redshift"
+#         parameters: dict
+#             Dictionary of parameters
+#         Returns
+#         -------
+#         differential_volume: (float, array-like)
+#             Differential spacetime volume
+#         """
+#         psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
+#         differential_volume = psi_of_z / (1 + dataset["redshift"])
+#         differential_volume *= self.dvc_dz(redshift=dataset["redshift"], **parameters)
 
-        return differential_volume
+#         return differential_volume
 
 
 

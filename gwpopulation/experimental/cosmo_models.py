@@ -104,7 +104,7 @@ class CosmoPowerLawRedshift(_CosmoRedshift):
     def dvc_dz(self, redshift, **parameters):
 
         astropy_cosmology = self.astropy_cosmology(**parameters)
-        dvc_dz =  xp.asarray(4*xp.pi*astropy_cosmology.differential_comoving_volume(to_numpy(redshift)).to(u.Gpc**3/u.sr).value)
+        dvc_dz =  xp.asarray(4*xp.pi*astropy_cosmology.differential_comoving_volume(to_numpy(redshift)).value)
 
         return dvc_dz
 
@@ -160,7 +160,7 @@ class CosmoPowerLawRedshift(_CosmoRedshift):
     def detector_to_source_jacobian(self, z, H0, Om0, dl):
 
         """
-        Calculates the detector frame to source frame Jacobian d_det/d_sour
+        Calculates the detector frame to source frame Jacobian d_det/d_sour for dL and z
         Parameters
         ----------
         z: _np. arrays
@@ -173,11 +173,10 @@ class CosmoPowerLawRedshift(_CosmoRedshift):
         speed_of_light = constants.c.to('km/s').value
         # Calculate the Jacobian of the luminosity distance w.r.t redshift
 
-        dL_by_dz = dl/(1+z) + speed_of_light*(1+z)/(cosmo.H0.value*self.Efunc(cosmo, z))
-
-        jacobian = (1+z)*dL_by_dz
-
-        return jacobian
+        # dL_by_dz = dl/(1+z) + speed_of_light*(1+z)/(cosmo.H0.value*self.Efunc(cosmo, z))
+        dL_by_dz = dl/(1+z) + speed_of_light*(1+z)/cosmo.H(z).value
+        
+        return dL_by_dz
 
     def Efunc(self, cosmo, z):
 
@@ -227,7 +226,7 @@ class CosmoMadauDickinsonRedshift(_CosmoRedshift):
     def dvc_dz(self, redshift, **parameters):
 
         astropy_cosmology = self.astropy_cosmology(**parameters)
-        dvc_dz =  xp.asarray(4*xp.pi*astropy_cosmology.differential_comoving_volume(to_numpy(redshift)).to(u.Gpc**3/u.sr).value)
+        dvc_dz =  xp.asarray(4*xp.pi*astropy_cosmology.differential_comoving_volume(to_numpy(redshift)).value)
 
         return dvc_dz
 

@@ -58,7 +58,7 @@ class _CosmoRedshift(object):
         #     dataset=dataset, **parameters
         # )
         in_bounds = dataset["redshift"] <= self.z_max
-        return differential_volume / normalisation * in_bounds
+        return differential_volume / norm * in_bounds
 
     def psi_of_z(self, redshift, **parameters):
         raise NotImplementedError

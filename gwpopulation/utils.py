@@ -168,6 +168,24 @@ def truncnorm(xx, mu, sigma, high, low):
     prob *= (xx <= high) & (xx >= low)
     return prob
 
+
+def trunc_eps_skewnorm(xx, mu, sigma, epsilon, high, low):
+
+    norm = 2**0.5 / xp.pi**0.5 / sigma
+    norm /= 0.5 * (1 - epsilon) * scs.erf((high - mu) / 2**0.5 / sigma / (1 - epsilon)) + \
+        0.5 * (1 + epsilon) * scs.erf((mu - low) / 2**0.5 / sigma / (1 + epsilon))
+
+
+    prob_left = xp.exp(-xp.power(xx - mu, 2) / (2 * sigma**2 * (1 + epsilon)**2))
+    prob_right = xp.exp(-xp.power(xx - mu, 2) / (2 * sigma**2 * (1 - epsilon)**2))
+
+    prob = xp.where(xx > mu, prob_right, prob_left)
+
+    prob *= norm
+    prob *= (xx <= high) & (xx >= low)
+    return prob
+
+
 def skewnorm(xx, mu, sigma, eta):
 
         '''A non-normalized skew-normal distribution'''

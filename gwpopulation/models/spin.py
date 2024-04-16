@@ -3,7 +3,7 @@ Implemented spin models
 """
 import numpy as xp
 
-from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian, skewnorm
+from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian, skewnorm, trunc_eps_skewnorm
 from .interped import InterpolatedNoBaseModelIdentical
 
 
@@ -167,6 +167,7 @@ def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff, **kwargs):
     )
 
 
+
 def skewnorm_chi_eff(dataset, mu_chi_eff, sigma_chi_eff, eta_chi_eff):
 
     pdf = skewnorm(dataset["chi_eff"], mu=mu_chi_eff, sigma=sigma_chi_eff, eta=eta_chi_eff)
@@ -176,6 +177,35 @@ def skewnorm_chi_eff(dataset, mu_chi_eff, sigma_chi_eff, eta_chi_eff):
 
     return pdf/norm
 
+
+
+def eps_skewnorm_chi_eff(dataset, mu_chi_eff, sigma_chi_eff, eps_chi_eff):
+    r"""
+    A Gaussian in chi effective distribution
+
+    See https://arxiv.org/abs/2001.06051, https://arxiv.org/abs/2010.14533
+
+    .. math::
+        p(\chi_{\text{eff}}) = \mathcal{N}(\chi_{\text{eff}}; \mu=\mu_\chi, \sigma=\sigma_\chi, x_\min=-1, m_\max=1)
+
+    Where :math:`\mathcal{N}` is a truncated Gaussian.
+
+    Parameters
+    ----------
+    dataset: dict
+        Input data, must contain `chi_eff` (:math:`\chi_{\text{eff}}`)
+    mu_chi_eff: float
+        Mean of the distribution (:math:`\mu_\chi`)
+    sigma_chi_eff: float
+        Standard deviation of the distribution (:math:`\sigma_\chi`)
+
+    Returns
+    -------
+    array-like: The probability
+    """
+    return trunc_eps_skewnorm(
+        dataset["chi_eff"], mu=mu_chi_eff, sigma=sigma_chi_eff, epsilon=eps_chi_eff, low=-1, high=1
+    )
 
 def gaussian_chi_p(dataset, mu_chi_p, sigma_chi_p):
     r"""

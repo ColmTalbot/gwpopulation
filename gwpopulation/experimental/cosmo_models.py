@@ -62,48 +62,7 @@ class _CosmoRedshift(object):
 
     def psi_of_z(self, redshift, **parameters):
         raise NotImplementedError
-
-#     def differential_spacetime_volume(self, dataset, **parameters):
-#         r"""
-#         Compute the differential spacetime volume.
-#         .. math::
-#             d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
-#         Parameters
-#         ----------
-#         dataset: dict
-#             Dictionary containing entry "redshift"
-#         parameters: dict
-#             Dictionary of parameters
-#         Returns
-#         -------
-#         differential_volume: (float, array-like)
-#             Differential spacetime volume
-#         """
-#         psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
-#         differential_volume = psi_of_z / (1 + dataset["redshift"])
-#         differential_volume *= self.dvc_dz(redshift=dataset["redshift"], **parameters)
-
-#         return differential_volume
-
-
-
-class CosmoPowerLawRedshift(_CosmoRedshift):
-    r"""
-    Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 and Cosmo model FlatLambdaCDM
-    .. math::
-        p(z|\gamma, \kappa, z_p) &\propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)
-        \psi(z|\gamma, \kappa, z_p) &= (1 + z)^\lambda
-    Parameters
-    ----------
-    lamb: float
-        The spectral index.
-    """
-
-    variable_names = ["lamb","H0","Om0"]
-
-    def psi_of_z(self, redshift, **parameters):
-        return (1 + redshift) ** parameters["lamb"]
-
+        
     def astropy_cosmology(self, **parameters):
         Om0 = parameters['Om0']
         H0 = parameters['H0']
@@ -182,13 +141,54 @@ class CosmoPowerLawRedshift(_CosmoRedshift):
         # Calculate the Jacobian of the luminosity distance w.r.t redshift
 
         # dL_by_dz = dl/(1+z) + speed_of_light*(1+z)/(cosmo.H0.value*self.Efunc(cosmo, z))
-        dL_by_dz = dl/(1+z) + speed_of_light*(1+z)/cosmo.H(z).value
+        dL_by_dz = dl/(1+z) + speed_of_light*(1+z)/xp.array(cosmo.H(to_numpy(z)).value)
         
         return dL_by_dz
 
     def Efunc(self, cosmo, z):
 
         return xp.sqrt(cosmo.Om0*xp.power(1+z,3)+(1-cosmo.Om0))
+#     def differential_spacetime_volume(self, dataset, **parameters):
+#         r"""
+#         Compute the differential spacetime volume.
+#         .. math::
+#             d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+#         Parameters
+#         ----------
+#         dataset: dict
+#             Dictionary containing entry "redshift"
+#         parameters: dict
+#             Dictionary of parameters
+#         Returns
+#         -------
+#         differential_volume: (float, array-like)
+#             Differential spacetime volume
+#         """
+#         psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
+#         differential_volume = psi_of_z / (1 + dataset["redshift"])
+#         differential_volume *= self.dvc_dz(redshift=dataset["redshift"], **parameters)
+
+#         return differential_volume
+
+
+
+class CosmoPowerLawRedshift(_CosmoRedshift):
+    r"""
+    Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 and Cosmo model FlatLambdaCDM
+    .. math::
+        p(z|\gamma, \kappa, z_p) &\propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)
+        \psi(z|\gamma, \kappa, z_p) &= (1 + z)^\lambda
+    Parameters
+    ----------
+    lamb: float
+        The spectral index.
+    """
+
+    variable_names = ["lamb","H0","Om0"]
+
+    def psi_of_z(self, redshift, **parameters):
+        return (1 + redshift) ** parameters["lamb"]
+
 
 class CosmoMadauDickinsonRedshift(_CosmoRedshift):
     r"""
@@ -225,90 +225,3 @@ class CosmoMadauDickinsonRedshift(_CosmoRedshift):
         )
         psi_of_z *= 1 + (1 + z_peak) ** (-kappa)
         return psi_of_z
-
-    def astropy_cosmology(self, **parameters):
-        Om0 = parameters['Om0']
-        H0 = parameters['H0']
-        return FlatLambdaCDM(Om0=Om0,H0=H0)    
-
-    def dvc_dz(self, redshift, **parameters):
-
-        astropy_cosmology = self.astropy_cosmology(**parameters)
-        dvc_dz =  xp.asarray(4*xp.pi*astropy_cosmology.differential_comoving_volume(to_numpy(redshift)).value)
-
-        return dvc_dz
-
-    def detector_frame_to_source_frame(self, data, H0, Om0, astropy_conv=False):
-
-        cosmo = self.astropy_cosmology(H0=H0,Om0=Om0)
-
-        samples = dict()
-        if astropy_conv == True:
-
-            samples['redshift'] = xp.asarray([z_at_value(cosmo.luminosity_distance, d*u.Mpc,zmax=self.z_max) for d in to_numpy(data['luminosity_distance'])])
-            samples['mass_1'] = data['mass_1']/(1+samples['redshift'])
-            if 'mass_2' in samples:
-                samples['mass_2'] = data['mass_2']/(1+samples['redshift'])
-                samples['mass_ratio'] = samples['mass_2']/samples['mass_1']
-            else:
-                samples['mass_ratio'] = data['mass_ratio']
-            try:
-                samples['a_1'] = data['a_1']
-                samples['a_2'] = data['a_2']
-            except:
-                None
-            try:
-                samples['cos_tilt_1'] = data['cos_tilt_1']
-                samples['cos_tilt_2'] = data['cos_tilt_2']
-            except:
-                None
-        else:
-            zs = to_numpy(self.zs)
-            dl = cosmo.luminosity_distance(to_numpy(zs)).value
-            interp_dl_to_z = splrep(dl,zs,s=0)
-
-            samples['redshift'] = xp.nan_to_num(xp.asarray(splev(to_numpy(data['luminosity_distance']),interp_dl_to_z,ext=0)))
-            samples['mass_1'] = data['mass_1']/(1+samples['redshift'])
-            if 'mass_2' in samples:
-                samples['mass_2'] = data['mass_2']/(1+samples['redshift'])
-                samples['mass_ratio'] = samples['mass_2']/samples['mass_1']
-            else:
-                samples['mass_ratio'] = data['mass_ratio']
-            try:
-                samples['a_1'] = data['a_1']
-                samples['a_2'] = data['a_2']
-            except:
-                None
-            try:
-                samples['cos_tilt_1'] = data['cos_tilt_1']
-                samples['cos_tilt_2'] = data['cos_tilt_2']
-            except:
-                None
-
-        return samples
-
-    def detector_to_source_jacobian(self, z, H0, Om0, dl):
-
-        """
-        Calculates the detector frame to source frame Jacobian d_det/d_sour
-
-        Parameters
-        ----------
-        z: Redshift
-        H0, Om0: cosmological parameters
-        dl: luminosity distance
-        """
-        cosmo = self.astropy_cosmology(H0=H0,Om0=Om0)
-
-        speed_of_light = constants.c.to('km/s').value
-        # Calculate the Jacobian of the luminosity distance with regard to redshift
-
-        dL_by_dz = dl/(1+z) + speed_of_light*(1+z)/(cosmo.H0.value*self.Efunc(cosmo, z))
-
-        jacobian = (1+z)*dL_by_dz
-
-        return jacobian
-
-    def Efunc(self, cosmo, z):
-
-        return xp.sqrt(cosmo.Om0*xp.power(1+z,3)+(1-cosmo.Om0))

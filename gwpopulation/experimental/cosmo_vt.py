@@ -77,8 +77,8 @@ class CosmoResamplingVT(ResamplingVT):
 
     def detection_efficiency(self, parameters):
         self.model.parameters.update(parameters)
-        samples_in_source = self.redshift_model.detector_frame_to_source_frame(self.data, self.model.parameters['H0'], self.model.parameters['Om0'], self.astropy_conv)
-        jac = self.redshift_model.detector_to_source_jacobian(samples_in_source['redshift'], self.model.parameters['H0'], self.model.parameters['Om0'], self.data['luminosity_distance'])
+        samples_in_source = self.redshift_model.detector_frame_to_source_frame(self.data, self.model.parameters['H0'], self.model.parameters['Om0'], self.model.parameters['w0'], self.astropy_conv)
+        jac = self.redshift_model.detector_to_source_jacobian(samples_in_source['redshift'], self.model.parameters['H0'], self.model.parameters['Om0'], self.model.parameters['w0'], self.data['luminosity_distance'])
         jac *= (1+samples_in_source['redshift'])
         weights = self.model.prob(samples_in_source) / self.data["prior"] / jac
         mu = to_number(xp.sum(weights) / self.total_injections, float)

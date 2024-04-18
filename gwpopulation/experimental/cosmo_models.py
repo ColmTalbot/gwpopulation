@@ -1,5 +1,5 @@
 import numpy as np
-from astropy.cosmology import FlatLambdaCDM
+from astropy.cosmology import FlatLambdaCDM, FlatwCDM
 from astropy import units as u
 from astropy.cosmology import z_at_value
 from scipy.interpolate import splev
@@ -66,7 +66,9 @@ class _CosmoRedshift(object):
     def astropy_cosmology(self, **parameters):
         Om0 = parameters['Om0']
         H0 = parameters['H0']
-        return FlatLambdaCDM(Om0=Om0,H0=H0)    
+        w0 = parameters['w0']
+        # return FlatLambdaCDM(Om0=Om0,H0=H0)
+        return FlatwCDM(H0=H0, Om0=Om0, w0=w0)
 
     def dvc_dz(self, redshift, **parameters):
 
@@ -75,9 +77,9 @@ class _CosmoRedshift(object):
 
         return dvc_dz
 
-    def detector_frame_to_source_frame(self, data, H0, Om0, astropy_conv=False):
+    def detector_frame_to_source_frame(self, data, H0, Om0, w0, astropy_conv=False):
 
-        cosmo = self.astropy_cosmology(H0=H0,Om0=Om0)
+        cosmo = self.astropy_cosmology(H0=H0,Om0=Om0, w0=w0)
 
         samples = dict()
         if astropy_conv == True:
@@ -124,7 +126,7 @@ class _CosmoRedshift(object):
 
         return samples
 
-    def detector_to_source_jacobian(self, z, H0, Om0, dl):
+    def detector_to_source_jacobian(self, z, H0, Om0, w0, dl):
 
         """
         Calculates the detector frame to source frame Jacobian d_det/d_sour for dL and z
@@ -135,7 +137,7 @@ class _CosmoRedshift(object):
         cosmo:  class from the cosmology module
             Cosmology class from the cosmology module
         """
-        cosmo = self.astropy_cosmology(H0=H0,Om0=Om0)
+        cosmo = self.astropy_cosmology(H0=H0,Om0=Om0,w0=w0)
 
         speed_of_light = constants.c.to('km/s').value
         # Calculate the Jacobian of the luminosity distance w.r.t redshift
@@ -184,7 +186,7 @@ class CosmoPowerLawRedshift(_CosmoRedshift):
         The spectral index.
     """
 
-    variable_names = ["lamb","H0","Om0"]
+    variable_names = ["lamb","H0","Om0","w0"]
 
     def psi_of_z(self, redshift, **parameters):
         return (1 + redshift) ** parameters["lamb"]
@@ -214,7 +216,7 @@ class CosmoMadauDickinsonRedshift(_CosmoRedshift):
         The maximum redshift allowed.
     """
 
-    variable_names = ["gamma", "kappa", "z_peak", "H0", "Om0"]
+    variable_names = ["gamma", "kappa", "z_peak", "H0", "Om0","w0"]
 
     def psi_of_z(self, redshift, **parameters):
         gamma = parameters["gamma"]

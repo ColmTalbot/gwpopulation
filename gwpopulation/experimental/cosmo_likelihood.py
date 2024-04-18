@@ -76,8 +76,8 @@ class CosmoHyperparameterLikelihood(HyperparameterLikelihood):
                 self.redshift_model = model
 
     def _compute_per_event_ln_bayes_factors(self, return_uncertainty=True):
-        samples_in_source = self.redshift_model.detector_frame_to_source_frame(self.data, self.parameters['H0'], self.parameters['Om0'], self.parameters['w0'], self.astropy_conv) #convert samples to source frame given cosmological parameters
-        jac = self.redshift_model.detector_to_source_jacobian(samples_in_source['redshift'], self.parameters['H0'], self.parameters['Om0'], self.parameters['w0'], self.data['luminosity_distance']) # calculate the jacobian term of the luminosity distance w.r.t redshift
+        samples_in_source = self.redshift_model.detector_frame_to_source_frame(self.data, self.astropy_conv, **self.parameters) #convert samples to source frame given cosmological parameters
+        jac = self.redshift_model.detector_to_source_jacobian(samples_in_source['redshift'], self.data['luminosity_distance'], **self.parameters) # calculate the jacobian term of the luminosity distance w.r.t redshift
         if self.mass_ratio:
             jac *= (1+samples_in_source['redshift'])
         else:

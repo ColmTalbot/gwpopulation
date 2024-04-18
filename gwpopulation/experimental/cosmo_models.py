@@ -14,35 +14,28 @@ class _CosmoRedshift(object):
     """
     Base class for models which include a term like dVc/dz / (1 + z) with flexible cosmology model
     """
+    base_variable_names = None
+    
+    @property
+    def variable_names(self):
+        if self.cosmo_model == FlatwCDM:
+            vars = ['H0', 'Om0', 'w0']
+        elif self.cosmo_model == FlatLambdaCDM:
+            vars = ['H0', 'Om0']
+        else:
+            raise ValueError(f"Model {cosmo_model} not found.")
+        vars += self.base_variable_names
+        return vars
 
-    variable_names = None
-
-    def __init__(self, z_max=2.3):
-
+    def __init__(self, cosmo_model, z_max=2.3):
+        
+        self.cosmo_model = cosmo_model
         self.z_max = z_max
         self.zs_ = np.linspace(1e-6, z_max, 2500)
         self.zs = xp.asarray(self.zs_)
 
     def __call__(self, dataset, **kwargs):
         return self.probability(dataset=dataset, **kwargs)
-
-    # def normalisation(self, parameters):
-    #     r"""
-    #     Compute the normalization or differential spacetime volume.
-    #     .. math::
-    #         \mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
-    #     Parameters
-    #     ----------
-    #     parameters: dict
-    #         Dictionary of parameters
-    #     Returns
-    #     -------
-    #     (float, array-like): Total spacetime volume
-    #     """
-    #     psi_of_z = self.psi_of_z(redshift=self.zs, **parameters)
-    #     dvc_dz = self.dvc_dz(redshift=self.zs, **parameters)
-    #     norm = xp.trapz(psi_of_z * dvc_dz / (1 + self.zs), self.zs)
-    #     return norm
 
     def probability(self, dataset, **parameters):
         #normalization factor
@@ -53,10 +46,6 @@ class _CosmoRedshift(object):
         differential_volume = self.psi_of_z(redshift=dataset["redshift"], **parameters)/(1 + dataset["redshift"])
         differential_volume *= xp.reshape(xp.interp(xp.ravel(dataset["redshift"]),self.zs,dvc_dz), dataset["redshift"].shape)
         
-        # normalisation = self.normalisation(parameters=parameters)
-        # differential_volume = self.differential_spacetime_volume(
-        #     dataset=dataset, **parameters
-        # )
         in_bounds = dataset["redshift"] <= self.z_max
         return differential_volume / norm * in_bounds
 
@@ -64,11 +53,13 @@ class _CosmoRedshift(object):
         raise NotImplementedError
         
     def astropy_cosmology(self, **parameters):
-        Om0 = parameters['Om0']
-        H0 = parameters['H0']
-        w0 = parameters['w0']
-        # return FlatLambdaCDM(Om0=Om0,H0=H0)
-        return FlatwCDM(H0=H0, Om0=Om0, w0=w0)
+        if self.cosmo_model == FlatwCDM:
+            return self.cosmo_model(H0=parameters['H0'], Om0=parameters['Om0'], w0=parameters['w0'])
+        elif self.cosmo_model == FlatLambdaCDM:
+            return self.cosmo_model(H0=parameters['H0'], Om0=parameters['Om0'])
+        else:
+            raise ValueError(f"Model {cosmo_model} not found.")
+        
 
     def dvc_dz(self, redshift, **parameters):
 
@@ -77,9 +68,9 @@ class _CosmoRedshift(object):
 
         return dvc_dz
 
-    def detector_frame_to_source_frame(self, data, H0, Om0, w0, astropy_conv=False):
+    def detector_frame_to_source_frame(self, data, astropy_conv=False, **parameters):
 
-        cosmo = self.astropy_cosmology(H0=H0,Om0=Om0, w0=w0)
+        cosmo = self.astropy_cosmology(**parameters)
 
         samples = dict()
         if astropy_conv == True:
@@ -126,7 +117,7 @@ class _CosmoRedshift(object):
 
         return samples
 
-    def detector_to_source_jacobian(self, z, H0, Om0, w0, dl):
+    def detector_to_source_jacobian(self, z, dl, **parameters):
 
         """
         Calculates the detector frame to source frame Jacobian d_det/d_sour for dL and z
@@ -137,41 +128,14 @@ class _CosmoRedshift(object):
         cosmo:  class from the cosmology module
             Cosmology class from the cosmology module
         """
-        cosmo = self.astropy_cosmology(H0=H0,Om0=Om0,w0=w0)
+        cosmo = self.astropy_cosmology(**parameters)
 
         speed_of_light = constants.c.to('km/s').value
         # Calculate the Jacobian of the luminosity distance w.r.t redshift
 
-        # dL_by_dz = dl/(1+z) + speed_of_light*(1+z)/(cosmo.H0.value*self.Efunc(cosmo, z))
         dL_by_dz = dl/(1+z) + speed_of_light*(1+z)/xp.array(cosmo.H(to_numpy(z)).value)
         
         return dL_by_dz
-
-    def Efunc(self, cosmo, z):
-
-        return xp.sqrt(cosmo.Om0*xp.power(1+z,3)+(1-cosmo.Om0))
-#     def differential_spacetime_volume(self, dataset, **parameters):
-#         r"""
-#         Compute the differential spacetime volume.
-#         .. math::
-#             d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
-#         Parameters
-#         ----------
-#         dataset: dict
-#             Dictionary containing entry "redshift"
-#         parameters: dict
-#             Dictionary of parameters
-#         Returns
-#         -------
-#         differential_volume: (float, array-like)
-#             Differential spacetime volume
-#         """
-#         psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
-#         differential_volume = psi_of_z / (1 + dataset["redshift"])
-#         differential_volume *= self.dvc_dz(redshift=dataset["redshift"], **parameters)
-
-#         return differential_volume
-
 
 
 class CosmoPowerLawRedshift(_CosmoRedshift):
@@ -185,9 +149,7 @@ class CosmoPowerLawRedshift(_CosmoRedshift):
     lamb: float
         The spectral index.
     """
-
-    variable_names = ["lamb","H0","Om0","w0"]
-
+    base_variable_names=["lamb"]
     def psi_of_z(self, redshift, **parameters):
         return (1 + redshift) ** parameters["lamb"]
 
@@ -215,9 +177,7 @@ class CosmoMadauDickinsonRedshift(_CosmoRedshift):
     z_max: float, optional
         The maximum redshift allowed.
     """
-
-    variable_names = ["gamma", "kappa", "z_peak", "H0", "Om0","w0"]
-
+    base_variable_names=["gamma","kappa","z_peak"]
     def psi_of_z(self, redshift, **parameters):
         gamma = parameters["gamma"]
         kappa = parameters["kappa"]

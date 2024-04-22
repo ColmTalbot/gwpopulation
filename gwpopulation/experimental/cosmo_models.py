@@ -5,10 +5,50 @@ from astropy.cosmology import z_at_value
 from scipy.interpolate import splev
 from scipy.interpolate import splrep
 from astropy import constants
+from bilby.hyper.model import Model
 
 from gwpopulation.utils import to_numpy
 
 xp = np
+
+class CosmoModel(Model):
+    """
+    Modified version of bilby.hyper.model.Model that disables caching for jax.
+    """
+    
+    def __init__(self, model_functions=None):
+        super(CosmoModel, self).__init__(model_functions=model_functions)
+        for model in self.models:
+            if isinstance(model, _CosmoRedshift):
+                self.redshift_model = model
+    
+    def prob(self, data, **kwargs):
+        """
+        Compute the total population probability for the provided data given
+        the keyword arguments.
+
+        Parameters
+        ==========
+        data: dict
+            Dictionary containing the points at which to evaluate the
+            population model.
+        kwargs: dict
+            The population parameters. These cannot include any of
+            :code:`["dataset", "data", "self", "cls"]` unless the
+            :code:`variable_names` attribute is available for the relevant
+            model.
+        """
+        
+        samples_in_source = self.redshift_model.detector_frame_to_source_frame(data, **self._get_function_parameters(self.redshift_model))
+        jac = self.redshift_model.dL_by_dz(samples_in_source['redshift'], data['luminosity_distance'], **self._get_function_parameters(self.redshift_model)) #dL to z
+        jac *= (1+samples_in_source['redshift']) # (m1_detector, q) to (m1_source, q)
+        probability = 1.0 #prob in source frame
+        for function in self.models:
+            new_probability = function(samples_in_source, **self._get_function_parameters(function))
+            probability *= new_probability
+        probability /= jac # prob in detector frame
+
+        return probability
 
 class _CosmoRedshift(object):
     """
@@ -27,12 +67,13 @@ class _CosmoRedshift(object):
         vars += self.base_variable_names
         return vars
 
-    def __init__(self, cosmo_model, z_max=2.3):
+    def __init__(self, cosmo_model, z_max=2.3, astropy_conv=False):
         
         self.cosmo_model = cosmo_model
         self.z_max = z_max
         self.zs_ = np.linspace(1e-6, z_max, 2500)
         self.zs = xp.asarray(self.zs_)
+        self.astropy_conv = astropy_conv
 
     def __call__(self, dataset, **kwargs):
         return self.probability(dataset=dataset, **kwargs)
@@ -68,12 +109,12 @@ class _CosmoRedshift(object):
 
         return dvc_dz
 
-    def detector_frame_to_source_frame(self, data, astropy_conv=False, **parameters):
+    def detector_frame_to_source_frame(self, data, **parameters):
 
         cosmo = self.astropy_cosmology(**parameters)
 
         samples = dict()
-        if astropy_conv == True:
+        if self.astropy_conv == True:
 
             samples['redshift'] = xp.asarray([z_at_value(cosmo.luminosity_distance, d*u.Mpc,zmax=self.z_max) for d in to_numpy(data['luminosity_distance'])])
             samples['mass_1'] = data['mass_1']/(1+samples['redshift'])
@@ -117,7 +158,7 @@ class _CosmoRedshift(object):
 
         return samples
 
-    def detector_to_source_jacobian(self, z, dl, **parameters):
+    def dL_by_dz(self, z, dl, **parameters):
 
         """
         Calculates the detector frame to source frame Jacobian d_det/d_sour for dL and z

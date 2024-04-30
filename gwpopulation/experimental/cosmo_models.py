@@ -58,7 +58,7 @@ class CosmoModel(Model):
         return probability
 
 
-class _CosmoRedshift(object):
+class _CosmoRedshift:
     """
     Base class for models which include a term like dVc/dz / (1 + z) with flexible cosmology model
     """

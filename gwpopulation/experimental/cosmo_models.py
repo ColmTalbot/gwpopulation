@@ -1,27 +1,26 @@
 import numpy as np
-from astropy.cosmology import FlatLambdaCDM, FlatwCDM
-from astropy import units as u
-from astropy.cosmology import z_at_value
-from scipy.interpolate import splev
-from scipy.interpolate import splrep
 from astropy import constants
+from astropy import units as u
+from astropy.cosmology import FlatLambdaCDM, FlatwCDM, z_at_value
 from bilby.hyper.model import Model
+from scipy.interpolate import splev, splrep
 
 from gwpopulation.utils import to_numpy
 
 xp = np
 
+
 class CosmoModel(Model):
     """
     Modified version of bilby.hyper.model.Model that disables caching for jax.
     """
-    
+
     def __init__(self, model_functions=None):
         super(CosmoModel, self).__init__(model_functions=model_functions)
         for model in self.models:
             if isinstance(model, _CosmoRedshift):
                 self.redshift_model = model
-    
+
     def prob(self, data, **kwargs):
         """
         Compute the total population probability for the provided data given
@@ -38,37 +37,47 @@ class CosmoModel(Model):
             :code:`variable_names` attribute is available for the relevant
             model.
         """
-        
-        samples_in_source = self.redshift_model.detector_frame_to_source_frame(data, **self._get_function_parameters(self.redshift_model))
-        jac = self.redshift_model.dL_by_dz(samples_in_source['redshift'], data['luminosity_distance'], **self._get_function_parameters(self.redshift_model)) #dL to z
-        jac *= (1+samples_in_source['redshift']) # (m1_detector, q) to (m1_source, q)
-        probability = 1.0 #prob in source frame
+
+        samples_in_source = self.redshift_model.detector_frame_to_source_frame(
+            data, **self._get_function_parameters(self.redshift_model)
+        )
+        jac = self.redshift_model.dL_by_dz(
+            samples_in_source["redshift"],
+            data["luminosity_distance"],
+            **self._get_function_parameters(self.redshift_model),
+        )  # dL to z
+        jac *= 1 + samples_in_source["redshift"]  # (m1_detector, q) to (m1_source, q)
+        probability = 1.0  # prob in source frame
         for function in self.models:
-            new_probability = function(samples_in_source, **self._get_function_parameters(function))
+            new_probability = function(
+                samples_in_source, **self._get_function_parameters(function)
+            )
             probability *= new_probability
-        probability /= jac # prob in detector frame
+        probability /= jac  # prob in detector frame
 
         return probability
+
 
 class _CosmoRedshift(object):
     """
     Base class for models which include a term like dVc/dz / (1 + z) with flexible cosmology model
     """
+
     base_variable_names = None
-    
+
     @property
     def variable_names(self):
         if self.cosmo_model == FlatwCDM:
-            vars = ['H0', 'Om0', 'w0']
+            vars = ["H0", "Om0", "w0"]
         elif self.cosmo_model == FlatLambdaCDM:
-            vars = ['H0', 'Om0']
+            vars = ["H0", "Om0"]
         else:
             raise ValueError(f"Model {cosmo_model} not found.")
         vars += self.base_variable_names
         return vars
 
     def __init__(self, cosmo_model, z_max=2.3, astropy_conv=False):
-        
+
         self.cosmo_model = cosmo_model
         self.z_max = z_max
         self.zs_ = np.linspace(1e-6, z_max, 2500)
@@ -79,33 +88,43 @@ class _CosmoRedshift(object):
         return self.probability(dataset=dataset, **kwargs)
 
     def probability(self, dataset, **parameters):
-        #normalization factor
+        # normalization factor
         psi_of_z = self.psi_of_z(redshift=self.zs, **parameters)
         dvc_dz = self.dvc_dz(redshift=self.zs, **parameters)
         norm = xp.trapz(psi_of_z * dvc_dz / (1 + self.zs), self.zs)
-        
-        differential_volume = self.psi_of_z(redshift=dataset["redshift"], **parameters)/(1 + dataset["redshift"])
-        differential_volume *= xp.reshape(xp.interp(xp.ravel(dataset["redshift"]),self.zs,dvc_dz), dataset["redshift"].shape)
-        
+
+        differential_volume = self.psi_of_z(
+            redshift=dataset["redshift"], **parameters
+        ) / (1 + dataset["redshift"])
+        differential_volume *= xp.reshape(
+            xp.interp(xp.ravel(dataset["redshift"]), self.zs, dvc_dz),
+            dataset["redshift"].shape,
+        )
+
         in_bounds = dataset["redshift"] <= self.z_max
         return differential_volume / norm * in_bounds
 
     def psi_of_z(self, redshift, **parameters):
         raise NotImplementedError
-        
+
     def astropy_cosmology(self, **parameters):
         if self.cosmo_model == FlatwCDM:
-            return self.cosmo_model(H0=parameters['H0'], Om0=parameters['Om0'], w0=parameters['w0'])
+            return self.cosmo_model(
+                H0=parameters["H0"], Om0=parameters["Om0"], w0=parameters["w0"]
+            )
         elif self.cosmo_model == FlatLambdaCDM:
-            return self.cosmo_model(H0=parameters['H0'], Om0=parameters['Om0'])
+            return self.cosmo_model(H0=parameters["H0"], Om0=parameters["Om0"])
         else:
             raise ValueError(f"Model {cosmo_model} not found.")
-        
 
     def dvc_dz(self, redshift, **parameters):
 
         astropy_cosmology = self.astropy_cosmology(**parameters)
-        dvc_dz =  xp.asarray(4*xp.pi*astropy_cosmology.differential_comoving_volume(to_numpy(redshift)).value)
+        dvc_dz = xp.asarray(
+            4
+            * xp.pi
+            * astropy_cosmology.differential_comoving_volume(to_numpy(redshift)).value
+        )
 
         return dvc_dz
 
@@ -116,43 +135,52 @@ class _CosmoRedshift(object):
         samples = dict()
         if self.astropy_conv == True:
 
-            samples['redshift'] = xp.asarray([z_at_value(cosmo.luminosity_distance, d*u.Mpc,zmax=self.z_max) for d in to_numpy(data['luminosity_distance'])])
-            samples['mass_1'] = data['mass_1']/(1+samples['redshift'])
-            if 'mass_2' in samples:
-                samples['mass_2'] = data['mass_2']/(1+samples['redshift'])
-                samples['mass_ratio'] = samples['mass_2']/samples['mass_1']
+            samples["redshift"] = xp.asarray(
+                [
+                    z_at_value(cosmo.luminosity_distance, d * u.Mpc, zmax=self.z_max)
+                    for d in to_numpy(data["luminosity_distance"])
+                ]
+            )
+            samples["mass_1"] = data["mass_1"] / (1 + samples["redshift"])
+            if "mass_2" in samples:
+                samples["mass_2"] = data["mass_2"] / (1 + samples["redshift"])
+                samples["mass_ratio"] = samples["mass_2"] / samples["mass_1"]
             else:
-                samples['mass_ratio'] = data['mass_ratio']
+                samples["mass_ratio"] = data["mass_ratio"]
             try:
-                samples['a_1'] = data['a_1']
-                samples['a_2'] = data['a_2']
+                samples["a_1"] = data["a_1"]
+                samples["a_2"] = data["a_2"]
             except:
                 None
             try:
-                samples['cos_tilt_1'] = data['cos_tilt_1']
-                samples['cos_tilt_2'] = data['cos_tilt_2']
+                samples["cos_tilt_1"] = data["cos_tilt_1"]
+                samples["cos_tilt_2"] = data["cos_tilt_2"]
             except:
                 None
         else:
             zs = to_numpy(self.zs)
             dl = cosmo.luminosity_distance(to_numpy(zs)).value
-            interp_dl_to_z = splrep(dl,zs,s=0)
+            interp_dl_to_z = splrep(dl, zs, s=0)
 
-            samples['redshift'] = xp.nan_to_num(xp.asarray(splev(to_numpy(data['luminosity_distance']),interp_dl_to_z,ext=0)))
-            samples['mass_1'] = data['mass_1']/(1+samples['redshift'])
-            if 'mass_2' in samples:
-                samples['mass_2'] = data['mass_2']/(1+samples['redshift'])
-                samples['mass_ratio'] = samples['mass_2']/samples['mass_1']
+            samples["redshift"] = xp.nan_to_num(
+                xp.asarray(
+                    splev(to_numpy(data["luminosity_distance"]), interp_dl_to_z, ext=0)
+                )
+            )
+            samples["mass_1"] = data["mass_1"] / (1 + samples["redshift"])
+            if "mass_2" in samples:
+                samples["mass_2"] = data["mass_2"] / (1 + samples["redshift"])
+                samples["mass_ratio"] = samples["mass_2"] / samples["mass_1"]
             else:
-                samples['mass_ratio'] = data['mass_ratio']
+                samples["mass_ratio"] = data["mass_ratio"]
             try:
-                samples['a_1'] = data['a_1']
-                samples['a_2'] = data['a_2']
+                samples["a_1"] = data["a_1"]
+                samples["a_2"] = data["a_2"]
             except:
                 None
             try:
-                samples['cos_tilt_1'] = data['cos_tilt_1']
-                samples['cos_tilt_2'] = data['cos_tilt_2']
+                samples["cos_tilt_1"] = data["cos_tilt_1"]
+                samples["cos_tilt_2"] = data["cos_tilt_2"]
             except:
                 None
 
@@ -171,11 +199,13 @@ class _CosmoRedshift(object):
         """
         cosmo = self.astropy_cosmology(**parameters)
 
-        speed_of_light = constants.c.to('km/s').value
+        speed_of_light = constants.c.to("km/s").value
         # Calculate the Jacobian of the luminosity distance w.r.t redshift
 
-        dL_by_dz = dl/(1+z) + speed_of_light*(1+z)/xp.array(cosmo.H(to_numpy(z)).value)
-        
+        dL_by_dz = dl / (1 + z) + speed_of_light * (1 + z) / xp.array(
+            cosmo.H(to_numpy(z)).value
+        )
+
         return dL_by_dz
 
 
@@ -190,7 +220,8 @@ class CosmoPowerLawRedshift(_CosmoRedshift):
     lamb: float
         The spectral index.
     """
-    base_variable_names=["lamb"]
+    base_variable_names = ["lamb"]
+
     def psi_of_z(self, redshift, **parameters):
         return (1 + redshift) ** parameters["lamb"]
 
@@ -218,7 +249,8 @@ class CosmoMadauDickinsonRedshift(_CosmoRedshift):
     z_max: float, optional
         The maximum redshift allowed.
     """
-    base_variable_names=["gamma","kappa","z_peak"]
+    base_variable_names = ["gamma", "kappa", "z_peak"]
+
     def psi_of_z(self, redshift, **parameters):
         gamma = parameters["gamma"]
         kappa = parameters["kappa"]

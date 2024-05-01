@@ -34,7 +34,7 @@ class HyperparameterLikelihood(Likelihood):
         max_samples=1e100,
         selection_function=lambda args: 1,
         conversion_function=lambda args: (args, None),
-        cupy=True,
+        cupy=False,
         maximum_uncertainty=xp.inf,
     ):
         """
@@ -60,21 +60,18 @@ class HyperparameterLikelihood(Likelihood):
         max_samples: int, optional
             Maximum number of samples to use from each set.
         cupy: bool
-            If True and a compatible CUDA environment is available,
-            cupy will be used for performance.
-            Note: this requires setting up your hyper_prior properly.
+            DEPRECATED: if you want to use cupy, you should manually set the
+            backend using :code:`gwpopulation.set_backend`.
         maximum_uncertainty: float
             The maximum allowed uncertainty in the natural log likelihood.
             If the uncertainty is larger than this value a log likelihood of
             -inf will be returned. Default = inf
         """
         if cupy:
-            from .backend import set_backend
-
-            try:
-                set_backend("cupy")
-            except ImportError:
-                logger.warning(f"Cupy not available, using {xp.__name__}.")
+            logger.warning(
+                f"Setting the backend to cupy is no longer supported in the "
+                "likelihood. Use gwpopulation.set_backend instead."
+            )
 
         self.samples_per_posterior = max_samples
         self.data = self.resample_posteriors(posteriors, max_samples=max_samples)

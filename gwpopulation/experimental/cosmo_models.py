@@ -41,7 +41,7 @@ class CosmoModel(Model):
         samples_in_source = self.redshift_model.detector_frame_to_source_frame(
             data, **self._get_function_parameters(self.redshift_model)
         )
-        jac = self.redshift_model.dL_by_dz(
+        jac = self.redshift_model.luminosity_distance_to_redshift_jacobian(
             samples_in_source["redshift"],
             data["luminosity_distance"],
             **self._get_function_parameters(self.redshift_model),
@@ -136,27 +136,12 @@ class _CosmoRedshift:
         if self.astropy_conv == True:
 
             samples["redshift"] = xp.asarray(
-                [
-                    z_at_value(cosmo.luminosity_distance, d * u.Mpc, zmax=self.z_max)
-                    for d in to_numpy(data["luminosity_distance"])
-                ]
+                z_at_value(
+                    cosmo.luminosity_distance,
+                    to_numpy(data["luminosity_distance"]) * u.Mpc,
+                    zmax=self.z_max,
+                )
             )
-            samples["mass_1"] = data["mass_1"] / (1 + samples["redshift"])
-            if "mass_2" in samples:
-                samples["mass_2"] = data["mass_2"] / (1 + samples["redshift"])
-                samples["mass_ratio"] = samples["mass_2"] / samples["mass_1"]
-            else:
-                samples["mass_ratio"] = data["mass_ratio"]
-            try:
-                samples["a_1"] = data["a_1"]
-                samples["a_2"] = data["a_2"]
-            except:
-                None
-            try:
-                samples["cos_tilt_1"] = data["cos_tilt_1"]
-                samples["cos_tilt_2"] = data["cos_tilt_2"]
-            except:
-                None
         else:
             zs = to_numpy(self.zs)
             dl = cosmo.luminosity_distance(to_numpy(zs)).value
@@ -167,44 +152,44 @@ class _CosmoRedshift:
                     splev(to_numpy(data["luminosity_distance"]), interp_dl_to_z, ext=0)
                 )
             )
-            samples["mass_1"] = data["mass_1"] / (1 + samples["redshift"])
-            if "mass_2" in samples:
-                samples["mass_2"] = data["mass_2"] / (1 + samples["redshift"])
-                samples["mass_ratio"] = samples["mass_2"] / samples["mass_1"]
-            else:
-                samples["mass_ratio"] = data["mass_ratio"]
-            try:
-                samples["a_1"] = data["a_1"]
-                samples["a_2"] = data["a_2"]
-            except:
-                None
-            try:
-                samples["cos_tilt_1"] = data["cos_tilt_1"]
-                samples["cos_tilt_2"] = data["cos_tilt_2"]
-            except:
-                None
+        samples["mass_1"] = data["mass_1"] / (1 + samples["redshift"])
+        if "mass_2" in samples:
+            samples["mass_2"] = data["mass_2"] / (1 + samples["redshift"])
+            samples["mass_ratio"] = samples["mass_2"] / samples["mass_1"]
+        else:
+            samples["mass_ratio"] = data["mass_ratio"]
+        try:
+            samples["a_1"] = data["a_1"]
+            samples["a_2"] = data["a_2"]
+        except:
+            None
+        try:
+            samples["cos_tilt_1"] = data["cos_tilt_1"]
+            samples["cos_tilt_2"] = data["cos_tilt_2"]
+        except:
+            None
 
         return samples
 
-    def dL_by_dz(self, z, dl, **parameters):
+    def luminosity_distance_to_redshift_jacobian(
+        self, redshift, luminosity_distance, **parameters
+    ):
 
         """
-        Calculates the detector frame to source frame Jacobian d_det/d_sour for dL and z
+        Calculates the luminosity distance to redshift jacobian
         Parameters
         ----------
-        z: _np. arrays
-            Redshift
-        cosmo:  class from the cosmology module
-            Cosmology class from the cosmology module
+        redshift: xp.arrays
+
+        luminosity_distance: xp.arrays
         """
         cosmo = self.astropy_cosmology(**parameters)
 
         speed_of_light = constants.c.to("km/s").value
-        # Calculate the Jacobian of the luminosity distance w.r.t redshift
 
-        dL_by_dz = dl / (1 + z) + speed_of_light * (1 + z) / xp.array(
-            cosmo.H(to_numpy(z)).value
-        )
+        dL_by_dz = luminosity_distance / (1 + redshift) + speed_of_light * (
+            1 + redshift
+        ) / xp.array(cosmo.H(to_numpy(redshift)).value)
 
         return dL_by_dz
 

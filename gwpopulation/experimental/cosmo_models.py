@@ -153,7 +153,7 @@ class _CosmoRedshift:
                 )
             )
         samples["mass_1"] = data["mass_1"] / (1 + samples["redshift"])
-        if "mass_2" in samples:
+        if "mass_2" in data:
             samples["mass_2"] = data["mass_2"] / (1 + samples["redshift"])
             samples["mass_ratio"] = samples["mass_2"] / samples["mass_1"]
         else:

@@ -116,6 +116,108 @@ class CosmoModel(Model):
         return probability
 
 
+class _TestRedshift(object):
+    """
+    Base class for models which include a term like dVc/dz / (1 + z)
+    """
+
+    variable_names = None
+
+    def __init__(self, z_max=2.3, cosmo_model=None, astropy_conv=False):
+
+        self.z_max = z_max
+        self.zs_ = np.linspace(1e-3, z_max, 1000)
+        self.zs = xp.asarray(self.zs_)
+        if cosmo_model == None:
+            self.cosmo_model = None
+            from astropy.cosmology import Planck15
+
+            self.dvc_dz_ = (
+                Planck15.differential_comoving_volume(self.zs_).value * 4 * np.pi
+            )
+            self.dvc_dz = xp.asarray(self.dvc_dz_)
+            self.cached_dvc_dz = None
+        else:
+            self.cosmo_model = cosmo_model
+            self.astropy_cov = astropy_conv
+
+    def __call__(self, dataset, **kwargs):
+        return self.probability(dataset=dataset, **kwargs)
+
+    def _cache_dvc_dz(self, redshifts):
+        self.cached_dvc_dz = xp.asarray(
+            np.interp(to_numpy(redshifts), self.zs_, self.dvc_dz_, left=0, right=0)
+        )
+
+    def normalisation(self, parameters):
+        r"""
+        Compute the normalization or differential spacetime volume.
+
+        .. math::
+            \mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+
+        Parameters
+        ----------
+        parameters: dict
+            Dictionary of parameters
+
+        Returns
+        -------
+        (float, array-like): Total spacetime volume
+        """
+        psi_of_z = self.psi_of_z(redshift=self.zs, **parameters)
+        norm = xp.trapz(psi_of_z * self.dvc_dz / (1 + self.zs), self.zs)
+        return norm
+
+    def probability(self, dataset, **parameters):
+        if self.cosmo_model is not None:
+            self.dvc_dz_ = (
+                self.cosmology_model(**parameters)
+                .differential_comoving_volume(to_numpy(redshift))
+                .value
+                * 4
+                * xp.pi
+            )
+            self.dvc_dz = xp.asarray(self.dvc_dz_)
+            self.cached_dvc_dz = None
+        normalisation = self.normalisation(parameters=parameters)
+        differential_volume = self.differential_spacetime_volume(
+            dataset=dataset, **parameters
+        )
+        in_bounds = dataset["redshift"] <= self.z_max
+        return differential_volume / normalisation * in_bounds
+
+    def psi_of_z(self, redshift, **parameters):
+        raise NotImplementedError
+
+    def differential_spacetime_volume(self, dataset, **parameters):
+        r"""
+        Compute the differential spacetime volume.
+
+        .. math::
+            d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+
+        Parameters
+        ----------
+        dataset: dict
+            Dictionary containing entry "redshift"
+        parameters: dict
+            Dictionary of parameters
+        Returns
+        -------
+        differential_volume: (float, array-like)
+            Differential spacetime volume
+        """
+        psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
+        differential_volume = psi_of_z / (1 + dataset["redshift"])
+        try:
+            differential_volume *= self.cached_dvc_dz
+        except (TypeError, ValueError):
+            self._cache_dvc_dz(dataset["redshift"])
+            differential_volume *= self.cached_dvc_dz
+        return differential_volume
+
+
 class _CosmoRedshift:
     """
     Base class for models which include a term like dVc/dz / (1 + z) with flexible cosmology model

@@ -121,7 +121,20 @@ class _TestRedshift(object):
     Base class for models which include a term like dVc/dz / (1 + z)
     """
 
-    variable_names = None
+    base_variable_names = None
+
+    @property
+    def variable_names(self):
+        if self.cosmo_model == None:
+            vars = []
+        if self.cosmo_model == FlatwCDM:
+            vars = ["H0", "Om0", "w0"]
+        elif self.cosmo_model == FlatLambdaCDM:
+            vars = ["H0", "Om0"]
+        else:
+            raise ValueError(f"Model {cosmo_model} not found.")
+        vars += self.base_variable_names
+        return vars
 
     def __init__(self, z_max=2.3, cosmo_model=None, astropy_conv=False):
 

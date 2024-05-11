@@ -8,6 +8,71 @@ from scipy.interpolate import splev, splrep
 from gwpopulation.utils import to_numpy
 
 xp = np
+speed_of_light = constants.c.to("km/s").value
+
+
+class CosmoMixin:
+    def cosmology_model(self, **parameters):
+        if self.cosmo_model == FlatwCDM:
+            return self.cosmo_model(
+                H0=parameters["H0"], Om0=parameters["Om0"], w0=parameters["w0"]
+            )
+        elif self.cosmo_model == FlatLambdaCDM:
+            return self.cosmo_model(H0=parameters["H0"], Om0=parameters["Om0"])
+        else:
+            raise ValueError(f"Model {cosmo_model} not found.")
+
+    def detector_frame_to_source_frame(self, data, **parameters):
+        """
+        Convert detector frame samples to sourece frame samples given cosmological parameters. Calculate the corresponding d_detector/d_source Jacobian term.
+
+        Parameters
+        ==========
+        data: dict
+            Dictionary containing the samples in detector frame.
+        parameters: dict
+            The cosmological parameters for relevant cosmology model.
+        """
+
+        cosmo = self.cosmology_model(**parameters)
+        jac = xp.ones_like(data["luminosity_distance"])
+        if "luminosity_distance" in data:
+            if self.astropy_conv:
+                data["redshift"] = xp.asarray(
+                    z_at_value(
+                        cosmo.luminosity_distance,
+                        to_numpy(data["luminosity_distance"]) * u.Mpc,
+                        zmax=self.z_max,
+                    )
+                )
+            else:
+                zs = to_numpy(self.zs)
+                dl = cosmo.luminosity_distance(to_numpy(zs)).value
+                interp_dl_to_z = splrep(dl, zs, s=0)
+
+                data["redshift"] = xp.nan_to_num(
+                    xp.asarray(
+                        splev(
+                            to_numpy(data["luminosity_distance"]), interp_dl_to_z, ext=0
+                        )
+                    )
+                )
+            jac *= data["luminosity_distance"] / (
+                1 + data["redshift"]
+            ) + speed_of_light * (1 + data["redshift"]) / xp.array(
+                cosmo.H(to_numpy(data["redshift"])).value
+            )  # luminosity_distance_to_redshift_jacobian, dL_by_dz
+        elif "redshift" not in data:
+            raise ValueError(
+                f"Either luminosity distance or redshift provided in detector frame to source frame samples conversion"
+            )
+
+        for key in data:
+            if key.endswith("_detector"):
+                data[key[:-9]] = data[key] / (1 + data["redshift"])
+                jac *= 1 + data["redshift"]
+
+        return data, jac
 
 
 class CosmoModel(Model):
@@ -38,20 +103,13 @@ class CosmoModel(Model):
             model.
         """
 
-        samples_in_source = self.redshift_model.detector_frame_to_source_frame(
-            data, **self._get_function_parameters(self.redshift_model)
-        )
-        jac = self.redshift_model.luminosity_distance_to_redshift_jacobian(
-            samples_in_source["redshift"],
-            data["luminosity_distance"],
+        data, jac = self.detector_frame_to_source_frame(
+            data,
             **self._get_function_parameters(self.redshift_model),
-        )  # dL to z
-        jac *= 1 + samples_in_source["redshift"]  # (m1_detector, q) to (m1_source, q)
+        )  # convert samples to source frame and calculate the Jacobian term.
         probability = 1.0  # prob in source frame
         for function in self.models:
-            new_probability = function(
-                samples_in_source, **self._get_function_parameters(function)
-            )
+            new_probability = function(data, **self._get_function_parameters(function))
             probability *= new_probability
         probability /= jac  # prob in detector frame
 
@@ -107,19 +165,9 @@ class _CosmoRedshift:
     def psi_of_z(self, redshift, **parameters):
         raise NotImplementedError
 
-    def astropy_cosmology(self, **parameters):
-        if self.cosmo_model == FlatwCDM:
-            return self.cosmo_model(
-                H0=parameters["H0"], Om0=parameters["Om0"], w0=parameters["w0"]
-            )
-        elif self.cosmo_model == FlatLambdaCDM:
-            return self.cosmo_model(H0=parameters["H0"], Om0=parameters["Om0"])
-        else:
-            raise ValueError(f"Model {cosmo_model} not found.")
-
     def dvc_dz(self, redshift, **parameters):
 
-        astropy_cosmology = self.astropy_cosmology(**parameters)
+        astropy_cosmology = self.cosmology_model(**parameters)
         dvc_dz = xp.asarray(
             4
             * xp.pi
@@ -128,73 +176,8 @@ class _CosmoRedshift:
 
         return dvc_dz
 
-    def detector_frame_to_source_frame(self, data, **parameters):
 
-        cosmo = self.astropy_cosmology(**parameters)
-
-        samples = dict()
-        if self.astropy_conv == True:
-
-            samples["redshift"] = xp.asarray(
-                z_at_value(
-                    cosmo.luminosity_distance,
-                    to_numpy(data["luminosity_distance"]) * u.Mpc,
-                    zmax=self.z_max,
-                )
-            )
-        else:
-            zs = to_numpy(self.zs)
-            dl = cosmo.luminosity_distance(to_numpy(zs)).value
-            interp_dl_to_z = splrep(dl, zs, s=0)
-
-            samples["redshift"] = xp.nan_to_num(
-                xp.asarray(
-                    splev(to_numpy(data["luminosity_distance"]), interp_dl_to_z, ext=0)
-                )
-            )
-        samples["mass_1"] = data["mass_1"] / (1 + samples["redshift"])
-        if "mass_2" in data:
-            samples["mass_2"] = data["mass_2"] / (1 + samples["redshift"])
-            samples["mass_ratio"] = samples["mass_2"] / samples["mass_1"]
-        else:
-            samples["mass_ratio"] = data["mass_ratio"]
-        try:
-            samples["a_1"] = data["a_1"]
-            samples["a_2"] = data["a_2"]
-        except:
-            None
-        try:
-            samples["cos_tilt_1"] = data["cos_tilt_1"]
-            samples["cos_tilt_2"] = data["cos_tilt_2"]
-        except:
-            None
-
-        return samples
-
-    def luminosity_distance_to_redshift_jacobian(
-        self, redshift, luminosity_distance, **parameters
-    ):
-
-        """
-        Calculates the luminosity distance to redshift jacobian
-        Parameters
-        ----------
-        redshift: xp.arrays
-
-        luminosity_distance: xp.arrays
-        """
-        cosmo = self.astropy_cosmology(**parameters)
-
-        speed_of_light = constants.c.to("km/s").value
-
-        dL_by_dz = luminosity_distance / (1 + redshift) + speed_of_light * (
-            1 + redshift
-        ) / xp.array(cosmo.H(to_numpy(redshift)).value)
-
-        return dL_by_dz
-
-
-class CosmoPowerLawRedshift(_CosmoRedshift):
+class CosmoPowerLawRedshift(_CosmoRedshift, CosmoMixin):
     r"""
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 and Cosmo model FlatLambdaCDM
     .. math::
@@ -211,7 +194,7 @@ class CosmoPowerLawRedshift(_CosmoRedshift):
         return (1 + redshift) ** parameters["lamb"]
 
 
-class CosmoMadauDickinsonRedshift(_CosmoRedshift):
+class CosmoMadauDickinsonRedshift(_CosmoRedshift, CosmoMixin):
     r"""
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 (33)
     See https://arxiv.org/abs/2003.12152 (2) for the normalisation

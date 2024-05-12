@@ -12,16 +12,6 @@ speed_of_light = constants.c.to("km/s").value
 
 
 class CosmoMixin:
-    def cosmology_model(self, **parameters):
-        if self.cosmo_model == FlatwCDM:
-            return self.cosmo_model(
-                H0=parameters["H0"], Om0=parameters["Om0"], w0=parameters["w0"]
-            )
-        elif self.cosmo_model == FlatLambdaCDM:
-            return self.cosmo_model(H0=parameters["H0"], Om0=parameters["Om0"])
-        else:
-            raise ValueError(f"Model {cosmo_model} not found.")
-
     def detector_frame_to_source_frame(self, data, **parameters):
         """
         Convert detector frame samples to sourece frame samples given cosmological parameters. Calculate the corresponding d_detector/d_source Jacobian term.
@@ -34,7 +24,7 @@ class CosmoMixin:
             The cosmological parameters for relevant cosmology model.
         """
 
-        cosmo = self.cosmology_model(**parameters)
+        cosmo = self.redshift_model.cosmology_model(**parameters)
         jac = xp.ones_like(data["luminosity_distance"])
         if "luminosity_distance" in data:
             if self.astropy_conv:
@@ -42,11 +32,11 @@ class CosmoMixin:
                     z_at_value(
                         cosmo.luminosity_distance,
                         to_numpy(data["luminosity_distance"]) * u.Mpc,
-                        zmax=self.z_max,
+                        zmax=self.redshift_model.z_max,
                     )
                 )
             else:
-                zs = to_numpy(self.zs)
+                zs = to_numpy(self.redshift_model.zs)
                 dl = cosmo.luminosity_distance(to_numpy(zs)).value
                 interp_dl_to_z = splrep(dl, zs, s=0)
 
@@ -75,7 +65,7 @@ class CosmoMixin:
         return data, jac
 
 
-class CosmoModel(Model):
+class CosmoModel(Model, CosmoMixin):
     """
     Modified version of bilby.hyper.model.Model that disables caching for jax.
     """
@@ -116,7 +106,7 @@ class CosmoModel(Model):
         return probability
 
 
-class _TestRedshift(object):
+class _BaseRedshift:
     """
     Base class for models which include a term like dVc/dz / (1 + z)
     """
@@ -230,69 +220,18 @@ class _TestRedshift(object):
             differential_volume *= self.cached_dvc_dz
         return differential_volume
 
-
-class _CosmoRedshift:
-    """
-    Base class for models which include a term like dVc/dz / (1 + z) with flexible cosmology model
-    """
-
-    base_variable_names = None
-
-    @property
-    def variable_names(self):
+    def cosmology_model(self, **parameters):
         if self.cosmo_model == FlatwCDM:
-            vars = ["H0", "Om0", "w0"]
+            return self.cosmo_model(
+                H0=parameters["H0"], Om0=parameters["Om0"], w0=parameters["w0"]
+            )
         elif self.cosmo_model == FlatLambdaCDM:
-            vars = ["H0", "Om0"]
+            return self.cosmo_model(H0=parameters["H0"], Om0=parameters["Om0"])
         else:
             raise ValueError(f"Model {cosmo_model} not found.")
-        vars += self.base_variable_names
-        return vars
-
-    def __init__(self, cosmo_model, z_max=2.3, astropy_conv=False):
-
-        self.cosmo_model = cosmo_model
-        self.z_max = z_max
-        self.zs_ = np.linspace(1e-6, z_max, 2500)
-        self.zs = xp.asarray(self.zs_)
-        self.astropy_conv = astropy_conv
-
-    def __call__(self, dataset, **kwargs):
-        return self.probability(dataset=dataset, **kwargs)
-
-    def probability(self, dataset, **parameters):
-        # normalization factor
-        psi_of_z = self.psi_of_z(redshift=self.zs, **parameters)
-        dvc_dz = self.dvc_dz(redshift=self.zs, **parameters)
-        norm = xp.trapz(psi_of_z * dvc_dz / (1 + self.zs), self.zs)
-
-        differential_volume = self.psi_of_z(
-            redshift=dataset["redshift"], **parameters
-        ) / (1 + dataset["redshift"])
-        differential_volume *= xp.reshape(
-            xp.interp(xp.ravel(dataset["redshift"]), self.zs, dvc_dz),
-            dataset["redshift"].shape,
-        )
-
-        in_bounds = dataset["redshift"] <= self.z_max
-        return differential_volume / norm * in_bounds
-
-    def psi_of_z(self, redshift, **parameters):
-        raise NotImplementedError
-
-    def dvc_dz(self, redshift, **parameters):
-
-        astropy_cosmology = self.cosmology_model(**parameters)
-        dvc_dz = xp.asarray(
-            4
-            * xp.pi
-            * astropy_cosmology.differential_comoving_volume(to_numpy(redshift)).value
-        )
-
-        return dvc_dz
 
 
-class CosmoPowerLawRedshift(_CosmoRedshift, CosmoMixin):
+class CosmoPowerLawRedshift(_BaseRedshift):
     r"""
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 and Cosmo model FlatLambdaCDM
     .. math::
@@ -309,7 +248,7 @@ class CosmoPowerLawRedshift(_CosmoRedshift, CosmoMixin):
         return (1 + redshift) ** parameters["lamb"]
 
 
-class CosmoMadauDickinsonRedshift(_CosmoRedshift, CosmoMixin):
+class CosmoMadauDickinsonRedshift(_BaseRedshift):
     r"""
     Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 (33)
     See https://arxiv.org/abs/2003.12152 (2) for the normalisation

@@ -26,7 +26,7 @@ class CosmoMixin:
 
         cosmo = self.redshift_model.cosmology_model(**parameters)
         jac = xp.ones_like(data["luminosity_distance"])
-        if "luminosity_distance" in data:
+        if "luminosity_distance" in data.keys():
             if self.astropy_conv:
                 data["redshift"] = xp.asarray(
                     z_at_value(
@@ -36,8 +36,8 @@ class CosmoMixin:
                     )
                 )
             else:
-                zs = to_numpy(self.redshift_model.zs)
-                dl = cosmo.luminosity_distance(to_numpy(zs)).value
+                zs = self.redshift_model.zs_
+                dl = cosmo.luminosity_distance(zs).value
                 interp_dl_to_z = splrep(dl, zs, s=0)
 
                 data["redshift"] = xp.nan_to_num(
@@ -57,7 +57,7 @@ class CosmoMixin:
                 f"Either luminosity distance or redshift provided in detector frame to source frame samples conversion"
             )
 
-        for key in data:
+        for key in data.keys():
             if key.endswith("_detector"):
                 data[key[:-9]] = data[key] / (1 + data["redshift"])
                 jac *= 1 + data["redshift"]
@@ -70,10 +70,11 @@ class CosmoModel(Model, CosmoMixin):
     Modified version of bilby.hyper.model.Model that disables caching for jax.
     """
 
-    def __init__(self, model_functions=None):
+    def __init__(self, model_functions=None, astropy_conv=False):
         super(CosmoModel, self).__init__(model_functions=model_functions)
+        self.astropy_conv = astropy_conv
         for model in self.models:
-            if isinstance(model, _CosmoRedshift):
+            if isinstance(model, _BaseRedshift):
                 self.redshift_model = model
 
     def prob(self, data, **kwargs):
@@ -126,7 +127,7 @@ class _BaseRedshift:
         vars += self.base_variable_names
         return vars
 
-    def __init__(self, z_max=2.3, cosmo_model=None, astropy_conv=False):
+    def __init__(self, z_max=2.3, cosmo_model=None):
 
         self.z_max = z_max
         self.zs_ = np.linspace(1e-3, z_max, 1000)
@@ -142,7 +143,6 @@ class _BaseRedshift:
             self.cached_dvc_dz = None
         else:
             self.cosmo_model = cosmo_model
-            self.astropy_cov = astropy_conv
 
     def __call__(self, dataset, **kwargs):
         return self.probability(dataset=dataset, **kwargs)
@@ -176,7 +176,7 @@ class _BaseRedshift:
         if self.cosmo_model is not None:
             self.dvc_dz_ = (
                 self.cosmology_model(**parameters)
-                .differential_comoving_volume(to_numpy(redshift))
+                .differential_comoving_volume(self.zs_)
                 .value
                 * 4
                 * xp.pi

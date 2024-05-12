@@ -95,7 +95,7 @@ class ResamplingVT(_BaseVT):
         self.marginalize_uncertainty = marginalize_uncertainty
         self.enforce_convergence = enforce_convergence
         for _model in self.model.models:
-            if isinstance(_model, _Redshift):
+            if isinstance(_model, _BaseRedshift):
                 self.redshift_model = _model
         if self.redshift_model is None:
             self._surveyed_hypervolume = total_four_volume(

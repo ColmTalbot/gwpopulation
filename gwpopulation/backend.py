@@ -21,16 +21,16 @@ from :code:`scipy.linalg` via the :code:`setup.cfg` file is shown below.
 Specification using :code:`pyproject.toml` and :code:`setup.py` follows slightly
 different syntax documentation for which can be found online.
 
-```
-[options.entry_points]
-gwpopulation.xp =
-    mypackage_foo = mypackage.foo
-gwpopulation.scs =
-    mypackage_foo = mypackage.foo
-    mypackage_bar = mypackage.bar
-gwpopulation.other =
-    mypackage_baz_toeplitz = mypackage.baz:scipy.linalg.toeplitz
-```
+.. code-block::
+
+    [options.entry_points]
+    gwpopulation.xp =
+        mypackage_foo = mypackage.foo
+    gwpopulation.scs =
+        mypackage_foo = mypackage.foo
+        mypackage_bar = mypackage.bar
+    gwpopulation.other =
+        mypackage_baz_toeplitz = mypackage.baz:scipy.linalg.toeplitz
 
 .. note::
     Each module that wants to use the :code:`GWPopulation` backend must be specified independently

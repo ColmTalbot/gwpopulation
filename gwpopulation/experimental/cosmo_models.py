@@ -1,7 +1,7 @@
 import numpy as np
 from astropy import constants
 from astropy import units as u
-from astropy.cosmology import FlatLambdaCDM, FlatwCDM, z_at_value
+from astropy.cosmology import FlatLambdaCDM, FlatwCDM
 from bilby.hyper.model import Model
 from scipy.interpolate import splev, splrep
 

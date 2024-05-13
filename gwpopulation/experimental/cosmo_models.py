@@ -25,7 +25,7 @@ class CosmoMixin:
         """
 
         cosmo = self.redshift_model.cosmology_model(**parameters)
-        jac = xp.ones_like(data["luminosity_distance"])
+        jac = 1
         if "luminosity_distance" in data.keys():
             zs = self.redshift_model.zs_
             dl = cosmo.luminosity_distance(zs).value
@@ -46,7 +46,7 @@ class CosmoMixin:
                 f"Either luminosity distance or redshift provided in detector frame to source frame samples conversion"
             )
 
-        for key in data.keys():
+        for key in list(data.keys()):
             if key.endswith("_detector"):
                 data[key[:-9]] = data[key] / (1 + data["redshift"])
                 jac *= 1 + data["redshift"]

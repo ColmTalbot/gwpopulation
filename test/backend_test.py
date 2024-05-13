@@ -63,6 +63,7 @@ def test_loading_arbitrary():
     entry points for them.
     """
     from jax.scipy.linalg import toeplitz
+
     func = gwpopulation.backend._load_arbitrary(
         func="scipy.linalg.toeplitz", backend="jax"
     )

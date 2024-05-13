@@ -5,6 +5,7 @@ Sensitive volume estimation.
 import numpy as np
 from bilby.hyper.model import Model
 
+from .experimental.cosmo_models import _BaseRedshift
 from .models.redshift import _Redshift, total_four_volume
 from .utils import to_number
 
@@ -95,7 +96,7 @@ class ResamplingVT(_BaseVT):
         self.marginalize_uncertainty = marginalize_uncertainty
         self.enforce_convergence = enforce_convergence
         for _model in self.model.models:
-            if isinstance(_model, _BaseRedshift):
+            if isinstance(_model, _Redshift) or isinstance(_model, _BaseRedshift):
                 self.redshift_model = _model
         if self.redshift_model is None:
             self._surveyed_hypervolume = total_four_volume(

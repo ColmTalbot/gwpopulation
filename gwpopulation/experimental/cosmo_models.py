@@ -27,26 +27,15 @@ class CosmoMixin:
         cosmo = self.redshift_model.cosmology_model(**parameters)
         jac = xp.ones_like(data["luminosity_distance"])
         if "luminosity_distance" in data.keys():
-            if self.astropy_conv:
-                data["redshift"] = xp.asarray(
-                    z_at_value(
-                        cosmo.luminosity_distance,
-                        to_numpy(data["luminosity_distance"]) * u.Mpc,
-                        zmax=self.redshift_model.z_max,
-                    )
-                )
-            else:
-                zs = self.redshift_model.zs_
-                dl = cosmo.luminosity_distance(zs).value
-                interp_dl_to_z = splrep(dl, zs, s=0)
+            zs = self.redshift_model.zs_
+            dl = cosmo.luminosity_distance(zs).value
+            interp_dl_to_z = splrep(dl, zs, s=0)
 
-                data["redshift"] = xp.nan_to_num(
-                    xp.asarray(
-                        splev(
-                            to_numpy(data["luminosity_distance"]), interp_dl_to_z, ext=0
-                        )
-                    )
+            data["redshift"] = xp.nan_to_num(
+                xp.asarray(
+                    splev(to_numpy(data["luminosity_distance"]), interp_dl_to_z, ext=0)
                 )
+            )
             jac *= data["luminosity_distance"] / (
                 1 + data["redshift"]
             ) + speed_of_light * (1 + data["redshift"]) / xp.array(
@@ -70,9 +59,8 @@ class CosmoModel(Model, CosmoMixin):
     Modified version of bilby.hyper.model.Model that disables caching for jax.
     """
 
-    def __init__(self, model_functions=None, astropy_conv=False):
+    def __init__(self, model_functions=None):
         super(CosmoModel, self).__init__(model_functions=model_functions)
-        self.astropy_conv = astropy_conv
         for model in self.models:
             if isinstance(model, _BaseRedshift):
                 self.redshift_model = model
@@ -174,15 +162,7 @@ class _BaseRedshift:
 
     def probability(self, dataset, **parameters):
         if self.cosmo_model is not None:
-            self.dvc_dz_ = (
-                self.cosmology_model(**parameters)
-                .differential_comoving_volume(self.zs_)
-                .value
-                * 4
-                * xp.pi
-            )
-            self.dvc_dz = xp.asarray(self.dvc_dz_)
-            self.cached_dvc_dz = None
+            self.update_dvc_dz(**parameters)
         normalisation = self.normalisation(parameters=parameters)
         differential_volume = self.differential_spacetime_volume(
             dataset=dataset, **parameters
@@ -229,6 +209,17 @@ class _BaseRedshift:
             return self.cosmo_model(H0=parameters["H0"], Om0=parameters["Om0"])
         else:
             raise ValueError(f"Model {cosmo_model} not found.")
+
+    def update_dvc_dz(self, **parameters):
+        self.dvc_dz_ = (
+            self.cosmology_model(**parameters)
+            .differential_comoving_volume(self.zs_)
+            .value
+            * 4
+            * xp.pi
+        )
+        self.dvc_dz = xp.asarray(self.dvc_dz_)
+        self.cached_dvc_dz = None
 
 
 class CosmoPowerLawRedshift(_BaseRedshift):

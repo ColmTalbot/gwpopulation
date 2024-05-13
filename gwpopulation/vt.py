@@ -195,7 +195,15 @@ class ResamplingVT(_BaseVT):
         """
         if self.redshift_model is None:
             return self._surveyed_hypervolume
-        else:
+        elif isinstance(self.redshift_model, _Redshift):
+            return (
+                self.redshift_model.normalisation(parameters) / 1e9 * self.analysis_time
+            )
+        elif (
+            isinstance(self.redshift_model, _BaseRedshift)
+            and self.redshift_model.cosmo_model is not None
+        ):
+            self.redshift_model.update_dvc_dz(**parameters)
             return (
                 self.redshift_model.normalisation(parameters) / 1e9 * self.analysis_time
             )

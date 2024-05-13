@@ -100,7 +100,6 @@ def _load_numpy_and_scipy(backend):
 
 
 def _load_arbitrary(func, backend):
-    print(func, backend)
     if func.startswith("scipy"):
         func = func.replace("scipy", _scipy_module[backend])
     elif func.startswith("numpy"):

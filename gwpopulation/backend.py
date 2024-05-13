@@ -49,7 +49,9 @@ def modules_to_update():
         from importlib.metadata import entry_points
     all_with_xp = [module.value for module in entry_points(group="gwpopulation.xp")]
     all_with_scs = [module.value for module in entry_points(group="gwpopulation.scs")]
-    other_entries = [module.value.split(":") for module in entry_points(group="gwpopulation.other")]
+    other_entries = [
+        module.value.split(":") for module in entry_points(group="gwpopulation.other")
+    ]
     others = {key: value for key, value in other_entries}
     return all_with_xp, all_with_scs, others
 

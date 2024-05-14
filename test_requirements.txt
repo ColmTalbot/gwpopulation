@@ -3,3 +3,4 @@ pre-commit
 jupyter
 nbconvert
 jax
+numpyro

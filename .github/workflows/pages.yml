@@ -1,61 +1,67 @@
 name: GitHub Pages
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 on:
   push:
     branches:
       - main
-      - master
   pull_request:
     branches:
       - main
-      - master
   schedule:
     - cron: "0 0 * * 0"
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-20.04
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
       - uses: s-weigand/setup-conda@v1
         with:
           update-conda: true
-          python-version: "3.10"
+          python-version: "3.11"
           conda-channels: anaconda, conda-forge
 
       - name: Install dependencies
         run: |
           conda install --file requirements.txt
           conda install --file pages_requirements.txt
+          conda install --file test_requirements.txt
           python -m pip install .
 
       - name: Build documentation
         run: |
+          cp examples/*.ipynb docs
           cd docs
-          mv Makefile.gh_pages Makefile
-          cp ../examples/*.ipynb ./
           make clean
           make html
-          cd ../
-          touch _gh-pages/latest/html/.nojekyll
-          ls
-          ls *
-          ls */*
-          ls ./_gh-pages/latest/html
-          rm -r docs
-          mv _gh-pages/latest/html docs
-
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.ref == 'refs/heads/master' }}
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          path: 'docs/_build/html'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

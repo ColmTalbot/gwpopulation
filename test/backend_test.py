@@ -56,7 +56,7 @@ def test_import_error_caught_for_mangled_install():
     gwpopulation.backend.import_module = importlib.import_module
 
 
-@pytest.importorskip("jax")
+@pytest.importorskip("jax.scipy")
 def test_loading_arbitrary():
     """
     Test loading arbitrary functions works as we don't have any native

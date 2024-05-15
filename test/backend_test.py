@@ -61,7 +61,7 @@ def test_loading_arbitrary():
     Test loading arbitrary functions works as we don't have any native
     entry points for them.
     """
-    pytest.importorskip("jax.scipy")
+    pytest.importorskip("jax")
 
     from jax.scipy.linalg import toeplitz
 

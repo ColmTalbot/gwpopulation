@@ -95,7 +95,7 @@ def test_power_law_primary_mass_ratio_zero_above_mmax(backend):
         parameters = prior.sample()
         p_m = mass.double_power_law_primary_power_law_mass_ratio(dataset, **parameters)
         p_m = to_numpy(p_m)
-        assert np.max(p_m[m1s > parameters["mmax"]]) == 0.0
+        assert np.max(p_m[to_numpy(m1s) > parameters["mmax"]]) == 0.0
 
 
 def get_primary_mass_ratio_data(xp):

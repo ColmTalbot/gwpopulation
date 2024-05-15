@@ -81,7 +81,8 @@ def test_likelihood_evaluation(backend):
 
 
 def test_jit_likelihood():
-    pytest.importorskip("jax.numpy")
+    pytest.importorskip("jax")
+
     _template_likelihod_evaluation("jax", True)
 
 

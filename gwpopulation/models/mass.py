@@ -534,7 +534,7 @@ class BaseSmoothedMassDistribution:
     def kwargs(self):
         return dict()
 
-    def __init__(self, mmin=2, mmax=100, normalization_shape=(1000, 500)):
+    def __init__(self, mmin=2, mmax=100, normalization_shape=(1000, 500), cache=True):
         self.mmin = mmin
         self.mmax = mmax
         self.m1s = xp.linspace(mmin, mmax, normalization_shape[0])
@@ -542,6 +542,7 @@ class BaseSmoothedMassDistribution:
         self.dm = self.m1s[1] - self.m1s[0]
         self.dq = self.qs[1] - self.qs[0]
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
+        self.cache = cache
 
     def __call__(self, dataset, *args, **kwargs):
         beta = kwargs.pop("beta")
@@ -591,8 +592,13 @@ class BaseSmoothedMassDistribution:
             mmax=dataset["mass_1"],
             delta_m=delta_m,
         )
+
         try:
-            p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
+            if self.cache:
+                p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
+            else:
+                self._cache_q_norms(dataset["mass_1"])
+                p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
         except (AttributeError, TypeError, ValueError):
             self._cache_q_norms(dataset["mass_1"])
             p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)

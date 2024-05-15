@@ -1,6 +1,5 @@
 import importlib
 
-import numpy
 import pytest
 
 import gwpopulation
@@ -57,6 +56,7 @@ def test_import_error_caught_for_mangled_install():
     gwpopulation.backend.import_module = importlib.import_module
 
 
+@pytest.importorskip("jax")
 def test_loading_arbitrary():
     """
     Test loading arbitrary functions works as we don't have any native

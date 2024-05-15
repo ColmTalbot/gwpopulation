@@ -1,18 +1,14 @@
 import glob
-from functools import partial
 
 import bilby
-import numpy as np
 import pandas as pd
 import pytest
-from bilby.core.likelihood import Likelihood
 from bilby.hyper.model import Model
-from jax import jit
 
 import gwpopulation
+from gwpopulation.experimental.jax import JittedLikelihood, NonCachingModel
 
 from . import TEST_BACKENDS
-from .jax_utils import JittedLikelihood, NonCachingModel
 
 
 def _template_likelihod_evaluation(backend, jit):
@@ -84,6 +80,7 @@ def test_likelihood_evaluation(backend):
     _template_likelihod_evaluation(backend, False)
 
 
+@pytest.importorskip("jax")
 def test_jit_likelihood():
     _template_likelihod_evaluation("jax", True)
 

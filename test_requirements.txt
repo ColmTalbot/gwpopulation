@@ -2,5 +2,6 @@ pytest-cov
 pre-commit
 jupyter
 nbconvert
+astropy
 jax
 numpyro

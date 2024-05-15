@@ -5,7 +5,6 @@ from .jax import NonCachingModel
 
 
 class CosmoMixin:
-
     def __init__(self, cosmo_model="Planck15"):
 
         self.cosmo_model = cosmo_model

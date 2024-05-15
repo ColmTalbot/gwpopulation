@@ -59,7 +59,8 @@ def test_powerlaw_volume(backend):
         Planck15.differential_comoving_volume(zs_numpy).value * 4 * np.pi,
         zs_numpy,
     )
-    assert abs(total_volume - float(model.normalisation(parameters))) / total_volume < 1e-2
+    approximation = float(model.normalisation(parameters))
+    assert abs(total_volume - approximation) / total_volume < 1e-2
 
 
 def test_zero_outside_domain():

@@ -4,35 +4,32 @@ Implemented redshift models
 
 import numpy as np
 
-from ..utils import to_numpy
+from ..experimental.cosmo_models import CosmoMixin
 
 xp = np
 
 
-class _Redshift(object):
+class _Redshift(CosmoMixin):
     """
     Base class for models which include a term like dVc/dz / (1 + z)
     """
 
-    variable_names = None
+    base_variable_names = None
 
-    def __init__(self, z_max=2.3):
-        from astropy.cosmology import Planck15
+    @property
+    def variable_names(self):
+        vars = self.cosmology_names.copy()
+        if self.base_variable_names is not None:
+            vars += self.base_variable_names
+        return vars
 
+    def __init__(self, z_max=2.3, cosmo_model="Planck15"):
+        super().__init__(cosmo_model=cosmo_model)
         self.z_max = z_max
-        self.zs_ = np.linspace(1e-3, z_max, 1000)
-        self.zs = xp.asarray(self.zs_)
-        self.dvc_dz_ = Planck15.differential_comoving_volume(self.zs_).value * 4 * np.pi
-        self.dvc_dz = xp.asarray(self.dvc_dz_)
-        self.cached_dvc_dz = None
+        self.zs = xp.linspace(1e-6, z_max, 2500)
 
     def __call__(self, dataset, **kwargs):
         return self.probability(dataset=dataset, **kwargs)
-
-    def _cache_dvc_dz(self, redshifts):
-        self.cached_dvc_dz = xp.asarray(
-            np.interp(to_numpy(redshifts), self.zs_, self.dvc_dz_, left=0, right=0)
-        )
 
     def normalisation(self, parameters):
         r"""
@@ -50,22 +47,30 @@ class _Redshift(object):
         -------
         (float, array-like): Total spacetime volume
         """
-        psi_of_z = self.psi_of_z(redshift=self.zs, **parameters)
-        norm = xp.trapz(psi_of_z * self.dvc_dz / (1 + self.zs), self.zs)
+        normalisation_data = self.differential_spacetime_volume(
+            dict(redshift=self.zs), bounds=True, **parameters
+        )
+        norm = xp.trapz(normalisation_data, self.zs)
         return norm
 
     def probability(self, dataset, **parameters):
         normalisation = self.normalisation(parameters=parameters)
         differential_volume = self.differential_spacetime_volume(
-            dataset=dataset, **parameters
+            dataset=dataset, bounds=True, **parameters
         )
-        in_bounds = dataset["redshift"] <= self.z_max
-        return differential_volume / normalisation * in_bounds
+        return differential_volume / normalisation
 
     def psi_of_z(self, redshift, **parameters):
         raise NotImplementedError
 
-    def differential_spacetime_volume(self, dataset, **parameters):
+    def dvc_dz(self, redshift, **parameters):
+        return (
+            4
+            * xp.pi
+            * self.cosmology(parameters).differential_comoving_volume(redshift)
+        )
+
+    def differential_spacetime_volume(self, dataset, bounds=False, **parameters):
         r"""
         Compute the differential spacetime volume.
 
@@ -85,30 +90,35 @@ class _Redshift(object):
         """
         psi_of_z = self.psi_of_z(redshift=dataset["redshift"], **parameters)
         differential_volume = psi_of_z / (1 + dataset["redshift"])
-        try:
-            differential_volume *= self.cached_dvc_dz
-        except (TypeError, ValueError):
-            self._cache_dvc_dz(dataset["redshift"])
-            differential_volume *= self.cached_dvc_dz
+        differential_volume *= self.dvc_dz(redshift=dataset["redshift"], **parameters)
+        if bounds:
+            differential_volume *= dataset["redshift"] <= self.z_max
+
         return differential_volume
+
+    def cosmology_model(self, **parameters):
+        if self.cosmo_model == "FlatwCDM":
+            return self.cosmo_model(
+                H0=parameters["H0"], Om0=parameters["Om0"], w0=parameters["w0"]
+            )
+        elif self.cosmo_model == "FlatLambdaCDM":
+            return self.cosmo_model(H0=parameters["H0"], Om0=parameters["Om0"])
+        else:
+            raise ValueError(f"Model {self.cosmo_model} not found.")
 
 
 class PowerLawRedshift(_Redshift):
     r"""
-    Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270
-
+    Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 and Cosmo model FlatLambdaCDM
     .. math::
         p(z|\gamma, \kappa, z_p) &\propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)
-
         \psi(z|\gamma, \kappa, z_p) &= (1 + z)^\lambda
-
     Parameters
     ----------
     lamb: float
         The spectral index.
     """
-
-    variable_names = ["lamb"]
+    base_variable_names = ["lamb"]
 
     def psi_of_z(self, redshift, **parameters):
         return (1 + redshift) ** parameters["lamb"]
@@ -137,8 +147,7 @@ class MadauDickinsonRedshift(_Redshift):
     z_max: float, optional
         The maximum redshift allowed.
     """
-
-    variable_names = ["gamma", "kappa", "z_peak"]
+    base_variable_names = ["gamma", "kappa", "z_peak"]
 
     def psi_of_z(self, redshift, **parameters):
         gamma = parameters["gamma"]
@@ -152,14 +161,14 @@ class MadauDickinsonRedshift(_Redshift):
 
 
 def total_four_volume(lamb, analysis_time, max_redshift=2.3):
-    from astropy.cosmology import Planck15
+    from wcosmo.wcosmo import Planck15
 
-    redshifts = np.linspace(0, max_redshift, 1000)
+    redshifts = xp.linspace(0, max_redshift, 2500)
     psi_of_z = (1 + redshifts) ** lamb
     normalization = 4 * np.pi / 1e9 * analysis_time
     total_volume = (
-        np.trapz(
-            Planck15.differential_comoving_volume(redshifts).value
+        xp.trapz(
+            Planck15.differential_comoving_volume(redshifts)
             / (1 + redshifts)
             * psi_of_z,
             redshifts,

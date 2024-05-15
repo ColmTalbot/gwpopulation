@@ -96,16 +96,6 @@ class _Redshift(CosmoMixin):
 
         return differential_volume
 
-    def cosmology_model(self, **parameters):
-        if self.cosmo_model == "FlatwCDM":
-            return self.cosmo_model(
-                H0=parameters["H0"], Om0=parameters["Om0"], w0=parameters["w0"]
-            )
-        elif self.cosmo_model == "FlatLambdaCDM":
-            return self.cosmo_model(H0=parameters["H0"], Om0=parameters["Om0"])
-        else:
-            raise ValueError(f"Model {self.cosmo_model} not found.")
-
 
 class PowerLawRedshift(_Redshift):
     r"""

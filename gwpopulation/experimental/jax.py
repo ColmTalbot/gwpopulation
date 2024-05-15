@@ -3,7 +3,6 @@ from functools import partial
 import numpy as np
 from bilby.core.likelihood import Likelihood
 from bilby.hyper.model import Model
-from jax import jit
 
 
 def generic_bilby_likelihood_function(likelihood, parameters, use_ratio=True):
@@ -46,6 +45,8 @@ class JittedLikelihood(Likelihood):
     def __init__(
         self, likelihood, likelihood_func=generic_bilby_likelihood_function, kwargs=None
     ):
+        from jax import jit
+
         if kwargs is None:
             kwargs = dict()
         self.kwargs = kwargs

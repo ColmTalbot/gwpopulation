@@ -55,3 +55,16 @@ def test_import_error_caught_for_mangled_install():
         gwpopulation.set_backend("jax")
 
     gwpopulation.backend.import_module = importlib.import_module
+
+
+def test_loading_arbitrary():
+    """
+    Test loading arbitrary functions works as we don't have any native
+    entry points for them.
+    """
+    from jax.scipy.linalg import toeplitz
+
+    func = gwpopulation.backend._load_arbitrary(
+        func="scipy.linalg.toeplitz", backend="jax"
+    )
+    assert func == toeplitz

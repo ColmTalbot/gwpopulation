@@ -14,8 +14,25 @@ The backend can be set using :code:`gwpopulation.set_backend(backend)`, where
 
 Downstream packages can automatically track the active backend using :code:`entry_points`.
 With this set up, packages can use :code:`xp` and :code:`scs` in specified modules.
+Additionally, users can provide a full arbitrary scipy object to be used if anything beyond
+:code:`scipy.special` is needed.
+An example of how to set :code:`numpy`, :code:`scipy.special`, and the :code:`toeplitz` function
+from :code:`scipy.linalg` via the :code:`setup.cfg` file is shown below.
+Specification using :code:`pyproject.toml` and :code:`setup.py` follows slightly
+different syntax documentation for which can be found online.
 
-..note::
+.. code-block::
+
+    [options.entry_points]
+    gwpopulation.xp =
+        mypackage_foo = mypackage.foo
+    gwpopulation.scs =
+        mypackage_foo = mypackage.foo
+        mypackage_bar = mypackage.bar
+    gwpopulation.other =
+        mypackage_baz_toeplitz = mypackage.baz:scipy.linalg.toeplitz
+
+.. note::
     Each module that wants to use the :code:`GWPopulation` backend must be specified independently
     for the automatic propagation to work.
 
@@ -30,23 +47,13 @@ def modules_to_update():
         from importlib_metadata import entry_points
     else:
         from importlib.metadata import entry_points
-    all_with_xp = [
-        ".hyperpe",
-        ".models.interped",
-        ".models.mass",
-        ".models.redshift",
-        ".models.spin",
-        ".utils",
-        ".vt",
+    all_with_xp = [module.value for module in entry_points(group="gwpopulation.xp")]
+    all_with_scs = [module.value for module in entry_points(group="gwpopulation.scs")]
+    other_entries = [
+        module.value.split(":") for module in entry_points(group="gwpopulation.other")
     ]
-    all_with_xp.extend(
-        [module.value for module in entry_points(group="gwpopulation.xp")]
-    )
-    all_with_scs = [".models.mass", ".utils"]
-    all_with_scs.extend(
-        [module.value for module in entry_points(group="gwpopulation.scs")]
-    )
-    return all_with_xp, all_with_scs
+    others = {key: value for key, value in other_entries}
+    return all_with_xp, all_with_scs, others
 
 
 def disable_cupy():
@@ -92,12 +99,13 @@ def _load_numpy_and_scipy(backend):
     return xp, scs
 
 
-def _set_in_module(module, name, value):
-    if module.startswith("."):
-        package = "gwpopulation"
-    else:
-        package = None
-    setattr(import_module(module, package=package), name, value)
+def _load_arbitrary(func, backend):
+    if func.startswith("scipy"):
+        func = func.replace("scipy", _scipy_module[backend])
+    elif func.startswith("numpy"):
+        func = func.replace("numpy", _np_module[backend])
+    module, func = func.rsplit(".", 1)
+    return getattr(import_module(module), func)
 
 
 def set_backend(backend="numpy"):
@@ -112,8 +120,14 @@ def set_backend(backend="numpy"):
     xp, scs = _load_numpy_and_scipy(backend)
 
     __backend__ = backend
-    all_with_xp, all_with_scs = modules_to_update()
+    all_with_xp, all_with_scs, others = modules_to_update()
     for module in all_with_xp:
-        _set_in_module(module, "xp", xp)
+        setattr(import_module(module), "xp", xp)
     for module in all_with_scs:
-        _set_in_module(module, "scs", scs)
+        setattr(import_module(module), "scs", scs)
+    for module, func in others.items():
+        setattr(
+            import_module(module),
+            func.split(".")[-1],
+            _load_arbitrary(func, backend),
+        )

@@ -7,17 +7,20 @@ from ..utils import to_numpy
 xp = np
 
 
-def _setup_interpolant(nodes, values, kind="cubic", backend=xp):
+def _setup_interpolant(nodes, values, kind="cubic", backend=None):
     """
     Cache the information necessary for linear interpolation of the mass
     ratio normalisation
     """
     from cached_interpolate import RegularCachingInterpolant as CachingInterpolant
 
+    if backend is None:
+        backend = xp
+
     nodes = to_numpy(nodes)
     interpolant = CachingInterpolant(nodes, nodes, kind=kind, backend=backend)
-    interpolant.conversion = xp.asarray(interpolant.conversion)
-    interpolant = partial(interpolant, xp.asarray(values))
+    interpolant.conversion = backend.array(interpolant.conversion)
+    interpolant = partial(interpolant, backend.array(values))
     return interpolant
 
 
@@ -39,10 +42,20 @@ class InterpolatedNoBaseModelIdentical:
         The interpolation order of the spline, default="cubic"
     log_nodes: bool
         Whether to use log-spaced nodes, default=False
+    regularize: bool
+        Whether to regularize the spline node values to have root-mean-square value
+        :code:`rms{name}`, default=False
     """
 
     def __init__(
-        self, parameters, minimum, maximum, nodes=10, kind="cubic", log_nodes=False
+        self,
+        parameters,
+        minimum,
+        maximum,
+        nodes=10,
+        kind="cubic",
+        log_nodes=False,
+        regularize=False,
     ):
         """ """
         self.nodes = nodes
@@ -58,6 +71,7 @@ class InterpolatedNoBaseModelIdentical:
         self.base = self.parameters[0].strip("_1")
         self.xkeys = [f"{self.base}{ii}" for ii in range(self.nodes)]
         self.fkeys = [f"f{self.base}{ii}" for ii in range(self.nodes)]
+        self.regularize = regularize
 
     def __call__(self, dataset, **kwargs):
         return self.p_x_identical(dataset, **kwargs)
@@ -66,6 +80,8 @@ class InterpolatedNoBaseModelIdentical:
     def variable_names(self):
 
         keys = self.xkeys + self.fkeys
+        if self.regularize:
+            keys += [f"rms{self.base}"]
         return keys
 
     def setup_interpolant(self, nodes, values):
@@ -101,12 +117,34 @@ class InterpolatedNoBaseModelIdentical:
         norm = xp.trapz(p_x, self._xs)
         return norm
 
+    def extract_spline_points(self, kwargs):
+        """
+        Extract the node positions and values from the dictionary of parameters
+
+        Parameters
+        ==========
+        kwargs: dict
+            Dictionary containing :code:`{self.base}_ii, f{self.base_ii}` and
+            optionally :code`rms{self.base}`
+
+        Returns
+        =======
+        f_splines: array-like
+            The values at the spline nodes
+        x_splines: array-like
+            The positions of the spline nodes
+        """
+        f_splines = xp.array([kwargs[key] for key in self.fkeys])
+        if self.regularize:
+            f_splines *= kwargs[f"rms{self.base}"] / xp.mean(f_splines**2) ** 0.5
+        x_splines = xp.array([kwargs[key] for key in self.xkeys])
+        return f_splines, x_splines
+
     def p_x_identical(self, dataset, **kwargs):
 
         self.infer_n_nodes(**kwargs)
 
-        f_splines = xp.array([kwargs[key] for key in self.fkeys])
-        x_splines = xp.array([kwargs[key] for key in self.xkeys])
+        f_splines, x_splines = self.extract_spline_points(kwargs)
 
         p_x = xp.ones(xp.shape(dataset[self.parameters[0]]))
 

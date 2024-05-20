@@ -68,8 +68,8 @@ class CosmoModel(NonCachingModel, CosmoMixin):
     """
 
     def __init__(self, model_functions=None, cosmo_model="Planck15"):
-        super().__init__(model_functions=model_functions)
-        CosmoMixin.__init__(cosmo_model=cosmo_model)
+        NonCachingModel.__init__(self, model_functions=model_functions)
+        CosmoMixin.__init__(self, cosmo_model=cosmo_model)
 
     def prob(self, data, **kwargs):
         """

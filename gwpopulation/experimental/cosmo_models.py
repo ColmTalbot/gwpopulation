@@ -44,7 +44,7 @@ class CosmoMixin:
                 cosmo.luminosity_distance,
                 data["luminosity_distance"],
             )
-            jacobian = cosmo.dDLdz(data["redshift"])
+            jacobian = cosmo.dDLdz(samples["redshift"])
         elif "redshift" not in data:
             raise ValueError(
                 f"Either luminosity distance or redshift provided in detector frame to source frame samples conversion"
@@ -54,8 +54,8 @@ class CosmoMixin:
 
         for key in list(data.keys()):
             if key.endswith("_detector"):
-                samples[key[:-9]] = data[key] / (1 + data["redshift"])
-                jacobian *= 1 + data["redshift"]
+                samples[key[:-9]] = data[key] / (1 + samples["redshift"])
+                jacobian *= 1 + samples["redshift"]
             elif key != "luminosity_distance":
                 samples[key] = data[key]
 

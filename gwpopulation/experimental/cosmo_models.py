@@ -59,7 +59,7 @@ class CosmoMixin:
             elif key != "luminosity_distance":
                 samples[key] = data[key]
 
-        return data, jacobian
+        return samples, jacobian
 
 
 class CosmoModel(NonCachingModel, CosmoMixin):

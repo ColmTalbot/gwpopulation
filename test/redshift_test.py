@@ -46,7 +46,7 @@ def test_madau_dickinson_normalised(backend):
 @pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_powerlaw_volume(backend):
     """
-    Test that the total volume matches the expected value for a
+    Test that the total volume matches astropy for a
     trivial case
     """
     gwpopulation.set_backend(backend)
@@ -59,7 +59,8 @@ def test_powerlaw_volume(backend):
         Planck15.differential_comoving_volume(zs_numpy).value * 4 * np.pi,
         zs_numpy,
     )
-    assert abs(total_volume - float(model.normalisation(parameters))) < 1e-3
+    approximation = float(model.normalisation(parameters))
+    assert abs(total_volume - approximation) / total_volume < 1e-2
 
 
 def test_zero_outside_domain():

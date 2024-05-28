@@ -4,4 +4,4 @@ pandas
 tqdm
 bilby>=2.2.0
 cached_interpolate
-wcosmo @ git+https://github.com/ColmTalbot/wcosmo@main
+wcosmo

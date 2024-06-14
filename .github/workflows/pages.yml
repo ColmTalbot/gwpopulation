@@ -46,7 +46,7 @@ jobs:
 
       - name: Build documentation
         run: |
-          cp examples/*.ipynb docs
+          cp examples/*.ipynb docs/examples
           cd docs
           make clean
           make html

@@ -1,13 +1,14 @@
 *.ignore
 gwpopulation.egg-info
 build/*
-outdir/*
+outdir
 logs/*
 **/__pycache__/*
 __pycache__/*
 */_build/
 */.ipynb*
 .coverage
+.coverage.*
 venv/
 .idea/
 **/.version
@@ -15,3 +16,7 @@ venv/
 .vscode
 .ipynb_checkpoints*
 */*/.ipynb*
+examples/*.pkl
+examples/*.tar.gz
+examples/*.py
+examples/GWTC-1_sample_release

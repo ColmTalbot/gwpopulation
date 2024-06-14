@@ -1,8 +1,14 @@
 ipython_genutils
+ipywidgets
 jinja2
+myst-parser
 nbsphinx
 numpydoc
 pandoc
+pydata-sphinx-theme
 pygments
 sphinx
 sphinx_rtd_theme
+sphinx-autoapi
+sphinx-copybutton
+sphinx-design

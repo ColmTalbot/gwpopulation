@@ -1,5 +1,46 @@
-"""
-Sensitive volume estimation.
+r"""
+Searches for gravitational-wave transients are limited by the sensitivity of current detectors.
+For this reason it is necessary to quantify the fraction of sources that are expected to be observed
+to avoid biases in the population inference.
+
+.. math::
+
+    P_{\rm det}(\Lambda) = \int dd \int d\theta p(d, \theta | \lambda) \Theta(\rho(d) - \rho_{\rm th})
+
+Here :math:`d` is the observed strain data, :math:`\theta` are the parameters of individual sources,
+e.g., masses, spins, redshifts, etc., and :math:`\Lambda` are the population parameters.
+The quantity :math:`\rho` is a detection statistic, e.g., the signal-to-noise ratio, and :math:`\rho_{\rm th}`
+is the threshold for detection.
+
+The most common method to estimate this quantity is to simulate a population of sources from
+some reference distribution :math:`p(\theta | \varnothing)` and
+compute the fraction of sources that are detected. Using a single reference set of such "injections"
+one can estimate :math:`P_{\rm det}(\Lambda)` using Monte Carlo integration.
+
+.. math::
+
+    \hat{P}_{\rm det}(\Lambda) = \frac{1}{N} \sum_{i=1}^N \Theta(\rho_i - \rho_{\rm th})
+    \frac{p(\theta_i | \Lambda)}{p(\theta_i | \varnothing)}
+
+Since the detection statistic is independent of the population model, we can remove the :math:`\theta_i`
+that don't pass the threshold yielding :math:`M` detected sources.
+
+.. math::
+
+    \hat{P}_{\rm det}(\Lambda) = \frac{1}{N} \sum_{i=1}^M
+    \frac{p(\theta_i | \Lambda)}{p(\theta_i | \varnothing)}
+
+This model is implemented in the :class:`gwpopulation.vt.ResamplingVT` class.
+
+A simpler model is to interpolate some expression for
+
+.. math::
+
+    p_{\rm det}(\theta) = \int dd p(d, \theta) \Theta(\rho(d) - \rho_{\rm th})
+
+The quantity :math:`P_{\rm det}(\Lambda)` can be computed by integrating over the
+specified :math:`\theta`. This model is implemented in the :class:`gwpopulation.vt.GridVT` class.
+Note that the computational cost of this approach scales exponentially with the number of parameters.
 """
 
 import numpy as np

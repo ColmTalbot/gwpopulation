@@ -2,22 +2,50 @@
 Implemented redshift models
 """
 
-import numpy as np
+import numpy as xp
 
 from ..experimental.cosmo_models import CosmoMixin
 
-xp = np
+__all__ = [
+    "_Redshift",
+    "PowerLawRedshift",
+    "MadauDickinsonRedshift",
+    "total_four_volume",
+]
 
 
 class _Redshift(CosmoMixin):
-    """
-    Base class for models which include a term like dVc/dz / (1 + z)
+    r"""
+    Base redshift model class.
+
+    This assumes the model is defined as
+
+    .. math::
+
+        p(z | \Lambda) = \frac{1}{(1 + z)} \frac{dVc}{dz} \psi(z | \Lambda).
+
+    Subclasses define :math:`\psi(z | \Lambda)` as :func:`_Redshift.psi_of_z`.
+
+    Attributes
+    ----------
+    base_variable_names: list
+        :math:`\Lambda` - list of astrophysical rate-evolution parameters
+        for the model.
     """
 
     base_variable_names = None
 
     @property
     def variable_names(self):
+        """
+        Variable names for the model
+
+        Returns
+        -------
+        vars: list
+            Variable names including astrophysical rate-evolution parameters
+            and cosmological parameters.
+        """
         vars = self.cosmology_names.copy()
         if self.base_variable_names is not None:
             vars += self.base_variable_names
@@ -33,9 +61,10 @@ class _Redshift(CosmoMixin):
 
     def normalisation(self, parameters):
         r"""
-        Compute the normalization or differential spacetime volume.
+        Compute the normalization of the rate-weighted spacetime volume.
 
         .. math::
+
             \mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
 
         Parameters
@@ -45,7 +74,8 @@ class _Redshift(CosmoMixin):
 
         Returns
         -------
-        (float, array-like): Total spacetime volume
+        norm: float | array-like:
+            Total rate-weighted comoving spacetime volume
         """
         normalisation_data = self.differential_spacetime_volume(
             dict(redshift=self.zs), bounds=True, **parameters
@@ -75,6 +105,7 @@ class _Redshift(CosmoMixin):
         Compute the differential spacetime volume.
 
         .. math::
+
             d\mathcal{V} = \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
 
         Parameters
@@ -83,6 +114,7 @@ class _Redshift(CosmoMixin):
             Dictionary containing entry "redshift"
         parameters: dict
             Dictionary of parameters
+
         Returns
         -------
         differential_volume: (float, array-like)
@@ -99,10 +131,16 @@ class _Redshift(CosmoMixin):
 
 class PowerLawRedshift(_Redshift):
     r"""
-    Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 and Cosmo model FlatLambdaCDM
+    Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270
+    (`arXiv:1805.10270 <https://arxiv.org/abs/1805.10270>`_
+    and Cosmo model :func:`FlatLambdaCDM`.
+
     .. math::
+
         p(z|\gamma, \kappa, z_p) &\propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)
+
         \psi(z|\gamma, \kappa, z_p) &= (1 + z)^\lambda
+
     Parameters
     ----------
     lamb: float
@@ -116,12 +154,15 @@ class PowerLawRedshift(_Redshift):
 
 class MadauDickinsonRedshift(_Redshift):
     r"""
-    Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270 (33)
-    See https://arxiv.org/abs/2003.12152 (2) for the normalisation
+    Redshift model from Fishbach+
+    (`arXiv:1805.10270 <https://arxiv.org/abs/1805.10270>`_ Eq. (33))
+    See Callister+ (`arXiv:2003.12152 <https://arxiv.org/abs/2003.12152>`_
+    Eq. (2)) for the normalisation.
 
     The parameterisation differs a little from there, we use
 
     .. math::
+
         p(z|\gamma, \kappa, z_p) &\propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)
 
         \psi(z|\gamma, \kappa, z_p) &= \frac{(1 + z)^\gamma}{1 + (\frac{1 + z}{1 + z_p})^\kappa}
@@ -155,7 +196,7 @@ def total_four_volume(lamb, analysis_time, max_redshift=2.3):
 
     redshifts = xp.linspace(0, max_redshift, 2500)
     psi_of_z = (1 + redshifts) ** lamb
-    normalization = 4 * np.pi / 1e9 * analysis_time
+    normalization = 4 * xp.pi / 1e9 * analysis_time
     total_volume = (
         xp.trapz(
             Planck15.differential_comoving_volume(redshifts)

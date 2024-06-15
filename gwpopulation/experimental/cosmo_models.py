@@ -1,3 +1,11 @@
+"""
+Cosmological functionality in :code:`GWPopulation` is based on the :code:`wcosmo` package.
+For more details see the `wcosmo documentation <https://wcosmo.readthedocs.io/en/latest/>`_.
+
+We provide a mixin class :func:`gwpopulation.experimental.cosmo_models.CosmoMixin` that
+can be used to add cosmological functionality to a population model.
+"""
+
 import numpy as xp
 from wcosmo import FlatwCDM, available, z_at_value
 

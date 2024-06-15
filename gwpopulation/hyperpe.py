@@ -1,5 +1,44 @@
-"""
-Likelihoods for population inference
+r"""
+Gravitational-wave transient surveys provide a biased sample of the astrophysical population.
+The likelihood function used for population inference is given be
+
+.. math::
+
+    {\cal L}(\{d_i\} | \Lambda) &= \prod_i {\cal L}(d_i | \Lambda, {\rm det})
+    
+    &= \prod_i \frac{{\cal L}(d_i | \Lambda)}{P_{\rm det}(\Lambda)}
+
+    &= \frac{1}{P_{\rm det}^{N}(\Lambda)} \prod_i \int d\theta_i p(d_i | \theta_i) \pi(\theta_i | \Lambda).
+
+The quantity :math:`P_{\rm det}(\Lambda)` is the detection probability for a single source (see `<selection.html>`_).
+
+The integrals over the per-event parameters :math:`\theta_i` are typically performed using Monte Carlo integration
+
+.. math::
+
+    \hat{{\cal L}}(d_i | \Lambda) = \frac{1}{K} \sum_{k=1}^K \frac{\pi(\theta_k | \Lambda)}{\pi(\theta_k | \varnothing)}.
+
+The full approximate log-likelihood is then given by
+
+.. math::
+
+    \ln \hat{\cal L}(\{d_i\} | \Lambda) = \sum_i \ln \hat{{\cal L}}(d_i | \Lambda) - N \ln \hat{P}_{\rm det}(\Lambda).
+
+This approximation is implemented in :class:`gwpopulation.hyperpe.HyperparameterLikelihood`.
+
+There is another related expression for the likelihood as the result of an inhomoegeneous Poisson process.
+In this case the likelihood is given by
+
+.. math::
+
+    \ln {\cal L}(\{d_i\} | \Lambda) = N \ln R - RT\hat{P}_{\rm det}(\Lambda)
+    + \sum_i \ln \hat{{\cal L}}(d_i | \Lambda)
+
+Here :math:`R` is the total merger rate and :math:`T` is the total observation time.
+This is implemented in :class:`gwpopulation.hyperpe.RateLikelihood`.
+
+Each of these Monte Carlo integrals have associated uncertainties which are propagated through the likelihood calculation
+and can be calculated using :func:`gwpopulation.hyperpe.HyperparameterLikelihood.ln_likelihood_and_variance`.
 """
 
 import types

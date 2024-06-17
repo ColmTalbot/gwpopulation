@@ -41,9 +41,7 @@ jobs:
     - name: Install dependencies
       run: |
         conda install pip setuptools
-        # install via pip to install from source repo
-        pip install -r requirements.txt
-        # conda install --file requirements.txt
+        conda install --file requirements.txt
         conda install --file test_requirements.txt
         pre-commit install
     - name: Install gwpopulation

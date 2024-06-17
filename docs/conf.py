@@ -24,6 +24,7 @@ extensions = [
 
 templates_path = ["_templates"]
 html_static_path = ["_static"]
+html_favicon = "_static/logo.svg"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "requirements.txt"]
 
 root_doc = "index"
@@ -91,7 +92,11 @@ elif version_match == "stable":
     version_match = f"v{release}"
 
 html_theme_options = {
-    "logo": {"text": f"GWPopulation v{version}"},
+    "logo": {
+        "text": f"GWPopulation v{version}",
+        "image_light": "_static/logo.svg",
+        "image_dark": "_static/logo-dark.svg",
+    },
     "navbar_center": ["navbar-nav"],
     # "navbar_start": ["navbar-logo", "version-switcher"],
     "navbar_start": ["navbar-logo"],

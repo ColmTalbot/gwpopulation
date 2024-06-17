@@ -38,8 +38,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          # conda install --file requirements.txt
+          conda install --file requirements.txt
           conda install --file pages_requirements.txt
           conda install --file test_requirements.txt
           python -m pip install .

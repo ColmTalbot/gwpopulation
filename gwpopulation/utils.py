@@ -1,8 +1,9 @@
 """
 Helper functions for probability distributions and backend switching.
 """
+
 from numbers import Number
-from operator import eq, ge, gt, le, lt, ne
+from operator import ge, gt, ne
 
 import numpy as np
 from scipy import special as scs
@@ -135,10 +136,10 @@ def truncnorm(xx, mu, sigma, high, low):
     Truncated normal probability
 
     .. math::
+
         p(x) =
-        \sqrt{\frac{2}{\pi\sigma^2}}
-        \left[\text{erf}\left(\frac{x_\max - \mu}{\sqrt{2}}\right) + \text{erf}\left(\frac{\mu - x_\min}{\sqrt{2}}\right)\right]^{-1}
-        \exp\left(-\frac{(\mu - x)^2}{2 \sigma^2}\right)
+        \sqrt{\frac{2}{\pi\sigma^2}}\frac{\exp\left(-\frac{(\mu - x)^2}{2 \sigma^2}\right)}
+        {\text{erf}\left(\frac{x_\max - \mu}{\sqrt{2}}\right) + \text{erf}\left(\frac{\mu - x_\min}{\sqrt{2}}\right)}
 
     Parameters
     ----------
@@ -175,8 +176,8 @@ def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
     neglecting normalization terms.
 
     .. math::
-        \ln p(x) = (x - \mu_{x} y - \mu_{y}) \Sigma^{-1} (x - \mu_x y - \mu_{y})^{T} \\
-        \Sigma = \begin{bmatrix}
+        \ln p(x) &= (x - \mu_{x} y - \mu_{y}) \Sigma^{-1} (x - \mu_x y - \mu_{y})^{T} \\
+        \Sigma &= \begin{bmatrix}
                 \sigma^{2}_{x} & \rho \sigma_{x} \sigma_{y} \\
                 \rho \sigma_{x} \sigma_{y} & \sigma^{2}_{y}
             \end{bmatrix}
@@ -238,13 +239,20 @@ def von_mises(xx, mu, kappa):
 
     Notes
     -----
-    For numerical stability, the factor of `exp(kappa)` from using `i0e`
-    is accounted for in the numerator
+    For numerical stability, the factor of :math:`\exp(\kappa)` from using
+    :func:`scipy.special.i0e` is accounted for in the numerator.
     """
     return xp.exp(kappa * (xp.cos(xx - mu) - 1)) / (2 * xp.pi * scs.i0e(kappa))
 
 
 def get_version_information():
+    """
+    .. deprecated:: 1.2.0
+
+    Get the version of :code:`gwpopulation`.
+    Use :code:`importlib.metadata.version("gwpopulation")` instead.
+
+    """
     from gwpopulation import __version__
 
     return __version__
@@ -271,6 +279,17 @@ def get_name(input):
 
 
 def to_number(value, func):
+    """
+    Convert a zero-dimensional array to a number.
+
+    Parameters
+    ==========
+    value: array-like
+        The zero-dimensional array to convert.
+    func: callable
+        The function to convert the array with,
+        e.g., :code:`int,float,complex`.
+    """
     if "jax" in xp.__name__:
         return value.astype(func)
     else:

@@ -5,6 +5,13 @@ SUPPORTED_BACKENDS = ["numpy", "cupy", "jax"]
 _np_module = dict(numpy="numpy", cupy="cupy", jax="jax.numpy")
 _scipy_module = dict(numpy="scipy", cupy="cupyx.scipy", jax="jax.scipy")
 
+__all__ = [
+    "SUPPORTED_BACKENDS",
+    "disable_cupy",
+    "enable_cupy",
+    "modules_to_update",
+    "set_backend",
+]
 
 __doc__ = f"""
 :code:`GWPopulation` provides a unified interface to a number of :code:`numpy/scipy` like APIs.
@@ -41,6 +48,21 @@ If there is a backend that you would like to use that is not currently supported
 
 
 def modules_to_update():
+    """
+    Return all modules that need to be updated with the backend.
+
+    Returns
+    -------
+    all_with_xp: list
+        List of all modules that need to be updated with the backend's :code:`xp`
+        (:code:`numpy`).
+    all_with_scs: list
+        List of all modules that need to be updated with the backend's :code:`scs`
+        (:code:`scipy.special`).
+    others: dict
+        Dictionary of all modules that need to be updated with arbitrary functions
+        from :code:`scipy`.
+    """
     import sys
 
     if sys.version_info < (3, 10):
@@ -57,6 +79,13 @@ def modules_to_update():
 
 
 def disable_cupy():
+    """
+    .. deprecated:: 1.0.0
+
+    Set the backend to :code:`numpy`.
+    This function is a relic of when only :code:`numpy` and :code:`cupy`
+    were supported and has been deprecated and will be removed in :code:`v1.2.0`.
+    """
     from warnings import warn
 
     warn(
@@ -67,6 +96,13 @@ def disable_cupy():
 
 
 def enable_cupy():
+    """
+    .. deprecated:: 1.0.0
+
+    Set the backend to :code:`cupy`.
+    This function is a relic of when only :code:`numpy` and :code:`cupy`
+    were supported and has been deprecated and will be removed in :code:`v1.2.0`.
+    """
     from warnings import warn
 
     warn(
@@ -77,6 +113,12 @@ def enable_cupy():
 
 
 def _configure_jax(xp):
+    """
+    Configuration requirements for :code:`jax`
+
+    - use 64-bit floats.
+    - update :code:`xp.trapz` to :code:`jax.scipy.integrate.trapezoid`
+    """
     from jax import config
     from jax.scipy.integrate import trapezoid
 
@@ -109,6 +151,26 @@ def _load_arbitrary(func, backend):
 
 
 def set_backend(backend="numpy"):
+    """
+    Set the backend for :code:`GWPopulation` and plugins.
+
+    This will automatically update all modules that have been registered to use
+    the :code:`GWPopulation` automatic backend tracking.
+
+    .. warning::
+
+        This will not update existing instances of classes.
+
+    Parameters
+    ----------
+    backend: str
+        The backend to use, one of the :code:`SUPPORTED_BACKENDS`.
+
+    Raises
+    ------
+    ValueError
+        If the backend is not in :code:`SUPPORTED_BACKENDS`.
+    """
     global __backend__
     if backend not in SUPPORTED_BACKENDS:
         raise ValueError(

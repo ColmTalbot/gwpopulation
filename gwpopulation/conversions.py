@@ -44,7 +44,7 @@ def convert_to_beta_parameters(parameters, remove=True):
         if needed:
             if mu in converted.keys() and sigma in converted.keys():
                 done = True
-                converted[alpha], converted[beta], _, = mu_var_max_to_alpha_beta_max(
+                (converted[alpha], converted[beta], _,) = mu_var_max_to_alpha_beta_max(
                     parameters[mu], parameters[sigma], parameters[amax]
                 )
                 if remove:

@@ -10,5 +10,6 @@ If you're unfamiliar, you can find a guide `here <https://guides.github.com/acti
 
     scope
     style
+    testing
     code_of_conduct
     faq

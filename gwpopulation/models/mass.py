@@ -1,6 +1,7 @@
 """
 Implemented mass models
 """
+
 import inspect
 
 import numpy as np
@@ -10,6 +11,28 @@ from ..utils import powerlaw, truncnorm
 from .interped import InterpolatedNoBaseModelIdentical
 
 xp = np
+
+__all__ = [
+    "BaseSmoothedMassDistribution",
+    "SinglePeakSmoothedMassDistribution",
+    "MultiPeakSmoothedMassDistribution",
+    "BrokenPowerLawSmoothedMassDistribution",
+    "BrokenPowerLawPeakSmoothedMassDistribution",
+    "InterpolatedPowerLaw",
+    "double_power_law_primary_mass",
+    "double_power_law_peak_primary_mass",
+    "double_power_law_primary_power_law_mass_ratio",
+    "power_law_primary_mass_ratio",
+    "_primary_secondary_general",
+    "power_law_primary_secondary_independent",
+    "power_law_primary_secondary_identical",
+    "power_law_mass",
+    "two_component_single",
+    "three_component_single",
+    "two_component_primary_mass_ratio",
+    "two_component_primary_secondary_independent",
+    "two_component_primary_secondary_identical",
+]
 
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
@@ -255,7 +278,7 @@ def power_law_mass(mass, alpha, mmin, mmax):
     Power law model for one-dimensional mass distribution.
 
     .. math::
-        p(m) &\propto m^{-\alpha} : m_\min \leq m < m_\max
+        p(m) \propto m^{-\alpha} : m_\min \leq m < m_\max
 
     Parameters
     ----------
@@ -468,7 +491,7 @@ def two_component_primary_secondary_identical(
     primary and secondary masses as following independent distributions.
 
     .. math::
-        p(m_1, m_2) = p(m_1) * p(m_2) : m_1 \geq m_2
+        p(m_1, m_2) = p(m_1) p(m_2) : m_1 \geq m_2
 
     Parameters
     ----------

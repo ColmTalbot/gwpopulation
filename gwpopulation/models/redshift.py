@@ -16,15 +16,22 @@ __all__ = [
 
 class _Redshift(CosmoMixin):
     r"""
-    Base redshift model class.
-
     This assumes the model is defined as
 
     .. math::
 
         p(z | \Lambda) = \frac{1}{(1 + z)} \frac{dVc}{dz} \psi(z | \Lambda).
 
-    Subclasses define :math:`\psi(z | \Lambda)` as :func:`_Redshift.psi_of_z`.
+    Where :math:`\psi(z | \Lambda)` is implemented in :func:`psi_of_z`.
+
+    Parameters
+    ----------
+    z_max: float
+        The maximum redshift allowed, this is also used to normalize the
+        probability.
+    cosmo_model: str
+        The cosmology model to use. Default is :code:`Planck15`.
+        Should be of :code:`wcosmo.available.keys()`.
 
     Attributes
     ----------
@@ -44,7 +51,8 @@ class _Redshift(CosmoMixin):
         -------
         vars: list
             Variable names including astrophysical rate-evolution parameters
-            and cosmological parameters.
+            and cosmological parameters
+            (:code:`self.base_variable_names + self.cosmology_names`).
         """
         vars = self.cosmology_names.copy()
         if self.base_variable_names is not None:
@@ -57,6 +65,9 @@ class _Redshift(CosmoMixin):
         self.zs = xp.linspace(1e-6, z_max, 2500)
 
     def __call__(self, dataset, **kwargs):
+        """
+        Wrapper to :func:`probability`.
+        """
         return self.probability(dataset=dataset, **kwargs)
 
     def normalisation(self, parameters):
@@ -65,7 +76,9 @@ class _Redshift(CosmoMixin):
 
         .. math::
 
-            \mathcal{V} = \int dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+            \mathcal{V} = \int_{0}^{z_{\max}} dz \frac{1}{1+z} \frac{dVc}{dz} \psi(z|\Lambda)
+
+        Here, :math:`z_{\max}` is :code:`self.z_max`.
 
         Parameters
         ----------
@@ -84,6 +97,23 @@ class _Redshift(CosmoMixin):
         return norm
 
     def probability(self, dataset, **parameters):
+        """
+        Compute the normalized probability of a merger occurring at the
+        specified redshift.
+
+        Parameters
+        ----------
+        dataset: dict[str, array-like]
+            Dictionary of sample points that contains :code:`redshift`
+            as a key.
+        parameters: dict[str, float]
+            Dictionary of parameters :math:`\Lambda`.
+
+        Returns
+        -------
+        array-like
+            The normalized probability per sample
+        """
         normalisation = self.normalisation(parameters=parameters)
         differential_volume = self.differential_spacetime_volume(
             dataset=dataset, bounds=True, **parameters
@@ -91,9 +121,44 @@ class _Redshift(CosmoMixin):
         return differential_volume / normalisation
 
     def psi_of_z(self, redshift, **parameters):
+        r"""
+        Method encoding the redshift evolution of the merger rate.
+        This should be overwritten in child classes.
+        By convention this should be normalized such that
+
+        .. math::
+
+            \psi(0 | \Lambda) = 1.
+
+        Parameters
+        ----------
+        redshift: array-like
+            The redshifts at which to evaluate the model.
+        parameters: dict[str, float]
+            Dictionary of parameters :math:`\Lambda`.
+
+        Returns
+        -------
+        array-like
+            :math:`\psi(z | \Lambda)` for in input redshifts.
+        """
         raise NotImplementedError
 
     def dvc_dz(self, redshift, **parameters):
+        r"""
+
+        .. note::
+
+            The units of this differ from
+            :code:`wcosmo.differential_comoving_volume` and
+            :code:`astropy.cosmology.FlatwCDM.differential_comoving_volume`
+            by a factor of :math:`4 \pi`.
+
+        Returns
+        -------
+        float
+            The differential comoving volume in :math:`{\rm Mpc}^3`
+        """
         return (
             4
             * xp.pi
@@ -130,57 +195,49 @@ class _Redshift(CosmoMixin):
 
 
 class PowerLawRedshift(_Redshift):
-    r"""
-    Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270
-    (`arXiv:1805.10270 <https://arxiv.org/abs/1805.10270>`_
-    and Cosmo model :func:`FlatLambdaCDM`.
-
-    .. math::
-
-        p(z|\gamma, \kappa, z_p) &\propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)
-
-        \psi(z|\gamma, \kappa, z_p) &= (1 + z)^\lambda
-
-    Parameters
-    ----------
-    lamb: float
-        The spectral index.
-    """
     base_variable_names = ["lamb"]
 
     def psi_of_z(self, redshift, **parameters):
+        r"""
+        Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270
+        (`arXiv:1805.10270 <https://arxiv.org/abs/1805.10270>`_.
+
+        .. math::
+
+            \psi(z|\gamma, \kappa, z_p) = (1 + z)^\lambda
+
+        Parameters
+        ----------
+        lamb: float
+            The spectral index :math:`\lambda`.
+        """
         return (1 + redshift) ** parameters["lamb"]
 
 
 class MadauDickinsonRedshift(_Redshift):
-    r"""
-    Redshift model from Fishbach+
-    (`arXiv:1805.10270 <https://arxiv.org/abs/1805.10270>`_ Eq. (33))
-    See Callister+ (`arXiv:2003.12152 <https://arxiv.org/abs/2003.12152>`_
-    Eq. (2)) for the normalisation.
 
-    The parameterisation differs a little from there, we use
-
-    .. math::
-
-        p(z|\gamma, \kappa, z_p) &\propto \frac{1}{1 + z}\frac{dV_c}{dz} \psi(z|\gamma, \kappa, z_p)
-
-        \psi(z|\gamma, \kappa, z_p) &= \frac{(1 + z)^\gamma}{1 + (\frac{1 + z}{1 + z_p})^\kappa}
-
-    Parameters
-    ----------
-    gamma: float
-        Slope of the distribution at low redshift
-    kappa: float
-        Slope of the distribution at high redshift
-    z_peak: float
-        Redshift at which the distribution peaks.
-    z_max: float, optional
-        The maximum redshift allowed.
-    """
     base_variable_names = ["gamma", "kappa", "z_peak"]
 
     def psi_of_z(self, redshift, **parameters):
+        r"""
+        Redshift model from Fishbach+
+        (`arXiv:1805.10270 <https://arxiv.org/abs/1805.10270>`_ Eq. (33))
+        See Callister+ (`arXiv:2003.12152 <https://arxiv.org/abs/2003.12152>`_
+        Eq. (2)) for the normalisation.
+
+        .. math::
+
+            \psi(z|\gamma, \kappa, z_p) = \frac{(1 + z)^\gamma}{1 + (\frac{1 + z}{1 + z_p})^\kappa}
+
+        Parameters
+        ----------
+        gamma: float
+            Slope of the distribution at low redshift, :math:`\gamma`.
+        kappa: float
+            Slope of the distribution at high redshift, :math:`\kappa`.
+        z_peak: float
+            Redshift at which the distribution peaks, :math:`z_p`.
+        """
         gamma = parameters["gamma"]
         kappa = parameters["kappa"]
         z_peak = parameters["z_peak"]
@@ -192,6 +249,31 @@ class MadauDickinsonRedshift(_Redshift):
 
 
 def total_four_volume(lamb, analysis_time, max_redshift=2.3):
+    r"""
+    Calculate the rate-weighted four-volume for a given power-law redshift model.
+
+    .. math::
+
+        \mathcal{V} = T \int_{0}^{z_{\max}} dz \frac{dV_c}{dz} (1 + z)^{\lambda - 1}
+
+    Parameters
+    ----------
+    lamb: float
+        The spectral index, :math:`\Lambda`.
+    analysis_time: float
+        The total analysis time, :math:`T`.
+    max_redshift: float, optional
+        The maximum redshift to integrate to, :math:`z_{\max}`, default=2.3.
+
+    Returns
+    -------
+    total_volume: float
+        The rate-weighted four-volume
+
+    Notes
+    -----
+    This assumes a :code:`Planck15` cosmology.
+    """
     from wcosmo.wcosmo import Planck15
 
     redshifts = xp.linspace(0, max_redshift, 2500)

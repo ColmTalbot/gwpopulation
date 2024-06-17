@@ -31,10 +31,11 @@ In this case the likelihood is given by
 
 .. math::
 
-    \ln {\cal L}(\{d_i\} | \Lambda) = N \ln R - RT\hat{P}_{\rm det}(\Lambda)
+    \ln {\cal L}(\{d_i\} | \Lambda) = N \ln R - N_{\rm exp}(\Lambda)
     + \sum_i \ln \hat{{\cal L}}(d_i | \Lambda)
 
-Here :math:`R` is the total merger rate and :math:`T` is the total observation time.
+Here :math:`R` is the total merger rate and :math:`T` is the total observation time
+and :math:`N_{\rm exp}(\Lambda) = RT\hat{P}_{\rm det}(\Lambda)`.
 This is implemented in :class:`gwpopulation.hyperpe.RateLikelihood`.
 
 Each of these Monte Carlo integrals have associated uncertainties which are propagated through the likelihood calculation
@@ -52,13 +53,16 @@ from .utils import get_name, to_number, to_numpy
 
 xp = np
 
+__all__ = ["HyperparameterLikelihood", "RateLikelihood", "xp"]
+
 
 class HyperparameterLikelihood(Likelihood):
     """
     A likelihood for inferring hyperparameter posterior distributions with
     including selection effects.
 
-    See Eq. (34) of https://arxiv.org/abs/1809.02293 for a definition.
+    See Eq. (34) of `Thrane and Talbot <https://arxiv.org/abs/1809.02293>`_
+    for a definition.
 
     For the uncertainty calculation see the Appendix of
     `Golomb and Talbot <https://arxiv.org/abs/2106.15745>`_ and
@@ -150,6 +154,11 @@ class HyperparameterLikelihood(Likelihood):
 
     @property
     def maximum_uncertainty(self):
+        """
+        The maximum allowed uncertainty in the estimate of the log-likelihood.
+        If the uncertainty is larger than this value a log likelihood of -inf
+        is returned.
+        """
         return self._maximum_uncertainty
 
     @maximum_uncertainty.setter
@@ -225,11 +234,24 @@ class HyperparameterLikelihood(Likelihood):
         return selection, variance
 
     def generate_extra_statistics(self, sample):
-        """
+        r"""
         Given an input sample, add extra statistics
 
-        Adds the ln BF for each of the events in the data and the selection
-        function
+        Adds:
+
+        - :code:`ln_bf_idx`: :math:`\frac{\ln {\cal L}(d_{i} | \Lambda)}
+          {\ln {\cal L}(d_{i} | \varnothing)}`
+          for each of the events in the data
+        - :code:`selection`: :math:`P_{\rm det}`
+        - :code:`var_idx`, :code:`selection_variance`: the uncertainty in
+          each Monte Carlo integral
+        - :code:`total_variance`: the total variance in the likelihood
+
+        .. note::
+
+            The quantity :code:`selection_variance` is the variance in
+            :code:`P_{\rm det}` and not the total variance from the contribution
+            of the selection function to the likelihood.
 
         Parameters
         ----------
@@ -276,6 +298,12 @@ class HyperparameterLikelihood(Likelihood):
 
         Here :math:`\Gamma` is the Gamma distribution, :math:`N` is the number
         of events being analyzed and :math:`\mathcal{V}` is the total observed 4-volume.
+
+        .. note::
+
+            This function only uses the :code:`numpy` backend. It can be used
+            with the other backends as it returns a float, but does not support
+            e.g., autodifferentiation with :code:`jax`.
 
         Returns
         -------
@@ -334,15 +362,13 @@ class HyperparameterLikelihood(Likelihood):
         Resample the original single event posteriors to use the PPD from each
         of the other events as the prior.
 
-        There may be something weird going on with rate.
-
         Parameters
         ----------
         samples: pd.DataFrame, dict, list
             The samples to do the weighting over, typically the posterior from
             some run.
         return_weights: bool, optional
-            Whether to return the per-sample weights, default = False
+            Whether to return the per-sample weights, default = :code:`False`
 
         Returns
         -------
@@ -350,7 +376,7 @@ class HyperparameterLikelihood(Likelihood):
             Dictionary containing the weighted posterior samples for each of
             the events.
         weights: array-like
-            Weights to apply to the samples, only if return_weights == True.
+            Weights to apply to the samples, only if :code:`return_weights == True`.
         """
         import pandas as pd
         from tqdm.auto import tqdm
@@ -426,13 +452,32 @@ class RateLikelihood(HyperparameterLikelihood):
     A likelihood for inferring hyperparameter posterior distributions
     and estimating rates with including selection effects.
 
-    See Eq. (34) of https://arxiv.org/abs/1809.02293 for a definition.
+    See Eq. (34) of `Thrane and Talbot <https://arxiv.org/abs/1809.02293>`_
+    for a definition.
 
     """
 
     __doc__ += HyperparameterLikelihood.__init__.__doc__
 
     def _get_selection_factor(self, return_uncertainty=True):
+        r"""
+        The selection factor for the rate likelihood is
+
+        .. math::
+
+            \ln P_{\rm det} = N \ln R - N_{\rm exp}(\Lambda)
+
+        The uncertainty is given by
+
+        .. math::
+
+            \sigma^2 = \frac{N_{\rm exp}(\Lambda) \sigma^2_{\rm det}}{P_{\rm det}^2}
+
+        Parameters
+        ----------
+        return_uncertainty: bool
+            Whether to return the uncertainty in the selection factor.
+        """
         selection, variance = self._selection_function_with_uncertainty()
         n_expected = selection * self.parameters["rate"]
         total_selection = -n_expected + self.n_posteriors * xp.log(

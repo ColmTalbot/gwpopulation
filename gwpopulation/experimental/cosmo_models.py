@@ -13,8 +13,17 @@ from .jax import NonCachingModel
 
 
 class CosmoMixin:
-    def __init__(self, cosmo_model="Planck15"):
+    """
+    Mixin class that provides cosmological functionality to a subclass.
 
+    Parameters
+    ==========
+    cosmo_model: str
+        The cosmology model to use. Default is :code:`Planck15`.
+        Should be of :code:`wcosmo.available.keys()`.
+    """
+
+    def __init__(self, cosmo_model="Planck15"):
         self.cosmo_model = cosmo_model
         if self.cosmo_model == "FlatwCDM":
             self.cosmology_names = ["H0", "Om0", "w0"]
@@ -25,17 +34,46 @@ class CosmoMixin:
         self._cosmo = available[cosmo_model]
 
     def cosmology_variables(self, parameters):
+        """
+        Extract the cosmological parameters from the provided parameters.
+
+        Parameters
+        ==========
+        parameters: dict
+            The parameters for the cosmology model.
+
+        Returns
+        =======
+        dict
+            A dictionary containing :code:`self.cosmology_names` as keys.
+        """
         return {key: parameters[key] for key in self.cosmology_names}
 
     def cosmology(self, parameters):
+        """
+        Return the cosmology model given the parameters.
+
+        Parameters
+        ==========
+        parameters: dict
+            The parameters for the cosmology model.
+
+        Returns
+        =======
+        wcosmo.FlatwCDM
+            The cosmology model.
+        """
         if isinstance(self._cosmo, FlatwCDM):
             return self._cosmo
         else:
             return self._cosmo(**self.cosmology_variables(parameters))
 
     def detector_frame_to_source_frame(self, data, **parameters):
-        """
-        Convert detector frame samples to sourece frame samples given cosmological parameters. Calculate the corresponding d_detector/d_source Jacobian term.
+        r"""
+        Convert detector frame samples to sourece frame samples given cosmological
+        parameters. Calculate the corresponding
+        :math:`\frac{d \theta_{\rm detector}}{d \theta_{\rm source}}` Jacobian term.
+        This includes factors of :math:`(1 + z)` for redshifted quantities.
 
         Parameters
         ==========
@@ -43,6 +81,13 @@ class CosmoMixin:
             Dictionary containing the samples in detector frame.
         parameters: dict
             The cosmological parameters for relevant cosmology model.
+
+        Returns
+        =======
+        samples: dict
+            Dictionary containing the samples in source frame.
+        jacobian: array-like
+            The Jacobian term.
         """
 
         samples = dict()
@@ -72,7 +117,18 @@ class CosmoMixin:
 
 class CosmoModel(NonCachingModel, CosmoMixin):
     """
-    Modified version of bilby.hyper.model.Model that disables caching for jax.
+    Modified version of :code:`bilby.hyper.model.Model` that automatically
+    updates the source-frame quantities given the detector-frame quantities and
+    cosmology and disables caching due to the source-frame quantities changing
+    every iteration.
+
+    Parameters
+    ==========
+    model_functions: list
+        List containing the model functions.
+    cosmo_model: str
+        The cosmology model to use. Default is :code:`Planck15`.
+        Should be of :code:`wcosmo.available.keys()`.
     """
 
     def __init__(self, model_functions=None, cosmo_model="Planck15"):
@@ -83,6 +139,10 @@ class CosmoModel(NonCachingModel, CosmoMixin):
         """
         Compute the total population probability for the provided data given
         the keyword arguments.
+
+        This method augments :code:`bilby.hyper.model.Model.prob` by converting
+        the detector frame samples to source frame samples and dividing by the
+        corresponding Jacobian term.
 
         Parameters
         ==========

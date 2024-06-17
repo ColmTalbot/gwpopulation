@@ -6,11 +6,30 @@ from ..utils import to_numpy
 
 xp = np
 
+__all__ = [
+    "InterpolatedNoBaseModelIdentical",
+    "_setup_interpolant",
+]
+
 
 def _setup_interpolant(nodes, values, kind="cubic", backend=None):
     """
-    Cache the information necessary for linear interpolation of the mass
-    ratio normalisation
+    Create a caching spline interpolant.
+
+    .. note::
+        This function is not intended to be used directly but can overwrite
+        the :code:`GWPopulation` backend.
+
+    Parameters
+    ==========
+    nodes: array-like
+        The positions of the nodes
+    values: array-like
+        The positions that the interpolant will be evaluated at.
+    kind: str
+        The interpolation order of the spline, default="cubic"
+    backend: module
+        The backend to use, default=:code:`numpy`.
     """
     from cached_interpolate import RegularCachingInterpolant as CachingInterpolant
 
@@ -39,7 +58,7 @@ class InterpolatedNoBaseModelIdentical:
     nodes: int
         Number of nodes to use in the spline, default=10
     kind: str
-        The interpolation order of the spline, default="cubic"
+        The interpolation order of the spline, default=:code:`"cubic"`
     log_nodes: bool
         Whether to use log-spaced nodes, default=False
     regularize: bool
@@ -57,7 +76,6 @@ class InterpolatedNoBaseModelIdentical:
         log_nodes=False,
         regularize=False,
     ):
-        """ """
         self.nodes = nodes
         self._norm_spline = None
         self._data_spline = dict()
@@ -74,11 +92,22 @@ class InterpolatedNoBaseModelIdentical:
         self.regularize = regularize
 
     def __call__(self, dataset, **kwargs):
+        """
+        A wrapper to :func:`p_x_identical`
+        """
         return self.p_x_identical(dataset, **kwargs)
 
     @property
     def variable_names(self):
+        """
+        The names of the hyperparameters of the model.
 
+        These are the names of the parameters describing:
+
+        - the node locations
+        - the value of the model at the nodes
+        - the root-mean-square value of the model if :code:`self.regularize=True`
+        """
         keys = self.xkeys + self.fkeys
         if self.regularize:
             keys += [f"rms{self.base}"]
@@ -97,7 +126,27 @@ class InterpolatedNoBaseModelIdentical:
         }
 
     def p_x_unnormed(self, dataset, parameter, x_splines, f_splines, **kwargs):
+        """
+        Calculate the unnormalized likelihood of the dataset given the model
 
+        Parameters
+        ==========
+        dataset: dict
+            Dictionary containing the data to evaluate the likelihood at
+        parameter: str
+            The parameter to evaluate the likelihood for
+        x_splines: array-like
+            The positions of the spline nodes
+        f_splines: array-like
+            The values at the spline nodes
+        kwargs: dict, UNUSED
+
+        Returns
+        =======
+        p_x: array-like
+            The unnormalized likelihood of the dataset given the model at the
+            provided points
+        """
         if self._norm_spline is None:
             self.setup_interpolant(x_splines, dataset)
 
@@ -110,7 +159,22 @@ class InterpolatedNoBaseModelIdentical:
         return p_x
 
     def norm_p_x(self, f_splines=None, x_splines=None, **kwargs):
+        """
+        Calculate the normalization of the spline
 
+        Parameters
+        ==========
+        f_splines: array-like
+            The values at the spline nodes
+        x_splines: array-like
+            The positions of the spline nodes
+        kwargs: dict, UNUSED
+
+        Returns
+        =======
+        norm: float
+            The normalization of the spline
+        """
         perturbation = self._norm_spline(y=f_splines)
         p_x = xp.exp(perturbation)
         p_x *= (self._xs >= x_splines[0]) & (self._xs <= x_splines[-1])
@@ -141,7 +205,22 @@ class InterpolatedNoBaseModelIdentical:
         return f_splines, x_splines
 
     def p_x_identical(self, dataset, **kwargs):
+        """
+        Calculate the likelihood of the dataset given the model assuming
+        that all the parameters are identically distributed.
 
+        Parameters
+        ==========
+        dataset: dict
+            Dictionary containing the data to evaluate the likelihood at
+        kwargs: dict
+            Dictionary containing the parameters of the model
+
+        Returns
+        =======
+        p_x: array-like
+            The likelihood of the dataset given the model at the provided points
+        """
         self.infer_n_nodes(**kwargs)
 
         f_splines, x_splines = self.extract_spline_points(kwargs)
@@ -158,6 +237,12 @@ class InterpolatedNoBaseModelIdentical:
         return p_x
 
     def infer_n_nodes(self, **kwargs):
+        """
+        Infer the number of nodes from the dictionary of parameters.
+        This method looks for the first missing parameter matching
+        :code:`f{self.base}{nodes}` and updates the number of nodes
+        to the number of found parameters.
+        """
         nodes = self.nodes
 
         while True:

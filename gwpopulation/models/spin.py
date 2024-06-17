@@ -1,10 +1,24 @@
 """
 Implemented spin models
 """
+
 import numpy as xp
 
 from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian
 from .interped import InterpolatedNoBaseModelIdentical
+
+__all__ = [
+    "GaussianChiEffChiP",
+    "SplineSpinMagnitudeIdentical",
+    "SplineSpinTiltIdentical",
+    "iid_spin",
+    "iid_spin_magnitude_beta",
+    "independent_spin_magnitude_beta",
+    "iid_spin_orientation_gaussian_isotropic",
+    "independent_spin_orientation_gaussian_isotropic",
+    "gaussian_chi_eff",
+    "gaussian_chi_p",
+]
 
 
 def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
@@ -34,10 +48,10 @@ def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
 
 
 def iid_spin_magnitude_beta(dataset, amax=1, alpha_chi=1, beta_chi=1):
-    """Independent and identically distributed beta distributions for both spin magnitudes.
+    """
+    Independent and identically distributed beta distributions for both spin magnitudes.
 
-    https://arxiv.org/abs/1805.06442 Eq. (10)
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.beta.html
+    See `Wysocki+ <https://arxiv.org/abs/1805.06442>` Eq. (10)
 
     Parameters
     ----------
@@ -56,10 +70,10 @@ def iid_spin_magnitude_beta(dataset, amax=1, alpha_chi=1, beta_chi=1):
 def independent_spin_magnitude_beta(
     dataset, alpha_chi_1, alpha_chi_2, beta_chi_1, beta_chi_2, amax_1, amax_2
 ):
-    """Independent beta distributions for both spin magnitudes.
+    """
+    Independent beta distributions for both spin magnitudes.
 
-    https://arxiv.org/abs/1805.06442 Eq. (10)
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.beta.html
+    See `Wysocki+ <https://arxiv.org/abs/1805.06442>` Eq. (10)
 
     Parameters
     ----------
@@ -79,18 +93,20 @@ def independent_spin_magnitude_beta(
 
 
 def iid_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_spin):
-    r"""A mixture model of spin orientations with isotropic and normally
+    r"""
+    A mixture model of spin orientations with isotropic and normally
     distributed components. The distribution of primary and secondary spin
     orientations are expected to be identical and independent.
 
-    https://arxiv.org/abs/1704.08370 Eq. (4)
+    See `Talbot and Thrane <https://arxiv.org/abs/1704.08370>`_ Eq. (4)
 
     .. math::
+
         p(z_1, z_2 | \xi, \sigma) =
         \frac{(1 - \xi)^2}{4}
-        + \xi \prod_{i\in\{1, 2\}} \mathcal{N}(z_i; \mu=1, \sigma=\sigma, z_\min=-1, z_\max=1)
+        + \xi \prod_{i\in\{1, 2\}} \mathcal{N}_{[-1, 1]}(z_i; \mu=1, \sigma=\sigma)
 
-    Where :math:`\mathcal{N}` is the truncated normal distribution.
+    Where :math:`\mathcal{N}_{[a, b]}` is the truncated normal distribution over :math:`[a, b]`.
 
     Parameters
     ----------
@@ -107,17 +123,19 @@ def iid_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_spin):
 
 
 def independent_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_1, sigma_2):
-    r"""A mixture model of spin orientations with isotropic and normally
+    r"""
+    A mixture model of spin orientations with isotropic and normally
     distributed components.
 
-    https://arxiv.org/abs/1704.08370 Eq. (4)
+    See `Talbot and Thrane <https://arxiv.org/abs/1704.08370>`_ Eq. (4)
 
     .. math::
-        p(z_1, z_2 | \xi, \sigma_1, \sigma_2) =
-        \frac{(1 - \xi)^2}{4}
-        + \xi \prod_{i\in\{1, 2\}} \mathcal{N}(z_i; \mu=1, \sigma=\sigma_i, z_\min=-1, z_\max=1)
 
-    Where :math:`\mathcal{N}` is the truncated normal distribution.
+        p(z_1, z_2 | \xi, \sigma) =
+        \frac{(1 - \xi)^2}{4}
+        + \xi \prod_{i\in\{1, 2\}} \mathcal{N}_{[-1, 1]}(z_i; \mu=1, \sigma=\sigma_{i})
+
+    Where :math:`\mathcal{N}_{[a, b]}` is the truncated normal distribution over :math:`[a, b]`.
 
     Parameters
     ----------
@@ -142,12 +160,14 @@ def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):
     r"""
     A Gaussian in chi effective distribution
 
-    See https://arxiv.org/abs/2001.06051, https://arxiv.org/abs/2010.14533
 
     .. math::
-        p(\chi_{\text{eff}}) = \mathcal{N}(\chi_{\text{eff}}; \mu=\mu_\chi, \sigma=\sigma_\chi, x_\min=-1, m_\max=1)
+        p(\chi_{\text{eff}} | \mu_\chi, \sigma_\chi) =
+        \mathcal{N}_{[-1, 1]}(\chi_{\text{eff}}; \mu=\mu_\chi, \sigma=\sigma_\chi)
 
-    Where :math:`\mathcal{N}` is a truncated Gaussian.
+    Where :math:`\mathcal{N}_{[a, b]}` is the truncated normal distribution over :math:`[a, b]`.
+
+    See `Miller+ <https://arxiv.org/abs/2001.06051>`_ and `Callister+ <https://arxiv.org/abs/2010.14533>`_.
 
     Parameters
     ----------
@@ -171,12 +191,12 @@ def gaussian_chi_p(dataset, mu_chi_p, sigma_chi_p):
     r"""
     A Gaussian distribution in precessing effective spin (chi p)
 
-    See https://arxiv.org/abs/2001.06051, https://arxiv.org/abs/2010.14533
-
     .. math::
-        p(\chi_p) = \mathcal{N}(\chi_p}; \mu=\mu_\chi, \sigma=\sigma_\chi, x_\min=0, m_\max=1)
+        p(\chi_p) = \mathcal{N}_{[0, 1]}(\chi_p; \mu=\mu_\chi, \sigma=\sigma_\chi)
 
-    Where :math:`\mathcal{N}` is a truncated Gaussian.
+    Where :math:`\mathcal{N}_{[a, b]}` is the truncated normal distribution over :math:`[a, b]`.
+
+    See `Miller+ <https://arxiv.org/abs/2001.06051>`_ and `Callister+ <https://arxiv.org/abs/2010.14533>`_.
 
     Parameters
     ----------
@@ -198,7 +218,12 @@ class GaussianChiEffChiP(object):
     r"""
     A covariant Gaussian in effective aligned and precessing spins.
 
-    See https://arxiv.org/abs/2001.06051, https://arxiv.org/abs/2010.14533
+    .. math::
+
+        p(\chi_{\rm eff}, \chi_p | \Lambda) = \mathcal{N}_{[-1, 1], [0, 1]}(\chi_{\rm eff}, \chi_p; [\mu_{\rm eff}, \mu_{p}], \Sigma)
+
+    Where :math:`\mathcal{N}_{[a, b], [c, d]}` is the two-dimensional truncated normal distribution
+    over :math:`[a, b]` and :math:`[c, d]`.
 
     The covariance matrix is given by:
 
@@ -208,10 +233,12 @@ class GaussianChiEffChiP(object):
             \rho \sigma_{\text{eff}} \sigma_{p} & \sigma^2_{p}
         \end{bmatrix}
 
+    See `Miller+ <https://arxiv.org/abs/2001.06051>`_ and `Callister+ <https://arxiv.org/abs/2010.14533>`_.
+
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays for 'chi_eff' and 'chi_p'.
+        Dictionary of numpy arrays for :code:`chi_eff` and :code:`chi_p`.
     mu_chi_eff: float
         Mean of the chi effective distribution (:math:`\mu_{\text{eff}}`)
     mu_chi_p: float
@@ -266,6 +293,28 @@ class GaussianChiEffChiP(object):
     def _normalization(
         self, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
     ):
+        r"""
+        Numerically calculate the normalization over a two-dimensional grid with
+        trapezoidal integration
+
+        Parameters
+        ----------
+        mu_chi_eff: float
+            Mean of the chi effective distribution (:math:`\mu_{\text{eff}}`)
+        mu_chi_p: float
+            Mean of the chi p distribution (:math:`\mu_{p}`)
+        sigma_chi_eff: float
+            Standard deviation of the chi effective distribution (:math:`\sigma_{\text{eff}}`)
+        sigma_chi_p: float
+            Standard deviation of the chi p distribution (:math:`\sigma_{p}`)
+        spin_covariance: float
+            Covariance between the two parameters (:math:`\rho`)
+
+        Returns
+        -------
+        float
+            The normalizing constant
+        """
         prob = unnormalized_2d_gaussian(
             self.chi_eff_grid,
             self.chi_p_grid,
@@ -281,6 +330,26 @@ class GaussianChiEffChiP(object):
 
 
 class SplineSpinMagnitudeIdentical(InterpolatedNoBaseModelIdentical):
+    """
+    Interpolated spline model for spin magnitudes.
+
+    See `Golomb and Talbot <https://arxiv.org/abs/2210.12287>`_
+
+    Parameters
+    ----------
+    minimum: float
+        Minimum value to normalize the spline over, default=0.
+    maximum: float
+        Maximum value to normalize the spline over, default=1.
+    nodes: int
+        Number of nodes to use in the spline, default=5.
+    kind: str
+        The interpolation order of the spline, default=”cubic”.
+    regularize: bool
+        Whether to regularize the spline node values to have root-mean-square
+        value :code:`rms{name}`, default=False.
+    """
+
     def __init__(self, minimum=0, maximum=1, nodes=5, kind="cubic", regularize=False):
 
         super(SplineSpinMagnitudeIdentical, self).__init__(
@@ -294,6 +363,26 @@ class SplineSpinMagnitudeIdentical(InterpolatedNoBaseModelIdentical):
 
 
 class SplineSpinTiltIdentical(InterpolatedNoBaseModelIdentical):
+    """
+    Interpolated spline model for spin orientations.
+
+    See `Golomb and Talbot <https://arxiv.org/abs/2210.12287>`_
+
+    Parameters
+    ----------
+    minimum: float
+        Minimum value to normalize the spline over, default=-1.
+    maximum: float
+        Maximum value to normalize the spline over, default=1.
+    nodes: int
+        Number of nodes to use in the spline, default=5.
+    kind: str
+        The interpolation order of the spline, default=”cubic”.
+    regularize: bool
+        Whether to regularize the spline node values to have root-mean-square
+        value :code:`rms{name}`, default=False.
+    """
+
     def __init__(self, minimum=-1, maximum=1, nodes=5, kind="cubic", regularize=False):
 
         super(SplineSpinTiltIdentical, self).__init__(

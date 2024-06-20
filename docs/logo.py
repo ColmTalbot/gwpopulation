@@ -66,17 +66,17 @@ def logo(size=400, color="rgb(40,10,40)", center="rgb(240,240,240)", text=False)
 if __name__ == "__main__":
     print(
         logo(size=80, color="rgb(240,240,240)", center="rgb(215,245,215)", text=False),
-        file=open("/Users/colm/gwpopulation/docs/_static/logo-dark.svg", "w"),
+        file=open("_static/logo-dark.svg", "w"),
     )
     print(
         logo(size=80, color="rgb(15,15,15)", center="rgb(215,245,215)", text=False),
-        file=open("/Users/colm/gwpopulation/docs/_static/logo.svg", "w"),
+        file=open("_static/logo.svg", "w"),
     )
     print(
-        logo(size=80, color="rgb(240,240,240)", center="rgb(215,245,215)", text=True),
-        file=open("/Users/colm/gwpopulation/docs/_static/logo-long-dark.svg", "w"),
+        logo(size=400, color="rgb(240,240,240)", center="rgb(215,245,215)", text=True),
+        file=open("_static/logo-long-dark.svg", "w"),
     )
     print(
-        logo(size=80, color="rgb(15,15,15)", center="rgb(215,245,215)", text=True),
-        file=open("/Users/colm/gwpopulation/docs/_static/logo-long.svg", "w"),
+        logo(size=400, color="rgb(15,15,15)", center="rgb(215,245,215)", text=True),
+        file=open("_static/logo-long.svg", "w"),
     )

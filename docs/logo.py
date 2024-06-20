@@ -65,11 +65,11 @@ def logo(size=400, color="rgb(40,10,40)", center="rgb(240,240,240)", text=False)
 
 if __name__ == "__main__":
     print(
-        logo(size=80, color="rgb(240,240,240)", center="rgb(215,245,215)", text=False),
+        logo(size=40, color="rgb(240,240,240)", center="rgb(215,245,215)", text=False),
         file=open("_static/logo-dark.svg", "w"),
     )
     print(
-        logo(size=80, color="rgb(15,15,15)", center="rgb(215,245,215)", text=False),
+        logo(size=40, color="rgb(15,15,15)", center="rgb(215,245,215)", text=False),
         file=open("_static/logo.svg", "w"),
     )
     print(

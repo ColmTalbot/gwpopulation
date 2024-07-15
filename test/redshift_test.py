@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
-from astropy.cosmology import Planck15
 from bilby.core.prior import PriorDict, Uniform
+from wcosmo.astropy import Planck15
+from wcosmo.utils import disable_units
 
 import gwpopulation
 from gwpopulation.models import redshift
@@ -50,13 +51,14 @@ def test_powerlaw_volume(backend):
     trivial case
     """
     gwpopulation.set_backend(backend)
+    disable_units()
     xp = gwpopulation.utils.xp
     zs = xp.linspace(1e-3, 2.3, 1000)
     zs_numpy = gwpopulation.utils.to_numpy(zs)
     model = redshift.PowerLawRedshift()
     parameters = dict(lamb=1)
     total_volume = np.trapz(
-        Planck15.differential_comoving_volume(zs_numpy).value * 4 * np.pi,
+        Planck15.differential_comoving_volume(zs_numpy) * 4 * np.pi,
         zs_numpy,
     )
     approximation = float(model.normalisation(parameters))
@@ -69,8 +71,9 @@ def test_zero_outside_domain():
 
 
 def test_four_volume():
+    disable_units()
     assert (
-        Planck15.comoving_volume(2.3).value / 1e9
+        Planck15.comoving_volume(2.3) / 1e9
         - redshift.total_four_volume(lamb=1, analysis_time=1, max_redshift=2.3)
         < 1e-3
     )

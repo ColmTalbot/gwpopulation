@@ -274,7 +274,10 @@ def total_four_volume(lamb, analysis_time, max_redshift=2.3):
     -----
     This assumes a :code:`Planck15` cosmology.
     """
-    from wcosmo.wcosmo import Planck15
+    from wcosmo.astropy import Planck15
+    from wcosmo.utils import disable_units
+
+    disable_units()
 
     redshifts = xp.linspace(0, max_redshift, 2500)
     psi_of_z = (1 + redshifts) ** lamb

@@ -7,7 +7,9 @@ can be used to add cosmological functionality to a population model.
 """
 
 import numpy as xp
-from wcosmo import FlatwCDM, available, z_at_value
+from wcosmo import z_at_value
+from wcosmo.astropy import WCosmoMixin, available
+from wcosmo.utils import disable_units as wcosmo_disable_units
 
 from .jax import NonCachingModel
 
@@ -24,6 +26,7 @@ class CosmoMixin:
     """
 
     def __init__(self, cosmo_model="Planck15"):
+        wcosmo_disable_units()
         self.cosmo_model = cosmo_model
         if self.cosmo_model == "FlatwCDM":
             self.cosmology_names = ["H0", "Om0", "w0"]
@@ -60,10 +63,10 @@ class CosmoMixin:
 
         Returns
         =======
-        wcosmo.FlatwCDM
+        wcosmo.astropy.WCosmoMixin
             The cosmology model.
         """
-        if isinstance(self._cosmo, FlatwCDM):
+        if isinstance(self._cosmo, WCosmoMixin):
             return self._cosmo
         else:
             return self._cosmo(**self.cosmology_variables(parameters))

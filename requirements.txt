@@ -4,4 +4,4 @@ pandas
 tqdm
 bilby>=2.2.0
 cached_interpolate
-wcosmo
+wcosmo>=0.3.0

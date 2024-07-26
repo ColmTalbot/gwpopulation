@@ -87,7 +87,7 @@ Several other packages are actively used and maintained in the community that ca
 
 # Acknowledgements
 
-CT is supported by an Eric and Wendy Schmidt AI in Science Fellowship, a Schmidt Sciences program.
+CT is supported by an Eric and Wendy Schmidt AI in Science Fellowship, a Schmidt Sciences program. SG is supported by the ANR COSMERGE project, grant ANR-20-CE31-001 of the French Agence Nationale de la Recherche.
 
 # References
 

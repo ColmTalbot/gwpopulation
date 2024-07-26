@@ -651,7 +651,7 @@ class BaseSmoothedMassDistribution:
         from .interped import _setup_interpolant
 
         self._q_interpolant = _setup_interpolant(
-            self.m1s, masses, kind="cubic", backend=xp
+            self.m1s, masses, kind="linear", backend=xp
         )
 
     @staticmethod

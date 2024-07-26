@@ -3,5 +3,5 @@ scipy
 pandas
 tqdm
 bilby>=2.2.0
-cached_interpolate
+cached_interpolate>=0.3.0
 wcosmo>=0.3.0

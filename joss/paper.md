@@ -85,6 +85,12 @@ Several other packages are actively used and maintained in the community that ca
 - `vamana` [@vamana] models the compact binary distribution as a mixture of Gaussians and power-law distributions.
 - `popmodels` [@popmodels] implements a range of parametric models for the compact binary distribution and supports sampling via `emcee` [@emcee].
 
+# Recent publications using `GWPopulation`
+`GWPopulation` has provided a standard toolkit for inferring the population of gravitational wave sources, and has therefore been employed in many publications in the field of gravitational wave astrophysics.
+Some of these make use of the population models provided in the `GWPopulation` package (e.g. [@2023arXiv231207376S], [@2024A&A...682A.167M]), while others implement their own external population models (e.g.[@2022ApJ...931..108F], [@2022MNRAS.517.3928A]).
+Notably, the “fiducial” results presented by the LIGO-Virgo-KAGRA collaboration were obtained using `GWPopulation` [@2019ApJ...882L..24A], [@2021ApJ...913L...7A], [@GWTC3Pop].
+Additionally, `GWPopulation` has enabled several methodological studies aimed at improving the techniques used for Hierarchical Bayesian Analysis (e.g.[@2023PhRvR...5b3013P], [@2023MNRAS.526.3495T]). 
+
 # Acknowledgements
 
 CT is supported by an Eric and Wendy Schmidt AI in Science Fellowship, a Schmidt Sciences program.

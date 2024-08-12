@@ -80,6 +80,7 @@ With access to high throughput computing resources, a wide range of potential mo
 # Related packages
 
 Several other packages are actively used and maintained in the community that can be used for population inference that operate in complementary ways to `GWPopulation`.
+
 - `GWInferno` [@gwinferno] is a package for hierarchical inference with gravitational-wave sources intended for use with `numpyro` targeting high-dimensional models. `GWInferno` includes many population models initially adapted from `GWPopulation`.
 - `icarogw` [@icarogw] and `gwcosmo` [@gwcosmo] can model astrophysics and cosmology using a wide range of cosmological models, but do not support GPU-accelerated cosmological calculations or a JAX backend.
 - `vamana` [@vamana] models the compact binary distribution as a mixture of Gaussians and power-law distributions.

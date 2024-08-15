@@ -91,6 +91,7 @@ Several other packages are actively used and maintained in the community that ca
 CT is supported by an Eric and Wendy Schmidt AI in Science Fellowship, a Schmidt Sciences program.
 SG is supported by the ANR COSMERGE project, grant ANR-20-CE31-001 of the French Agence Nationale de la Recherche.
 AF is supported by the NSF Research Traineeship program under grant No. DGE1735359, and by the National Science Foundation Graduate Research Fellowship Program under Grant No. DGE-1746045.
+HT is supported by Australian Research Council (ARC) Centre of Excellence CE230100016.
 
 # References
 

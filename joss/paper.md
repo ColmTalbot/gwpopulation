@@ -65,13 +65,13 @@ Included in the package are:
 # Statement of need
 
 Hierarchical Bayesian inference is the standard method for inferring parameters describing the astrophysical population of compact binaries and the cosmic expansion history (e.g., @Thrane2019, @Vitale2022).
-Maximizing the information we can extract from the gravitational-wave transient catalog requires a framework where potential population models can be quickly constrained with the observed data with minimal boilerplate code.
-Additionally, the availability of a standard open-source implementation improves the reliability and reproducibility of published results.
-
 The first step in the hierarchical inference process is drawing samples from the posterior distributions for the source parameters of each event under a fiducial prior distribution along with a set of simulated signals used to quantify the sensitivity of gravitational-wave searches.
 Next, these samples are used to estimate the population likelihood using Monte Carlo integration with a computational cost that grows quadratically with the size of the observed population.
 Since evaluating these Monte Carlo integrals is embarrassingly parallel, this is a prime candidate for hardware acceleration using graphics/tensor processing units.
+`GWPopulation` provides functionality need to perform this second step.
 
+Maximizing the information we can extract from the gravitational-wave transient catalog requires a framework where potential population models can be quickly constrained with the observed data with minimal boilerplate code.
+Additionally, the availability of a standard open-source implementation improves the reliability and reproducibility of published results.
 `GWPopulation` addresses all of these points by providing a standard, open-source, implementation of the standard functionality needed to perform population analyses while enabling user-defined models to be provided by a `Python` function/class definition.
 The flexible backend system means hardware acceleration can be used with minimal coding effort.
 Using `GWPopulation` on Google Colab, it is possible to perform an exploratory analysis with a new population model in minutes and produce production-quality results without needing high-performance/throughput computing clusters.
@@ -82,9 +82,8 @@ With access to high throughput computing resources, a wide range of potential mo
 Several other packages are actively used and maintained in the community that can be used for population inference that operate in complementary ways to `GWPopulation`.
 
 - `GWInferno` [@gwinferno] is a package for hierarchical inference with gravitational-wave sources intended for use with `numpyro` targeting high-dimensional models. `GWInferno` includes many population models initially adapted from `GWPopulation`.
-- `icarogw` [@icarogw] and `gwcosmo` [@gwcosmo] can model astrophysics and cosmology using a wide range of cosmological models, but do not support GPU-accelerated cosmological calculations or a JAX backend.
-- `vamana` [@vamana] models the compact binary distribution as a mixture of Gaussians and power-law distributions.
-- `popmodels` [@popmodels] implements a range of parametric models for the compact binary distribution and supports sampling via `emcee` [@emcee].
+- There are a wide range of packages designed for joint astrophyical and cosmological inference with gravitational-wave transients including `icarogw` [@icarogw], `gwcosmo` [@gwcosmo], `MGCosmoPop` [@mgcosmo], and `CHIMERA` [@chimera]. `icarogw` supports some harware acceleration using `cupy` but some cosmological calculations are limited to CPU support only. `chimera` is `JAX`-compatible and supports flat Lambda-CDM cosmologies along with analysis using galaxy catalogs.
+- `vamana` [@vamana] models the compact binary distribution as a mixture of Gaussians and power-law distributions, `popmodels` [@popmodels] implements a range of parametric models for the compact binary distribution and supports sampling via `emcee` [@emcee], neither supports hardware acceleration at the time of writing.
 
 # Acknowledgements
 

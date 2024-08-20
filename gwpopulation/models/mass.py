@@ -349,34 +349,36 @@ def three_component_single(
     Power law model for one-dimensional mass distribution with two Gaussian components.
 
     .. math::
-        p(m) &= (1 - \lambda_m) p_{\text{pow}}(m) + \lambda_m p_{\text{norm}}(m)
+        p(m) &= (1 - \lambda_m) p_{\text{pow}}(m) + \lambda_m \left(
+            \hat{\lambda} p_{\text{norm}, 1}(m) + (1 - \hat{\lambda}) p_{\text{norm}, 2}(m)
+        \right)
 
         p_{\text{pow}}(m) &\propto m^{-\alpha} : m_\min \leq m < m_\max
 
-        p_{\text{norm}}(m) &\propto \exp\left(-\frac{(m - \mu_{m})^2}{2\sigma^2_m}\right)
+        p_{\text{norm}, i}(m) &\propto \exp\left(-\frac{(m - \mu_{m,i})^2}{2\sigma^2_{m, i}}\right)
 
     Parameters
     ----------
     mass: array-like
-        Array of mass values.
+        Array of mass values (:math:`m`).
     alpha: float
-        Negative power law exponent for the black hole distribution.
+        Negative power law exponent for the black hole distribution (:math:`\alpha`).
     mmin: float
-        Minimum black hole mass.
+        Minimum black hole mass (:math:`m_\min`).
     mmax: float
-        Maximum black hole mass.
+        Maximum black hole mass (:math:`m_\max`).
     lam: float
-        Fraction of black holes in the Gaussian components.
+        Fraction of black holes in the Gaussian components (:math:`\lambda_m`).
     lam_1: float
-        Fraction of black holes in the lower mass Gaussian component.
+        Fraction of black holes in the lower mass Gaussian component (:math:`\hat{\lambda}`).
     mpp_1: float
-        Mean of the lower mass Gaussian component.
+        Mean of the lower mass Gaussian component (:math:`\mu_{m, 1}`).
     mpp_2: float
-        Mean of the upper mass Gaussian component.
+        Mean of the upper mass Gaussian component (:math:`\mu_{m, 2}`).
     sigpp_1: float
-        Standard deviation of the lower mass Gaussian component.
+        Standard deviation of the lower mass Gaussian component (:math:`\sigma_{m, 1}`).
     sigpp_2: float
-        Standard deviation of the upper mass Gaussian component.
+        Standard deviation of the upper mass Gaussian component (:math:`\sigma_{m, 2}`).
     gaussian_mass_maximum: float, optional
         Upper truncation limit of the Gaussian component. (default: 100)
         Note that this applies the same value to both.

@@ -57,9 +57,9 @@ def test_powerlaw_volume(backend):
     zs_numpy = gwpopulation.utils.to_numpy(zs)
     model = redshift.PowerLawRedshift()
     parameters = dict(lamb=1)
-    total_volume = np.trapz(
-        Planck15.differential_comoving_volume(zs_numpy) * 4 * np.pi,
-        zs_numpy,
+    total_volume = xp.trapz(
+        Planck15.differential_comoving_volume(zs) * 4 * np.pi,
+        zs,
     )
     approximation = float(model.normalisation(parameters))
     assert abs(total_volume - approximation) / total_volume < 1e-2

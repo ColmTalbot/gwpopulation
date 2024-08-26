@@ -23,7 +23,7 @@ def magnitude_prior():
 
 
 def tilt_test_data(xp):
-    costilts = xp.linspace(-1, 1, 1000)
+    costilts = xp.linspace(-1, 1, 2000)
     dataset = dict(
         cos_tilt_1=xp.einsum("i,j->ij", costilts, xp.ones_like(costilts)),
         cos_tilt_2=xp.einsum("i,j->ji", costilts, xp.ones_like(costilts)),
@@ -32,7 +32,7 @@ def tilt_test_data(xp):
 
 
 def magnitude_test_data(xp):
-    a_array = xp.linspace(0, 1, 1000)
+    a_array = xp.linspace(0, 1, 2000)
     dataset = dict(
         a_1=xp.einsum("i,j->ij", a_array, xp.ones_like(a_array)),
         a_2=xp.einsum("i,j->ji", a_array, xp.ones_like(a_array)),

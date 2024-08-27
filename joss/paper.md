@@ -14,7 +14,7 @@ authors:
      affiliation: 2
   -  name: Shanika Galaudage
      orcid: 0000-0002-1819-0215
-     affiliation: 3,4
+     affiliation: 3, 4
   -  name: Jacob Golomb
      orcid: 0000-0002-6977-670X	
      affiliation: 5, 6

@@ -18,6 +18,7 @@ __all__ = [
     "MultiPeakSmoothedMassDistribution",
     "BrokenPowerLawSmoothedMassDistribution",
     "BrokenPowerLawPeakSmoothedMassDistribution",
+    "BrokenPowerLawMultiPeakSmoothedMassDistribution",
     "InterpolatedPowerLaw",
     "double_power_law_primary_mass",
     "double_power_law_peak_primary_mass",
@@ -391,6 +392,79 @@ def three_component_single(
     prob = (1 - lam) * p_pow + lam * lam_1 * p_norm1 + lam * (1 - lam_1) * p_norm2
     return prob
 
+def three_component_double(
+    mass,
+    alpha_1,
+    alpha_2,
+    break_fraction,
+    mmin,
+    mmax,
+    lam,
+    lam_1,
+    mpp_1,
+    sigpp_1,
+    mpp_2,
+    sigpp_2,
+    gaussian_mass_maximum=100,
+):
+    r"""
+    Power law model for one-dimensional mass distribution with two Gaussian components.
+
+    .. math::
+        p(m) &= (1 - \lambda_m) p_{\text{pow}}(m) + \lambda_m p_{\text{norm}}(m)
+
+        p_{\text{pow}}(m) &\propto m^{-\alpha} : m_\min \leq m < m_\max
+
+        p_{\text{norm}}(m) &\propto \exp\left(-\frac{(m - \mu_{m})^2}{2\sigma^2_m}\right)
+
+    Parameters
+    ----------
+    mass: array-like
+        Array of mass values.
+    alpha_1: float
+        Negative power law exponent for more massive black hole before break (:math:`\alpha_1`).
+    alpha_2: float
+        Negative power law exponent for more massive black hole after break (:math:`\alpha_2`).
+    break_fraction: float
+        Break point of the primary mass distribution.
+        This is specified as a fraction of the way between mmin and mmax.
+        E.g., mmin=5, mmax=45, break_fraction=0.5 would have a break at 25
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum black hole mass.
+    lam: float
+        Fraction of black holes in the Gaussian components.
+    lam_1: float
+        Fraction of black holes in the lower mass Gaussian component.
+    mpp_1: float
+        Mean of the lower mass Gaussian component.
+    mpp_2: float
+        Mean of the upper mass Gaussian component.
+    sigpp_1: float
+        Standard deviation of the lower mass Gaussian component.
+    sigpp_2: float
+        Standard deviation of the upper mass Gaussian component.
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
+        Note that this applies the same value to both.
+    """
+    p_pow = double_power_law_primary_mass(
+        mass=mass,
+        alpha_1=alpha_1,
+        alpha_2=alpha_2,
+        mmin=mmin,
+        mmax=mmax,
+        break_fraction=break_fraction,
+    )    
+    p_norm1 = truncnorm(
+        mass, mu=mpp_1, sigma=sigpp_1, high=gaussian_mass_maximum, low=mmin
+    )
+    p_norm2 = truncnorm(
+        mass, mu=mpp_2, sigma=sigpp_2, high=gaussian_mass_maximum, low=mmin
+    )
+    prob = (1 - lam) * p_pow + lam * lam_1 * p_norm1 + lam * (1 - lam_1) * p_norm2
+    return prob
 
 def two_component_primary_mass_ratio(
     dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
@@ -838,6 +912,47 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     def kwargs(self):
         return dict(gaussian_mass_maximum=self.mmax)
 
+class BrokenPowerLawMultiPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
+    """
+    Broken power law for two-dimensional mass distribution with low
+    mass smoothing.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+    alpha_1: float
+        Powerlaw exponent for more massive black hole below break.
+    alpha_2: float
+        Powerlaw exponent for more massive black hole above break.
+    beta: float
+        Power law exponent of the mass ratio distribution.
+    break_fraction: float
+        Fraction between mmin and mmax primary mass distribution breaks at.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum mass in the powerlaw distributed component.
+    lam: float
+        Fraction of black holes in the Gaussian component.
+    mpp: float
+        Mean of the Gaussian component.
+    sigpp: float
+        Standard deviation of the Gaussian component.
+    delta_m: float
+        Rise length of the low end of the mass distribution.
+
+    Notes
+    -----
+    The Gaussian component is bounded between [`mmin`, `self.mmax`].
+    This means that the `mmax` parameter is _not_ the global maximum.
+    """
+
+    primary_model = three_component_double
+
+    @property
+    def kwargs(self):
+        return dict(gaussian_mass_maximum=self.mmax)
 
 class InterpolatedPowerlaw(
     BaseSmoothedMassDistribution, InterpolatedNoBaseModelIdentical

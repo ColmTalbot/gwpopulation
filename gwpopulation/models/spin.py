@@ -281,6 +281,44 @@ class GaussianChiEffChiP(object):
         prob *= (dataset["chi_p"] <= 1) * (dataset["chi_p"] >= 0)
         return prob
 
+    def _normalization(
+        self, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
+    ):
+        r"""
+        Numerically calculate the normalization over a two-dimensional grid with
+        trapezoidal integration
+
+        Parameters
+        ----------
+        mu_chi_eff: float
+            Mean of the chi effective distribution (:math:`\mu_{\text{eff}}`)
+        mu_chi_p: float
+            Mean of the chi p distribution (:math:`\mu_{p}`)
+        sigma_chi_eff: float
+            Standard deviation of the chi effective distribution (:math:`\sigma_{\text{eff}}`)
+        sigma_chi_p: float
+            Standard deviation of the chi p distribution (:math:`\sigma_{p}`)
+        spin_covariance: float
+            Covariance between the two parameters (:math:`\rho`)
+
+        Returns
+        -------
+        float
+            The normalizing constant
+        """
+        prob = unnormalized_2d_gaussian(
+            self.chi_eff_grid,
+            self.chi_p_grid,
+            mu_chi_eff,
+            mu_chi_p,
+            sigma_chi_eff,
+            sigma_chi_p,
+            spin_covariance,
+        )
+        return xp.trapz(
+            y=xp.trapz(y=prob, axis=-1, x=self.chi_eff), axis=-1, x=self.chi_p
+        )
+
 
 class SplineSpinMagnitudeIdentical(InterpolatedNoBaseModelIdentical):
     """

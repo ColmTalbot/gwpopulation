@@ -259,35 +259,26 @@ class GaussianChiEffChiP(object):
     def __call__(
         self, dataset, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
     ):
-        if spin_covariance == 0:
-            prob = gaussian_chi_eff(
-                dataset=dataset,
-                mu_chi_eff=mu_chi_eff,
-                sigma_chi_eff=sigma_chi_eff,
-            )
-            prob *= gaussian_chi_p(
-                dataset=dataset, mu_chi_p=mu_chi_p, sigma_chi_p=sigma_chi_p
-            )
-        else:
-            prob = unnormalized_2d_gaussian(
-                dataset["chi_eff"],
-                dataset["chi_p"],
-                mu_chi_eff,
-                mu_chi_p,
-                sigma_chi_eff,
-                sigma_chi_p,
-                spin_covariance,
-            )
-            normalization = self._normalization(
-                mu_chi_eff=mu_chi_eff,
-                sigma_chi_eff=sigma_chi_eff,
-                mu_chi_p=mu_chi_p,
-                sigma_chi_p=sigma_chi_p,
-                spin_covariance=spin_covariance,
-            )
-            prob /= normalization
-            prob *= xp.abs(dataset["chi_eff"]) <= 1
-            prob *= (dataset["chi_p"] <= 1) * (dataset["chi_p"] >= 0)
+
+        prob = unnormalized_2d_gaussian(
+            dataset["chi_eff"],
+            dataset["chi_p"],
+            mu_chi_eff,
+            mu_chi_p,
+            sigma_chi_eff,
+            sigma_chi_p,
+            spin_covariance,
+        )
+        normalization = self._normalization(
+            mu_chi_eff=mu_chi_eff,
+            sigma_chi_eff=sigma_chi_eff,
+            mu_chi_p=mu_chi_p,
+            sigma_chi_p=sigma_chi_p,
+            spin_covariance=spin_covariance,
+        )
+        prob /= normalization
+        prob *= xp.abs(dataset["chi_eff"]) <= 1
+        prob *= (dataset["chi_p"] <= 1) * (dataset["chi_p"] >= 0)
         return prob
 
     def _normalization(

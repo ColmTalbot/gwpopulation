@@ -3,20 +3,26 @@ import glob
 import bilby
 import pandas as pd
 import pytest
+from bilby.hyper.model import Model
 
 import gwpopulation
+from gwpopulation.experimental.jax import JittedLikelihood, NonCachingModel
 
 from . import TEST_BACKENDS
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
-def test_likelihood_evaluation(backend):
+def _template_likelihod_evaluation(backend, jit):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.models.mass.xp
     bilby.core.utils.random.seed(10)
     rng = bilby.core.utils.random.rng
 
-    model = bilby.hyper.model.Model(
+    if jit:
+        model_cls = NonCachingModel
+    else:
+        model_cls = Model
+
+    model = model_cls(
         [
             gwpopulation.models.mass.SinglePeakSmoothedMassDistribution(),
             gwpopulation.models.spin.independent_spin_magnitude_beta,
@@ -24,7 +30,7 @@ def test_likelihood_evaluation(backend):
             gwpopulation.models.redshift.PowerLawRedshift(),
         ]
     )
-    vt_model = bilby.hyper.model.Model(
+    vt_model = model_cls(
         [
             gwpopulation.models.mass.SinglePeakSmoothedMassDistribution(),
             gwpopulation.models.spin.independent_spin_magnitude_beta,
@@ -57,15 +63,31 @@ def test_likelihood_evaluation(backend):
         hyper_prior=model,
         posteriors=posteriors,
         selection_function=selection,
-        cupy=backend == "cupy",
+        cupy=False,
     )
 
     priors = bilby.core.prior.PriorDict("priors/bbh_population.prior")
 
     likelihood.parameters.update(priors.sample())
     assert abs(likelihood.log_likelihood_ratio() + 1.810695) < 0.01
+    if jit:
+        likelihood = JittedLikelihood(likelihood)
+    assert abs(likelihood.log_likelihood_ratio() + 1.810695) < 0.01
+    likelihood.posterior_predictive_resample(pd.DataFrame(priors.sample(5)))
+
+
+@pytest.mark.parametrize("backend", TEST_BACKENDS)
+def test_likelihood_evaluation(backend):
+    _template_likelihod_evaluation(backend, False)
+
+
+def test_jit_likelihood():
+    pytest.importorskip("jax")
+
+    _template_likelihod_evaluation("jax", True)
 
 
 def test_prior_files_load():
     for fname in glob.glob("priors/*.prior"):
+        print(fname)
         _ = bilby.core.prior.PriorDict(fname)

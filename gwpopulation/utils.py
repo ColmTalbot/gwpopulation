@@ -1,7 +1,9 @@
 """
-Helper functions for probability distributions.
+Helper functions for probability distributions and backend switching.
 """
+
 from numbers import Number
+from operator import ge, gt, ne
 
 import numpy as np
 from scipy import special as scs
@@ -9,6 +11,56 @@ from scipy import special as scs
 xp = np
 
 
+def apply_conditions(conditions):
+    """
+    A decorator to apply conditions to inputs of a function.
+
+    Parameters
+    ==========
+    func: callable
+        The function to decorate.
+    conditions: dict
+        A dictionary of conditions to apply to the function. The keys are the
+        argument names and the values are the conditions. The conditions can be
+        should be in the form (op, value) where op is a comparison operator and
+        value is the value to compare to. The conditions can also be a callable
+        which takes the value as an argument and returns a boolean. The variable
+        must be specified as a keyword argument for the test to be applied.
+    """
+    from functools import wraps
+
+    def decorator(func):
+        @wraps(func)
+        def wrapped_function(*args, **kwargs):
+            if "jax" in xp.__name__:
+                return func(*args, **kwargs)
+            for key, condition in conditions.items():
+                if key in kwargs:
+                    value = kwargs[key]
+                else:
+                    continue
+                if callable(condition):
+                    if not condition(value):
+                        raise ValueError(f"Condition {condition} not met")
+                else:
+                    op, val = condition
+                    if "cupy" in xp.__name__:
+                        value = xp.asarray(value)
+                    if callable(op):
+                        if not xp.all(op(value, val)):
+                            raise ValueError(
+                                f"{key}: {value} does not satisfy {op.__name__}"
+                            )
+                    else:
+                        raise ValueError(f"Operator {op} not supported")
+            return func(*args, **kwargs)
+
+        return wrapped_function
+
+    return decorator
+
+
+@apply_conditions(dict(alpha=(gt, 0), beta=(gt, 0), scale=(gt, 0)))
 def beta_dist(xx, alpha, beta, scale=1):
     r"""
     Beta distribution probability
@@ -33,10 +85,6 @@ def beta_dist(xx, alpha, beta, scale=1):
         The distribution evaluated at `xx`
 
     """
-    if alpha < 0:
-        raise ValueError(f"Parameter alpha must be greater or equal zero, low={alpha}.")
-    if beta < 0:
-        raise ValueError(f"Parameter beta must be greater or equal zero, low={beta}.")
     ln_beta = (alpha - 1) * xp.log(xx) + (beta - 1) * xp.log(scale - xx)
     ln_beta -= scs.betaln(alpha, beta)
     ln_beta -= (alpha + beta - 1) * xp.log(scale)
@@ -46,6 +94,7 @@ def beta_dist(xx, alpha, beta, scale=1):
     return prob
 
 
+@apply_conditions(dict(low=(ge, 0), alpha=(ne, 1)))
 def powerlaw(xx, alpha, high, low):
     r"""
     Power-law probability
@@ -70,27 +119,27 @@ def powerlaw(xx, alpha, high, low):
         The distribution evaluated at `xx`
 
     """
-    if xp.any(xp.asarray(low) < 0):
-        raise ValueError(f"Parameter low must be greater or equal zero, low={low}.")
-    if alpha == -1:
-        norm = 1 / xp.log(high / low)
-    else:
-        norm = (1 + alpha) / (high ** (1 + alpha) - low ** (1 + alpha))
+    norm = xp.where(
+        xp.array(alpha) == -1,
+        1 / xp.log(high / low),
+        (1 + alpha) / xp.array(high ** (1 + alpha) - low ** (1 + alpha)),
+    )
     prob = xp.power(xx, alpha)
     prob *= norm
     prob *= (xx <= high) & (xx >= low)
     return prob
 
 
+@apply_conditions(dict(sigma=(gt, 0)))
 def truncnorm(xx, mu, sigma, high, low):
     r"""
     Truncated normal probability
 
     .. math::
+
         p(x) =
-        \sqrt{\frac{2}{\pi\sigma^2}}
-        \left[\text{erf}\left(\frac{x_\max - \mu}{\sqrt{2}}\right) + \text{erf}\left(\frac{\mu - x_\min}{\sqrt{2}}\right)\right]^{-1}
-        \exp\left(-\frac{(\mu - x)^2}{2 \sigma^2}\right)
+        \sqrt{\frac{2}{\pi\sigma^2}}\frac{\exp\left(-\frac{(\mu - x)^2}{2 \sigma^2}\right)}
+        {\text{erf}\left(\frac{x_\max - \mu}{\sqrt{2}}\right) + \text{erf}\left(\frac{\mu - x_\min}{\sqrt{2}}\right)}
 
     Parameters
     ----------
@@ -111,8 +160,6 @@ def truncnorm(xx, mu, sigma, high, low):
         The distribution evaluated at `xx`
 
     """
-    if sigma <= 0:
-        raise ValueError(f"Sigma must be greater than 0, sigma={sigma}")
     norm = 2**0.5 / xp.pi**0.5 / sigma
     norm /= scs.erf((high - mu) / 2**0.5 / sigma) + scs.erf(
         (mu - low) / 2**0.5 / sigma
@@ -129,8 +176,8 @@ def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
     neglecting normalization terms.
 
     .. math::
-        \ln p(x) = (x - \mu_{x} y - \mu_{y}) \Sigma^{-1} (x - \mu_x y - \mu_{y})^{T} \\
-        \Sigma = \begin{bmatrix}
+        \ln p(x) &= (x - \mu_{x} y - \mu_{y}) \Sigma^{-1} (x - \mu_x y - \mu_{y})^{T} \\
+        \Sigma &= \begin{bmatrix}
                 \sigma^{2}_{x} & \rho \sigma_{x} \sigma_{y} \\
                 \rho \sigma_{x} \sigma_{y} & \sigma^{2}_{y}
             \end{bmatrix}
@@ -192,13 +239,20 @@ def von_mises(xx, mu, kappa):
 
     Notes
     -----
-    For numerical stability, the factor of `exp(kappa)` from using `i0e`
-    is accounted for in the numerator
+    For numerical stability, the factor of :math:`\exp(\kappa)` from using
+    :func:`scipy.special.i0e` is accounted for in the numerator.
     """
     return xp.exp(kappa * (xp.cos(xx - mu) - 1)) / (2 * xp.pi * scs.i0e(kappa))
 
 
 def get_version_information():
+    """
+    .. deprecated:: 1.2.0
+
+    Get the version of :code:`gwpopulation`.
+    Use :code:`importlib.metadata.version("gwpopulation")` instead.
+
+    """
     from gwpopulation import __version__
 
     return __version__
@@ -224,6 +278,24 @@ def get_name(input):
         return input.__class__.__name__
 
 
+def to_number(value, func):
+    """
+    Convert a zero-dimensional array to a number.
+
+    Parameters
+    ==========
+    value: array-like
+        The zero-dimensional array to convert.
+    func: callable
+        The function to convert the array with,
+        e.g., :code:`int,float,complex`.
+    """
+    if "jax" in xp.__name__:
+        return value.astype(func)
+    else:
+        return func(value)
+
+
 def to_numpy(array):
     """
     Convert an array to a numpy array.
@@ -240,5 +312,7 @@ def to_numpy(array):
         return xp.asnumpy(array)
     elif "pandas" in array.__class__.__module__:
         return array
+    elif "jax" in array.__class__.__module__:
+        return np.asarray(array)
     else:
         raise TypeError(f"Cannot convert {type(array)} to numpy array")

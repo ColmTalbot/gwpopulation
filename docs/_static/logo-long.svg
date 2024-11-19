@@ -1,0 +1,37 @@
+<svg width="2000" height="400" xmlns="http://www.w3.org/2000/svg">
+  <!-- <circle cx="200.0" cy="200.0" r="100.0" stroke="rgb(15,15,15)" stroke-width="2" fill="none" /> -->
+  <circle cx="295.10565162951536" cy="169.09830056250527" r="10.0" stroke="rgb(15,15,15)" stroke-width="2.0" fill="none" />
+  <circle cx="104.89434837048465" cy="230.90169943749473" r="10.0" stroke="rgb(15,15,15)" stroke-width="2.0" fill="none" />
+
+  <path d="M 297.70849438862285 178.71502585605393 A 100.0 100.0 0 0 1 133.0869393641142 274.31448254773943" stroke="rgb(15,15,15)" stroke-width="2.0" fill="none" />
+  <path d="M 102.29150561137713 221.28497414394607 A 100.0 100.0 0 0 1 266.9130606358858 125.68551745226057" stroke="rgb(15,15,15)" stroke-width="2.0" fill="none" />
+    
+  <!-- <circle cx="200.0" cy="200.0" r="20.0" stroke="rgb(15,15,15)" stroke-width="2" fill="none" /> -->
+  <circle cx="190.92019000520907" cy="217.82013048376734" r="2.0" stroke="rgb(15,15,15)" stroke-width="0.4" fill="none" />
+  <circle cx="209.07980999479093" cy="182.17986951623266" r="2.0" stroke="rgb(15,15,15)" stroke-width="0.4" fill="none" />
+
+  <path d="M 189.19208211856832 216.8282177032575 A 20.0 20.0 0 0 1 198.95328087514113 180.02740930490853" stroke="rgb(15,15,15)" stroke-width="0.4" fill="none" />
+  <path d="M 210.80791788143168 183.1717822967425 A 20.0 20.0 0 0 1 201.04671912485887 219.97259069509147" stroke="rgb(15,15,15)" stroke-width="0.4" fill="none" />
+    
+  <!-- <circle cx="200.0" cy="200.0" r="40.0" stroke="rgb(15,15,15)" stroke-width="2" fill="none" /> -->
+  <circle cx="235.64026096753472" cy="218.15961998958187" r="4.0" stroke="rgb(15,15,15)" stroke-width="0.8" fill="none" />
+  <circle cx="164.35973903246528" cy="181.84038001041813" r="4.0" stroke="rgb(15,15,15)" stroke-width="0.8" fill="none" />
+
+  <path d="M 233.65643540651502 221.61583576286336 A 40.0 40.0 0 0 1 160.05481860981706 202.09343824971776" stroke="rgb(15,15,15)" stroke-width="0.8" fill="none" />
+  <path d="M 166.34356459348498 178.38416423713664 A 40.0 40.0 0 0 1 239.94518139018294 197.90656175028224" stroke="rgb(15,15,15)" stroke-width="0.8" fill="none" />
+    
+  <!-- <circle cx="200.0" cy="200.0" r="60.0" stroke="rgb(15,15,15)" stroke-width="2" fill="none" /> -->
+  <circle cx="218.54101966249684" cy="257.0633909777092" r="6.0" stroke="rgb(15,15,15)" stroke-width="1.2" fill="none" />
+  <circle cx="181.45898033750316" cy="142.93660902229078" r="6.0" stroke="rgb(15,15,15)" stroke-width="1.2" fill="none" />
+
+  <path d="M 212.77098448636764 258.6250966331737 A 60.0 60.0 0 0 1 155.41131047135633 159.85216361846852" stroke="rgb(15,15,15)" stroke-width="1.2" fill="none" />
+  <path d="M 187.22901551363236 141.3749033668263 A 60.0 60.0 0 0 1 244.58868952864367 240.14783638153148" stroke="rgb(15,15,15)" stroke-width="1.2" fill="none" />
+    
+  <!-- <circle cx="200.0" cy="200.0" r="80.0" stroke="rgb(15,15,15)" stroke-width="2" fill="none" /> -->
+  <circle cx="247.02282018339787" cy="135.27864045000422" r="8.0" stroke="rgb(15,15,15)" stroke-width="1.6" fill="none" />
+  <circle cx="152.97717981660213" cy="264.7213595499958" r="8.0" stroke="rgb(15,15,15)" stroke-width="1.6" fill="none" />
+
+  <path d="M 253.22947084635757 140.27878573390552 A 80.0 80.0 0 0 1 191.6377229385877 279.56175162946187" stroke="rgb(15,15,15)" stroke-width="1.6" fill="none" />
+  <path d="M 146.77052915364243 259.7212142660945 A 80.0 80.0 0 0 1 208.3622770614123 120.43824837053813" stroke="rgb(15,15,15)" stroke-width="1.6" fill="none" />
+    	<text x="360.0" y="272.0" font-family="Verdana" font-size="200.0" fill="rgb(15,15,15)">GWPopulation</text>
+</svg>

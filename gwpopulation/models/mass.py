@@ -18,7 +18,7 @@ __all__ = [
     "MultiPeakSmoothedMassDistribution",
     "BrokenPowerLawSmoothedMassDistribution",
     "BrokenPowerLawPeakSmoothedMassDistribution",
-    "InterpolatedPowerLaw",
+    "InterpolatedPowerlaw",
     "double_power_law_primary_mass",
     "double_power_law_peak_primary_mass",
     "double_power_law_primary_power_law_mass_ratio",

@@ -163,7 +163,7 @@ def truncnorm(xx, mu, sigma, high, low):
     zz = (xx - mu) / sigma
     aa = (low - mu) / sigma
     bb = (high - mu) / sigma
-    log_pdf = - zz**2 / 2.0 - xp.log(2.0 * xp.pi) / 2.0 - xp.log(sigma)
+    log_pdf = -(zz**2) / 2.0 - xp.log(2.0 * xp.pi) / 2.0 - xp.log(sigma)
     # cf https://github.com/scipy/scipy/blob/v1.15.1/scipy/stats/_continuous_distns.py#L10189
     log_norm = xp.select(
         [bb <= 0, aa > 0],

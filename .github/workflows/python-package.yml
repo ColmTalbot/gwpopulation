@@ -44,7 +44,7 @@ jobs:
         mamba install -n test pip setuptools
         mamba install -n test --file requirements.txt
         mamba install -n test --file test_requirements.txt
-        conda run -n test python -m pre-commit install
+        conda run -n test pre-commit install
     - name: Install gwpopulation
       run: |
         conda run -n test python -m pip install .
@@ -53,7 +53,7 @@ jobs:
         conda list
     - name: Run pre-commit checks
       run: |
-        conda run -n test python -m pre-commit run --all-files --verbose --show-diff-on-failure
+        conda run -n test pre-commit run --all-files --verbose --show-diff-on-failure
         conda run -n test jupyter nbconvert --clear-output --inplace examples/*.ipynb
         git reset --hard
     - name: Test with pytest

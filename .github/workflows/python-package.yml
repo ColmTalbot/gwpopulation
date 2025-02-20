@@ -44,21 +44,21 @@ jobs:
         conda install pip setuptools
         conda install --file requirements.txt
         conda install --file test_requirements.txt
-        pre-commit install
+        conda run -n test python -m pre-commit install
     - name: Install gwpopulation
       run: |
-        pip install .
+        conda run -n test python -m pip install .
     - name: List installed
       run: |
         conda list
     - name: Run pre-commit checks
       run: |
-        pre-commit run --all-files --verbose --show-diff-on-failure
-        jupyter nbconvert --clear-output --inplace examples/*.ipynb
+        conda run -n test python -m pre-commit run --all-files --verbose --show-diff-on-failure
+        conda run -n test jupyter nbconvert --clear-output --inplace examples/*.ipynb
         git reset --hard
     - name: Test with pytest
       run: |
-        pytest --cov gwpopulation -ra --color yes --cov-report=xml --junitxml=pytest.xml
+        conda run -n test pytest --cov gwpopulation -ra --color yes --cov-report=xml --junitxml=pytest.xml
     - name: Publish coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
@@ -66,7 +66,7 @@ jobs:
         files: coverage.xml
         flags: python${{ matrix.python-version }}
     - name: Coverage report
-      run: python -m coverage report --show-missing
+      run: conda run -n test python -m coverage report --show-missing
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4

@@ -53,8 +53,8 @@ jobs:
         run: |
           cp examples/*.ipynb docs/examples
           cd docs
-          make SPHINXBUILD="mamba run python -m sphinx" clean
-          make SPHINXBUILD="mamba run python -m sphinx" html
+          make SPHINXBUILD="mamba run -n test python -m sphinx" clean
+          make SPHINXBUILD="mamba run -n test python -m sphinx" html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

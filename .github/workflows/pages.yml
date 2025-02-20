@@ -45,6 +45,7 @@ jobs:
           mamba activate test
           mamba install pip setuptools
           mamba install --file requirements.txt
+          mamba install --file pages_requirements.txt
           mamba install --file test_requirements.txt
           pre-commit install
 

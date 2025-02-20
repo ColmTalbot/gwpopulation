@@ -47,6 +47,7 @@ jobs:
           mamba install --file requirements.txt
           mamba install --file pages_requirements.txt
           mamba install --file test_requirements.txt
+          python -m pip install .
           pre-commit install
 
       - name: Build documentation

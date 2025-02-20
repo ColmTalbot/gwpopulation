@@ -30,18 +30,22 @@ jobs:
         with:
           python-version: "3.11"
 
-      - uses: s-weigand/setup-conda@v1
+      - name: Setup conda
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          update-conda: true
-          python-version: "3.11"
-          conda-channels: anaconda, conda-forge
+          python-version: ${{ matrix.python-version }}
+          channels: conda-forge
+          auto-update-conda: true
+          mamba-version: "*"
+          conda-remove-defaults: "true"
 
       - name: Install dependencies
         run: |
-          conda install --file requirements.txt
-          conda install --file pages_requirements.txt
-          conda install --file test_requirements.txt
-          python -m pip install .
+          mamba activate test
+          mamba install pip setuptools
+          mamba install --file requirements.txt
+          mamba install --file test_requirements.txt
+          pre-commit install
 
       - name: Build documentation
         run: |

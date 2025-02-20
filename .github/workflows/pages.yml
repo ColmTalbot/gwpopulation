@@ -33,7 +33,7 @@ jobs:
       - name: Setup conda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
           channels: conda-forge
           auto-update-conda: true
           mamba-version: "*"

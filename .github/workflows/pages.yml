@@ -41,6 +41,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          eval "$(mamba shell hook --shell bash)"
           mamba activate test
           mamba install pip setuptools
           mamba install --file requirements.txt

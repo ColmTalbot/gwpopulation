@@ -30,25 +30,32 @@ jobs:
         with:
           python-version: "3.11"
 
-      - uses: s-weigand/setup-conda@v1
+      - name: Setup conda
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          update-conda: true
           python-version: "3.11"
-          conda-channels: anaconda, conda-forge
+          channels: conda-forge
+          auto-update-conda: true
+          mamba-version: "*"
+          conda-remove-defaults: "true"
 
       - name: Install dependencies
         run: |
-          conda install --file requirements.txt
-          conda install --file pages_requirements.txt
-          conda install --file test_requirements.txt
+          eval "$(mamba shell hook --shell bash)"
+          mamba activate test
+          mamba install pip setuptools
+          mamba install --file requirements.txt
+          mamba install --file pages_requirements.txt
+          mamba install --file test_requirements.txt
           python -m pip install .
+          pre-commit install
 
       - name: Build documentation
         run: |
           cp examples/*.ipynb docs/examples
           cd docs
-          make clean
-          make html
+          make SPHINXBUILD="mamba run -n test python -m sphinx" clean
+          make SPHINXBUILD="mamba run -n test python -m sphinx" html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

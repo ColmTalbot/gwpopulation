@@ -160,14 +160,26 @@ def truncnorm(xx, mu, sigma, high, low):
         The distribution evaluated at `xx`
 
     """
-    norm = 2**0.5 / xp.pi**0.5 / sigma
-    norm /= scs.erf((high - mu) / 2**0.5 / sigma) + scs.erf(
-        (mu - low) / 2**0.5 / sigma
+
+    def logsubexp(log_p, log_q):
+        return log_p + xp.log(1 - xp.exp(log_q - log_p))
+
+    zz = (xx - mu) / sigma
+    aa = (low - mu) / sigma
+    bb = (high - mu) / sigma
+    log_pdf = -(zz**2) / 2.0 - np.log(2.0 * np.pi) / 2.0 - xp.log(sigma)
+
+    # cf https://github.com/scipy/scipy/blob/v1.15.1/scipy/stats/_continuous_distns.py#L10189
+    log_norm = xp.select(
+        [bb <= 0, aa > 0],
+        [
+            logsubexp(scs.log_ndtr(bb), scs.log_ndtr(aa)),
+            logsubexp(scs.log_ndtr(-aa), scs.log_ndtr(-bb)),
+        ],
+        xp.log1p(-scs.ndtr(aa) - scs.ndtr(-bb)),
     )
-    prob = xp.exp(-xp.power(xx - mu, 2) / (2 * sigma**2))
-    prob *= norm
-    prob *= (xx <= high) & (xx >= low)
-    return prob
+    log_pdf -= log_norm
+    return xp.exp(log_pdf) * (xx >= low) * (xx <= high)
 
 
 def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):

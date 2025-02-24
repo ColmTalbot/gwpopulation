@@ -160,18 +160,23 @@ def truncnorm(xx, mu, sigma, high, low):
         The distribution evaluated at `xx`
 
     """
+
+    def logsubexp(log_p, log_q):
+        return log_p + xp.log(1 - xp.exp(log_q - log_p))
+
     zz = (xx - mu) / sigma
     aa = (low - mu) / sigma
     bb = (high - mu) / sigma
-    log_pdf = -(zz**2) / 2.0 - xp.log(2.0 * xp.pi) / 2.0 - xp.log(sigma)
+    log_pdf = -(zz**2) / 2.0 - np.log(2.0 * np.pi) / 2.0 - xp.log(sigma)
+
     # cf https://github.com/scipy/scipy/blob/v1.15.1/scipy/stats/_continuous_distns.py#L10189
     log_norm = xp.select(
         [bb <= 0, aa > 0],
         [
-            xp.logaddexp(scs.log_ndtr(bb), scs.log_ndtr(aa) + np.pi * 1j).real,
-            -xp.logaddexp(scs.log_ndtr(-aa), scs.log_ndtr(-bb) + np.pi * 1j).real,
+            logsubexp(scs.log_ndtr(bb), scs.log_ndtr(aa)),
+            logsubexp(scs.log_ndtr(-aa), scs.log_ndtr(-bb)),
         ],
-        xp.log1p(-scs.log_ndtr(aa) - scs.log_ndtr(-bb)),
+        xp.log1p(-scs.ndtr(aa) - scs.ndtr(-bb)),
     )
     log_pdf -= log_norm
     return xp.exp(log_pdf) * (xx >= low) * (xx <= high)

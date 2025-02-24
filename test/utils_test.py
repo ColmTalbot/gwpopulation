@@ -112,6 +112,26 @@ def test_truncnorm_sigma_below_zero_raises_value_error():
 
 
 @pytest.mark.parametrize("backend", TEST_BACKENDS)
+def test_truncnorm_matches_scipy(backend):
+    from scipy.stats import truncnorm
+
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(-2, 2, 1000)
+    for ii in range(N_TEST):
+        mu = np.random.uniform(-10, 10)
+        sigma = np.random.uniform(0, 5)
+        low, high = np.sort(np.random.uniform(-10, 10, 2))
+        gwpop_vals = utils.to_numpy(
+            utils.truncnorm(xx, mu=mu, sigma=sigma, low=low, high=high)
+        )
+        scipy_vals = truncnorm(
+            loc=mu, scale=sigma, a=(low - mu) / sigma, b=(high - mu) / sigma
+        ).pdf(utils.to_numpy(xx))
+        assert max(abs(gwpop_vals - scipy_vals)) < 1e-3
+
+
+@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_matches_scipy(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp

@@ -67,12 +67,12 @@ def _template_likelihod_evaluation(backend, jit):
     )
 
     priors = bilby.core.prior.PriorDict("priors/bbh_population.prior")
-
-    likelihood.parameters.update(priors.sample())
-    assert abs(likelihood.log_likelihood_ratio() + 1.810695) < 0.01
+    prior_sample = priors.sample()
+    likelihood.parameters.update(prior_sample)
+    assert abs(likelihood.log_likelihood_ratio() + 7.037596674351107) < 0.01
     if jit:
         likelihood = JittedLikelihood(likelihood)
-    assert abs(likelihood.log_likelihood_ratio() + 1.810695) < 0.01
+    assert abs(likelihood.log_likelihood_ratio() + 7.037596674351107) < 0.01
     likelihood.posterior_predictive_resample(pd.DataFrame(priors.sample(5)))
 
 

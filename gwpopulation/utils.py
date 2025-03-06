@@ -175,6 +175,7 @@ def truncnorm(xx, mu, sigma, high, low):
         [
             logsubexp(scs.log_ndtr(bb), scs.log_ndtr(aa)),
             logsubexp(scs.log_ndtr(-aa), scs.log_ndtr(-bb)),
+            xp.log1p(-scs.ndtr(aa) - scs.ndtr(-bb)),
         ],
         xp.nan,
     )

@@ -171,12 +171,13 @@ def truncnorm(xx, mu, sigma, high, low):
 
     # cf https://github.com/scipy/scipy/blob/v1.15.1/scipy/stats/_continuous_distns.py#L10189
     log_norm = xp.select(
-        [bb <= 0, aa > 0],
+        [bb <= 0, aa > 0, bb > 0],
         [
             logsubexp(scs.log_ndtr(bb), scs.log_ndtr(aa)),
             logsubexp(scs.log_ndtr(-aa), scs.log_ndtr(-bb)),
+            xp.log1p(-scs.ndtr(aa) - scs.ndtr(-bb)),
         ],
-        xp.log1p(-scs.ndtr(aa) - scs.ndtr(-bb)),
+        xp.nan,
     )
     log_pdf -= log_norm
     return xp.exp(log_pdf) * (xx >= low) * (xx <= high)

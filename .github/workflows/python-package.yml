@@ -68,13 +68,7 @@ jobs:
         conda run -n test python -m pip install .
     - name: List installed
       run: |
-        conda list
-    # - name: Run pre-commit checks
-    #   if: ${{ matrix.python-version }} == "3.11"
-    #   run: |
-    #     conda run -n test pre-commit run --all-files --verbose --show-diff-on-failure
-    #     conda run -n test jupyter nbconvert --clear-output --inplace examples/*.ipynb
-    #     git reset --hard
+        conda list -n test
     - name: Test with pytest
       run: |
         conda run -n test pytest --cov gwpopulation -ra --color yes --cov-report=xml --junitxml=pytest.xml

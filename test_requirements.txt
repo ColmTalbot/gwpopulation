@@ -5,4 +5,4 @@ nbconvert
 astropy
 jax
 numpyro
-scipy<1.14
+scipy

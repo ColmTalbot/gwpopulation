@@ -58,9 +58,11 @@ Included in the package are:
 
 - implementations of the most commonly used likelihood functions in the field.
 - commonly used models for describing the astrophysical population of merging compact binaries.
-  Including the “PowerLaw+Peak” and “PowerLaw+Spline” mass models, “Default” spin model, and “PowerLaw” redshift models used in the latest LIGO-Virgo-KAGRA collaboration analysis of the compact binary population.
+  Including the “PowerLaw+Peak” and “PowerLaw+Spline” mass models, “Default” spin model, and “PowerLaw” redshift models used in the latest LIGO-Virgo-KAGRA collaboration analysis of the compact binary population[^2].
 - functionality to simultaneously infer the astrophysical distribution of sources and cosmic expansion history using the "spectral siren" method [@Ezquiaga2022].
 - a standard specification allowing users to define additional models.
+
+[^2]: See @GWTC3Pop for details of these models.
 
 # Statement of need
 
@@ -68,11 +70,11 @@ Hierarchical Bayesian inference is the standard method for inferring parameters 
 The first step in the hierarchical inference process is drawing samples from the posterior distributions for the source parameters of each event under a fiducial prior distribution along with a set of simulated signals used to quantify the sensitivity of gravitational-wave searches.
 Next, these samples are used to estimate the population likelihood using Monte Carlo integration with a computational cost that grows quadratically with the size of the observed population.
 Since evaluating these Monte Carlo integrals is embarrassingly parallel, this is a prime candidate for hardware acceleration using graphics/tensor processing units.
-`GWPopulation` provides functionality need to perform this second step.
+`GWPopulation` provides functionality needed to perform this second step and is extensively used by members of the gravitational-wave astronomy community including the LIGO-Virgo-KAGRA collaborations.
 
 Maximizing the information we can extract from the gravitational-wave transient catalog requires a framework where potential population models can be quickly constrained with the observed data with minimal boilerplate code.
 Additionally, the availability of a standard open-source implementation improves the reliability and reproducibility of published results.
-`GWPopulation` addresses all of these points by providing a standard, open-source, implementation of the standard functionality needed to perform population analyses while enabling user-defined models to be provided by a `Python` function/class definition.
+`GWPopulation` addresses all of these points by providing a standard, open-source, implementation of the functionality needed to perform population analyses while enabling user-defined models to be provided by a `Python` function/class definition.
 The flexible backend system means hardware acceleration can be used with minimal coding effort.
 Using `GWPopulation` on Google Colab, it is possible to perform an exploratory analysis with a new population model in minutes and produce production-quality results without needing high-performance/throughput computing clusters.
 With access to high throughput computing resources, a wide range of potential models can be easily explored using the associated `gwpopulation_pipe` [@gwpop_pipe] package.
@@ -81,7 +83,7 @@ With access to high throughput computing resources, a wide range of potential mo
 
 Several other packages are actively used and maintained in the community that can be used for population inference that operate in complementary ways to `GWPopulation`.
 
-- `GWInferno` [@gwinferno] is a package for hierarchical inference with gravitational-wave sources intended for use with `numpyro` targeting high-dimensional models. `GWInferno` includes many population models initially adapted from `GWPopulation`.
+- `GWInferno` [@gwinferno] is a package for hierarchical inference with gravitational-wave sources intended for use with `numpyro`[@NumPyro] targeting high-dimensional models. `GWInferno` includes many population models initially adapted from `GWPopulation`.
 - There are a wide range of packages designed for joint astrophyical and cosmological inference with gravitational-wave transients including `icarogw` [@icarogw], `gwcosmo` [@gwcosmo], `MGCosmoPop` [@mgcosmo], and `CHIMERA` [@chimera]. `icarogw` supports some harware acceleration using `cupy` but some cosmological calculations are limited to CPU support only. `chimera` is `JAX`-compatible and supports flat Lambda-CDM cosmologies along with analysis using galaxy catalogs.
 - `vamana` [@vamana] models the compact binary distribution as a mixture of Gaussians and power-law distributions, `popmodels` [@popmodels] implements a range of parametric models for the compact binary distribution and supports sampling via `emcee` [@emcee], neither supports hardware acceleration at the time of writing.
 

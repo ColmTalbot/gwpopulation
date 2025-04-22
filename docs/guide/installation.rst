@@ -21,7 +21,7 @@ Installation
       If you want to use the latest (unreleased) version of :code:`gwpopulation` you can
       install the current :code:`main` branch directly from :code:`GitHub`.
 
-      .. code-block console
+      .. code-block:: console
 
          $ pip install git+https://github.com/ColmTalbot/gwpopulation.git@main
 

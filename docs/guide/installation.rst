@@ -4,12 +4,17 @@ Installation
 
 .. tabs::
    .. tab:: Conda
+
       .. code-block:: console
           $ conda install -c conda-forge gwpopulation
+      
       Supported python versions: 3.10-3.13.
+
    .. tab:: Pip
+      
       .. code-block:: console
           $ pip install gwpopulation
+      
       Supported python versions: 3.10-3.13.
 
 This will install the latest stable release of :code:`gwpopulation` into your

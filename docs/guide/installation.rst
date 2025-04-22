@@ -22,7 +22,7 @@ Additional backends
 
 The main power of :code:`gwpopulation` is the ability to use non-:code:`numpy` backends
 for array operations.
-If installing using :code:`pip`, the optional requirements for specifiy backends can be installed
+If installing using :code:`pip`, the optional requirements for specify backends can be installed
 by specifying, e.g.,
 
 .. code-block:: console

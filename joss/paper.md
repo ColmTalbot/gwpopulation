@@ -16,7 +16,7 @@ authors:
      orcid: 0000-0002-1819-0215
      affiliation: 3, 4
   -  name: Jacob Golomb
-     orcid: 0000-0002-6977-670X	
+     orcid: 0000-0002-6977-670X
      affiliation: 5, 6
   -  name: Hui Tong
      orcid: 0000-0002-4534-0485
@@ -45,15 +45,15 @@ bibliography: paper.bib
 
 # Summary
 
-Since the first direct detection of gravitational waves by the LIGO--Virgo collaboration in 2015 [@GW150914], the size of the gravitational-wave transient catalog has grown to nearly 100 events [@GWTC3], with more than as many observed during the ongoing fourth observing run.
+Since the first direct detection of gravitational waves by the LIGO--Virgo collaboration in 2015 [@GW150914], the size of the gravitational-wave transient catalog has grown to nearly 100 events [R. Abbott et al., -@GWTC3], with the ongoing fourth observing run more than doubling the total number.
 Extracting astrophysical/cosmological information from these observations is a hierarchical Bayesian inference problem.
-`GWPopulation` is designed to provide simple-to-use, robust, and extensible tools for hierarchical inference in gravitational-wave astronomy/cosmology. It has been widely adopted for gravitational-wave astrnomy, including producing flagship results for the LIGO-Virgo-KAGRA collaborations (e.g., @GWTC3Pop, @GW230529)[^1].
+`GWPopulation` is designed to provide simple-to-use, robust, and extensible tools for hierarchical inference in gravitational-wave astronomy/cosmology. It has been widely adopted for gravitational-wave astrnomy, including producing flagship results for the LIGO-Virgo-KAGRA collaborations [R. Abbott et al., -@GWTC3Pop; @GW230529] [^1].
 While designed to work with observations of compact binary coalescences, `GWPopulation` may be available to a wider range of hierarchical Bayesian inference problems.
 
 [^1]: For a full listing of papers using `GWPopulation`, see the [citations for the previous publication](https://ui.adsabs.harvard.edu/abs/2019PhRvD.100d3030T/citations).
 
 Building on `Bilby` [@Bilby], `GWPopulation` can easily be used with a range of stochastic samplers through a standard interface.
-By providing access to a range of array backends (`numpy` [@numpy], `JAX` [@jax], and `cupy` [@cupy] are currently supported) `GWPopulation` is hardware agnostic and can leverage hardware acceleration to meet the growing computational needs of these analyses.
+By providing access to a range of array backends (`numpy` [@numpy], `JAX` [@jax], and `cupy` [@cupy] are currently supported), `GWPopulation` is hardware agnostic and can leverage hardware acceleration to meet the growing computational needs of these analyses.
 Included in the package are:
 
 - implementations of the most commonly used likelihood functions in the field.
@@ -74,7 +74,7 @@ Since evaluating these Monte Carlo integrals is embarrassingly parallel, this is
 
 Maximizing the information we can extract from the gravitational-wave transient catalog requires a framework where potential population models can be quickly constrained with the observed data with minimal boilerplate code.
 Additionally, the availability of a standard open-source implementation improves the reliability and reproducibility of published results.
-`GWPopulation` addresses all of these points by providing a standard, open-source, implementation of the functionality needed to perform population analyses while enabling user-defined models to be provided by a `Python` function/class definition.
+`GWPopulation` addresses all of these points by providing an open-source implementation of the functionality needed to perform population analyses while enabling user-defined models to be provided by a `Python` function/class definition.
 The flexible backend system means hardware acceleration can be used with minimal coding effort.
 Using `GWPopulation` on Google Colab, it is possible to perform an exploratory analysis with a new population model in minutes and produce production-quality results without needing high-performance/throughput computing clusters.
 With access to high throughput computing resources, a wide range of potential models can be easily explored using the associated `gwpopulation_pipe` [@gwpop_pipe] package.
@@ -83,9 +83,9 @@ With access to high throughput computing resources, a wide range of potential mo
 
 Several other packages are actively used and maintained in the community that can be used for population inference that operate in complementary ways to `GWPopulation`.
 
-- `GWInferno` [@gwinferno] is a package for hierarchical inference with gravitational-wave sources intended for use with `numpyro`[@NumPyro] targeting high-dimensional models. `GWInferno` includes many population models initially adapted from `GWPopulation`.
+- `GWInferno` [@gwinferno] is a package for hierarchical inference with gravitational-wave sources intended for use with `numpyro` [@NumPyro] targeting high-dimensional models. `GWInferno` includes many population models initially adapted from `GWPopulation`.
 - There are a wide range of packages designed for joint astrophyical and cosmological inference with gravitational-wave transients including `icarogw` [@icarogw], `gwcosmo` [@gwcosmo], `MGCosmoPop` [@mgcosmo], and `CHIMERA` [@chimera]. `icarogw` supports some harware acceleration using `cupy` but some cosmological calculations are limited to CPU support only. `chimera` is `JAX`-compatible and supports flat Lambda-CDM cosmologies along with analysis using galaxy catalogs.
-- `vamana` [@vamana] models the compact binary distribution as a mixture of Gaussians and power-law distributions, `popmodels` [@popmodels] implements a range of parametric models for the compact binary distribution and supports sampling via `emcee` [@emcee], neither supports hardware acceleration at the time of writing.
+- `vamana` [@vamana] models the compact binary distribution as a mixture of Gaussians and power-law distributions, and `popmodels` [@popmodels] implements a range of parametric models for the compact binary distribution and supports sampling via `emcee` [@emcee]. However, neither supports hardware acceleration at the time of writing.
 
 # Acknowledgements
 

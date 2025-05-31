@@ -4,6 +4,7 @@
 
 ------------------------------------------------------------------------------
 
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.07753/status.svg)](https://doi.org/10.21105/joss.07753)
 [![Python package](https://github.com/ColmTalbot/gwpopulation/actions/workflows/python-package.yml/badge.svg)](https://github.com/ColmTalbot/gwpopulation/actions/workflows/python-package.yml)
 [![codecov](https://codecov.io/gh/ColmTalbot/gwpopulation/branch/master/graph/badge.svg?token=4K4V0HRDMI)](https://codecov.io/gh/ColmTalbot/gwpopulation)
 [![Versions](https://img.shields.io/pypi/pyversions/gwpopulation.svg)](https://pypi.org/project/gwpopulation/)
@@ -29,7 +30,27 @@ If you're using this on high-performance computing clusters, you may be interest
 
 ------------------------------------------------------------------------------
 
-Please cite [Talbot _et al._ (2019)](https://doi.org/10.1103/PhysRevD.100.043030) if you use `GWPopulation` in your research.
+Please cite [Talbot _et al._ (2025)](https://doi.org/10.21105/joss.07753) if you use `GWPopulation` in your research.
+
+```bibtex
+@article{Talbot2025,
+  author = {Colm Talbot and Amanda Farah and Shanika Galaudage and Jacob Golomb and Hui Tong},
+  title = {GWPopulation: Hardware agnostic population inference for compact binaries and beyond},
+  journal = {Journal of Open Source Software},
+  doi = {10.21105/joss.07753},
+  url = {https://doi.org/10.21105/joss.07753},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {109},
+  pages = {7753},
+  archivePrefix = {arXiv},
+  eprint = {2409.14143},
+  primaryClass = {astro-ph.IM},
+}
+```
+
+The older citation can also be included for the initial proof-of-principle for the application of hardware acceleration [Talbot _et al._ (2019)](https://doi.org/10.1103/PhysRevD.100.043030).
 
 ```bibtex
 @ARTICLE{2019PhRvD.100d3030T,

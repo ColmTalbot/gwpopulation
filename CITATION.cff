@@ -1,0 +1,52 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Talbot
+  given-names: Colm
+  orcid: "https://orcid.org/0000-0003-2053-5582"
+- family-names: Farah
+  given-names: Amanda
+  orcid: "https://orcid.org/0000-0002-6121-0285"
+- family-names: Galaudage
+  given-names: Shanika
+  orcid: "https://orcid.org/0000-0002-1819-0215"
+- family-names: Golomb
+  given-names: Jacob
+  orcid: "https://orcid.org/0000-0002-6977-670X"
+- family-names: Tong
+  given-names: Hui
+  orcid: "https://orcid.org/0000-0002-4534-0485"
+doi: 10.5281/zenodo.15264649
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Talbot
+    given-names: Colm
+    orcid: "https://orcid.org/0000-0003-2053-5582"
+  - family-names: Farah
+    given-names: Amanda
+    orcid: "https://orcid.org/0000-0002-6121-0285"
+  - family-names: Galaudage
+    given-names: Shanika
+    orcid: "https://orcid.org/0000-0002-1819-0215"
+  - family-names: Golomb
+    given-names: Jacob
+    orcid: "https://orcid.org/0000-0002-6977-670X"
+  - family-names: Tong
+    given-names: Hui
+    orcid: "https://orcid.org/0000-0002-4534-0485"
+  date-published: 2025-05-29
+  doi: 10.21105/joss.07753
+  issn: 2475-9066
+  issue: 109
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 7753
+  title: "GWPopulation: Hardware agnostic population inference for
+    compact binaries and beyond"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.07753"
+  volume: 10
+title: "GWPopulation: Hardware agnostic population inference for compact
+  binaries and beyond"

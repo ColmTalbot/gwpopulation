@@ -50,7 +50,7 @@ Please cite [Talbot _et al._ (2025)](https://doi.org/10.21105/joss.07753) if you
 }
 ```
 
-The older citation can also be inlcuded for the initial proof-of-principle for the application of hardware acceleration [Talbot _et al._ (2019)](https://doi.org/10.1103/PhysRevD.100.043030).
+The older citation can also be included for the initial proof-of-principle for the application of hardware acceleration [Talbot _et al._ (2019)](https://doi.org/10.1103/PhysRevD.100.043030).
 
 ```bibtex
 @ARTICLE{2019PhRvD.100d3030T,

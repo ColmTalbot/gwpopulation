@@ -8,3 +8,50 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 write_to = "gwpopulation/_version.py"
+
+
+[project]
+name = "gwpopulation"
+description = "Unified population inference"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE.md" }
+authors = [
+    { name = "Colm Talbot", email = "talbotcolm@gmail.com" }
+]
+urls = { "Homepage" = "https://github.com/ColmTalbot/gwpopulation" }
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+dynamic = ["dependencies", "optional-dependencies", "version"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.dynamic.optional-dependencies]
+pages = {file=["pages_requirements.txt"]}
+test = {file=["test_requirements.txt"]}
+cupy = {file=["cupy_requirements.txt"]}
+jax = {file=["jax_requirements.txt"]}
+
+[tool.setuptools.packages.find]
+exclude = ["test", "venv", "priors"]
+
+[project.entry-points."gwpopulation.xp"]
+gwpopulation_hyperpe = "gwpopulation.hyperpe"
+gwpopulation_interped = "gwpopulation.models.interped"
+gwpopulation_mass = "gwpopulation.models.mass"
+gwpopulation_redshift = "gwpopulation.models.redshift"
+gwpopulation_spin = "gwpopulation.models.spin"
+gwpopulation_utils = "gwpopulation.utils"
+gwpopulation_vt = "gwpopulation.vt"
+gwpopulation_cosmo = "gwpopulation.experimental.cosmo_models"
+
+[project.entry-points."gwpopulation.scs"]
+gwpopulation_mass = "gwpopulation.models.mass"
+gwpopulation_utils = "gwpopulation.utils"

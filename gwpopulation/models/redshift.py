@@ -5,6 +5,7 @@ Implemented redshift models
 import numpy as xp
 
 from ..experimental.cosmo_models import CosmoMixin
+from ..utils import trapezoid
 
 __all__ = [
     "_Redshift",
@@ -93,7 +94,7 @@ class _Redshift(CosmoMixin):
         normalisation_data = self.differential_spacetime_volume(
             dict(redshift=self.zs), bounds=True, **parameters
         )
-        norm = xp.trapz(normalisation_data, self.zs)
+        norm = trapezoid(normalisation_data, self.zs)
         return norm
 
     def probability(self, dataset, **parameters):
@@ -283,7 +284,7 @@ def total_four_volume(lamb, analysis_time, max_redshift=2.3):
     psi_of_z = (1 + redshifts) ** lamb
     normalization = 4 * xp.pi / 1e9 * analysis_time
     total_volume = (
-        xp.trapz(
+        trapezoid(
             Planck15.differential_comoving_volume(redshifts)
             / (1 + redshifts)
             * psi_of_z,

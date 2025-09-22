@@ -4,7 +4,7 @@ Implemented spin models
 
 import numpy as xp
 
-from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian
+from ..utils import beta_dist, trapezoid, truncnorm, unnormalized_2d_gaussian
 from .interped import InterpolatedNoBaseModelIdentical
 
 __all__ = [
@@ -325,8 +325,8 @@ class GaussianChiEffChiP(object):
             sigma_chi_p,
             spin_covariance,
         )
-        return xp.trapz(
-            y=xp.trapz(y=prob, axis=-1, x=self.chi_eff), axis=-1, x=self.chi_p
+        return trapezoid(
+            y=trapezoid(y=prob, axis=-1, x=self.chi_eff), axis=-1, x=self.chi_p
         )
 
 

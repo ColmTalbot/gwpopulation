@@ -2,7 +2,7 @@ from functools import partial
 
 import numpy as np
 
-from ..utils import to_numpy
+from ..utils import to_numpy, trapezoid
 
 xp = np
 
@@ -178,7 +178,7 @@ class InterpolatedNoBaseModelIdentical:
         perturbation = self._norm_spline(y=f_splines)
         p_x = xp.exp(perturbation)
         p_x *= (self._xs >= x_splines[0]) & (self._xs <= x_splines[-1])
-        norm = xp.trapz(p_x, self._xs)
+        norm = trapezoid(p_x, self._xs)
         return norm
 
     def extract_spline_points(self, kwargs):

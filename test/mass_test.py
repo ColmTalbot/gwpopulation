@@ -6,7 +6,7 @@ from bilby.core.prior import DeltaFunction, Normal, PriorDict, Uniform
 
 import gwpopulation
 from gwpopulation.models import mass
-from gwpopulation.utils import to_numpy
+from gwpopulation.utils import to_numpy, trapezoid
 
 from . import TEST_BACKENDS
 
@@ -247,7 +247,7 @@ def _normalised(model, prior, xp):
     for _ in range(N_TEST):
         parameters = prior.sample()
         p_m = model(dataset, **parameters)
-        norms.append(float(xp.trapz(xp.trapz(p_m, m1s), qs)))
+    norms.append(float(trapezoid(trapezoid(p_m, m1s), qs)))
     assert _max_abs_difference(norms, 1.0, xp=xp) < 0.01
 
 

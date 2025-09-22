@@ -18,25 +18,27 @@ def _template_likelihod_evaluation(backend, jit):
     rng = bilby.core.utils.random.rng
 
     if jit:
-        model_cls = NonCachingModel
+        cache = False
     else:
-        model_cls = Model
+        cache = True
 
-    model = model_cls(
+    model = Model(
         [
             gwpopulation.models.mass.SinglePeakSmoothedMassDistribution(),
             gwpopulation.models.spin.independent_spin_magnitude_beta,
             gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic,
             gwpopulation.models.redshift.PowerLawRedshift(),
-        ]
+        ],
+        cache=cache,
     )
-    vt_model = model_cls(
+    vt_model = Model(
         [
             gwpopulation.models.mass.SinglePeakSmoothedMassDistribution(),
             gwpopulation.models.spin.independent_spin_magnitude_beta,
             gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic,
             gwpopulation.models.redshift.PowerLawRedshift(),
-        ]
+        ],
+        cache=cache,
     )
 
     bounds = dict(
@@ -72,6 +74,7 @@ def _template_likelihod_evaluation(backend, jit):
     assert abs(likelihood.log_likelihood_ratio() + 7.037596674351107) < 0.01
     if jit:
         likelihood = JittedLikelihood(likelihood)
+        likelihood.parameters.update(prior_sample)
     assert abs(likelihood.log_likelihood_ratio() + 7.037596674351107) < 0.01
     likelihood.posterior_predictive_resample(pd.DataFrame(priors.sample(5)))
 

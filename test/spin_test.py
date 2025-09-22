@@ -4,7 +4,7 @@ from bilby.core.prior import PriorDict, Uniform
 
 import gwpopulation
 from gwpopulation.models import spin
-from gwpopulation.utils import truncnorm
+from gwpopulation.utils import trapezoid, truncnorm
 
 from . import TEST_BACKENDS
 
@@ -50,7 +50,7 @@ def test_spin_orientation_normalised(backend):
     for ii in range(N_TEST):
         parameters = prior.sample()
         temp = spin.iid_spin_orientation_gaussian_isotropic(dataset, **parameters)
-        norms.append(float(xp.trapz(xp.trapz(temp, costilts), costilts)))
+    norms.append(float(trapezoid(trapezoid(temp, costilts), costilts)))
     assert float(np.max(np.abs(1 - np.asarray(norms)))) < 1e-5
 
 
@@ -82,7 +82,7 @@ def test_spin_magnitude_normalised(backend):
     for ii in range(N_TEST):
         parameters = prior.sample()
         temp = spin.iid_spin_magnitude_beta(dataset, **parameters)
-        norms.append(xp.trapz(xp.trapz(temp, a_array), a_array))
+    norms.append(trapezoid(trapezoid(temp, a_array), a_array))
     assert float(xp.max(xp.abs(1 - xp.asarray(norms)))) < 1e-2
 
 
@@ -198,8 +198,8 @@ def test_2d_gaussian_normalized(backend):
     assert (
         xp.max(
             xp.abs(
-                xp.trapz(
-                    xp.trapz(prob, xp.linspace(-1, 1, 501)), xp.linspace(0, 1, 300)
+                trapezoid(
+                    trapezoid(prob, xp.linspace(-1, 1, 501)), xp.linspace(0, 1, 300)
                 )
                 - 1
             )

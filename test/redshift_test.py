@@ -8,8 +8,6 @@ import gwpopulation
 from gwpopulation.models import redshift
 from gwpopulation.utils import trapezoid
 
-from . import TEST_BACKENDS
-
 N_TEST = 100
 
 
@@ -23,7 +21,6 @@ def _run_model_normalisation(model, priors, xp=np):
     assert np.max(np.abs(np.array(norms) - 1)) < 1e-3
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_powerlaw_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -33,7 +30,6 @@ def test_powerlaw_normalised(backend):
     _run_model_normalisation(model=model, priors=priors, xp=xp)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_madau_dickinson_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -45,7 +41,6 @@ def test_madau_dickinson_normalised(backend):
     _run_model_normalisation(model=model, priors=priors, xp=xp)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_powerlaw_volume(backend):
     """
     Test that the total volume matches astropy for a

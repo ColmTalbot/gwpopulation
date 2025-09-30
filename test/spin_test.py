@@ -6,8 +6,6 @@ import gwpopulation
 from gwpopulation.models import spin
 from gwpopulation.utils import trapezoid, truncnorm
 
-from . import TEST_BACKENDS
-
 xp = np
 N_TEST = 100
 
@@ -40,7 +38,6 @@ def magnitude_test_data(xp):
     return a_array, dataset
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_spin_orientation_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -54,7 +51,6 @@ def test_spin_orientation_normalised(backend):
     assert float(np.max(np.abs(1 - np.asarray(norms)))) < 1e-5
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_iid_matches_independent_tilts(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -72,7 +68,6 @@ def test_iid_matches_independent_tilts(backend):
     )
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_spin_magnitude_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -86,7 +81,6 @@ def test_spin_magnitude_normalised(backend):
     assert float(xp.max(xp.abs(1 - xp.asarray(norms)))) < 1e-2
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_returns_zero_alpha_beta_less_zero(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -98,7 +92,6 @@ def test_returns_zero_alpha_beta_less_zero(backend):
         assert np.all(spin.iid_spin_magnitude_beta(dataset, **parameters) == 0)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_iid_matches_independent_magnitudes(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -119,7 +112,6 @@ def test_iid_matches_independent_magnitudes(backend):
     )
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_iid_matches_independent(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -145,7 +137,6 @@ def test_iid_matches_independent(backend):
     )
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_gaussian_chi_eff(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -164,7 +155,6 @@ def test_gaussian_chi_eff(backend):
     )
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_gaussian_chi_p(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -181,7 +171,6 @@ def test_gaussian_chi_p(backend):
     )
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_2d_gaussian_normalized(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -208,7 +197,6 @@ def test_2d_gaussian_normalized(backend):
     )
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_2d_gaussian_no_covariance_matches_independent(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp

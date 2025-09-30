@@ -6,8 +6,6 @@ import gwpopulation
 from gwpopulation import vt
 from gwpopulation.models.redshift import PowerLawRedshift, total_four_volume
 
-from . import TEST_BACKENDS
-
 xp = np
 
 
@@ -38,7 +36,6 @@ def test_base_cannot_be_called():
         evaluator()
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_grid_vt_correct(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -60,21 +57,18 @@ def get_vt(xp):
     return evaluator
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_marginalized_vt_correct(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
     assert abs(float(get_vt(xp).vt_factor(dict())) - 0.38289403358409585) < 1e-6
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_resampling_vt_correct(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
     assert abs(float(get_vt(xp)(dict())[0]) - 0.38289325179141254) < 1e-6
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_returns_inf_when_n_effective_too_small(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -84,7 +78,6 @@ def test_returns_inf_when_n_effective_too_small(backend):
     assert evaluator(dict()) == xp.inf
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_observed_volume_with_no_redshift_model(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -94,7 +87,6 @@ def test_observed_volume_with_no_redshift_model(backend):
     )
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_observed_volume_with_redshift_model(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp

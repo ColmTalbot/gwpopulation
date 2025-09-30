@@ -329,3 +329,33 @@ def to_numpy(array):
         return np.asarray(array)
     else:
         raise TypeError(f"Cannot convert {type(array)} to numpy array")
+
+
+def trapezoid(y, x=None, dx=1.0, axis=-1):
+    """
+    A wrapper of `trapz` or `trapezoid` that can handle different
+    names in different backends.
+
+    Parameters
+    ==========
+    y: array-like
+        The y values to integrate.
+    x: array-like, optional
+        The x values to integrate over. If not provided, the spacing
+        is assumed to be uniform with spacing `dx`.
+    dx: float, optional
+        The spacing between x values if `x` is not provided.
+    axis: int, optional
+        The axis to integrate over.
+
+    Returns
+    =======
+    float, array-like
+        The integral of `y` over `x`.
+    """
+    if hasattr(xp, "trapezoid"):
+        return xp.trapezoid(y, x=x, dx=dx, axis=axis)
+    elif hasattr(xp, "trapz"):
+        return xp.trapz(y, x=x, dx=dx, axis=axis)
+    else:
+        raise NotImplementedError(f"trapz/trapezoid not implemented for {xp.__name__}")

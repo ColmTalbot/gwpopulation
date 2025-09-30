@@ -6,9 +6,7 @@ from bilby.core.prior import DeltaFunction, Normal, PriorDict, Uniform
 
 import gwpopulation
 from gwpopulation.models import mass
-from gwpopulation.utils import to_numpy
-
-from . import TEST_BACKENDS
+from gwpopulation.utils import to_numpy, trapezoid
 
 xp = np
 N_TEST = 10
@@ -68,7 +66,6 @@ def interpolated_prior(n_nodes):
     return prior
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_double_power_law_zero_below_mmin(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -83,7 +80,6 @@ def test_double_power_law_zero_below_mmin(backend):
         assert np.max(p_m[to_numpy(m1s) < parameters["mmin"]]) == 0.0
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_power_law_primary_mass_ratio_zero_above_mmax(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -157,9 +153,7 @@ def analytic_prior(model):
     raise ValueError(f"{model} not known")
 
 
-@pytest.mark.parametrize(
-    "backend,model", itertools.product(TEST_BACKENDS, analytic_models.keys())
-)
+@pytest.mark.parametrize("model", analytic_models.keys())
 def test_zero_below_mmin(backend, model):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -174,9 +168,7 @@ def test_zero_below_mmin(backend, model):
         assert np.max(p_m[to_numpy(m2s) < parameters["mmin"]]) == 0.0
 
 
-@pytest.mark.parametrize(
-    "backend,model", itertools.product(TEST_BACKENDS, analytic_models.keys())
-)
+@pytest.mark.parametrize("model", analytic_models.keys())
 def test_zero_above_mmax(backend, model):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -192,7 +184,6 @@ def test_zero_above_mmax(backend, model):
         assert np.max(p_m[to_numpy(m1s) > mmax]) == 0.0
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_single_peak_delta_m_zero_matches_two_component_primary_mass_ratio(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -210,7 +201,6 @@ def test_single_peak_delta_m_zero_matches_two_component_primary_mass_ratio(backe
     assert max(max_diffs) < 1e-5
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_double_peak_delta_m_zero_matches_three_component_primary_mass_ratio(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -247,11 +237,10 @@ def _normalised(model, prior, xp):
     for _ in range(N_TEST):
         parameters = prior.sample()
         p_m = model(dataset, **parameters)
-        norms.append(float(xp.trapz(xp.trapz(p_m, m1s), qs)))
+    norms.append(float(trapezoid(trapezoid(p_m, m1s), qs)))
     assert _max_abs_difference(norms, 1.0, xp=xp) < 0.01
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_single_peak_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -262,7 +251,6 @@ def test_single_peak_normalised(backend):
     _normalised(model, prior, xp)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_double_peak_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -273,7 +261,6 @@ def test_double_peak_normalised(backend):
     _normalised(model, prior, xp)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_broken_power_law_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -283,7 +270,6 @@ def test_broken_power_law_normalised(backend):
     _normalised(model, prior, xp)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_broken_power_law_peak_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -294,7 +280,6 @@ def test_broken_power_law_peak_normalised(backend):
     _normalised(model, prior, xp)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_set_minimum_and_maximum(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -340,7 +325,6 @@ def test_mmax_above_global_maximum_raises_error():
         model(dict(mass_1=5, mass_ratio=0.9), **parameters)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_interpolated_power_law_p_m1_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp

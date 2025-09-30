@@ -7,7 +7,7 @@ import inspect
 import numpy as np
 import scipy.special as scs
 
-from ..utils import powerlaw, truncnorm
+from ..utils import powerlaw, trapezoid, truncnorm
 from .interped import InterpolatedNoBaseModelIdentical
 
 xp = np
@@ -606,7 +606,7 @@ class BaseSmoothedMassDistribution:
         p_m = self.__class__.primary_model(self.m1s, **kwargs)
         p_m *= self.smoothing(self.m1s, mmin=mmin, mmax=self.mmax, delta_m=delta_m)
 
-        norm = xp.nan_to_num(xp.trapz(p_m, self.m1s)) * (delta_m != 0) + 1 * (
+        norm = xp.nan_to_num(trapezoid(p_m, self.m1s)) * (delta_m != 0) + 1 * (
             delta_m == 0
         )
         return norm
@@ -639,7 +639,7 @@ class BaseSmoothedMassDistribution:
             self.m1s_grid * self.qs_grid, mmin=mmin, mmax=self.m1s_grid, delta_m=delta_m
         )
 
-        norms = xp.nan_to_num(xp.trapz(p_q, self.qs, axis=0)) * (delta_m != 0) + 1 * (
+        norms = xp.nan_to_num(trapezoid(p_q, self.qs, axis=0)) * (delta_m != 0) + 1 * (
             delta_m == 0
         )
 
@@ -948,5 +948,5 @@ class InterpolatedPowerlaw(
             delta_m > 0
         )
         p_m *= xp.exp(self._norm_spline(y=f_splines))
-        norm = xp.trapz(p_m, self.m1s)
+        norm = trapezoid(p_m, self.m1s)
         return norm

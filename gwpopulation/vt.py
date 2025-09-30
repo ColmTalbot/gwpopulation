@@ -47,7 +47,7 @@ import numpy as np
 from bilby.hyper.model import Model
 
 from .models.redshift import _Redshift, total_four_volume
-from .utils import to_number
+from .utils import to_number, trapezoid
 
 xp = np
 
@@ -97,7 +97,7 @@ class GridVT(_BaseVT):
         self.model.parameters.update(parameters)
         vt_fac = self.model.prob(self.data) * self.vts
         for ii in range(self.ndim):
-            vt_fac = xp.trapz(
+            vt_fac = trapezoid(
                 vt_fac, self.values[self.axes[self.ndim - ii - 1]], axis=-1
             )
         return vt_fac

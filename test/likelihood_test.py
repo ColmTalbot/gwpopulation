@@ -157,8 +157,7 @@ class Likelihoods(unittest.TestCase):
             ln_evidences=self.ln_evidences,
         )
         self.params["bar"] = None
-        like.parameters.update(self.params)
-        like.log_likelihood_ratio()
+        like.log_likelihood_ratio(self.params)
         self.assertFalse("bar" in like.parameters)
 
     def test_rate_likelihood_conversion_function_pops_parameters(self):
@@ -171,8 +170,7 @@ class Likelihoods(unittest.TestCase):
         )
         self.params["bar"] = None
         self.params["rate"] = 1
-        like.parameters.update(self.params)
-        like.log_likelihood_ratio()
+        like.log_likelihood_ratio(self.params)
         self.assertFalse("bar" in like.parameters)
 
     def test_rate_likelihood_requires_rate(self):

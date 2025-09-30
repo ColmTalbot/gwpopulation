@@ -6,37 +6,41 @@ import pytest
 from bilby.hyper.model import Model
 
 import gwpopulation
-from gwpopulation.experimental.jax import JittedLikelihood, NonCachingModel
-
-from . import TEST_BACKENDS
+from gwpopulation.experimental.jax import JittedLikelihood
 
 
-def _template_likelihod_evaluation(backend, jit):
+@pytest.mark.parametrize("jit", [True, False])
+def test_likelihood_evaluation(backend, jit):
+    if backend != "jax" and jit:
+        pytest.skip(reason="JIT only works with JAX")
+
     gwpopulation.set_backend(backend)
     xp = gwpopulation.models.mass.xp
     bilby.core.utils.random.seed(10)
     rng = bilby.core.utils.random.rng
 
     if jit:
-        model_cls = NonCachingModel
+        cache = False
     else:
-        model_cls = Model
+        cache = True
 
-    model = model_cls(
+    model = Model(
         [
             gwpopulation.models.mass.SinglePeakSmoothedMassDistribution(),
             gwpopulation.models.spin.independent_spin_magnitude_beta,
             gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic,
             gwpopulation.models.redshift.PowerLawRedshift(),
-        ]
+        ],
+        cache=cache,
     )
-    vt_model = model_cls(
+    vt_model = Model(
         [
             gwpopulation.models.mass.SinglePeakSmoothedMassDistribution(),
             gwpopulation.models.spin.independent_spin_magnitude_beta,
             gwpopulation.models.spin.independent_spin_orientation_gaussian_isotropic,
             gwpopulation.models.redshift.PowerLawRedshift(),
-        ]
+        ],
+        cache=cache,
     )
 
     bounds = dict(
@@ -72,19 +76,9 @@ def _template_likelihod_evaluation(backend, jit):
     assert abs(likelihood.log_likelihood_ratio() + 7.037596674351107) < 0.01
     if jit:
         likelihood = JittedLikelihood(likelihood)
+        likelihood.parameters.update(prior_sample)
     assert abs(likelihood.log_likelihood_ratio() + 7.037596674351107) < 0.01
     likelihood.posterior_predictive_resample(pd.DataFrame(priors.sample(5)))
-
-
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
-def test_likelihood_evaluation(backend):
-    _template_likelihod_evaluation(backend, False)
-
-
-def test_jit_likelihood():
-    pytest.importorskip("jax")
-
-    _template_likelihod_evaluation("jax", True)
 
 
 def test_prior_files_load():

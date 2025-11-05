@@ -4,7 +4,6 @@ from functools import partial
 
 import numpy as np
 from bilby.core.likelihood import Likelihood
-from bilby.hyper.model import Model
 
 
 def generic_bilby_likelihood_function(likelihood, parameters, use_ratio=True):

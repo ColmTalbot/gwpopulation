@@ -7,6 +7,7 @@ can be used to add cosmological functionality to a population model.
 """
 
 import numpy as xp
+from bilby.hyper.model import Model
 from wcosmo import z_at_value
 from wcosmo.astropy import WCosmoMixin, available
 from wcosmo.utils import disable_units as wcosmo_disable_units

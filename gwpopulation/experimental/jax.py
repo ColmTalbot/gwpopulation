@@ -28,22 +28,6 @@ def generic_bilby_likelihood_function(likelihood, parameters, use_ratio=True):
         return likelihood.log_likelihood(parameters)
 
 
-class NonCachingModel(Model):
-    """
-    Modified version of :func:`bilby.hyper.model.Model` that disables caching for jax.
-
-    This is deprecated and the Bilby version should be used directly with `cache=False`.
-    """
-
-    def __init__(self, model_functions):
-        warnings.warn(
-            "NonCachingModel is deprecated and will be removed in a future version. "
-            "Please use bilby.hyper.model.Model with cache=False instead.",
-            DeprecationWarning,
-        )
-        super().__init__(model_functions, cache=False)
-
-
 class JittedLikelihood(Likelihood):
     """
     A wrapper to just-in-time compile a :code:`Bilby` likelihood for use with :code:`jax`.

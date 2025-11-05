@@ -530,3 +530,4 @@ class NullHyperparameterLikelihood(HyperparameterLikelihood):
         """
         _, variance = super().ln_likelihood_and_variance(parameters)
         return 0.0, variance
+

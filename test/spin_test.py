@@ -256,7 +256,7 @@ def test_spline_spin_magnitude_normalised(backend, nodes):
     model = spin.SplineSpinMagnitudeIdentical(nodes=nodes)
     prior = spline_magnitude_prior(nodes)
     a_array, dataset = magnitude_test_data(xp)
-    
+
     norms = list()
     # Use fewer iterations for computational efficiency
     n_test = 10
@@ -265,7 +265,7 @@ def test_spline_spin_magnitude_normalised(backend, nodes):
         prob = model(dataset, **parameters)
         norm = float(trapezoid(trapezoid(prob, a_array), a_array))
         norms.append(norm)
-    
+
     # Allow 5% error tolerance for numerical integration
     assert xp.max(xp.abs(1 - xp.asarray(norms))) < 0.05
 
@@ -279,11 +279,11 @@ def test_spline_spin_magnitude_interpolation_kind(backend, kind):
     model = spin.SplineSpinMagnitudeIdentical(nodes=nodes, kind=kind)
     prior = spline_magnitude_prior(nodes)
     a_array, dataset = magnitude_test_data(xp)
-    
+
     parameters = prior.sample()
     prob = model(dataset, **parameters)
     norm = float(trapezoid(trapezoid(prob, a_array), a_array))
-    
+
     # Should be normalized regardless of interpolation kind
     assert abs(norm - 1.0) < 1e-2
 
@@ -296,16 +296,16 @@ def test_spline_spin_magnitude_regularization(backend, regularize):
     nodes = 5
     model = spin.SplineSpinMagnitudeIdentical(nodes=nodes, regularize=regularize)
     prior = spline_magnitude_prior(nodes)
-    
+
     if regularize:
         prior["rmsa"] = Uniform(0.1, 2.0)
-    
+
     a_array, dataset = magnitude_test_data(xp)
     parameters = prior.sample()
-    
+
     # Should not raise an error
     prob = model(dataset, **parameters)
-    
+
     # Check that variable names match expected
     if regularize:
         assert "rmsa" in model.variable_names
@@ -319,23 +319,25 @@ def test_spline_spin_magnitude_zero_outside_range(backend):
     xp = gwpopulation.utils.xp
     nodes = 5
     minimum, maximum = 0.2, 0.8
-    model = spin.SplineSpinMagnitudeIdentical(minimum=minimum, maximum=maximum, nodes=nodes)
+    model = spin.SplineSpinMagnitudeIdentical(
+        minimum=minimum, maximum=maximum, nodes=nodes
+    )
     prior = spline_magnitude_prior(nodes, minimum=minimum, maximum=maximum)
-    
+
     # Create test data that includes values outside the range
     a_array = xp.linspace(0, 1, 2000)
     dataset = dict(
         a_1=xp.einsum("i,j->ij", a_array, xp.ones_like(a_array)),
         a_2=xp.einsum("i,j->ji", a_array, xp.ones_like(a_array)),
     )
-    
+
     parameters = prior.sample()
     prob = model(dataset, **parameters)
-    
+
     # Values outside [0.2, 0.8] should be zero
     prob_np = gwpopulation.utils.to_numpy(prob)
     a_array_np = gwpopulation.utils.to_numpy(a_array)
-    
+
     assert xp.max(prob_np[(a_array_np < minimum) | (a_array_np > maximum)]) == 0.0
 
 
@@ -343,11 +345,11 @@ def test_spline_spin_magnitude_variable_names():
     """Test that variable_names property works for SplineSpinMagnitudeIdentical."""
     nodes = 5
     model = spin.SplineSpinMagnitudeIdentical(nodes=nodes, regularize=False)
-    
+
     # Should have node positions and values
     expected = [f"a{ii}" for ii in range(nodes)] + [f"fa{ii}" for ii in range(nodes)]
     assert set(model.variable_names) == set(expected)
-    
+
     # With regularization, should also have rms parameter
     model_reg = spin.SplineSpinMagnitudeIdentical(nodes=nodes, regularize=True)
     expected_reg = expected + ["rmsa"]
@@ -365,7 +367,7 @@ def test_spline_spin_tilt_normalised(backend, nodes):
     model = spin.SplineSpinTiltIdentical(nodes=nodes)
     prior = spline_tilt_prior(nodes)
     costilts, dataset = tilt_test_data(xp)
-    
+
     norms = list()
     # Use fewer iterations for computational efficiency
     n_test = 10
@@ -374,7 +376,7 @@ def test_spline_spin_tilt_normalised(backend, nodes):
         prob = model(dataset, **parameters)
         norm = float(trapezoid(trapezoid(prob, costilts), costilts))
         norms.append(norm)
-    
+
     # Allow 5% error tolerance for numerical integration
     assert xp.max(xp.abs(1 - xp.asarray(norms))) < 0.05
 
@@ -388,11 +390,11 @@ def test_spline_spin_tilt_interpolation_kind(backend, kind):
     model = spin.SplineSpinTiltIdentical(nodes=nodes, kind=kind)
     prior = spline_tilt_prior(nodes)
     costilts, dataset = tilt_test_data(xp)
-    
+
     parameters = prior.sample()
     prob = model(dataset, **parameters)
     norm = float(trapezoid(trapezoid(prob, costilts), costilts))
-    
+
     # Should be normalized regardless of interpolation kind
     # Allow 5% error tolerance for numerical integration
     assert abs(norm - 1.0) < 0.05
@@ -406,16 +408,16 @@ def test_spline_spin_tilt_regularization(backend, regularize):
     nodes = 5
     model = spin.SplineSpinTiltIdentical(nodes=nodes, regularize=regularize)
     prior = spline_tilt_prior(nodes)
-    
+
     if regularize:
         prior["rmscos_tilt"] = Uniform(0.1, 2.0)
-    
+
     costilts, dataset = tilt_test_data(xp)
     parameters = prior.sample()
-    
+
     # Should not raise an error
     prob = model(dataset, **parameters)
-    
+
     # Check that variable names match expected
     if regularize:
         assert "rmscos_tilt" in model.variable_names
@@ -431,21 +433,21 @@ def test_spline_spin_tilt_zero_outside_range(backend):
     minimum, maximum = -0.5, 0.5
     model = spin.SplineSpinTiltIdentical(minimum=minimum, maximum=maximum, nodes=nodes)
     prior = spline_tilt_prior(nodes, minimum=minimum, maximum=maximum)
-    
+
     # Create test data that includes values outside the range
     costilts = xp.linspace(-1, 1, 2000)
     dataset = dict(
         cos_tilt_1=xp.einsum("i,j->ij", costilts, xp.ones_like(costilts)),
         cos_tilt_2=xp.einsum("i,j->ji", costilts, xp.ones_like(costilts)),
     )
-    
+
     parameters = prior.sample()
     prob = model(dataset, **parameters)
-    
+
     # Values outside [-0.5, 0.5] should be zero
     prob_np = gwpopulation.utils.to_numpy(prob)
     costilts_np = gwpopulation.utils.to_numpy(costilts)
-    
+
     assert xp.max(prob_np[(costilts_np < minimum) | (costilts_np > maximum)]) == 0.0
 
 
@@ -453,11 +455,13 @@ def test_spline_spin_tilt_variable_names():
     """Test that variable_names property works for SplineSpinTiltIdentical."""
     nodes = 5
     model = spin.SplineSpinTiltIdentical(nodes=nodes, regularize=False)
-    
+
     # Should have node positions and values
-    expected = [f"cos_tilt{ii}" for ii in range(nodes)] + [f"fcos_tilt{ii}" for ii in range(nodes)]
+    expected = [f"cos_tilt{ii}" for ii in range(nodes)] + [
+        f"fcos_tilt{ii}" for ii in range(nodes)
+    ]
     assert set(model.variable_names) == set(expected)
-    
+
     # With regularization, should also have rms parameter
     model_reg = spin.SplineSpinTiltIdentical(nodes=nodes, regularize=True)
     expected_reg = expected + ["rmscos_tilt"]
@@ -474,16 +478,16 @@ def test_spline_magnitude_at_boundaries(backend):
     nodes = 5
     model = spin.SplineSpinMagnitudeIdentical(minimum=0, maximum=1, nodes=nodes)
     prior = spline_magnitude_prior(nodes)
-    
+
     # Test with data exactly at boundaries
     dataset = dict(
         a_1=xp.array([[0.0, 0.5, 1.0]]),
         a_2=xp.array([[0.0, 0.5, 1.0]]),
     )
-    
+
     parameters = prior.sample()
     prob = model(dataset, **parameters)
-    
+
     # Should get valid probabilities at boundaries
     assert xp.all(prob >= 0)
 
@@ -495,15 +499,15 @@ def test_spline_tilt_at_boundaries(backend):
     nodes = 5
     model = spin.SplineSpinTiltIdentical(minimum=-1, maximum=1, nodes=nodes)
     prior = spline_tilt_prior(nodes)
-    
+
     # Test with data exactly at boundaries
     dataset = dict(
         cos_tilt_1=xp.array([[-1.0, 0.0, 1.0]]),
         cos_tilt_2=xp.array([[-1.0, 0.0, 1.0]]),
     )
-    
+
     parameters = prior.sample()
     prob = model(dataset, **parameters)
-    
+
     # Should get valid probabilities at boundaries
     assert xp.all(prob >= 0)

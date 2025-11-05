@@ -94,8 +94,7 @@ class GridVT(_BaseVT):
         self.ndim = len(self.axes)
 
     def __call__(self, parameters):
-        self.model.parameters.update(parameters)
-        vt_fac = self.model.prob(self.data) * self.vts
+        vt_fac = self.model.prob(self.data, **parameters) * self.vts
         for ii in range(self.ndim):
             vt_fac = trapezoid(
                 vt_fac, self.values[self.axes[self.ndim - ii - 1]], axis=-1
@@ -250,8 +249,7 @@ class ResamplingVT(_BaseVT):
         var: float
             The variance in the estimate of :math:`P_{\rm det}`.
         """
-        self.model.parameters.update(parameters)
-        weights = self.model.prob(self.data) / self.data["prior"]
+        weights = self.model.prob(self.data, **parameters) / self.data["prior"]
         mu = to_number(xp.sum(weights) / self.total_injections, float)
         var = to_number(
             xp.sum(weights**2) / self.total_injections**2

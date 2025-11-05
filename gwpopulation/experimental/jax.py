@@ -62,7 +62,5 @@ class JittedLikelihood(Likelihood):
     def __getattr__(self, name):
         return getattr(self._likelihood, name)
 
-    def log_likelihood_ratio(self, parameters=None):
-        if parameters is None:
-            parameters = deepcopy(self.parameters)
+    def log_likelihood_ratio(self, parameters):
         return float(np.nan_to_num(self.likelihood_func(parameters, **self.kwargs)))

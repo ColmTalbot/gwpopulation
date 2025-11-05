@@ -4,7 +4,7 @@ Implemented spin models
 
 import numpy as xp
 
-from ..utils import beta_dist, truncnorm, unnormalized_2d_gaussian
+from ..utils import beta_dist, trapezoid, truncnorm, unnormalized_2d_gaussian
 from .interped import InterpolatedNoBaseModelIdentical
 
 __all__ = [
@@ -92,7 +92,7 @@ def independent_spin_magnitude_beta(
     return prior
 
 
-def iid_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_spin):
+def iid_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_spin, mu_spin=1):
     r"""
     A mixture model of spin orientations with isotropic and normally
     distributed components. The distribution of primary and secondary spin
@@ -113,16 +113,20 @@ def iid_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_spin):
     dataset: dict
         Dictionary of numpy arrays for 'cos_tilt_1' and 'cos_tilt_2'.
     xi_spin: float
-        Fraction of black holes in preferentially aligned component (:math:`\xi`).
+        Fraction of black holes in gaussian component (:math:`\xi`).
     sigma_spin: float
-        Width of preferentially aligned component.
+        Width of gaussian component.
+    mu_spin: float
+        Mean of the gaussian component (default: cos_tilt = 1).
     """
     return independent_spin_orientation_gaussian_isotropic(
-        dataset, xi_spin, sigma_spin, sigma_spin
+        dataset, xi_spin, sigma_spin, sigma_spin, mu_spin, mu_spin
     )
 
 
-def independent_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_1, sigma_2):
+def independent_spin_orientation_gaussian_isotropic(
+    dataset, xi_spin, sigma_1, sigma_2, mu_1=1, mu_2=1
+):
     r"""
     A mixture model of spin orientations with isotropic and normally
     distributed components.
@@ -142,17 +146,23 @@ def independent_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_1, s
     dataset: dict
         Dictionary of numpy arrays for 'cos_tilt_1' and 'cos_tilt_2'.
     xi_spin: float
-        Fraction of black holes in preferentially aligned component (:math:`\xi`).
+        Fraction of black holes in gaussian component (:math:`\xi`).
+    mu_1: float
+        Mean of the gaussian component for the more
+        massive black hole (:math:`\mu_1`).
+    mu_2: float
+        Mean of the gaussian component for the less
+        massive black hole (:math:`\mu_2`).
     sigma_1: float
-        Width of preferentially aligned component for the more
+        Width of the gaussian component for the more
         massive black hole (:math:`\sigma_1`).
     sigma_2: float
-        Width of preferentially aligned component for the less
+        Width of the gaussian component for the less
         massive black hole (:math:`\sigma_2`).
     """
     prior = (1 - xi_spin) / 4 + xi_spin * truncnorm(
-        dataset["cos_tilt_1"], 1, sigma_1, 1, -1
-    ) * truncnorm(dataset["cos_tilt_2"], 1, sigma_2, 1, -1)
+        dataset["cos_tilt_1"], mu_1, sigma_1, 1, -1
+    ) * truncnorm(dataset["cos_tilt_2"], mu_2, sigma_2, 1, -1)
     return prior
 
 
@@ -259,35 +269,26 @@ class GaussianChiEffChiP(object):
     def __call__(
         self, dataset, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
     ):
-        if spin_covariance == 0:
-            prob = gaussian_chi_eff(
-                dataset=dataset,
-                mu_chi_eff=mu_chi_eff,
-                sigma_chi_eff=sigma_chi_eff,
-            )
-            prob *= gaussian_chi_p(
-                dataset=dataset, mu_chi_p=mu_chi_p, sigma_chi_p=sigma_chi_p
-            )
-        else:
-            prob = unnormalized_2d_gaussian(
-                dataset["chi_eff"],
-                dataset["chi_p"],
-                mu_chi_eff,
-                mu_chi_p,
-                sigma_chi_eff,
-                sigma_chi_p,
-                spin_covariance,
-            )
-            normalization = self._normalization(
-                mu_chi_eff=mu_chi_eff,
-                sigma_chi_eff=sigma_chi_eff,
-                mu_chi_p=mu_chi_p,
-                sigma_chi_p=sigma_chi_p,
-                spin_covariance=spin_covariance,
-            )
-            prob /= normalization
-            prob *= xp.abs(dataset["chi_eff"]) <= 1
-            prob *= (dataset["chi_p"] <= 1) * (dataset["chi_p"] >= 0)
+
+        prob = unnormalized_2d_gaussian(
+            dataset["chi_eff"],
+            dataset["chi_p"],
+            mu_chi_eff,
+            mu_chi_p,
+            sigma_chi_eff,
+            sigma_chi_p,
+            spin_covariance,
+        )
+        normalization = self._normalization(
+            mu_chi_eff=mu_chi_eff,
+            sigma_chi_eff=sigma_chi_eff,
+            mu_chi_p=mu_chi_p,
+            sigma_chi_p=sigma_chi_p,
+            spin_covariance=spin_covariance,
+        )
+        prob /= normalization
+        prob *= xp.abs(dataset["chi_eff"]) <= 1
+        prob *= (dataset["chi_p"] <= 1) * (dataset["chi_p"] >= 0)
         return prob
 
     def _normalization(
@@ -324,8 +325,8 @@ class GaussianChiEffChiP(object):
             sigma_chi_p,
             spin_covariance,
         )
-        return xp.trapz(
-            y=xp.trapz(y=prob, axis=-1, x=self.chi_eff), axis=-1, x=self.chi_p
+        return trapezoid(
+            y=trapezoid(y=prob, axis=-1, x=self.chi_eff), axis=-1, x=self.chi_p
         )
 
 

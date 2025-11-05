@@ -117,13 +117,10 @@ def _configure_jax(xp):
     Configuration requirements for :code:`jax`
 
     - use 64-bit floats.
-    - update :code:`xp.trapz` to :code:`jax.scipy.integrate.trapezoid`
     """
     from jax import config
-    from jax.scipy.integrate import trapezoid
 
     config.update("jax_enable_x64", True)
-    xp.trapz = trapezoid
 
 
 def _load_numpy_and_scipy(backend):

@@ -6,8 +6,6 @@ from scipy.stats import vonmises
 import gwpopulation
 from gwpopulation import utils
 
-from . import TEST_BACKENDS
-
 N_TEST = 100
 
 
@@ -70,7 +68,6 @@ def test_powerlaw_low_below_zero_raises_value_error():
         utils.powerlaw(xx=0, alpha=3, high=10, low=-4)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_powerlaw_alpha_equal_zero(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -111,7 +108,25 @@ def test_truncnorm_sigma_below_zero_raises_value_error():
         utils.truncnorm(xx=0, mu=0, sigma=-1, high=10, low=-10)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
+def test_truncnorm_matches_scipy(backend):
+    from scipy.stats import truncnorm
+
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(-2, 2, 1000)
+    for ii in range(N_TEST):
+        mu = np.random.uniform(-10, 10)
+        sigma = np.random.uniform(0, 5)
+        low, high = np.sort(np.random.uniform(-10, 10, 2))
+        gwpop_vals = utils.to_numpy(
+            utils.truncnorm(xx, mu=mu, sigma=sigma, low=low, high=high)
+        )
+        scipy_vals = truncnorm(
+            loc=mu, scale=sigma, a=(low - mu) / sigma, b=(high - mu) / sigma
+        ).pdf(utils.to_numpy(xx))
+        assert max(abs(gwpop_vals - scipy_vals)) < 1e-3
+
+
 def test_matches_scipy(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -163,3 +178,15 @@ def test_non_callable_op_raises_error():
 
     with pytest.raises(ValueError):
         _condition_func(a=1)
+
+
+def test_trapezoid_matches_scipy(backend):
+    from scipy.integrate import trapezoid
+
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    x = xp.linspace(0, 10, 1000)
+    y = xp.sin(x) + 1.1
+    gwpop_int = utils.trapezoid(y, x)
+    scipy_int = float(trapezoid(y, x))
+    assert abs(gwpop_int - scipy_int) < 1e-10

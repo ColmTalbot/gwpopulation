@@ -10,8 +10,6 @@ from gwpopulation.models.interped import (
     _setup_interpolant,
 )
 
-from . import TEST_BACKENDS
-
 
 @pytest.mark.parametrize("regularize", [True, False])
 def test_regularization_works(regularize):
@@ -38,7 +36,6 @@ def test_regularize_option_adds_rms_variable():
         assert ("rmsa" in model.variable_names) is regularize
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_setup_interpolant_obeys_backend(backend):
     xp = importlib.import_module(_np_module[backend])
     interpolant = _setup_interpolant(
@@ -49,7 +46,6 @@ def test_setup_interpolant_obeys_backend(backend):
     assert isinstance(interpolant.func.conversion, xp.ndarray)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_setup_interpolant_obeys_backend_implicit(backend):
     xp = importlib.import_module(_np_module[backend])
     set_backend(backend)

@@ -1,3 +1,5 @@
+import warnings
+from copy import deepcopy
 from functools import partial
 
 import numpy as np
@@ -19,39 +21,27 @@ def generic_bilby_likelihood_function(likelihood, parameters, use_ratio=True):
         Whether to evaluate the likelihood ratio or the full likelihood.
         Default is :code:`True`.
     """
-    likelihood.parameters.update(parameters)
+    # likelihood.parameters.update(parameters)
     if use_ratio:
-        return likelihood.log_likelihood_ratio()
+        return likelihood.log_likelihood_ratio(parameters)
     else:
-        return likelihood.log_likelihood()
+        return likelihood.log_likelihood(parameters)
 
 
 class NonCachingModel(Model):
     """
-    Modified version of bilby.hyper.model.Model that disables caching for jax.
+    Modified version of :func:`bilby.hyper.model.Model` that disables caching for jax.
+
+    This is deprecated and the Bilby version should be used directly with `cache=False`.
     """
 
-    def prob(self, data, **kwargs):
-        """
-        Compute the total population probability for the provided data given
-        the keyword arguments.
-
-        Parameters
-        ==========
-        data: dict
-            Dictionary containing the points at which to evaluate the
-            population model.
-        kwargs: dict
-            The population parameters. These cannot include any of
-            :code:`["dataset", "data", "self", "cls"]` unless the
-            :code:`variable_names` attribute is available for the relevant
-            model.
-        """
-        probability = 1.0
-        for function in self.models:
-            new_probability = function(data, **self._get_function_parameters(function))
-            probability *= new_probability
-        return probability
+    def __init__(self, model_functions):
+        warnings.warn(
+            "NonCachingModel is deprecated and will be removed in a future version. "
+            "Please use bilby.hyper.model.Model with cache=False instead.",
+            DeprecationWarning,
+        )
+        super().__init__(model_functions, cache=False)
 
 
 class JittedLikelihood(Likelihood):
@@ -90,7 +80,7 @@ class JittedLikelihood(Likelihood):
     def __getattr__(self, name):
         return getattr(self._likelihood, name)
 
-    def log_likelihood_ratio(self):
-        return float(
-            np.nan_to_num(self.likelihood_func(self.parameters, **self.kwargs))
-        )
+    def log_likelihood_ratio(self, parameters=None):
+        if parameters is None:
+            parameters = deepcopy(self.parameters)
+        return float(np.nan_to_num(self.likelihood_func(parameters, **self.kwargs)))

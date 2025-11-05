@@ -6,8 +6,7 @@ from wcosmo.utils import disable_units
 
 import gwpopulation
 from gwpopulation.models import redshift
-
-from . import TEST_BACKENDS
+from gwpopulation.utils import trapezoid
 
 N_TEST = 100
 
@@ -18,11 +17,10 @@ def _run_model_normalisation(model, priors, xp=np):
     norms = list()
     for _ in range(N_TEST):
         p_z = model(test_data, **priors.sample())
-        norms.append(float(xp.trapz(p_z, zs)))
+        norms.append(float(trapezoid(p_z, zs)))
     assert np.max(np.abs(np.array(norms) - 1)) < 1e-3
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_powerlaw_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -32,7 +30,6 @@ def test_powerlaw_normalised(backend):
     _run_model_normalisation(model=model, priors=priors, xp=xp)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_madau_dickinson_normalised(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -44,7 +41,6 @@ def test_madau_dickinson_normalised(backend):
     _run_model_normalisation(model=model, priors=priors, xp=xp)
 
 
-@pytest.mark.parametrize("backend", TEST_BACKENDS)
 def test_powerlaw_volume(backend):
     """
     Test that the total volume matches astropy for a
@@ -57,7 +53,7 @@ def test_powerlaw_volume(backend):
     zs_numpy = gwpopulation.utils.to_numpy(zs)
     model = redshift.PowerLawRedshift()
     parameters = dict(lamb=1)
-    total_volume = xp.trapz(
+    total_volume = trapezoid(
         Planck15.differential_comoving_volume(zs) * 4 * np.pi,
         zs,
     )

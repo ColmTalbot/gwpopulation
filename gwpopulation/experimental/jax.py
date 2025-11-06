@@ -57,7 +57,7 @@ class JittedLikelihood(Likelihood):
         self.kwargs = kwargs
         self._likelihood = likelihood
         self.likelihood_func = jit(partial(likelihood_func, likelihood))
-        super().__init__(dict())
+        super().__init__()
 
     def __getattr__(self, name):
         return getattr(self._likelihood, name)

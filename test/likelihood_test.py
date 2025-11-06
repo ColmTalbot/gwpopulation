@@ -114,7 +114,7 @@ class Likelihoods(unittest.TestCase):
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
         )
-        self.assertEqual(like.log_likelihood_ratio(self.params), like.log_likelihood())
+        self.assertEqual(like.log_likelihood_ratio(self.params), like.log_likelihood(self.params))
 
     def test_hpe_likelihood_population_variance_too_large_returns_neginf(self):
         xp.random.seed(10)
@@ -139,29 +139,6 @@ class Likelihoods(unittest.TestCase):
         )
         like._get_selection_factor = lambda *args, **kwargs: (0, 0)
         self.assertEqual(like.log_likelihood_ratio(self.params), 0.0)
-
-    def test_hpe_likelihood_conversion_function_pops_parameters(self):
-        like = HyperparameterLikelihood(
-            posteriors=self.data,
-            hyper_prior=self.model,
-            conversion_function=self.conversion_function,
-            selection_function=self.selection_function,
-            ln_evidences=self.ln_evidences,
-        )
-        like.log_likelihood_ratio(self.params)
-        self.assertFalse("bar" in self.params)
-
-    def test_rate_likelihood_conversion_function_pops_parameters(self):
-        like = RateLikelihood(
-            posteriors=self.data,
-            hyper_prior=self.model,
-            conversion_function=self.conversion_function,
-            selection_function=self.selection_function,
-            ln_evidences=self.ln_evidences,
-        )
-        self.params["rate"] = 1
-        like.log_likelihood_ratio(self.params)
-        self.assertFalse("bar" in self.params)
 
     def test_rate_likelihood_requires_rate(self):
         like = RateLikelihood(
@@ -211,7 +188,7 @@ class Likelihoods(unittest.TestCase):
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
         )
-        self.assertGreater(like.generate_rate_posterior_sample(), 0)
+        self.assertGreater(like.generate_rate_posterior_sample(self.params), 0)
 
     def test_resampling_posteriors(self):
         priors = PriorDict(dict(a=Uniform(0, 2), b=Uniform(0, 2), c=Uniform(0, 2)))

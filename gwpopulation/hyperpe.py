@@ -175,7 +175,6 @@ class HyperparameterLikelihood(Likelihood):
         )
         variance += selection_variance
         ln_l += selection
-        self._pop_added(added_keys, parameters=parameters)
         return ln_l, to_number(variance, float)
 
     def log_likelihood_ratio(self, parameters):
@@ -191,11 +190,6 @@ class HyperparameterLikelihood(Likelihood):
         return self.noise_log_likelihood() + self.log_likelihood_ratio(
             parameters=parameters
         )
-
-    def _pop_added(self, added_keys, parameters):
-        if added_keys is not None:
-            for key in added_keys:
-                parameters.pop(key)
 
     def _compute_per_event_ln_bayes_factors(self, parameters, *, return_uncertainty=True):
         weights = self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
@@ -278,7 +272,6 @@ class HyperparameterLikelihood(Likelihood):
         sample["selection_variance"] = variance
         total_variance += selection_variance
         sample["variance"] = to_number(total_variance, float)
-        self._pop_added(added_keys, parameters=parameters)
         return sample
 
     def generate_rate_posterior_sample(self, parameters):
@@ -385,7 +378,6 @@ class HyperparameterLikelihood(Likelihood):
             event_weights += xp.mean(new_weights, axis=-1)
             new_weights = (new_weights.T / xp.sum(new_weights, axis=-1)).T
             weights += new_weights
-            self._pop_added(added_keys, parameters=parameters)
         weights = (weights.T / xp.sum(weights, axis=-1)).T
         new_idxs = xp.empty_like(weights, dtype=int)
         for ii in range(self.n_posteriors):

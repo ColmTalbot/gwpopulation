@@ -122,7 +122,7 @@ class HyperparameterLikelihood(Likelihood):
                 "or a class with attribute 'parameters' and method 'prob'"
             )
         self.hyper_prior = hyper_prior
-        super(HyperparameterLikelihood, self).__init__(dict())
+        super(HyperparameterLikelihood, self).__init__()
 
         if "prior" in self.data:
             self.sampling_prior = self.data.pop("prior")

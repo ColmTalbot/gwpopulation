@@ -67,7 +67,6 @@ def test_likelihood_evaluation(backend, jit):
         hyper_prior=model,
         posteriors=posteriors,
         selection_function=selection,
-        cupy=False,
     )
 
     priors = bilby.core.prior.PriorDict("priors/bbh_population.prior")

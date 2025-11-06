@@ -58,7 +58,7 @@ def gwpopulation_likelihood_model(
     if apply_selection:
         selector = likelihood.selection_function
         injection_weights = (
-            selector.model.prob(selector.data, **paramaters) / selector.data["prior"]
+            selector.model.prob(selector.data, **parameters) / selector.data["prior"]
         )
         efficiency = jnp.sum(injection_weights) / selector.total_injections
         selection_uncertainty = (

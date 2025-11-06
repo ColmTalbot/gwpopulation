@@ -4,7 +4,6 @@ from functools import partial
 
 import numpy as np
 from bilby.core.likelihood import Likelihood
-from bilby.hyper.model import Model
 
 
 def generic_bilby_likelihood_function(likelihood, parameters, use_ratio=True):
@@ -21,27 +20,10 @@ def generic_bilby_likelihood_function(likelihood, parameters, use_ratio=True):
         Whether to evaluate the likelihood ratio or the full likelihood.
         Default is :code:`True`.
     """
-    # likelihood.parameters.update(parameters)
     if use_ratio:
         return likelihood.log_likelihood_ratio(parameters)
     else:
         return likelihood.log_likelihood(parameters)
-
-
-class NonCachingModel(Model):
-    """
-    Modified version of :func:`bilby.hyper.model.Model` that disables caching for jax.
-
-    This is deprecated and the Bilby version should be used directly with `cache=False`.
-    """
-
-    def __init__(self, model_functions):
-        warnings.warn(
-            "NonCachingModel is deprecated and will be removed in a future version. "
-            "Please use bilby.hyper.model.Model with cache=False instead.",
-            DeprecationWarning,
-        )
-        super().__init__(model_functions, cache=False)
 
 
 class JittedLikelihood(Likelihood):
@@ -75,12 +57,10 @@ class JittedLikelihood(Likelihood):
         self.kwargs = kwargs
         self._likelihood = likelihood
         self.likelihood_func = jit(partial(likelihood_func, likelihood))
-        super().__init__(dict())
+        super().__init__()
 
     def __getattr__(self, name):
         return getattr(self._likelihood, name)
 
-    def log_likelihood_ratio(self, parameters=None):
-        if parameters is None:
-            parameters = deepcopy(self.parameters)
+    def log_likelihood_ratio(self, parameters):
         return float(np.nan_to_num(self.likelihood_func(parameters, **self.kwargs)))

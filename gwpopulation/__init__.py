@@ -1,6 +1,6 @@
 """
 :code:`GWPopulation` is a Python package for doing population inference
-with the gravitational-wave transient catalogue supporting a range of 
+with the gravitational-wave transient catalogue supporting a range of
 numpy-like backends.
 
 This includes:

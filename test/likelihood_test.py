@@ -88,8 +88,7 @@ class Likelihoods(unittest.TestCase):
 
     def test_hpe_likelihood_log_likelihood_ratio(self):
         like = HyperparameterLikelihood(posteriors=self.data, hyper_prior=self.model)
-        like.parameters.update(self.params)
-        self.assertEqual(like.log_likelihood_ratio(), 0.0)
+        self.assertEqual(like.log_likelihood_ratio(self.params), 0.0)
 
     def test_hpe_likelihood_converts_nan_to_neginf(self):
         like = HyperparameterLikelihood(
@@ -97,8 +96,7 @@ class Likelihoods(unittest.TestCase):
             hyper_prior=self.model,
             selection_function=lambda *args, **kwargs: (np.nan, 0),
         )
-        like.parameters.update(self.params)
-        self.assertEqual(like.log_likelihood_ratio(), np.nan_to_num(-np.inf))
+        self.assertEqual(like.log_likelihood_ratio(self.params), np.nan_to_num(-np.inf))
 
     def test_hpe_likelihood_noise_likelihood_ratio(self):
         like = HyperparameterLikelihood(
@@ -107,7 +105,6 @@ class Likelihoods(unittest.TestCase):
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
         )
-        like.parameters.update(self.params)
         self.assertEqual(like.noise_log_likelihood(), 0)
 
     def test_hpe_likelihood_log_likelihood_equal_ratio_zero_evidence(self):
@@ -117,8 +114,9 @@ class Likelihoods(unittest.TestCase):
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
         )
-        like.parameters.update(self.params)
-        self.assertEqual(like.log_likelihood_ratio(), like.log_likelihood())
+        self.assertEqual(
+            like.log_likelihood_ratio(self.params), like.log_likelihood(self.params)
+        )
 
     def test_hpe_likelihood_population_variance_too_large_returns_neginf(self):
         xp.random.seed(10)
@@ -126,8 +124,7 @@ class Likelihoods(unittest.TestCase):
         like = HyperparameterLikelihood(
             posteriors=self.data, hyper_prior=self.model, maximum_uncertainty=1e-5
         )
-        like.parameters.update(self.params)
-        self.assertEqual(like.log_likelihood_ratio(), np.nan_to_num(-np.inf))
+        self.assertEqual(like.log_likelihood_ratio(self.params), np.nan_to_num(-np.inf))
 
     def test_hpe_likelihood_selection_variance_too_large_returns_neginf(self):
         like = HyperparameterLikelihood(
@@ -136,42 +133,14 @@ class Likelihoods(unittest.TestCase):
             maximum_uncertainty=0.1,
             selection_function=lambda *args, **kwargs: (1e-5, 1),
         )
-        # like._get_selection_factor = lambda *args, **kwargs: (0, 1)
-        like.parameters.update(self.params)
-        self.assertEqual(like.log_likelihood_ratio(), np.nan_to_num(-np.inf))
+        self.assertEqual(like.log_likelihood_ratio(self.params), np.nan_to_num(-np.inf))
 
     def test_hpe_likelihood_variance_small_enough_returns_expected(self):
         like = HyperparameterLikelihood(
             posteriors=self.data, hyper_prior=self.model, maximum_uncertainty=0.1
         )
         like._get_selection_factor = lambda *args, **kwargs: (0, 0)
-        like.parameters.update(self.params)
-        self.assertEqual(like.log_likelihood_ratio(), 0.0)
-
-    def test_hpe_likelihood_conversion_function_pops_parameters(self):
-        like = HyperparameterLikelihood(
-            posteriors=self.data,
-            hyper_prior=self.model,
-            conversion_function=self.conversion_function,
-            selection_function=self.selection_function,
-            ln_evidences=self.ln_evidences,
-        )
-        self.params["bar"] = None
-        like.log_likelihood_ratio(self.params)
-        self.assertFalse("bar" in like.parameters)
-
-    def test_rate_likelihood_conversion_function_pops_parameters(self):
-        like = RateLikelihood(
-            posteriors=self.data,
-            hyper_prior=self.model,
-            conversion_function=self.conversion_function,
-            selection_function=self.selection_function,
-            ln_evidences=self.ln_evidences,
-        )
-        self.params["bar"] = None
-        self.params["rate"] = 1
-        like.log_likelihood_ratio(self.params)
-        self.assertFalse("bar" in like.parameters)
+        self.assertEqual(like.log_likelihood_ratio(self.params), 0.0)
 
     def test_rate_likelihood_requires_rate(self):
         like = RateLikelihood(
@@ -180,9 +149,8 @@ class Likelihoods(unittest.TestCase):
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
         )
-        like.parameters.update(self.params)
         with self.assertRaises(KeyError):
-            like.log_likelihood_ratio()
+            like.log_likelihood_ratio(self.params)
 
     def test_generate_extra_statistics(self):
         like = HyperparameterLikelihood(
@@ -222,7 +190,7 @@ class Likelihoods(unittest.TestCase):
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
         )
-        self.assertGreater(like.generate_rate_posterior_sample(), 0)
+        self.assertGreater(like.generate_rate_posterior_sample(self.params), 0)
 
     def test_resampling_posteriors(self):
         priors = PriorDict(dict(a=Uniform(0, 2), b=Uniform(0, 2), c=Uniform(0, 2)))

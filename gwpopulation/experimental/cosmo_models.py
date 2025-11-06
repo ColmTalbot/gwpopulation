@@ -7,11 +7,10 @@ can be used to add cosmological functionality to a population model.
 """
 
 import numpy as xp
+from bilby.hyper.model import Model
 from wcosmo import z_at_value
 from wcosmo.astropy import WCosmoMixin, available
 from wcosmo.utils import disable_units as wcosmo_disable_units
-
-from .jax import NonCachingModel
 
 
 class CosmoMixin:
@@ -118,7 +117,7 @@ class CosmoMixin:
         return samples, jacobian
 
 
-class CosmoModel(NonCachingModel, CosmoMixin):
+class CosmoModel(Model, CosmoMixin):
     """
     Modified version of :code:`bilby.hyper.model.Model` that automatically
     updates the source-frame quantities given the detector-frame quantities and
@@ -135,7 +134,7 @@ class CosmoModel(NonCachingModel, CosmoMixin):
     """
 
     def __init__(self, model_functions=None, cosmo_model="Planck15"):
-        NonCachingModel.__init__(self, model_functions=model_functions)
+        Model.__init__(self, model_functions=model_functions, cache=False)
         CosmoMixin.__init__(self, cosmo_model=cosmo_model)
 
     def prob(self, data, **kwargs):

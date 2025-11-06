@@ -71,6 +71,7 @@ jobs:
         conda list -n test
     - name: Test with pytest
       run: |
+        export BILBY_ALLOW_PARAMETERS_AS_STATE=FALSE
         conda run -n test pytest --cov gwpopulation -ra --color yes --cov-report=xml --junitxml=pytest.xml
     - name: Publish coverage to Codecov
       uses: codecov/codecov-action@v4

@@ -5,7 +5,7 @@ The likelihood function used for population inference is given be
 .. math::
 
     {\cal L}(\{d_i\} | \Lambda) &= \prod_i {\cal L}(d_i | \Lambda, {\rm det})
-    
+
     &= \prod_i \frac{{\cal L}(d_i | \Lambda)}{P_{\rm det}(\Lambda)}
 
     &= \frac{1}{P_{\rm det}^{N}(\Lambda)} \prod_i \int d\theta_i p(d_i | \theta_i) \pi(\theta_i | \Lambda).
@@ -191,7 +191,9 @@ class HyperparameterLikelihood(Likelihood):
             parameters=parameters
         )
 
-    def _compute_per_event_ln_bayes_factors(self, parameters, *, return_uncertainty=True):
+    def _compute_per_event_ln_bayes_factors(
+        self, parameters, *, return_uncertainty=True
+    ):
         weights = self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
         expectation = xp.mean(weights, axis=-1)
         if return_uncertainty:
@@ -209,9 +211,7 @@ class HyperparameterLikelihood(Likelihood):
         )
         total_selection = -self.n_posteriors * xp.log(selection)
         if return_uncertainty:
-            total_variance = self.n_posteriors**2 * xp.divide(
-                variance, selection**2
-            )
+            total_variance = self.n_posteriors**2 * xp.divide(variance, selection**2)
             return total_selection, total_variance
         else:
             return total_selection
@@ -374,7 +374,9 @@ class HyperparameterLikelihood(Likelihood):
         event_weights = xp.zeros(self.n_posteriors)
         for sample in tqdm(samples):
             parameters, added_keys = self.conversion_function(sample.copy())
-            new_weights = self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
+            new_weights = (
+                self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
+            )
             event_weights += xp.mean(new_weights, axis=-1)
             new_weights = (new_weights.T / xp.sum(new_weights, axis=-1)).T
             weights += new_weights

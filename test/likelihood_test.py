@@ -114,7 +114,9 @@ class Likelihoods(unittest.TestCase):
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
         )
-        self.assertEqual(like.log_likelihood_ratio(self.params), like.log_likelihood(self.params))
+        self.assertEqual(
+            like.log_likelihood_ratio(self.params), like.log_likelihood(self.params)
+        )
 
     def test_hpe_likelihood_population_variance_too_large_returns_neginf(self):
         xp.random.seed(10)

@@ -298,6 +298,7 @@ class NullHyperparameterLikelihoodTests(unittest.TestCase):
         null_like = NullHyperparameterLikelihood(
             posteriors=varied_data,
             hyper_prior=self.model,
+            selection_function=self.selection_function,
             maximum_uncertainty=1e-5,
         )
 

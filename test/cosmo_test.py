@@ -367,9 +367,7 @@ class TestCosmoModel:
             """Simple model that returns ones."""
             return np.ones(len(dataset["mass_1"]))
 
-        model = CosmoModel(
-            model_functions=[simple_model], cosmo_model="FlatLambdaCDM"
-        )
+        model = CosmoModel(model_functions=[simple_model], cosmo_model="FlatLambdaCDM")
 
         data = {
             "luminosity_distance": np.array([1000.0]),
@@ -467,4 +465,3 @@ class TestCosmoModel:
         expected_prob = model_prob / jacobian
 
         np.testing.assert_allclose(prob, expected_prob)
-

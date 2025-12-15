@@ -491,7 +491,7 @@ class NullHyperparameterLikelihood(HyperparameterLikelihood):
     """
 
     def ln_likelihood_and_variance(self, parameters=None):
-        """ 
+        """
         Compute the ln likelihood estimator and its variance.
         """
         _, variance = super().ln_likelihood_and_variance(parameters)

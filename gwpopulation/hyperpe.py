@@ -478,3 +478,21 @@ class RateLikelihood(HyperparameterLikelihood):
         this simply returns the current value of the rate parameter.
         """
         return parameters["rate"]
+
+
+class NullHyperparameterLikelihood(HyperparameterLikelihood):
+    """
+    A likelihood that can be used to sample the prior space subject to the
+    maximum_uncertainty constraint imposed on the variance.
+
+    For the uncertainty calculation see the Appendix of
+    `Golomb and Talbot <https://arxiv.org/abs/2106.15745>`_ and
+    `Farr <https://arxiv.org/abs/1904.10879>`_.
+    """
+
+    def ln_likelihood_and_variance(self, parameters=None):
+        """
+        Compute the ln likelihood estimator and its variance.
+        """
+        _, variance = super().ln_likelihood_and_variance(parameters)
+        return 0.0, variance

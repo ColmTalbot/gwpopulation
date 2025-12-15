@@ -158,7 +158,7 @@ class CosmoModel(Model, CosmoMixin):
             model.
         """
 
-        data, jacobian = self.detector_frame_to_source_frame(data)
+        data, jacobian = self.detector_frame_to_source_frame(data, **kwargs)
         probability = super().prob(data, **kwargs)
         probability /= jacobian
 

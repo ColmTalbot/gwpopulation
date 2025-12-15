@@ -60,7 +60,7 @@ __all__ = [
 
 class _BaseVT:
     def __init__(self, model, data):
-        self.data = data
+        self.data = {key: xp.asarray(value) for key, value in data.items()}
         if isinstance(model, list):
             model = Model(model)
         elif not isinstance(model, Model):
@@ -85,7 +85,7 @@ class GridVT(_BaseVT):
     """
 
     def __init__(self, model, data):
-        self.vts = data.pop("vt")
+        self.vts = xp.asarray(data.pop("vt"))
         super(GridVT, self).__init__(model=model, data=data)
         self.values = {key: xp.unique(self.data[key]) for key in self.data}
         shape = np.array(list(self.data.values())[0].shape)

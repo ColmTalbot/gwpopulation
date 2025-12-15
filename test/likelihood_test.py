@@ -6,7 +6,11 @@ from bilby.core.prior import PriorDict, Uniform
 from bilby.hyper.model import Model
 
 import gwpopulation
-from gwpopulation.hyperpe import HyperparameterLikelihood, RateLikelihood
+from gwpopulation.hyperpe import (
+    HyperparameterLikelihood,
+    NullHyperparameterLikelihood,
+    RateLikelihood,
+)
 from gwpopulation.models.mass import SinglePeakSmoothedMassDistribution
 
 xp = np
@@ -233,3 +237,72 @@ class Likelihoods(unittest.TestCase):
                     )
             else:
                 self.assertEqual(like.meta_data[key], expected[key])
+
+
+class NullHyperparameterLikelihoodTests(unittest.TestCase):
+    def setUp(self):
+        gwpopulation.set_backend("numpy")
+        self.params = dict(a=1, b=1, c=1)
+        self.model = lambda dataset, a, b, c: dataset["a"]
+        one_data = pd.DataFrame({key: xp.ones(500) for key in self.params})
+        self.data = [one_data] * 5
+        self.ln_evidences = [0] * 5
+        self.selection_function = lambda args: 2.0
+
+    def tearDown(self):
+        pass
+
+    def test_null_likelihood_variance_matches_hyperparameter_likelihood(self):
+        """Test that NullHyperparameterLikelihood variance matches HyperparameterLikelihood"""
+        # Create both likelihoods with the same parameters
+        null_like = NullHyperparameterLikelihood(
+            posteriors=self.data,
+            hyper_prior=self.model,
+            selection_function=self.selection_function,
+        )
+        hyper_like = HyperparameterLikelihood(
+            posteriors=self.data,
+            hyper_prior=self.model,
+            selection_function=self.selection_function,
+        )
+
+        # Get the ln_likelihood and variance from both
+        null_ln_l, null_variance = null_like.ln_likelihood_and_variance(self.params)
+        hyper_ln_l, hyper_variance = hyper_like.ln_likelihood_and_variance(self.params)
+
+        # Check that variances match
+        self.assertEqual(null_variance, hyper_variance)
+
+    def test_null_likelihood_returns_zero(self):
+        """Test that NullHyperparameterLikelihood returns zero for the likelihood"""
+        null_like = NullHyperparameterLikelihood(
+            posteriors=self.data,
+            hyper_prior=self.model,
+            selection_function=self.selection_function,
+        )
+
+        # Get the ln_likelihood
+        null_ln_l, null_variance = null_like.ln_likelihood_and_variance(self.params)
+
+        # Check that likelihood is zero
+        self.assertEqual(null_ln_l, 0.0)
+
+    def test_null_likelihood_returns_neginf_when_variance_exceeds_threshold(self):
+        """Test that NullHyperparameterLikelihood returns -inf when variance > threshold"""
+        # Create data with some variation to generate non-zero variance
+        xp.random.seed(10)
+        varied_data = [self.data[0].copy() for _ in range(5)]
+        varied_data[0]["a"] *= xp.random.uniform(0, 2, varied_data[0]["a"].shape)
+
+        # Create likelihood with small maximum_uncertainty threshold
+        null_like = NullHyperparameterLikelihood(
+            posteriors=varied_data,
+            hyper_prior=self.model,
+            maximum_uncertainty=1e-5,
+        )
+
+        # Get the log likelihood ratio (which incorporates the variance check)
+        log_lr = null_like.log_likelihood_ratio(self.params)
+
+        # Check that it returns -inf
+        self.assertEqual(log_lr, np.nan_to_num(-np.inf))

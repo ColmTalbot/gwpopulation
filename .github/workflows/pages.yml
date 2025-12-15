@@ -52,6 +52,7 @@ jobs:
 
       - name: Build documentation
         run: |
+          export BILBY_ALLOW_PARAMETERS_AS_STATE=FALSE
           cp examples/*.ipynb docs/examples
           cd docs
           make SPHINXBUILD="mamba run -n test python -m sphinx" clean

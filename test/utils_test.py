@@ -149,10 +149,6 @@ def test_to_numpy_non_array_type_raises_error():
         utils.to_numpy([1, 2, 3])
 
 
-def test_get_version():
-    assert gwpopulation.__version__ == utils.get_version_information()
-
-
 @gwpopulation.utils.apply_conditions(dict(a=lambda a: a > 0))
 def _condition_func(a):
     return a

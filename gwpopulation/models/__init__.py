@@ -13,7 +13,7 @@ evaluated at the sample points.
 For example, the following function defines a simple power-law mass model:
 
 .. code-block:: python
-    
+
     def power_law_mass_model(dataset, alpha, minimum_mass, maximum_mass):
         mass_1 = dataset["mass_1"]
         normalization = (

@@ -60,7 +60,7 @@ __all__ = [
 
 class _BaseVT:
     def __init__(self, model, data):
-        self.data = data
+        self.data = {key: xp.asarray(value) for key, value in data.items()}
         if isinstance(model, list):
             model = Model(model)
         elif not isinstance(model, Model):
@@ -85,7 +85,7 @@ class GridVT(_BaseVT):
     """
 
     def __init__(self, model, data):
-        self.vts = data.pop("vt")
+        self.vts = xp.asarray(data.pop("vt"))
         super(GridVT, self).__init__(model=model, data=data)
         self.values = {key: xp.unique(self.data[key]) for key in self.data}
         shape = np.array(list(self.data.values())[0].shape)
@@ -94,8 +94,7 @@ class GridVT(_BaseVT):
         self.ndim = len(self.axes)
 
     def __call__(self, parameters):
-        self.model.parameters.update(parameters)
-        vt_fac = self.model.prob(self.data) * self.vts
+        vt_fac = self.model.prob(self.data, **parameters) * self.vts
         for ii in range(self.ndim):
             vt_fac = trapezoid(
                 vt_fac, self.values[self.axes[self.ndim - ii - 1]], axis=-1
@@ -250,8 +249,7 @@ class ResamplingVT(_BaseVT):
         var: float
             The variance in the estimate of :math:`P_{\rm det}`.
         """
-        self.model.parameters.update(parameters)
-        weights = self.model.prob(self.data) / self.data["prior"]
+        weights = self.model.prob(self.data, **parameters) / self.data["prior"]
         mu = to_number(xp.sum(weights) / self.total_injections, float)
         var = to_number(
             xp.sum(weights**2) / self.total_injections**2

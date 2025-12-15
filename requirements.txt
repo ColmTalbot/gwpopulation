@@ -2,6 +2,6 @@ numpy>=1.16
 scipy
 pandas
 tqdm
-bilby>=2.4.0  # we need cacheable hyper Model
+bilby>=2.7.0  # we don't allow parameters as state
 cached_interpolate>=0.3.0
 wcosmo>=0.3.0

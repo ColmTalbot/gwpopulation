@@ -258,19 +258,6 @@ def von_mises(xx, mu, kappa):
     return xp.exp(kappa * (xp.cos(xx - mu) - 1)) / (2 * xp.pi * scs.i0e(kappa))
 
 
-def get_version_information():
-    """
-    .. deprecated:: 1.2.0
-
-    Get the version of :code:`gwpopulation`.
-    Use :code:`importlib.metadata.version("gwpopulation")` instead.
-
-    """
-    from gwpopulation import __version__
-
-    return __version__
-
-
 def get_name(input):
     """
     Attempt to find the name of the the input. This either returns

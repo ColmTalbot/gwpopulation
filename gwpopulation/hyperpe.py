@@ -5,7 +5,7 @@ The likelihood function used for population inference is given be
 .. math::
 
     {\cal L}(\{d_i\} | \Lambda) &= \prod_i {\cal L}(d_i | \Lambda, {\rm det})
-    
+
     &= \prod_i \frac{{\cal L}(d_i | \Lambda)}{P_{\rm det}(\Lambda)}
 
     &= \frac{1}{P_{\rm det}^{N}(\Lambda)} \prod_i \int d\theta_i p(d_i | \theta_i) \pi(\theta_i | \Lambda).
@@ -43,7 +43,6 @@ and can be calculated using :func:`gwpopulation.hyperpe.HyperparameterLikelihood
 """
 
 import types
-from copy import deepcopy
 
 import numpy as np
 from bilby.core.likelihood import Likelihood
@@ -78,7 +77,6 @@ class HyperparameterLikelihood(Likelihood):
         max_samples=1e100,
         selection_function=lambda args: 1,
         conversion_function=lambda args: (args, None),
-        cupy=False,
         maximum_uncertainty=xp.inf,
     ):
         """
@@ -103,19 +101,11 @@ class HyperparameterLikelihood(Likelihood):
             dictionary of parameters of the population model.
         max_samples: int, optional
             Maximum number of samples to use from each set.
-        cupy: bool
-            DEPRECATED: if you want to use cupy, you should manually set the
-            backend using :code:`gwpopulation.set_backend`.
         maximum_uncertainty: float
             The maximum allowed uncertainty in the natural log likelihood.
             If the uncertainty is larger than this value a log likelihood of
             -inf will be returned. Default = inf
         """
-        if cupy:
-            logger.warning(
-                f"Setting the backend to cupy is no longer supported in the "
-                "likelihood. Use gwpopulation.set_backend instead."
-            )
 
         self.samples_per_posterior = max_samples
         self.data = self.resample_posteriors(posteriors, max_samples=max_samples)
@@ -131,7 +121,7 @@ class HyperparameterLikelihood(Likelihood):
                 "or a class with attribute 'parameters' and method 'prob'"
             )
         self.hyper_prior = hyper_prior
-        super(HyperparameterLikelihood, self).__init__(dict())
+        super().__init__()
 
         if "prior" in self.data:
             self.sampling_prior = self.data.pop("prior")
@@ -170,15 +160,14 @@ class HyperparameterLikelihood(Likelihood):
         else:
             self._max_variance = value**2
 
-    def ln_likelihood_and_variance(self, parameters=None):
+    def ln_likelihood_and_variance(self, parameters):
         """
         Compute the ln likelihood estimator and its variance.
         """
-        if parameters is None:
-            parameters = deepcopy(self.parameters)
         parameters, added_keys = self.conversion_function(parameters)
-        self.hyper_prior.parameters.update(parameters)
-        ln_bayes_factors, variances = self._compute_per_event_ln_bayes_factors()
+        ln_bayes_factors, variances = self._compute_per_event_ln_bayes_factors(
+            parameters
+        )
         ln_l = xp.sum(ln_bayes_factors)
         variance = xp.sum(variances)
         selection, selection_variance = self._get_selection_factor(
@@ -186,12 +175,9 @@ class HyperparameterLikelihood(Likelihood):
         )
         variance += selection_variance
         ln_l += selection
-        self._pop_added(added_keys, parameters=parameters)
         return ln_l, to_number(variance, float)
 
-    def log_likelihood_ratio(self, parameters=None):
-        if parameters is None:
-            parameters = deepcopy(self.parameters)
+    def log_likelihood_ratio(self, parameters):
         ln_l, variance = self.ln_likelihood_and_variance(parameters=parameters)
         ln_l = xp.nan_to_num(ln_l, nan=-xp.inf)
         ln_l -= xp.nan_to_num(xp.inf * (self.maximum_uncertainty < variance), nan=0)
@@ -200,20 +186,15 @@ class HyperparameterLikelihood(Likelihood):
     def noise_log_likelihood(self):
         return self.total_noise_evidence
 
-    def log_likelihood(self, parameters=None):
+    def log_likelihood(self, parameters):
         return self.noise_log_likelihood() + self.log_likelihood_ratio(
             parameters=parameters
         )
 
-    def _pop_added(self, added_keys, parameters=None):
-        if parameters is None:
-            parameters = deepcopy(self.parameters)
-        if added_keys is not None:
-            for key in added_keys:
-                parameters.pop(key)
-
-    def _compute_per_event_ln_bayes_factors(self, return_uncertainty=True):
-        weights = self.hyper_prior.prob(self.data) / self.sampling_prior
+    def _compute_per_event_ln_bayes_factors(
+        self, parameters, *, return_uncertainty=True
+    ):
+        weights = self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
         expectation = xp.mean(weights, axis=-1)
         if return_uncertainty:
             square_expectation = xp.mean(weights**2, axis=-1)
@@ -224,24 +205,18 @@ class HyperparameterLikelihood(Likelihood):
         else:
             return xp.log(expectation)
 
-    def _get_selection_factor(self, return_uncertainty=True, parameters=None):
-        if parameters is None:
-            parameters = deepcopy(self.parameters)
+    def _get_selection_factor(self, parameters, *, return_uncertainty=True):
         selection, variance = self._selection_function_with_uncertainty(
             parameters=parameters
         )
         total_selection = -self.n_posteriors * xp.log(selection)
         if return_uncertainty:
-            total_variance = self.n_posteriors**2 * xp.divide(
-                variance, selection**2
-            )
+            total_variance = self.n_posteriors**2 * xp.divide(variance, selection**2)
             return total_selection, total_variance
         else:
             return total_selection
 
-    def _selection_function_with_uncertainty(self, parameters=None):
-        if parameters is None:
-            parameters = deepcopy(self.parameters)
+    def _selection_function_with_uncertainty(self, parameters):
         result = self.selection_function(parameters)
         if isinstance(result, tuple):
             selection, variance = result
@@ -281,9 +256,8 @@ class HyperparameterLikelihood(Likelihood):
             The input dict, modified in place.
         """
         parameters, added_keys = self.conversion_function(sample.copy())
-        self.hyper_prior.parameters.update(parameters)
         ln_ls, variances = self._compute_per_event_ln_bayes_factors(
-            return_uncertainty=True
+            parameters, return_uncertainty=True
         )
         total_variance = sum(variances)
         for ii in range(self.n_posteriors):
@@ -298,10 +272,9 @@ class HyperparameterLikelihood(Likelihood):
         sample["selection_variance"] = variance
         total_variance += selection_variance
         sample["variance"] = to_number(total_variance, float)
-        self._pop_added(added_keys, parameters=parameters)
         return sample
 
-    def generate_rate_posterior_sample(self, parameters=None):
+    def generate_rate_posterior_sample(self, parameters):
         r"""
         Generate a sample from the posterior distribution for rate assuming a
         :math:`1 / R` prior.
@@ -327,9 +300,6 @@ class HyperparameterLikelihood(Likelihood):
             A sample from the posterior distribution for rate.
         """
         from scipy.stats import gamma
-
-        if parameters is None:
-            parameters = deepcopy(self.parameters)
 
         if hasattr(self.selection_function, "detection_efficiency") and hasattr(
             self.selection_function, "surveyed_hypervolume"
@@ -404,12 +374,12 @@ class HyperparameterLikelihood(Likelihood):
         event_weights = xp.zeros(self.n_posteriors)
         for sample in tqdm(samples):
             parameters, added_keys = self.conversion_function(sample.copy())
-            self.hyper_prior.parameters.update(parameters)
-            new_weights = self.hyper_prior.prob(self.data) / self.sampling_prior
+            new_weights = (
+                self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
+            )
             event_weights += xp.mean(new_weights, axis=-1)
             new_weights = (new_weights.T / xp.sum(new_weights, axis=-1)).T
             weights += new_weights
-            self._pop_added(added_keys, parameters=parameters)
         weights = (weights.T / xp.sum(weights, axis=-1)).T
         new_idxs = xp.empty_like(weights, dtype=int)
         for ii in range(self.n_posteriors):
@@ -472,7 +442,7 @@ class RateLikelihood(HyperparameterLikelihood):
 
     __doc__ += HyperparameterLikelihood.__init__.__doc__
 
-    def _get_selection_factor(self, return_uncertainty=True, parameters=None):
+    def _get_selection_factor(self, parameters, *, return_uncertainty=True):
         r"""
         The selection factor for the rate likelihood is
 
@@ -491,8 +461,6 @@ class RateLikelihood(HyperparameterLikelihood):
         return_uncertainty: bool
             Whether to return the uncertainty in the selection factor.
         """
-        if parameters is None:
-            parameters = deepcopy(self.parameters)
         selection, variance = self._selection_function_with_uncertainty(
             parameters=parameters
         )
@@ -504,13 +472,11 @@ class RateLikelihood(HyperparameterLikelihood):
         else:
             return total_selection
 
-    def generate_rate_posterior_sample(self, parameters=None):
+    def generate_rate_posterior_sample(self, parameters):
         """
         Since the rate is a sampled parameter,
         this simply returns the current value of the rate parameter.
         """
-        if parameters is None:
-            parameters = self.parameters
         return parameters["rate"]
 
 

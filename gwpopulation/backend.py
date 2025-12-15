@@ -7,8 +7,6 @@ _scipy_module = dict(numpy="scipy", cupy="cupyx.scipy", jax="jax.scipy")
 
 __all__ = [
     "SUPPORTED_BACKENDS",
-    "disable_cupy",
-    "enable_cupy",
     "modules_to_update",
     "set_backend",
 ]
@@ -76,40 +74,6 @@ def modules_to_update():
     ]
     others = {key: value for key, value in other_entries}
     return all_with_xp, all_with_scs, others
-
-
-def disable_cupy():
-    """
-    .. deprecated:: 1.0.0
-
-    Set the backend to :code:`numpy`.
-    This function is a relic of when only :code:`numpy` and :code:`cupy`
-    were supported and has been deprecated and will be removed in :code:`v1.2.0`.
-    """
-    from warnings import warn
-
-    warn(
-        f"Function enable_cupy is deprecated, use set_backed('cupy') instead",
-        DeprecationWarning,
-    )
-    set_backend(backend="numpy")
-
-
-def enable_cupy():
-    """
-    .. deprecated:: 1.0.0
-
-    Set the backend to :code:`cupy`.
-    This function is a relic of when only :code:`numpy` and :code:`cupy`
-    were supported and has been deprecated and will be removed in :code:`v1.2.0`.
-    """
-    from warnings import warn
-
-    warn(
-        f"Function enable_cupy is deprecated, use set_backed('cupy') instead",
-        DeprecationWarning,
-    )
-    set_backend(backend="cupy")
 
 
 def _configure_jax(xp):

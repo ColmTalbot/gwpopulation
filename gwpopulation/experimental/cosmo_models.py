@@ -72,7 +72,7 @@ class CosmoMixin:
 
     def detector_frame_to_source_frame(self, data, **parameters):
         r"""
-        Convert detector frame samples to sourece frame samples given cosmological
+        Convert detector frame samples to source frame samples given cosmological
         parameters. Calculate the corresponding
         :math:`\frac{d \theta_{\rm detector}}{d \theta_{\rm source}}` Jacobian term.
         This includes factors of :math:`(1 + z)` for redshifted quantities.
@@ -94,7 +94,7 @@ class CosmoMixin:
 
         samples = dict()
         if "luminosity_distance" in data.keys():
-            cosmo = self.cosmology(self.parameters)
+            cosmo = self.cosmology(parameters)
             samples["redshift"] = z_at_value(
                 cosmo.luminosity_distance,
                 data["luminosity_distance"],
@@ -102,7 +102,7 @@ class CosmoMixin:
             jacobian = cosmo.dDLdz(samples["redshift"])
         elif "redshift" not in data:
             raise ValueError(
-                f"Either luminosity distance or redshift provided in detector frame to source frame samples conversion"
+                "Either luminosity_distance or redshift must be provided in data for detector frame to source frame samples conversion"
             )
         else:
             jacobian = xp.ones(data["redshift"].shape)

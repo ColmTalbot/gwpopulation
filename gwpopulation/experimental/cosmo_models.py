@@ -94,7 +94,7 @@ class CosmoMixin:
 
         samples = dict()
         if "luminosity_distance" in data.keys():
-            cosmo = self.cosmology(self.parameters)
+            cosmo = self.cosmology(parameters)
             samples["redshift"] = z_at_value(
                 cosmo.luminosity_distance,
                 data["luminosity_distance"],

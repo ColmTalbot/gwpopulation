@@ -17,7 +17,7 @@ def test_gwpopulation_likelihood_model_matches_standard(apply_selection):
     # Skip if JAX is not available
     pytest.importorskip("jax")
     pytest.importorskip("numpyro")
-    
+
     # Set backend to JAX for numpyro compatibility
     gwpopulation.set_backend("jax")
     xp = gwpopulation.models.mass.xp

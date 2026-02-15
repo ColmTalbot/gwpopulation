@@ -2,16 +2,18 @@
 Helper functions for probability distributions and backend switching.
 """
 
+from collections.abc import Callable
 from numbers import Number
 from operator import ge, gt, ne
+from typing import Any
 
 import numpy as np
 from scipy import special as scs
 
-xp = np
+xp: Any = np
 
 
-def apply_conditions(conditions):
+def apply_conditions(conditions: dict[str, Any]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     A decorator to apply conditions to inputs of a function.
 
@@ -29,9 +31,9 @@ def apply_conditions(conditions):
     """
     from functools import wraps
 
-    def decorator(func):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
-        def wrapped_function(*args, **kwargs):
+        def wrapped_function(*args: Any, **kwargs: Any) -> Any:
             if "jax" in xp.__name__:
                 return func(*args, **kwargs)
             for key, condition in conditions.items():
@@ -61,7 +63,7 @@ def apply_conditions(conditions):
 
 
 @apply_conditions(dict(alpha=(gt, 0), beta=(gt, 0), scale=(gt, 0)))
-def beta_dist(xx, alpha, beta, scale=1):
+def beta_dist(xx: Any, alpha: float, beta: float, scale: float | Any = 1) -> Any:
     r"""
     Beta distribution probability
 
@@ -95,7 +97,7 @@ def beta_dist(xx, alpha, beta, scale=1):
 
 
 @apply_conditions(dict(low=(ge, 0), alpha=(ne, 1)))
-def powerlaw(xx, alpha, high, low):
+def powerlaw(xx: Any, alpha: float | Any, high: float | Any, low: float | Any) -> Any:
     r"""
     Power-law probability
 
@@ -131,7 +133,7 @@ def powerlaw(xx, alpha, high, low):
 
 
 @apply_conditions(dict(sigma=(gt, 0)))
-def truncnorm(xx, mu, sigma, high, low):
+def truncnorm(xx: Any, mu: float | Any, sigma: float, high: float | Any, low: float | Any) -> Any:
     r"""
     Truncated normal probability
 
@@ -161,7 +163,7 @@ def truncnorm(xx, mu, sigma, high, low):
 
     """
 
-    def logsubexp(log_p, log_q):
+    def logsubexp(log_p: Any, log_q: Any) -> Any:
         return log_p + xp.log(1 - xp.exp(log_q - log_p))
 
     zz = xp.array(xx - mu) / sigma
@@ -183,7 +185,7 @@ def truncnorm(xx, mu, sigma, high, low):
     return xp.nan_to_num(xp.exp(log_pdf)) * (xx >= low) * (xx <= high)
 
 
-def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
+def unnormalized_2d_gaussian(xx: Any, yy: Any, mu_x: float, mu_y: float, sigma_x: float, sigma_y: float, covariance: float) -> Any:
     r"""
     Compute the probability distribution for a correlated 2-dimensional Gaussian
     neglecting normalization terms.
@@ -228,7 +230,7 @@ def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
     return prob
 
 
-def von_mises(xx, mu, kappa):
+def von_mises(xx: Any, mu: float, kappa: float) -> Any:
     r"""
     PDF of the von Mises distribution defined on the standard interval.
 
@@ -258,7 +260,7 @@ def von_mises(xx, mu, kappa):
     return xp.exp(kappa * (xp.cos(xx - mu) - 1)) / (2 * xp.pi * scs.i0e(kappa))
 
 
-def get_name(input):
+def get_name(input: Any) -> str:
     """
     Attempt to find the name of the the input. This either returns
     :code:`input.__name__` or :code:`input.__class__.__name__`
@@ -278,7 +280,7 @@ def get_name(input):
         return input.__class__.__name__
 
 
-def to_number(value, func):
+def to_number(value: Any, func: type[int] | type[float] | type[complex]) -> int | float | complex:
     """
     Convert a zero-dimensional array to a number.
 
@@ -296,7 +298,7 @@ def to_number(value, func):
         return func(value)
 
 
-def to_numpy(array):
+def to_numpy(array: Any) -> Any:
     """
     Convert an array to a numpy array.
     Numeric types and pandas objects are returned unchanged.
@@ -318,7 +320,7 @@ def to_numpy(array):
         raise TypeError(f"Cannot convert {type(array)} to numpy array")
 
 
-def trapezoid(y, x=None, dx=1.0, axis=-1):
+def trapezoid(y: Any, x: Any | None = None, dx: float = 1.0, axis: int = -1) -> Any:
     """
     A wrapper of `trapz` or `trapezoid` that can handle different
     names in different backends.

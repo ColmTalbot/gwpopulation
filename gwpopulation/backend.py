@@ -1,9 +1,11 @@
 from importlib import import_module
+from types import ModuleType
+from typing import Any
 
-__backend__ = ""
-SUPPORTED_BACKENDS = ["numpy", "cupy", "jax"]
-_np_module = dict(numpy="numpy", cupy="cupy", jax="jax.numpy")
-_scipy_module = dict(numpy="scipy", cupy="cupyx.scipy", jax="jax.scipy")
+__backend__: str = ""
+SUPPORTED_BACKENDS: list[str] = ["numpy", "cupy", "jax"]
+_np_module: dict[str, str] = dict(numpy="numpy", cupy="cupy", jax="jax.numpy")
+_scipy_module: dict[str, str] = dict(numpy="scipy", cupy="cupyx.scipy", jax="jax.scipy")
 
 __all__ = [
     "SUPPORTED_BACKENDS",
@@ -45,7 +47,7 @@ If there is a backend that you would like to use that is not currently supported
 """
 
 
-def modules_to_update():
+def modules_to_update() -> tuple[list[str], list[str], dict[str, str]]:
     """
     Return all modules that need to be updated with the backend.
 
@@ -76,7 +78,7 @@ def modules_to_update():
     return all_with_xp, all_with_scs, others
 
 
-def _configure_jax(xp):
+def _configure_jax(xp: ModuleType) -> None:
     """
     Configuration requirements for :code:`jax`
 
@@ -87,7 +89,7 @@ def _configure_jax(xp):
     config.update("jax_enable_x64", True)
 
 
-def _load_numpy_and_scipy(backend):
+def _load_numpy_and_scipy(backend: str) -> tuple[ModuleType, ModuleType]:
     try:
         xp = import_module(_np_module[backend])
         scs = import_module(_scipy_module[backend]).special
@@ -102,7 +104,7 @@ def _load_numpy_and_scipy(backend):
     return xp, scs
 
 
-def _load_arbitrary(func, backend):
+def _load_arbitrary(func: str, backend: str) -> Any:
     if func.startswith("scipy"):
         func = func.replace("scipy", _scipy_module[backend])
     elif func.startswith("numpy"):
@@ -111,7 +113,7 @@ def _load_arbitrary(func, backend):
     return getattr(import_module(module), func)
 
 
-def set_backend(backend="numpy"):
+def set_backend(backend: str = "numpy") -> None:
     """
     Set the backend for :code:`GWPopulation` and plugins.
 

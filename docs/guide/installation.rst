@@ -2,21 +2,21 @@
 Installation
 ============
 
-.. tabs::
+.. tab-set::
 
-   .. tab:: Conda
+   .. tab-item:: Conda
 
       .. code-block:: console
 
          $ conda install -c conda-forge gwpopulation
 
-   .. tab:: Pip
+   .. tab-item:: Pip
       
       .. code-block:: console
 
          $ pip install gwpopulation
 
-   .. tab:: Latest
+   .. tab-item:: Latest
 
       If you want to use the latest (unreleased) version of :code:`gwpopulation` you can
       install the current :code:`main` branch directly from :code:`GitHub`.
@@ -30,7 +30,7 @@ Installation
          While :code:`GWPopulation` has an extensive unit test suite, :code:`main` is
          more likely to contain bugs than released versions, especially when using GPUs.
 
-   .. tab:: Development
+   .. tab-item:: Development
 
       A development version of :code:`gwpopulation` can be installed from the
       source code in the usual way. Assuming a working python installation exists,

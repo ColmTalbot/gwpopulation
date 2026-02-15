@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Any
 
 import numpy as np
 
@@ -12,7 +13,7 @@ __all__ = [
 ]
 
 
-def _setup_interpolant(nodes, values, kind="cubic", backend=None):
+def _setup_interpolant(nodes: Any, values: Any, kind: str = "cubic", backend: Any = None) -> Any:
     """
     Create a caching spline interpolant.
 
@@ -68,14 +69,14 @@ class InterpolatedNoBaseModelIdentical:
 
     def __init__(
         self,
-        parameters,
-        minimum,
-        maximum,
-        nodes=10,
-        kind="cubic",
-        log_nodes=False,
-        regularize=False,
-    ):
+        parameters: list[str],
+        minimum: float,
+        maximum: float,
+        nodes: int = 10,
+        kind: str = "cubic",
+        log_nodes: bool = False,
+        regularize: bool = False,
+    ) -> None:
         self.nodes = nodes
         self._norm_spline = None
         self._data_spline = dict()
@@ -91,14 +92,14 @@ class InterpolatedNoBaseModelIdentical:
         self.fkeys = [f"f{self.base}{ii}" for ii in range(self.nodes)]
         self.regularize = regularize
 
-    def __call__(self, dataset, **kwargs):
+    def __call__(self, dataset: dict[str, Any], **kwargs: Any) -> Any:
         """
         A wrapper to :func:`p_x_identical`
         """
         return self.p_x_identical(dataset, **kwargs)
 
     @property
-    def variable_names(self):
+    def variable_names(self) -> list[str]:
         """
         The names of the hyperparameters of the model.
 
@@ -113,7 +114,7 @@ class InterpolatedNoBaseModelIdentical:
             keys += [f"rms{self.base}"]
         return keys
 
-    def setup_interpolant(self, nodes, values):
+    def setup_interpolant(self, nodes: Any, values: dict[str, Any]) -> None:
         if self.log_nodes:
             func = xp.log
         else:
@@ -125,7 +126,7 @@ class InterpolatedNoBaseModelIdentical:
             for param in self.parameters
         }
 
-    def p_x_unnormed(self, dataset, parameter, x_splines, f_splines, **kwargs):
+    def p_x_unnormed(self, dataset: dict[str, Any], parameter: str, x_splines: Any, f_splines: Any, **kwargs: Any) -> Any:
         """
         Calculate the unnormalized likelihood of the dataset given the model
 
@@ -158,7 +159,7 @@ class InterpolatedNoBaseModelIdentical:
         )
         return p_x
 
-    def norm_p_x(self, f_splines=None, x_splines=None, **kwargs):
+    def norm_p_x(self, f_splines: Any = None, x_splines: Any = None, **kwargs: Any) -> Any:
         """
         Calculate the normalization of the spline
 
@@ -181,7 +182,7 @@ class InterpolatedNoBaseModelIdentical:
         norm = trapezoid(p_x, self._xs)
         return norm
 
-    def extract_spline_points(self, kwargs):
+    def extract_spline_points(self, kwargs: dict[str, Any]) -> tuple[Any, Any]:
         """
         Extract the node positions and values from the dictionary of parameters
 
@@ -204,7 +205,7 @@ class InterpolatedNoBaseModelIdentical:
         x_splines = xp.array([kwargs[key] for key in self.xkeys])
         return f_splines, x_splines
 
-    def p_x_identical(self, dataset, **kwargs):
+    def p_x_identical(self, dataset: dict[str, Any], **kwargs: Any) -> Any:
         """
         Calculate the likelihood of the dataset given the model assuming
         that all the parameters are identically distributed.
@@ -236,7 +237,7 @@ class InterpolatedNoBaseModelIdentical:
         p_x /= norm ** len(self.parameters)
         return p_x
 
-    def infer_n_nodes(self, **kwargs):
+    def infer_n_nodes(self, **kwargs: Any) -> None:
         """
         Infer the number of nodes from the dictionary of parameters.
         This method looks for the first missing parameter matching

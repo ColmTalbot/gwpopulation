@@ -43,6 +43,8 @@ and can be calculated using :func:`gwpopulation.hyperpe.HyperparameterLikelihood
 """
 
 import types
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 from bilby.core.likelihood import Likelihood
@@ -71,14 +73,14 @@ class HyperparameterLikelihood(Likelihood):
 
     def __init__(
         self,
-        posteriors,
-        hyper_prior,
-        ln_evidences=None,
-        max_samples=1e100,
-        selection_function=lambda args: 1,
-        conversion_function=lambda args: (args, None),
-        maximum_uncertainty=xp.inf,
-    ):
+        posteriors: list[Any],
+        hyper_prior: Model | Callable,
+        ln_evidences: list[float] | None = None,
+        max_samples: float = 1e100,
+        selection_function: Callable[[dict[str, Any]], float | tuple[float, float]] = lambda args: 1.0,
+        conversion_function: Callable[[dict[str, Any]], tuple[dict[str, Any], Any]] = lambda args: (args, None),
+        maximum_uncertainty: float = xp.inf,
+    ) -> None:
         """
         Parameters
         ----------
@@ -144,7 +146,7 @@ class HyperparameterLikelihood(Likelihood):
     __doc__ += __init__.__doc__
 
     @property
-    def maximum_uncertainty(self):
+    def maximum_uncertainty(self) -> float:
         """
         The maximum allowed uncertainty in the estimate of the log-likelihood.
         If the uncertainty is larger than this value a log likelihood of -inf
@@ -153,14 +155,14 @@ class HyperparameterLikelihood(Likelihood):
         return self._maximum_uncertainty
 
     @maximum_uncertainty.setter
-    def maximum_uncertainty(self, value):
+    def maximum_uncertainty(self, value: float) -> None:
         self._maximum_uncertainty = value
         if value in [xp.inf, np.inf]:
             self._max_variance = value
         else:
             self._max_variance = value**2
 
-    def ln_likelihood_and_variance(self, parameters):
+    def ln_likelihood_and_variance(self, parameters: dict[str, Any]) -> tuple[Any, float]:
         """
         Compute the ln likelihood estimator and its variance.
         """
@@ -177,23 +179,23 @@ class HyperparameterLikelihood(Likelihood):
         ln_l += selection
         return ln_l, to_number(variance, float)
 
-    def log_likelihood_ratio(self, parameters):
+    def log_likelihood_ratio(self, parameters: dict[str, Any]) -> float:
         ln_l, variance = self.ln_likelihood_and_variance(parameters=parameters)
         ln_l = xp.nan_to_num(ln_l, nan=-xp.inf)
         ln_l -= xp.nan_to_num(xp.inf * (self.maximum_uncertainty < variance), nan=0)
         return to_number(xp.nan_to_num(ln_l), float)
 
-    def noise_log_likelihood(self):
+    def noise_log_likelihood(self) -> float:
         return self.total_noise_evidence
 
-    def log_likelihood(self, parameters):
+    def log_likelihood(self, parameters: dict[str, Any]) -> float:
         return self.noise_log_likelihood() + self.log_likelihood_ratio(
             parameters=parameters
         )
 
     def _compute_per_event_ln_bayes_factors(
-        self, parameters, *, return_uncertainty=True
-    ):
+        self, parameters: dict[str, Any], *, return_uncertainty: bool = True
+    ) -> Any | tuple[Any, Any]:
         weights = self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
         expectation = xp.mean(weights, axis=-1)
         if return_uncertainty:
@@ -205,7 +207,7 @@ class HyperparameterLikelihood(Likelihood):
         else:
             return xp.log(expectation)
 
-    def _get_selection_factor(self, parameters, *, return_uncertainty=True):
+    def _get_selection_factor(self, parameters: dict[str, Any], *, return_uncertainty: bool = True) -> Any | tuple[Any, Any]:
         selection, variance = self._selection_function_with_uncertainty(
             parameters=parameters
         )
@@ -216,7 +218,7 @@ class HyperparameterLikelihood(Likelihood):
         else:
             return total_selection
 
-    def _selection_function_with_uncertainty(self, parameters):
+    def _selection_function_with_uncertainty(self, parameters: dict[str, Any]) -> tuple[Any, Any]:
         result = self.selection_function(parameters)
         if isinstance(result, tuple):
             selection, variance = result
@@ -225,7 +227,7 @@ class HyperparameterLikelihood(Likelihood):
             variance = 0.0
         return selection, variance
 
-    def generate_extra_statistics(self, sample):
+    def generate_extra_statistics(self, sample: dict[str, Any]) -> dict[str, Any]:
         r"""
         Given an input sample, add extra statistics
 
@@ -274,7 +276,7 @@ class HyperparameterLikelihood(Likelihood):
         sample["variance"] = to_number(total_variance, float)
         return sample
 
-    def generate_rate_posterior_sample(self, parameters):
+    def generate_rate_posterior_sample(self, parameters: dict[str, Any]) -> float:
         r"""
         Generate a sample from the posterior distribution for rate assuming a
         :math:`1 / R` prior.
@@ -311,7 +313,7 @@ class HyperparameterLikelihood(Likelihood):
         rate = gamma(a=self.n_posteriors).rvs() / vt
         return rate
 
-    def resample_posteriors(self, posteriors, max_samples=1e300):
+    def resample_posteriors(self, posteriors: list[Any], max_samples: float = 1e300) -> dict[str, Any]:
         """
         Convert list of pandas DataFrame object to dict of arrays.
 
@@ -342,7 +344,7 @@ class HyperparameterLikelihood(Likelihood):
             data[key] = xp.array(data[key])
         return data
 
-    def posterior_predictive_resample(self, samples, return_weights=False):
+    def posterior_predictive_resample(self, samples: Any, return_weights: bool = False) -> dict[str, Any] | tuple[dict[str, Any], Any]:
         """
         Resample the original single event posteriors to use the PPD from each
         of the other events as the prior.
@@ -420,7 +422,7 @@ class HyperparameterLikelihood(Likelihood):
             return new_samples
 
     @property
-    def meta_data(self):
+    def meta_data(self) -> dict[str, Any]:
         return dict(
             model=[get_name(model) for model in self.hyper_prior.models],
             data={key: to_numpy(self.data[key]) for key in self.data},
@@ -442,7 +444,7 @@ class RateLikelihood(HyperparameterLikelihood):
 
     __doc__ += HyperparameterLikelihood.__init__.__doc__
 
-    def _get_selection_factor(self, parameters, *, return_uncertainty=True):
+    def _get_selection_factor(self, parameters: dict[str, Any], *, return_uncertainty: bool = True) -> Any | tuple[Any, Any]:
         r"""
         The selection factor for the rate likelihood is
 
@@ -472,7 +474,7 @@ class RateLikelihood(HyperparameterLikelihood):
         else:
             return total_selection
 
-    def generate_rate_posterior_sample(self, parameters):
+    def generate_rate_posterior_sample(self, parameters: dict[str, Any]) -> Any:
         """
         Since the rate is a sampled parameter,
         this simply returns the current value of the rate parameter.
@@ -490,7 +492,7 @@ class NullHyperparameterLikelihood(HyperparameterLikelihood):
     `Farr <https://arxiv.org/abs/1904.10879>`_.
     """
 
-    def ln_likelihood_and_variance(self, parameters=None):
+    def ln_likelihood_and_variance(self, parameters: dict[str, Any] | None = None) -> tuple[float, float]:
         """
         Compute the ln likelihood estimator and its variance.
         """

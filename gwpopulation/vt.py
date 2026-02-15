@@ -43,6 +43,9 @@ specified :math:`\theta`. This model is implemented in the :class:`gwpopulation.
 Note that the computational cost of this approach scales exponentially with the number of parameters.
 """
 
+from collections.abc import Callable
+from typing import Any
+
 import numpy as np
 from bilby.hyper.model import Model
 
@@ -59,7 +62,9 @@ __all__ = [
 
 
 class _BaseVT:
-    def __init__(self, model, data):
+    def __init__(
+        self, model: Callable | list[Callable] | Model, data: dict[str, Any]
+    ) -> None:
         self.data = {key: xp.asarray(value) for key, value in data.items()}
         if isinstance(model, list):
             model = Model(model)
@@ -67,7 +72,7 @@ class _BaseVT:
             model = Model([model])
         self.model = model
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
         raise NotImplementedError
 
 
@@ -84,7 +89,9 @@ class GridVT(_BaseVT):
         parameter to be marginalized over.
     """
 
-    def __init__(self, model, data):
+    def __init__(
+        self, model: Callable | list[Callable] | Model, data: dict[str, Any]
+    ) -> None:
         self.vts = xp.asarray(data.pop("vt"))
         super(GridVT, self).__init__(model=model, data=data)
         self.values = {key: xp.unique(self.data[key]) for key in self.data}
@@ -93,7 +100,7 @@ class GridVT(_BaseVT):
         self.axes = {int(np.where(shape == lens[key])[0][0]): key for key in self.data}
         self.ndim = len(self.axes)
 
-    def __call__(self, parameters):
+    def __call__(self, parameters: dict[str, Any]) -> Any:
         vt_fac = self.model.prob(self.data, **parameters) * self.vts
         for ii in range(self.ndim):
             vt_fac = trapezoid(
@@ -143,12 +150,12 @@ class ResamplingVT(_BaseVT):
 
     def __init__(
         self,
-        model,
-        data,
-        n_events=np.inf,
-        marginalize_uncertainty=False,
-        enforce_convergence=True,
-    ):
+        model: Callable | list[Callable] | Model,
+        data: dict[str, Any],
+        n_events: float = np.inf,
+        marginalize_uncertainty: bool = False,
+        enforce_convergence: bool = True,
+    ) -> None:
         super(ResamplingVT, self).__init__(model=model, data=data)
         self.n_events = n_events
         self.total_injections = data.get("total_generated", len(data["prior"]))
@@ -164,7 +171,7 @@ class ResamplingVT(_BaseVT):
                 lamb=0, analysis_time=self.analysis_time
             )
 
-    def __call__(self, parameters):
+    def __call__(self, parameters: dict[str, Any]) -> tuple[float, float] | float:
         r"""
         Compute the expected fraction of detected sources given a
         set of injections for the specified population model.
@@ -194,7 +201,7 @@ class ResamplingVT(_BaseVT):
             vt_factor = self.vt_factor(parameters)
             return vt_factor
 
-    def check_convergence(self, mu, var):
+    def check_convergence(self, mu: float, var: float) -> tuple[Any, Any]:
         r"""
         Check if the estimate of the detection efficiency has converged
         beyond the threshold of :math:`\frac{\mu^2}{\sigma^2} > 4 n_{\rm events}`.
@@ -205,7 +212,7 @@ class ResamplingVT(_BaseVT):
             xp.nan_to_num(xp.inf * (1 - converged), nan=0, posinf=xp.inf),
         )
 
-    def vt_factor(self, parameters):
+    def vt_factor(self, parameters: dict[str, Any]) -> float:
         r"""
         Compute the expected number of detections given a set of injections.
 
@@ -232,7 +239,7 @@ class ResamplingVT(_BaseVT):
         vt_factor += correction
         return vt_factor
 
-    def detection_efficiency(self, parameters):
+    def detection_efficiency(self, parameters: dict[str, Any]) -> tuple[float, float]:
         r"""
         Compute the expected fraction of detections given a set of injections
         and the variance in the Monte Carlo estimate.
@@ -258,7 +265,7 @@ class ResamplingVT(_BaseVT):
         )
         return mu, var
 
-    def surveyed_hypervolume(self, parameters):
+    def surveyed_hypervolume(self, parameters: dict[str, Any]) -> float:
         r"""
         The total surveyed 4-volume with units of :math:`{\rm Gpc}^3{\rm yr}`.
 

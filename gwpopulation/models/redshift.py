@@ -2,6 +2,8 @@
 Implemented redshift models
 """
 
+from typing import Any
+
 import numpy as xp
 
 from ..experimental.cosmo_models import CosmoMixin
@@ -41,10 +43,10 @@ class _Redshift(CosmoMixin):
         for the model.
     """
 
-    base_variable_names = None
+    base_variable_names: list[str] | None = None
 
     @property
-    def variable_names(self):
+    def variable_names(self) -> list[str]:
         """
         Variable names for the model
 
@@ -60,18 +62,18 @@ class _Redshift(CosmoMixin):
             vars += self.base_variable_names
         return vars
 
-    def __init__(self, z_max=2.3, cosmo_model="Planck15"):
+    def __init__(self, z_max: float = 2.3, cosmo_model: str = "Planck15") -> None:
         super().__init__(cosmo_model=cosmo_model)
         self.z_max = z_max
         self.zs = xp.linspace(1e-6, z_max, 2500)
 
-    def __call__(self, dataset, **kwargs):
+    def __call__(self, dataset: dict[str, Any], **kwargs: Any) -> Any:
         """
         Wrapper to :func:`probability`.
         """
         return self.probability(dataset=dataset, **kwargs)
 
-    def normalisation(self, parameters):
+    def normalisation(self, parameters: dict[str, Any]) -> Any:
         r"""
         Compute the normalization of the rate-weighted spacetime volume.
 
@@ -97,7 +99,7 @@ class _Redshift(CosmoMixin):
         norm = trapezoid(normalisation_data, self.zs)
         return norm
 
-    def probability(self, dataset, **parameters):
+    def probability(self, dataset: dict[str, Any], **parameters: Any) -> Any:
         """
         Compute the normalized probability of a merger occurring at the
         specified redshift.
@@ -121,7 +123,7 @@ class _Redshift(CosmoMixin):
         )
         return differential_volume / normalisation
 
-    def psi_of_z(self, redshift, **parameters):
+    def psi_of_z(self, redshift: Any, **parameters: Any) -> Any:
         r"""
         Method encoding the redshift evolution of the merger rate.
         This should be overwritten in child classes.
@@ -145,7 +147,7 @@ class _Redshift(CosmoMixin):
         """
         raise NotImplementedError
 
-    def dvc_dz(self, redshift, **parameters):
+    def dvc_dz(self, redshift: Any, **parameters: Any) -> Any:
         r"""
 
         .. note::
@@ -166,7 +168,7 @@ class _Redshift(CosmoMixin):
             * self.cosmology(parameters).differential_comoving_volume(redshift)
         )
 
-    def differential_spacetime_volume(self, dataset, bounds=False, **parameters):
+    def differential_spacetime_volume(self, dataset: dict[str, Any], bounds: bool = False, **parameters: Any) -> Any:
         r"""
         Compute the differential spacetime volume.
 
@@ -196,9 +198,9 @@ class _Redshift(CosmoMixin):
 
 
 class PowerLawRedshift(_Redshift):
-    base_variable_names = ["lamb"]
+    base_variable_names: list[str] = ["lamb"]
 
-    def psi_of_z(self, redshift, **parameters):
+    def psi_of_z(self, redshift: Any, **parameters: Any) -> Any:
         r"""
         Redshift model from Fishbach+ https://arxiv.org/abs/1805.10270
         (`arXiv:1805.10270 <https://arxiv.org/abs/1805.10270>`_.
@@ -217,9 +219,9 @@ class PowerLawRedshift(_Redshift):
 
 class MadauDickinsonRedshift(_Redshift):
 
-    base_variable_names = ["gamma", "kappa", "z_peak"]
+    base_variable_names: list[str] = ["gamma", "kappa", "z_peak"]
 
-    def psi_of_z(self, redshift, **parameters):
+    def psi_of_z(self, redshift: Any, **parameters: Any) -> Any:
         r"""
         Redshift model from Fishbach+
         (`arXiv:1805.10270 <https://arxiv.org/abs/1805.10270>`_ Eq. (33))
@@ -249,7 +251,7 @@ class MadauDickinsonRedshift(_Redshift):
         return psi_of_z
 
 
-def total_four_volume(lamb, analysis_time, max_redshift=2.3):
+def total_four_volume(lamb: float, analysis_time: float, max_redshift: float = 2.3) -> float:
     r"""
     Calculate the rate-weighted four-volume for a given power-law redshift model.
 

@@ -3,6 +3,7 @@ Implemented mass models
 """
 
 import inspect
+from typing import Any
 
 import numpy as np
 import scipy.special as scs
@@ -35,7 +36,7 @@ __all__ = [
 ]
 
 
-def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
+def double_power_law_primary_mass(mass: Any, alpha_1: float, alpha_2: float, mmin: float, mmax: float, break_fraction: float) -> Any:
     r"""
     Broken power-law mass distribution
 
@@ -72,17 +73,17 @@ def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_frac
 
 
 def double_power_law_peak_primary_mass(
-    mass,
-    alpha_1,
-    alpha_2,
-    mmin,
-    mmax,
-    break_fraction,
-    lam,
-    mpp,
-    sigpp,
-    gaussian_mass_maximum=100,
-):
+    mass: Any,
+    alpha_1: float,
+    alpha_2: float,
+    mmin: float,
+    mmax: float,
+    break_fraction: float,
+    lam: float,
+    mpp: float,
+    sigpp: float,
+    gaussian_mass_maximum: float = 100,
+) -> Any:
     r"""
     Broken power-law with a Gaussian component.
 
@@ -138,8 +139,8 @@ def double_power_law_peak_primary_mass(
 
 
 def double_power_law_primary_power_law_mass_ratio(
-    dataset, alpha_1, alpha_2, beta, mmin, mmax, break_fraction
-):
+    dataset: dict[str, Any], alpha_1: float, alpha_2: float, beta: float, mmin: float, mmax: float, break_fraction: float
+) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling primary
     mass and conditional mass ratio distribution.
@@ -184,7 +185,7 @@ def double_power_law_primary_power_law_mass_ratio(
     return prob
 
 
-def power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
+def power_law_primary_mass_ratio(dataset: dict[str, Any], alpha: float, beta: float, mmin: float, mmax: float) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling primary
     mass and conditional mass ratio distribution.
@@ -214,11 +215,11 @@ def power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
     )
 
 
-def _primary_secondary_general(dataset, p_m1, p_m2):
+def _primary_secondary_general(dataset: dict[str, Any], p_m1: Any, p_m2: Any) -> Any:
     return p_m1 * p_m2 * (dataset["mass_1"] >= dataset["mass_2"]) * 2
 
 
-def power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):
+def power_law_primary_secondary_independent(dataset: dict[str, Any], alpha: float, beta: float, mmin: float, mmax: float) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling the
     primary and secondary masses as following independent distributions.
@@ -247,7 +248,7 @@ def power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):
     return prob
 
 
-def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
+def power_law_primary_secondary_identical(dataset: dict[str, Any], alpha: float, mmin: float, mmax: float) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling the
     primary and secondary masses as following independent distributions.
@@ -273,7 +274,7 @@ def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
     )
 
 
-def power_law_mass(mass, alpha, mmin, mmax):
+def power_law_mass(mass: Any, alpha: float, mmin: float, mmax: float) -> Any:
     r"""
     Power law model for one-dimensional mass distribution.
 
@@ -295,8 +296,8 @@ def power_law_mass(mass, alpha, mmin, mmax):
 
 
 def two_component_single(
-    mass, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
-):
+    mass: Any, alpha: float, mmin: float, mmax: float, lam: float, mpp: float, sigpp: float, gaussian_mass_maximum: float = 100
+) -> Any:
     r"""
     Power law model for one-dimensional mass distribution with a Gaussian component.
 
@@ -333,18 +334,18 @@ def two_component_single(
 
 
 def three_component_single(
-    mass,
-    alpha,
-    mmin,
-    mmax,
-    lam,
-    lam_1,
-    mpp_1,
-    sigpp_1,
-    mpp_2,
-    sigpp_2,
-    gaussian_mass_maximum=100,
-):
+    mass: Any,
+    alpha: float,
+    mmin: float,
+    mmax: float,
+    lam: float,
+    lam_1: float,
+    mpp_1: float,
+    sigpp_1: float,
+    mpp_2: float,
+    sigpp_2: float,
+    gaussian_mass_maximum: float = 100,
+) -> Any:
     r"""
     Power law model for one-dimensional mass distribution with two Gaussian components.
 
@@ -395,8 +396,8 @@ def three_component_single(
 
 
 def two_component_primary_mass_ratio(
-    dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
-):
+    dataset: dict[str, Any], alpha: float, beta: float, mmin: float, mmax: float, lam: float, mpp: float, sigpp: float, gaussian_mass_maximum: float = 100
+) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling primary
     mass and conditional mass ratio distribution.
@@ -440,8 +441,8 @@ def two_component_primary_mass_ratio(
 
 
 def two_component_primary_secondary_independent(
-    dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
-):
+    dataset: dict[str, Any], alpha: float, beta: float, mmin: float, mmax: float, lam: float, mpp: float, sigpp: float, gaussian_mass_maximum: float = 100
+) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling the
     primary and secondary masses as following independent distributions.
@@ -486,8 +487,8 @@ def two_component_primary_secondary_independent(
 
 
 def two_component_primary_secondary_identical(
-    dataset, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
-):
+    dataset: dict[str, Any], alpha: float, mmin: float, mmax: float, lam: float, mpp: float, sigpp: float, gaussian_mass_maximum: float = 100
+) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling the
     primary and secondary masses as following independent distributions.
@@ -545,7 +546,7 @@ class BaseSmoothedMassDistribution:
     primary_model = None
 
     @property
-    def variable_names(self):
+    def variable_names(self) -> set[str]:
         vars = getattr(
             self.primary_model,
             "variable_names",
@@ -556,10 +557,10 @@ class BaseSmoothedMassDistribution:
         return vars
 
     @property
-    def kwargs(self):
+    def kwargs(self) -> dict[str, Any]:
         return dict()
 
-    def __init__(self, mmin=2, mmax=100, normalization_shape=(1000, 500), cache=True):
+    def __init__(self, mmin: float = 2, mmax: float = 100, normalization_shape: tuple[int, int] = (1000, 500), cache: bool = True) -> None:
         self.mmin = mmin
         self.mmax = mmax
         self.m1s = xp.linspace(mmin, mmax, normalization_shape[0])
@@ -569,7 +570,7 @@ class BaseSmoothedMassDistribution:
         self.m1s_grid, self.qs_grid = xp.meshgrid(self.m1s, self.qs)
         self.cache = cache
 
-    def __call__(self, dataset, *args, **kwargs):
+    def __call__(self, dataset: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
         beta = kwargs.pop("beta")
         mmin = kwargs.get("mmin", self.mmin)
         mmax = kwargs.get("mmax", self.mmax)
@@ -588,7 +589,7 @@ class BaseSmoothedMassDistribution:
         prob = p_m1 * p_q
         return prob
 
-    def p_m1(self, dataset, **kwargs):
+    def p_m1(self, dataset: dict[str, Any], **kwargs: Any) -> Any:
         mmin = kwargs.get("mmin", self.mmin)
         delta_m = kwargs.pop("delta_m", 0)
         p_m = self.__class__.primary_model(dataset["mass_1"], **kwargs)
@@ -598,7 +599,7 @@ class BaseSmoothedMassDistribution:
         norm = self.norm_p_m1(delta_m=delta_m, **kwargs)
         return p_m / norm
 
-    def norm_p_m1(self, delta_m, **kwargs):
+    def norm_p_m1(self, delta_m: float, **kwargs: Any) -> Any:
         """Calculate the normalisation factor for the primary mass"""
         mmin = kwargs.get("mmin", self.mmin)
         if "jax" not in xp.__name__ and delta_m == 0:
@@ -611,7 +612,7 @@ class BaseSmoothedMassDistribution:
         )
         return norm
 
-    def p_q(self, dataset, beta, mmin, delta_m):
+    def p_q(self, dataset: dict[str, Any], beta: float, mmin: float, delta_m: float) -> Any:
         p_q = powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
         p_q *= self.smoothing(
             dataset["mass_1"] * dataset["mass_ratio"],
@@ -632,7 +633,7 @@ class BaseSmoothedMassDistribution:
 
         return xp.nan_to_num(p_q)
 
-    def norm_p_q(self, beta, mmin, delta_m):
+    def norm_p_q(self, beta: float, mmin: float, delta_m: float) -> Any:
         """Calculate the mass ratio normalisation by linear interpolation"""
         p_q = powerlaw(self.qs_grid, beta, 1, mmin / self.m1s_grid)
         p_q *= self.smoothing(
@@ -645,7 +646,7 @@ class BaseSmoothedMassDistribution:
 
         return self._q_interpolant(norms)
 
-    def _cache_q_norms(self, masses):
+    def _cache_q_norms(self, masses: Any) -> None:
         """
         Cache the information necessary for linear interpolation of the mass
         ratio normalisation
@@ -657,7 +658,7 @@ class BaseSmoothedMassDistribution:
         )
 
     @staticmethod
-    def smoothing(masses, mmin, mmax, delta_m):
+    def smoothing(masses: Any, mmin: float, mmax: float, delta_m: float) -> Any:
         """
         Apply a one sided window between mmin and mmin + delta_m to the
         mass pdf.
@@ -721,7 +722,7 @@ class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     primary_model = two_component_single
 
     @property
-    def kwargs(self):
+    def kwargs(self) -> dict[str, Any]:
         return dict(gaussian_mass_maximum=self.mmax)
 
 
@@ -766,7 +767,7 @@ class MultiPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     primary_model = three_component_single
 
     @property
-    def kwargs(self):
+    def kwargs(self) -> dict[str, Any]:
         return dict(gaussian_mass_maximum=self.mmax)
 
 
@@ -837,7 +838,7 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     primary_model = double_power_law_peak_primary_mass
 
     @property
-    def kwargs(self):
+    def kwargs(self) -> dict[str, Any]:
         return dict(gaussian_mass_maximum=self.mmax)
 
 
@@ -873,13 +874,13 @@ class InterpolatedPowerlaw(
 
     def __init__(
         self,
-        nodes=10,
-        kind="cubic",
-        mmin=2,
-        mmax=100,
-        normalization_shape=(1000, 500),
-        regularize=False,
-    ):
+        nodes: int = 10,
+        kind: str = "cubic",
+        mmin: float = 2,
+        mmax: float = 100,
+        normalization_shape: tuple[int, int] = (1000, 500),
+        regularize: bool = False,
+    ) -> None:
         """
         Parameters
         ==========
@@ -916,13 +917,13 @@ class InterpolatedPowerlaw(
         self._xs = self.m1s
 
     @property
-    def variable_names(self):
+    def variable_names(self) -> set[str]:
         variable_names = super().variable_names.union(
             InterpolatedNoBaseModelIdentical.variable_names.fget(self)
         )
         return variable_names
 
-    def p_m1(self, dataset, **kwargs):
+    def p_m1(self, dataset: dict[str, Any], **kwargs: Any) -> Any:
 
         f_splines, m_splines = self.extract_spline_points(kwargs)
 
@@ -939,7 +940,7 @@ class InterpolatedPowerlaw(
         norm = self.norm_p_m1(delta_m=delta_m, f_splines=f_splines, **kwargs)
         return p_m / norm
 
-    def norm_p_m1(self, delta_m, f_splines=None, **kwargs):
+    def norm_p_m1(self, delta_m: float, f_splines: Any = None, **kwargs: Any) -> Any:
         mmin = kwargs.get("mmin", self.mmin)
         p_m = self.__class__.primary_model(
             self.m1s, **{key: kwargs[key] for key in ["alpha", "mmin", "mmax"]}

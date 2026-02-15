@@ -2,6 +2,8 @@
 Implemented spin models
 """
 
+from typing import Any
+
 import numpy as xp
 
 from ..utils import beta_dist, trapezoid, truncnorm, unnormalized_2d_gaussian
@@ -21,7 +23,14 @@ __all__ = [
 ]
 
 
-def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
+def iid_spin(
+    dataset: dict[str, Any],
+    xi_spin: float,
+    sigma_spin: float,
+    amax: float,
+    alpha_chi: float,
+    beta_chi: float,
+) -> Any:
     r"""
     Independently and identically distributed spins.
     The magnitudes are assumed to follow a Beta distribution and the
@@ -47,7 +56,9 @@ def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
     return prior
 
 
-def iid_spin_magnitude_beta(dataset, amax=1, alpha_chi=1, beta_chi=1):
+def iid_spin_magnitude_beta(
+    dataset: dict[str, Any], amax: float = 1, alpha_chi: float = 1, beta_chi: float = 1
+) -> Any:
     """
     Independent and identically distributed beta distributions for both spin magnitudes.
 
@@ -68,8 +79,14 @@ def iid_spin_magnitude_beta(dataset, amax=1, alpha_chi=1, beta_chi=1):
 
 
 def independent_spin_magnitude_beta(
-    dataset, alpha_chi_1, alpha_chi_2, beta_chi_1, beta_chi_2, amax_1, amax_2
-):
+    dataset: dict[str, Any],
+    alpha_chi_1: float,
+    alpha_chi_2: float,
+    beta_chi_1: float,
+    beta_chi_2: float,
+    amax_1: float,
+    amax_2: float,
+) -> Any:
     """
     Independent beta distributions for both spin magnitudes.
 
@@ -92,7 +109,9 @@ def independent_spin_magnitude_beta(
     return prior
 
 
-def iid_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_spin, mu_spin=1):
+def iid_spin_orientation_gaussian_isotropic(
+    dataset: dict[str, Any], xi_spin: float, sigma_spin: float, mu_spin: float = 1
+) -> Any:
     r"""
     A mixture model of spin orientations with isotropic and normally
     distributed components. The distribution of primary and secondary spin
@@ -125,8 +144,13 @@ def iid_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_spin, mu_spi
 
 
 def independent_spin_orientation_gaussian_isotropic(
-    dataset, xi_spin, sigma_1, sigma_2, mu_1=1, mu_2=1
-):
+    dataset: dict[str, Any],
+    xi_spin: float,
+    sigma_1: float,
+    sigma_2: float,
+    mu_1: float = 1,
+    mu_2: float = 1,
+) -> Any:
     r"""
     A mixture model of spin orientations with isotropic and normally
     distributed components.
@@ -166,7 +190,9 @@ def independent_spin_orientation_gaussian_isotropic(
     return prior
 
 
-def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):
+def gaussian_chi_eff(
+    dataset: dict[str, Any], mu_chi_eff: float, sigma_chi_eff: float
+) -> Any:
     r"""
     A Gaussian in chi effective distribution
 
@@ -197,7 +223,7 @@ def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):
     )
 
 
-def gaussian_chi_p(dataset, mu_chi_p, sigma_chi_p):
+def gaussian_chi_p(dataset: dict[str, Any], mu_chi_p: float, sigma_chi_p: float) -> Any:
     r"""
     A Gaussian distribution in precessing effective spin (chi p)
 
@@ -261,14 +287,20 @@ class GaussianChiEffChiP(object):
         Covariance between the two parameters (:math:`\rho`)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.chi_eff = xp.linspace(-1, 1, 500)
         self.chi_p = xp.linspace(0, 1, 250)
         self.chi_eff_grid, self.chi_p_grid = xp.meshgrid(self.chi_eff, self.chi_p)
 
     def __call__(
-        self, dataset, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
-    ):
+        self,
+        dataset: dict[str, Any],
+        mu_chi_eff: float,
+        sigma_chi_eff: float,
+        mu_chi_p: float,
+        sigma_chi_p: float,
+        spin_covariance: float,
+    ) -> Any:
 
         prob = unnormalized_2d_gaussian(
             dataset["chi_eff"],
@@ -292,8 +324,13 @@ class GaussianChiEffChiP(object):
         return prob
 
     def _normalization(
-        self, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
-    ):
+        self,
+        mu_chi_eff: float,
+        sigma_chi_eff: float,
+        mu_chi_p: float,
+        sigma_chi_p: float,
+        spin_covariance: float,
+    ) -> Any:
         r"""
         Numerically calculate the normalization over a two-dimensional grid with
         trapezoidal integration
@@ -351,7 +388,14 @@ class SplineSpinMagnitudeIdentical(InterpolatedNoBaseModelIdentical):
         value :code:`rms{name}`, default=False.
     """
 
-    def __init__(self, minimum=0, maximum=1, nodes=5, kind="cubic", regularize=False):
+    def __init__(
+        self,
+        minimum: float = 0,
+        maximum: float = 1,
+        nodes: int = 5,
+        kind: str = "cubic",
+        regularize: bool = False,
+    ) -> None:
 
         super(SplineSpinMagnitudeIdentical, self).__init__(
             parameters=["a_1", "a_2"],
@@ -384,7 +428,14 @@ class SplineSpinTiltIdentical(InterpolatedNoBaseModelIdentical):
         value :code:`rms{name}`, default=False.
     """
 
-    def __init__(self, minimum=-1, maximum=1, nodes=5, kind="cubic", regularize=False):
+    def __init__(
+        self,
+        minimum: float = -1,
+        maximum: float = 1,
+        nodes: int = 5,
+        kind: str = "cubic",
+        regularize: bool = False,
+    ) -> None:
 
         super(SplineSpinTiltIdentical, self).__init__(
             parameters=["cos_tilt_1", "cos_tilt_2"],

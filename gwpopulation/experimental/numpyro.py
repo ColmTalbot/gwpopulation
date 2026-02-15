@@ -1,3 +1,5 @@
+from typing import Any
+
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -11,13 +13,13 @@ __all__ = [
 
 
 def gwpopulation_likelihood_model(
-    likelihood,
-    hyper_params,
-    varmax=np.inf,
-    apply_selection=True,
-    predictive_resample=True,
-    fit_keys=None,
-):
+    likelihood: Any,
+    hyper_params: dict[str, Any],
+    varmax: float = np.inf,
+    apply_selection: bool = True,
+    predictive_resample: bool = True,
+    fit_keys: list[str] | None = None,
+) -> Any:
     """
     A :code:`numpyro` implementation of :func:`gwpopulation.hyperpe.HyperparameterLikelihood`.
 
@@ -106,8 +108,8 @@ def gwpopulation_likelihood_model(
 
 
 def posterior_predictive_resample(
-    data, weights, label, event=None, shape=(), fit_keys=None
-):
+    data: dict[str, Any], weights: Any, label: str | int, event: int | None = None, shape: tuple = (), fit_keys: list[str] | None = None
+) -> None:
     """
     Draw a sample from the predictive distribution given the weights for each sample.
 

@@ -6,6 +6,8 @@ We provide a mixin class :func:`gwpopulation.experimental.cosmo_models.CosmoMixi
 can be used to add cosmological functionality to a population model.
 """
 
+from typing import Any
+
 import numpy as xp
 from bilby.hyper.model import Model
 from wcosmo import z_at_value
@@ -24,7 +26,7 @@ class CosmoMixin:
         Should be of :code:`wcosmo.available.keys()`.
     """
 
-    def __init__(self, cosmo_model="Planck15"):
+    def __init__(self, cosmo_model: str = "Planck15") -> None:
         wcosmo_disable_units()
         self.cosmo_model = cosmo_model
         if self.cosmo_model == "FlatwCDM":
@@ -35,7 +37,7 @@ class CosmoMixin:
             self.cosmology_names = []
         self._cosmo = available[cosmo_model]
 
-    def cosmology_variables(self, parameters):
+    def cosmology_variables(self, parameters: dict[str, Any]) -> dict[str, Any]:
         """
         Extract the cosmological parameters from the provided parameters.
 
@@ -51,7 +53,7 @@ class CosmoMixin:
         """
         return {key: parameters[key] for key in self.cosmology_names}
 
-    def cosmology(self, parameters):
+    def cosmology(self, parameters: dict[str, Any]) -> WCosmoMixin:
         """
         Return the cosmology model given the parameters.
 
@@ -70,7 +72,7 @@ class CosmoMixin:
         else:
             return self._cosmo(**self.cosmology_variables(parameters))
 
-    def detector_frame_to_source_frame(self, data, **parameters):
+    def detector_frame_to_source_frame(self, data: dict[str, Any], **parameters: Any) -> tuple[dict[str, Any], Any]:
         r"""
         Convert detector frame samples to source frame samples given cosmological
         parameters. Calculate the corresponding
@@ -133,11 +135,11 @@ class CosmoModel(Model, CosmoMixin):
         Should be of :code:`wcosmo.available.keys()`.
     """
 
-    def __init__(self, model_functions=None, cosmo_model="Planck15"):
+    def __init__(self, model_functions: list[Any] | None = None, cosmo_model: str = "Planck15") -> None:
         Model.__init__(self, model_functions=model_functions, cache=False)
         CosmoMixin.__init__(self, cosmo_model=cosmo_model)
 
-    def prob(self, data, **kwargs):
+    def prob(self, data: dict[str, Any], **kwargs: Any) -> Any:
         """
         Compute the total population probability for the provided data given
         the keyword arguments.

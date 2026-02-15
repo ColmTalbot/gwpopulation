@@ -1,12 +1,14 @@
 import warnings
+from collections.abc import Callable
 from copy import deepcopy
 from functools import partial
+from typing import Any
 
 import numpy as np
 from bilby.core.likelihood import Likelihood
 
 
-def generic_bilby_likelihood_function(likelihood, parameters, use_ratio=True):
+def generic_bilby_likelihood_function(likelihood: Likelihood, parameters: dict[str, Any], use_ratio: bool = True) -> float:
     """
     A wrapper to allow a :code:`Bilby` likelihood to be used with :code:`jax`.
 
@@ -48,8 +50,8 @@ class JittedLikelihood(Likelihood):
     """
 
     def __init__(
-        self, likelihood, likelihood_func=generic_bilby_likelihood_function, kwargs=None
-    ):
+        self, likelihood: Likelihood, likelihood_func: Callable = generic_bilby_likelihood_function, kwargs: dict[str, Any] | None = None
+    ) -> None:
         from jax import jit
 
         if kwargs is None:
@@ -59,8 +61,8 @@ class JittedLikelihood(Likelihood):
         self.likelihood_func = jit(partial(likelihood_func, likelihood))
         super().__init__()
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         return getattr(self._likelihood, name)
 
-    def log_likelihood_ratio(self, parameters):
+    def log_likelihood_ratio(self, parameters: dict[str, Any]) -> float:
         return float(np.nan_to_num(self.likelihood_func(parameters, **self.kwargs)))

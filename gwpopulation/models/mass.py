@@ -139,7 +139,13 @@ def double_power_law_peak_primary_mass(
 
 
 def double_power_law_primary_power_law_mass_ratio(
-    dataset: dict[str, Any], alpha_1: float, alpha_2: float, beta: float, mmin: float, mmax: float, break_fraction: float
+    dataset: dict[str, Any],
+    alpha_1: float,
+    alpha_2: float,
+    beta: float,
+    mmin: float,
+    mmax: float,
+    break_fraction: float,
 ) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling primary
@@ -296,7 +302,14 @@ def power_law_mass(mass: Any, alpha: float, mmin: float, mmax: float) -> Any:
 
 
 def two_component_single(
-    mass: Any, alpha: float, mmin: float, mmax: float, lam: float, mpp: float, sigpp: float, gaussian_mass_maximum: float = 100
+    mass: Any,
+    alpha: float,
+    mmin: float,
+    mmax: float,
+    lam: float,
+    mpp: float,
+    sigpp: float,
+    gaussian_mass_maximum: float = 100,
 ) -> Any:
     r"""
     Power law model for one-dimensional mass distribution with a Gaussian component.
@@ -396,7 +409,15 @@ def three_component_single(
 
 
 def two_component_primary_mass_ratio(
-    dataset: dict[str, Any], alpha: float, beta: float, mmin: float, mmax: float, lam: float, mpp: float, sigpp: float, gaussian_mass_maximum: float = 100
+    dataset: dict[str, Any],
+    alpha: float,
+    beta: float,
+    mmin: float,
+    mmax: float,
+    lam: float,
+    mpp: float,
+    sigpp: float,
+    gaussian_mass_maximum: float = 100,
 ) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling primary
@@ -441,7 +462,15 @@ def two_component_primary_mass_ratio(
 
 
 def two_component_primary_secondary_independent(
-    dataset: dict[str, Any], alpha: float, beta: float, mmin: float, mmax: float, lam: float, mpp: float, sigpp: float, gaussian_mass_maximum: float = 100
+    dataset: dict[str, Any],
+    alpha: float,
+    beta: float,
+    mmin: float,
+    mmax: float,
+    lam: float,
+    mpp: float,
+    sigpp: float,
+    gaussian_mass_maximum: float = 100,
 ) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling the
@@ -487,7 +516,14 @@ def two_component_primary_secondary_independent(
 
 
 def two_component_primary_secondary_identical(
-    dataset: dict[str, Any], alpha: float, mmin: float, mmax: float, lam: float, mpp: float, sigpp: float, gaussian_mass_maximum: float = 100
+    dataset: dict[str, Any],
+    alpha: float,
+    mmin: float,
+    mmax: float,
+    lam: float,
+    mpp: float,
+    sigpp: float,
+    gaussian_mass_maximum: float = 100,
 ) -> Any:
     r"""
     Power law model for two-dimensional mass distribution, modelling the

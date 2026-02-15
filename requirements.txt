@@ -5,3 +5,4 @@ tqdm
 bilby>=2.7.0  # we don't allow parameters as state
 cached_interpolate>=0.3.2
 wcosmo>=0.3.0
+array-api-typing @ git+https://github.com/data-apis/array-api-typing.git

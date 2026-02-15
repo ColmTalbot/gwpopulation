@@ -12,4 +12,3 @@ sphinx_rtd_theme
 sphinx-autoapi
 sphinx-copybutton
 sphinx-design
-sphinx-tabs

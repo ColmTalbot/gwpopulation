@@ -25,29 +25,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Setup conda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          python-version: "3.11"
-          channels: conda-forge
-          auto-update-conda: true
-          mamba-version: "*"
-          conda-remove-defaults: "true"
-
       - name: Install dependencies
         run: |
-          eval "$(mamba shell hook --shell bash)"
-          mamba activate test
-          mamba install pip setuptools
-          mamba install --file requirements.txt
-          mamba install --file pages_requirements.txt
-          mamba install --file test_requirements.txt
-          python -m pip install .
+          uv pip install --system -r requirements.txt
+          uv pip install --system -r pages_requirements.txt
+          uv pip install --system -r test_requirements.txt
+          uv pip install --system .
           pre-commit install
 
       - name: Build documentation
@@ -55,8 +48,8 @@ jobs:
           export BILBY_ALLOW_PARAMETERS_AS_STATE=FALSE
           cp examples/*.ipynb docs/examples
           cd docs
-          make SPHINXBUILD="mamba run -n test python -m sphinx" clean
-          make SPHINXBUILD="mamba run -n test python -m sphinx" html
+          make SPHINXBUILD="python -m sphinx" clean
+          make SPHINXBUILD="python -m sphinx" html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

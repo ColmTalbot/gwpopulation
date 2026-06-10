@@ -183,7 +183,7 @@ def truncnorm(xx, mu, sigma, high, low):
     return xp.nan_to_num(xp.exp(log_pdf)) * (xx >= low) * (xx <= high)
 
 
-
+@apply_conditions(dict(aa=(gt, 0), bb=(gt, 0), scale=(gt, 0)))
 def skewt(xx, aa, bb, loc=0, scale=1):
     r"""
     Jones and Faddy skew-t distribution (implementation based on :code:`scipy`).
@@ -212,11 +212,19 @@ def skewt(xx, aa, bb, loc=0, scale=1):
     prob: float, array-like
         The distribution evaluated at `xx`
     """
-    zz = (xx - loc) / scale
-    c = 2 ** (aa + bb - 1) * scs.beta(aa, bb) * (aa + bb)**0.5
-    d1 = (1 + zz / (aa + bb + zz ** 2)**0.5) ** (aa + 0.5)
-    d2 = (1 - zz / (aa + bb + zz ** 2)**0.5) ** (bb + 0.5)
-    return d1 * d2 / c / scale
+    denom = xp.sqrt(aa + bb + zz**2)
+    log_c = (
+        (aa + bb - 1) * np.log(2)
+        + scs.betaln(aa, bb)
+        + xp.log(aa + bb) / 2
+        + xp.log(scale)
+    )
+    log_pdf = (
+        (aa + 0.5) * xp.log1p(zz / denom)
+        + (bb + 0.5) * xp.log1p(-zz / denom)
+        - log_c
+    )
+    return xp.nan_to_num(xp.exp(log_pdf))
 
 
 def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):

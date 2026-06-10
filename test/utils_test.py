@@ -128,7 +128,7 @@ def test_truncnorm_matches_scipy(backend):
 
 
 def test_skewt_matches_scipy(backend):
-    from scipy.stats import fj_skew_t
+    from scipy.stats import jf_skew_t
 
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
@@ -141,7 +141,7 @@ def test_skewt_matches_scipy(backend):
         gwpop_vals = utils.to_numpy(
             utils.skewt(xx, aa=aa, bb=bb, loc=mu, scale=sigma)
         )
-        scipy_vals = fj_skew_t(
+        scipy_vals = jf_skew_t(
             loc=mu, scale=sigma, a=aa, b=bb
         ).pdf(utils.to_numpy(xx))
         assert max(abs(gwpop_vals - scipy_vals)) < 1e-3

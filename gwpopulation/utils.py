@@ -191,7 +191,9 @@ def skewt(xx, aa, bb, loc=0, scale=1):
     .. math::
 
         z &= \frac{x - \mu}{\sigma} \\
-        p(x) &= \frac{1}{\sigma C_{a,b}} \left(1 + \frac{z}{\sqrt{a + b + z^2}}\right)^{a + \frac{1}{2}} \left(1 - \frac{z}{\sqrt{a + b + z^2}}\right)^{b + \frac{1}{2}} \\
+        p(x) &= \frac{1}{\sigma C_{a,b}}
+            \left(1 + \frac{z}{\sqrt{a + b + z^2}}\right)^{a + \frac{1}{2}}
+            \left(1 - \frac{z}{\sqrt{a + b + z^2}}\right)^{b + \frac{1}{2}} \\
         C_{a,b} &= {2^{a + b - 1} B(a, b) \sqrt{a + b}}
 
     Parameters
@@ -212,6 +214,7 @@ def skewt(xx, aa, bb, loc=0, scale=1):
     prob: float, array-like
         The distribution evaluated at `xx`
     """
+    zz = (xx - loc) / scale
     denom = xp.sqrt(aa + bb + zz**2)
     log_c = (
         (aa + bb - 1) * np.log(2)

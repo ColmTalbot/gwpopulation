@@ -127,7 +127,27 @@ def test_truncnorm_matches_scipy(backend):
         assert max(abs(gwpop_vals - scipy_vals)) < 1e-3
 
 
-def test_matches_scipy(backend):
+def test_skewt_matches_scipy(backend):
+    from scipy.stats import fj_skew_t
+
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(-2, 2, 1000)
+    for ii in range(N_TEST):
+        mu = np.random.uniform(-10, 10)
+        sigma = np.random.uniform(0, 5)
+        aa = np.random.uniform(0, 100)
+        bb = np.random.uniform(0, 100)
+        gwpop_vals = utils.to_numpy(
+            utils.skewt(xx, aa=aa, bb=bb, loc=mu, scale=sigma)
+        )
+        scipy_vals = fj_skew_t(
+            loc=mu, scale=sigma, a=aa, b=bb
+        ).pdf(utils.to_numpy(xx))
+        assert max(abs(gwpop_vals - scipy_vals)) < 1e-3
+
+
+def test_vonmises_matches_scipy(backend):
     gwpopulation.set_backend(backend)
     xp = gwpopulation.utils.xp
     xx = xp.linspace(0, 2 * np.pi, 1000)

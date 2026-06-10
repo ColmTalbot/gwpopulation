@@ -223,9 +223,7 @@ def skewt(xx, aa, bb, loc=0, scale=1):
         + xp.log(scale)
     )
     log_pdf = (
-        (aa + 0.5) * xp.log1p(zz / denom)
-        + (bb + 0.5) * xp.log1p(-zz / denom)
-        - log_c
+        (aa + 0.5) * xp.log1p(zz / denom) + (bb + 0.5) * xp.log1p(-zz / denom) - log_c
     )
     return xp.nan_to_num(xp.exp(log_pdf))
 

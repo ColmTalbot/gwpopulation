@@ -138,12 +138,8 @@ def test_skewt_matches_scipy(backend):
         sigma = np.random.uniform(0, 5)
         aa = np.random.uniform(0, 100)
         bb = np.random.uniform(0, 100)
-        gwpop_vals = utils.to_numpy(
-            utils.skewt(xx, aa=aa, bb=bb, loc=mu, scale=sigma)
-        )
-        scipy_vals = jf_skew_t(
-            loc=mu, scale=sigma, a=aa, b=bb
-        ).pdf(utils.to_numpy(xx))
+        gwpop_vals = utils.to_numpy(utils.skewt(xx, aa=aa, bb=bb, loc=mu, scale=sigma))
+        scipy_vals = jf_skew_t(loc=mu, scale=sigma, a=aa, b=bb).pdf(utils.to_numpy(xx))
         assert max(abs(gwpop_vals - scipy_vals)) < 1e-3
 
 

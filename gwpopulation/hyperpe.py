@@ -78,6 +78,7 @@ class HyperparameterLikelihood(Likelihood):
         selection_function=lambda args: 1,
         conversion_function=lambda args: (args, None),
         maximum_uncertainty=xp.inf,
+        require_equal_samples=False,
     ):
         """
         Parameters
@@ -105,10 +106,16 @@ class HyperparameterLikelihood(Likelihood):
             The maximum allowed uncertainty in the natural log likelihood.
             If the uncertainty is larger than this value a log likelihood of
             -inf will be returned. Default = inf
+        require_equal_samples: bool
+            Whether to require and equal number of samples per posterior.
+            Set to :code:`True` for backward compatibility.
         """
 
         self.samples_per_posterior = max_samples
-        self.data = self.resample_posteriors(posteriors, max_samples=max_samples)
+        self.equal_samples = require_equal_samples
+        self.data, self.transitions = self.resample_posteriors(
+            posteriors, max_samples=max_samples
+        )
 
         if isinstance(hyper_prior, types.FunctionType):
             hyper_prior = Model([hyper_prior])
@@ -195,15 +202,26 @@ class HyperparameterLikelihood(Likelihood):
         self, parameters, *, return_uncertainty=True
     ):
         weights = self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
-        expectation = xp.mean(weights, axis=-1)
+        expectation = self._weight_expectation(weights)
         if return_uncertainty:
-            square_expectation = xp.mean(weights**2, axis=-1)
+            square_expectation = self._weight_expectation(weights)
             variance = (square_expectation - expectation**2) / (
                 self.samples_per_posterior * expectation**2
             )
             return xp.log(expectation), variance
         else:
             return xp.log(expectation)
+
+    def _weight_expectation(self, weights):
+        if self.equal_samples:
+            expectation = xp.mean(weights, axis=-1)
+        else:
+            cumulative = xp.concat([xp.zeros(1), xp.cumsum(weights)])
+            expectation = (
+                cumulative[self.transitions[1:]]
+                - cumulative[self.transitions[:-1]]
+            ) / self.samples_per_posterior
+        return expectation
 
     def _get_selection_factor(self, parameters, *, return_uncertainty=True):
         selection, variance = self._selection_function_with_uncertainty(
@@ -329,18 +347,36 @@ class HyperparameterLikelihood(Likelihood):
             Dictionary containing arrays of size (n_posteriors, max_samples)
             There is a key for each shared key in posteriors.
         """
-        for posterior in posteriors:
-            max_samples = min(len(posterior), max_samples)
         data = {key: [] for key in posteriors[0]}
-        logger.debug(f"Downsampling to {max_samples} samples per posterior.")
-        self.samples_per_posterior = max_samples
-        for posterior in posteriors:
-            temp = posterior.sample(self.samples_per_posterior)
-            for key in data:
-                data[key].append(temp[key])
+
+        if self.equal_samples:
+            for posterior in posteriors:
+                max_samples = min(len(posterior), max_samples)
+            logger.debug(f"Downsampling to {max_samples} samples per posterior.")
+            self.samples_per_posterior = max_samples
+            transitions = None
+            for posterior in posteriors:
+                temp = posterior.sample(self.samples_per_posterior)
+                for key in data:
+                    data[key].append(temp[key])
+        else:
+            self.samples_per_posterior = np.asarray([
+                min(len(posterior), max_samples) for posterior in posteriors
+            ])
+            transitions = np.concat([
+                np.zeros(1), np.cumsum(self.samples_per_posterior)
+            ]).astype(int)
+            for posterior, nsamples in zip(posteriors, self.samples_per_posterior):
+                temp = posterior.sample(nsamples)
+                for key in data:
+                    data[key].extend(temp[key])
+            self.samples_per_posterior = xp.asarray(self.samples_per_posterior)
+            transitions = xp.asarray(transitions)
+
         for key in data:
-            data[key] = xp.array(data[key])
-        return data
+            data[key] = xp.asarray(data[key])
+
+        return data, transitions
 
     def posterior_predictive_resample(self, samples, return_weights=False):
         """
@@ -370,47 +406,78 @@ class HyperparameterLikelihood(Likelihood):
             samples = [dict(samples.iloc[ii]) for ii in range(len(samples))]
         elif isinstance(samples, dict):
             samples = [samples]
-        weights = xp.zeros((self.n_posteriors, self.samples_per_posterior))
+        if self.equal_samples:
+            weights = xp.zeros((self.n_posteriors, self.samples_per_posterior))
+        else:
+            weights = xp.zeros(int(xp.sum(self.samples_per_posterior)))
+
         event_weights = xp.zeros(self.n_posteriors)
         for sample in tqdm(samples):
             parameters, added_keys = self.conversion_function(sample.copy())
             new_weights = (
                 self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
             )
-            event_weights += xp.mean(new_weights, axis=-1)
-            new_weights = (new_weights.T / xp.sum(new_weights, axis=-1)).T
+            expectation = self._weight_expectation(new_weights)
+            event_weights += expectation
+            if self.equal_samples:
+                denominator = expectation * self.samples_per_posterior
+            else:
+                denominator = xp.concat([
+                    xp.ones(nsamples) * weight * nsamples
+                    for nsamples, weight in zip(self.samples_per_posterior, expectation)
+                ])
+            new_weights = (new_weights.T / denominator).T
             weights += new_weights
-        weights = (weights.T / xp.sum(weights, axis=-1)).T
+
         new_idxs = xp.empty_like(weights, dtype=int)
         for ii in range(self.n_posteriors):
+            if self.equal_samples:
+                sl = ii
+                start = 0
+                nsamples = self.samples_per_posterior
+            else:
+                sl = slice(self.transitions[ii], self.transitions[ii + 1])
+                start = self.transitions[ii]
+                nsamples = int(self.samples_per_posterior[ii])
+            wts = weights[sl]
+            wts /= wts.sum()
             if "jax" in xp.__name__:
                 from jax import random
 
                 rng_key = random.PRNGKey(np.random.randint(10000000))
-                new_idxs = new_idxs.at[ii].set(
+                new_idxs = new_idxs.at[sl].set(
                     random.choice(
                         rng_key,
-                        xp.arange(self.samples_per_posterior),
-                        shape=(self.samples_per_posterior,),
+                        xp.arange(nsamples) + start,
+                        shape=(nsamples,),
                         replace=True,
-                        p=weights[ii],
+                        p=wts,
                     )
                 )
             else:
-                new_idxs[ii] = xp.asarray(
+                new_idxs[sl] = xp.asarray(
                     np.random.choice(
-                        range(self.samples_per_posterior),
-                        size=self.samples_per_posterior,
+                        np.arange(nsamples) + start,
+                        size=nsamples,
                         replace=True,
-                        p=to_numpy(weights[ii]),
+                        p=to_numpy(wts),
                     )
                 )
-        new_samples = {
-            key: xp.vstack(
-                [self.data[key][ii, new_idxs[ii]] for ii in range(self.n_posteriors)]
-            )
-            for key in self.data
-        }
+
+        if self.equal_samples:
+            new_samples = {
+                key: xp.vstack(
+                    [self.data[key][ii, new_idxs[ii]] for ii in range(self.n_posteriors)]
+                )
+                for key in self.data
+            }
+        else:
+            new_samples = {
+                key: xp.vstack(
+                    [self.data[key][new_idxs] for ii in range(self.n_posteriors)]
+                )
+                for key in self.data
+            }
         event_weights = list(event_weights)
         weight_string = " ".join([f"{float(weight):.1f}" for weight in event_weights])
         logger.info(f"Resampling done, sum of weights for events are {weight_string}")

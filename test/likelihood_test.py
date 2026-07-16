@@ -86,7 +86,7 @@ class Likelihoods(unittest.TestCase):
 
     def test_hpe_likelihood_set_max_samples(self):
         like = HyperparameterLikelihood(
-            posteriors=self.data, hyper_prior=self.model, max_samples=10
+            posteriors=self.data, hyper_prior=self.model, max_samples=10, require_equal_samples=True
         )
         self.assertEqual(like.data["a"].shape, (5, 10))
 
@@ -204,6 +204,7 @@ class Likelihoods(unittest.TestCase):
             hyper_prior=self.model,
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
+            require_equal_samples=True,
         )
         new_samples = like.posterior_predictive_resample(samples=samples)
         for key in new_samples:
@@ -216,6 +217,7 @@ class Likelihoods(unittest.TestCase):
             hyper_prior=model,
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
+            require_equal_samples=True,
         )
         expected = dict(
             model=["<lambda>", "SinglePeakSmoothedMassDistribution"],

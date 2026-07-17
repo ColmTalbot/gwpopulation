@@ -107,7 +107,7 @@ class HyperparameterLikelihood(Likelihood):
             If the uncertainty is larger than this value a log likelihood of
             -inf will be returned. Default = inf
         require_equal_samples: bool
-            Whether to require and equal number of samples per posterior.
+            Whether to require an equal number of samples per posterior.
             Set to :code:`True` for backward compatibility.
         """
 
@@ -337,8 +337,7 @@ class HyperparameterLikelihood(Likelihood):
         posteriors: list
             List of pandas DataFrame objects.
         max_samples: int, opt
-            Maximum number of samples to take from each posterior,
-            default is length of shortest posterior chain.
+            Maximum number of samples to take from each posterior.
 
         Returns
         -------
@@ -478,12 +477,7 @@ class HyperparameterLikelihood(Likelihood):
                 for key in self.data
             }
         else:
-            new_samples = {
-                key: xp.vstack(
-                    [self.data[key][new_idxs] for ii in range(self.n_posteriors)]
-                )
-                for key in self.data
-            }
+            new_samples = {key: self.data[key][new_idxs] for key in self.data}
         event_weights = list(event_weights)
         weight_string = " ".join([f"{float(weight):.1f}" for weight in event_weights])
         logger.info(f"Resampling done, sum of weights for events are {weight_string}")

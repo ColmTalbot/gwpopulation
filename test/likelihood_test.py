@@ -23,6 +23,8 @@ class Likelihoods(unittest.TestCase):
         self.model = lambda dataset, a, b, c: dataset["a"]
         one_data = pd.DataFrame({key: xp.ones(500) for key in self.params})
         self.data = [one_data] * 5
+        self.sample_lengths = [100, 123, 459, 43, 233]
+        self.unequal_data = [one_data[:ns] for ns in self.sample_lengths]
         self.ln_evidences = [0] * 5
         self.selection_function = lambda args: 2.0
         self.conversion_function = lambda args: (args, ["bar"])
@@ -92,6 +94,15 @@ class Likelihoods(unittest.TestCase):
             require_equal_samples=True,
         )
         self.assertEqual(like.data["a"].shape, (5, 10))
+
+    def test_hpe_likelihood_unequal_samples(self):
+        like = HyperparameterLikelihood(
+            posteriors=self.unequal_data,
+            hyper_prior=self.model,
+            require_equal_samples=False,
+        )
+        for value in like.data.values():
+            self.assertEqual(value.shape, (sum(self.sample_lengths),))
 
     def test_hpe_likelihood_log_likelihood_ratio(self):
         like = HyperparameterLikelihood(posteriors=self.data, hyper_prior=self.model)
@@ -208,6 +219,20 @@ class Likelihoods(unittest.TestCase):
             selection_function=self.selection_function,
             ln_evidences=self.ln_evidences,
             require_equal_samples=True,
+        )
+        new_samples = like.posterior_predictive_resample(samples=samples)
+        for key in new_samples:
+            self.assertEqual(new_samples[key].shape, like.data[key].shape)
+
+    def test_resampling_unequal_posteriors(self):
+        priors = PriorDict(dict(a=Uniform(0, 2), b=Uniform(0, 2), c=Uniform(0, 2)))
+        samples = priors.sample(100)
+        like = HyperparameterLikelihood(
+            posteriors=self.unequal_data,
+            hyper_prior=self.model,
+            selection_function=self.selection_function,
+            ln_evidences=self.ln_evidences,
+            require_equal_samples=False,
         )
         new_samples = like.posterior_predictive_resample(samples=samples)
         for key in new_samples:

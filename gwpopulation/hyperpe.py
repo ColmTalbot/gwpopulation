@@ -113,9 +113,7 @@ class HyperparameterLikelihood(Likelihood):
 
         self.samples_per_posterior = max_samples
         self.equal_samples = require_equal_samples
-        self.data, self.transitions = self.resample_posteriors(
-            posteriors, max_samples=max_samples
-        )
+        self.data = self.resample_posteriors(posteriors, max_samples=max_samples)
 
         if isinstance(hyper_prior, types.FunctionType):
             hyper_prior = Model([hyper_prior])
@@ -217,8 +215,11 @@ class HyperparameterLikelihood(Likelihood):
             expectation = xp.mean(weights, axis=-1)
         else:
             cumulative = xp.concat([xp.zeros(1), xp.cumsum(weights)])
+            transitions = xp.concat(
+                [xp.zeros(1), xp.cumsum(self.samples_per_posterior)]
+            ).astype(int)
             expectation = (
-                cumulative[self.transitions[1:]] - cumulative[self.transitions[:-1]]
+                cumulative[transitions[1:]] - cumulative[transitions[:-1]]
             ) / self.samples_per_posterior
         return expectation
 
@@ -352,7 +353,6 @@ class HyperparameterLikelihood(Likelihood):
                 max_samples = min(len(posterior), max_samples)
             logger.debug(f"Downsampling to {max_samples} samples per posterior.")
             self.samples_per_posterior = max_samples
-            transitions = None
             for posterior in posteriors:
                 temp = posterior.sample(self.samples_per_posterior)
                 for key in data:
@@ -369,12 +369,11 @@ class HyperparameterLikelihood(Likelihood):
                 for key in data:
                     data[key].extend(temp[key])
             self.samples_per_posterior = xp.asarray(self.samples_per_posterior)
-            transitions = xp.asarray(transitions)
 
         for key in data:
             data[key] = xp.asarray(data[key])
 
-        return data, transitions
+        return data
 
     def posterior_predictive_resample(self, samples, return_weights=False):
         """
@@ -438,8 +437,11 @@ class HyperparameterLikelihood(Likelihood):
                 start = 0
                 nsamples = self.samples_per_posterior
             else:
-                sl = slice(self.transitions[ii], self.transitions[ii + 1])
-                start = self.transitions[ii]
+                transitions = np.concat(
+                    [xp.zeros(1), xp.cumsum(self.samples_per_posterior)]
+                ).astype(int)
+                sl = slice(transitions[ii], transitions[ii + 1])
+                start = transitions[ii]
                 nsamples = int(self.samples_per_posterior[ii])
             wts = weights[sl]
             wts /= wts.sum()

@@ -86,7 +86,10 @@ class Likelihoods(unittest.TestCase):
 
     def test_hpe_likelihood_set_max_samples(self):
         like = HyperparameterLikelihood(
-            posteriors=self.data, hyper_prior=self.model, max_samples=10, require_equal_samples=True
+            posteriors=self.data,
+            hyper_prior=self.model,
+            max_samples=10,
+            require_equal_samples=True,
         )
         self.assertEqual(like.data["a"].shape, (5, 10))
 

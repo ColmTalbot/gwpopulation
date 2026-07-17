@@ -204,7 +204,7 @@ class HyperparameterLikelihood(Likelihood):
         weights = self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
         expectation = self._weight_expectation(weights)
         if return_uncertainty:
-            square_expectation = self._weight_expectation(weights)
+            square_expectation = self._weight_expectation(weights**2)
             variance = (square_expectation - expectation**2) / (
                 self.samples_per_posterior * expectation**2
             )
@@ -218,8 +218,7 @@ class HyperparameterLikelihood(Likelihood):
         else:
             cumulative = xp.concat([xp.zeros(1), xp.cumsum(weights)])
             expectation = (
-                cumulative[self.transitions[1:]]
-                - cumulative[self.transitions[:-1]]
+                cumulative[self.transitions[1:]] - cumulative[self.transitions[:-1]]
             ) / self.samples_per_posterior
         return expectation
 
@@ -360,12 +359,12 @@ class HyperparameterLikelihood(Likelihood):
                 for key in data:
                     data[key].append(temp[key])
         else:
-            self.samples_per_posterior = np.asarray([
-                min(len(posterior), max_samples) for posterior in posteriors
-            ])
-            transitions = np.concat([
-                np.zeros(1), np.cumsum(self.samples_per_posterior)
-            ]).astype(int)
+            self.samples_per_posterior = np.asarray(
+                [min(len(posterior), max_samples) for posterior in posteriors]
+            )
+            transitions = np.concat(
+                [np.zeros(1), np.cumsum(self.samples_per_posterior)]
+            ).astype(int)
             for posterior, nsamples in zip(posteriors, self.samples_per_posterior):
                 temp = posterior.sample(nsamples)
                 for key in data:
@@ -422,10 +421,14 @@ class HyperparameterLikelihood(Likelihood):
             if self.equal_samples:
                 denominator = expectation * self.samples_per_posterior
             else:
-                denominator = xp.concat([
-                    xp.ones(nsamples) * weight * nsamples
-                    for nsamples, weight in zip(self.samples_per_posterior, expectation)
-                ])
+                denominator = xp.concat(
+                    [
+                        xp.ones(nsamples) * weight * nsamples
+                        for nsamples, weight in zip(
+                            self.samples_per_posterior, expectation
+                        )
+                    ]
+                )
             new_weights = (new_weights.T / denominator).T
             weights += new_weights
 
@@ -467,7 +470,10 @@ class HyperparameterLikelihood(Likelihood):
         if self.equal_samples:
             new_samples = {
                 key: xp.vstack(
-                    [self.data[key][ii, new_idxs[ii]] for ii in range(self.n_posteriors)]
+                    [
+                        self.data[key][ii, new_idxs[ii]]
+                        for ii in range(self.n_posteriors)
+                    ]
                 )
                 for key in self.data
             }

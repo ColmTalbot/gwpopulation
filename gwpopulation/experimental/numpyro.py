@@ -43,8 +43,8 @@ def gwpopulation_likelihood_model(
         likelihood.hyper_prior.prob(likelihood.data, **parameters)
         / likelihood.sampling_prior
     )
-    expectations = jnp.mean(weights, axis=-1)
-    square_expectations = jnp.mean(weights**2, axis=-1)
+    expectations = likelihood._weight_expectation(weights)
+    square_expectations = likelihood._weight_expectation(weights**2)
     variances = deterministic(
         "variances",
         (square_expectations - expectations**2)

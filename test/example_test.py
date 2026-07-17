@@ -9,8 +9,10 @@ import gwpopulation
 from gwpopulation.experimental.jax import JittedLikelihood
 
 
-@pytest.mark.parametrize("jit", [True, False])
-def test_likelihood_evaluation(backend, jit):
+@pytest.mark.parametrize(
+    "jit, equal", [[True, True], [True, False], [False, True], [False, False]]
+)
+def test_likelihood_evaluation(backend, jit, equal):
     if backend != "jax" and jit:
         pytest.skip(reason="JIT only works with JAX")
 
@@ -67,6 +69,7 @@ def test_likelihood_evaluation(backend, jit):
         hyper_prior=model,
         posteriors=posteriors,
         selection_function=selection,
+        require_equal_samples=equal,
     )
 
     priors = bilby.core.prior.PriorDict("priors/bbh_population.prior")

@@ -183,6 +183,51 @@ def truncnorm(xx, mu, sigma, high, low):
     return xp.nan_to_num(xp.exp(log_pdf)) * (xx >= low) * (xx <= high)
 
 
+@apply_conditions(dict(aa=(gt, 0), bb=(gt, 0), scale=(gt, 0)))
+def skewt(xx, aa, bb, loc=0, scale=1):
+    r"""
+    Jones and Faddy skew-t distribution (implementation based on :code:`scipy`).
+
+    .. math::
+
+        z &= \frac{x - \mu}{\sigma} \\
+        p(x) &= \frac{1}{\sigma C_{a,b}}
+            \left(1 + \frac{z}{\sqrt{a + b + z^2}}\right)^{a + \frac{1}{2}}
+            \left(1 - \frac{z}{\sqrt{a + b + z^2}}\right)^{b + \frac{1}{2}} \\
+        C_{a,b} &= {2^{a + b - 1} B(a, b) \sqrt{a + b}}
+
+    Parameters
+    ----------
+    xx: float, array-like
+        The abscissa values (:math:`x`)
+    aa: float
+        The first shape parameter (:math:`a`)
+    bb: float
+        The second shape parameter (:math:`b`)
+    loc: float
+        The location parameter (:math:`\mu`)
+    scale: float
+        The scale parameter (:math:`\sigma`)
+    
+    Returns
+    -------
+    prob: float, array-like
+        The distribution evaluated at `xx`
+    """
+    zz = (xx - loc) / scale
+    denom = xp.sqrt(aa + bb + zz**2)
+    log_c = (
+        (aa + bb - 1) * np.log(2)
+        + scs.betaln(aa, bb)
+        + xp.log(aa + bb) / 2
+        + xp.log(scale)
+    )
+    log_pdf = (
+        (aa + 0.5) * xp.log1p(zz / denom) + (bb + 0.5) * xp.log1p(-zz / denom) - log_c
+    )
+    return xp.nan_to_num(xp.exp(log_pdf))
+
+
 def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
     r"""
     Compute the probability distribution for a correlated 2-dimensional Gaussian

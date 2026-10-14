@@ -42,18 +42,158 @@ Each of these Monte Carlo integrals have associated uncertainties which are prop
 and can be calculated using :func:`gwpopulation.hyperpe.HyperparameterLikelihood.ln_likelihood_and_variance`.
 """
 
+import sys
 import types
 
 import numpy as np
 from bilby.core.likelihood import Likelihood
-from bilby.core.utils import logger
-from bilby.hyper.model import Model
+from bilby.core.utils import infer_args_from_function_except_n_args, logger
+from bilby.hyper.model import Model as _BilbyModel
 
 from .utils import get_name, to_number, to_numpy
 
 xp = np
 
-__all__ = ["HyperparameterLikelihood", "RateLikelihood", "xp"]
+__all__ = ["HyperparameterLikelihood", "Model", "RateLikelihood", "xp"]
+
+
+class Model(_BilbyModel):
+    r"""
+    Population model that combines a set of factorizable models and can be
+    evaluated in log space.
+
+    .. math::
+
+        \ln p(\theta | \Lambda) = \sum_{i} \ln p_{i}(\theta | \Lambda)
+
+    This is a drop-in replacement for :code:`bilby.hyper.model.Model`;
+    :func:`prob` is unchanged (the product of the component probabilities) and
+    :func:`ln_prob` sums the component log probabilities.
+    Evaluating in log space avoids underflow far from the bulk of the
+    population, e.g., when using single precision.
+
+    For each component the log probability is resolved, in order, as:
+
+    - the :code:`ln_prob` attribute of the component, if present. This
+      applies to classes defining an :code:`ln_prob` method and to functions
+      with an attached :code:`ln_prob` attribute, e.g.,
+      :code:`my_model.ln_prob = ln_my_model`, which is how a log density can be
+      provided for an arbitrary function.
+    - a function named :code:`ln_<name>` in the module defining the
+      component function :code:`<name>`, e.g.,
+      :func:`gwpopulation.models.mass.ln_two_component_primary_mass_ratio` for
+      :func:`gwpopulation.models.mass.two_component_primary_mass_ratio`.
+      This is only used if the hyperparameters of the two functions match.
+    - :code:`xp.log` of the linear component, so all existing models work.
+
+    The hyperparameters passed to the log probability are found from the
+    linear component using the same rules as :code:`bilby.hyper.model.Model`,
+    so the log version must take the same arguments.
+
+    Parameters
+    ==========
+    model_functions: list
+        List of callables to compute the probability.
+        If this includes classes, the :code:`__call__`: method
+        should return the probability.
+        The requires variables are chosen at run time based on either
+        inspection or querying a :code:`variable_names` attribute.
+    cache: bool
+        Whether to cache the value returned by the model functions,
+        default=:code:`True`. The caching only looks at the parameters
+        not the data, so should be used with caution. The caching also
+        breaks :code:`jax` JIT compilation. The probabilities and log
+        probabilities are cached separately.
+    """
+
+    def __init__(self, model_functions=None, cache=True):
+        super().__init__(model_functions=model_functions, cache=cache)
+        self._cached_ln_parameters = {model: None for model in self.models}
+        self._cached_ln_probability = {model: None for model in self.models}
+        self._ln_functions = dict()
+
+    def ln_prob(self, data, **kwargs):
+        """
+        Compute the total population log probability for the provided data
+        given the keyword arguments.
+
+        Parameters
+        ==========
+        data: dict
+            Dictionary containing the points at which to evaluate the
+            population model.
+        kwargs: dict
+            The population parameters. These cannot include any of
+            :code:`["dataset", "data", "self", "cls"]` unless the
+            :code:`variable_names` attribute is available for the relevant
+            model.
+
+        Returns
+        =======
+        ln_probability: array-like
+            The log probability, :code:`-inf` where the probability is zero.
+        """
+        ln_probability = 0.0
+        for function in self.models:
+            function_parameters = self._get_function_parameters(function, **kwargs)
+            if (
+                self.cache
+                and self._cached_ln_parameters.get(function) == function_parameters
+            ):
+                new_ln_probability = self._cached_ln_probability[function]
+            else:
+                ln_function = self.ln_function(function)
+                new_ln_probability = ln_function(data, **function_parameters)
+                if self.cache:
+                    self._cached_ln_parameters[function] = function_parameters
+                    self._cached_ln_probability[function] = new_ln_probability
+            ln_probability = ln_probability + new_ln_probability
+        return ln_probability
+
+    def ln_function(self, function):
+        """
+        Find the callable returning the log probability for a component.
+        See the class docstring for the resolution order.
+
+        Parameters
+        ==========
+        function: callable
+            One of :code:`self.models`.
+
+        Returns
+        =======
+        ln_function: callable
+            A callable with the same signature as :code:`function` returning
+            the log probability.
+        """
+        if function not in self._ln_functions:
+            self._ln_functions[function] = self._resolve_ln_function(function)
+        return self._ln_functions[function]
+
+    @staticmethod
+    def _resolve_ln_function(function):
+        ln_function = getattr(function, "ln_prob", None)
+        if callable(ln_function):
+            return ln_function
+
+        name = getattr(function, "__name__", None)
+        module = sys.modules.get(getattr(function, "__module__", None) or "")
+        ln_function = getattr(module, f"ln_{name}", None) if name else None
+        if callable(ln_function):
+            if hasattr(function, "variable_names") or (
+                infer_args_from_function_except_n_args(function, n=0)
+                == infer_args_from_function_except_n_args(ln_function, n=0)
+            ):
+                return ln_function
+            logger.warning(
+                f"Not using ln_{name} for {name} as the arguments differ, "
+                "falling back to the log of the probability."
+            )
+
+        def ln_function(data, **parameters):
+            return xp.log(function(data, **parameters))
+
+        return ln_function
 
 
 class HyperparameterLikelihood(Likelihood):
@@ -116,7 +256,7 @@ class HyperparameterLikelihood(Likelihood):
         self.data = self.resample_posteriors(posteriors, max_samples=max_samples)
 
         if isinstance(hyper_prior, types.FunctionType):
-            hyper_prior = Model([hyper_prior])
+            hyper_prior = _BilbyModel([hyper_prior])
         elif not (
             hasattr(hyper_prior, "parameters")
             and callable(getattr(hyper_prior, "prob"))

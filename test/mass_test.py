@@ -345,3 +345,54 @@ def test_interpolated_power_law_p_m1_variable_names():
 
 def _max_abs_difference(array, comparison, xp=np):
     return float(xp.max(xp.abs(comparison - xp.asarray(array))))
+
+
+def test_ln_two_component_primary_mass_ratio_matches_log(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    _, _, dataset = get_smoothed_data(xp)
+    prior = power_prior()
+    prior.update(gauss_prior())
+    prior["gaussian_mass_maximum"] = 80
+    for _ in range(N_TEST):
+        parameters = prior.sample()
+        ln_prob = to_numpy(
+            mass.ln_two_component_primary_mass_ratio(dataset, **parameters)
+        )
+        prob = to_numpy(mass.two_component_primary_mass_ratio(dataset, **parameters))
+        positive = prob > 1e-300
+        np.testing.assert_allclose(ln_prob[positive], np.log(prob[positive]), rtol=1e-8)
+        assert np.all(ln_prob[prob == 0] < np.log(1e-300))
+    gwpopulation.set_backend("numpy")
+
+
+def test_ln_two_component_primary_mass_ratio_single_precision_jax():
+    pytest.importorskip("jax")
+    gwpopulation.set_backend("jax")
+    xp = gwpopulation.utils.xp
+    _, _, dataset = get_smoothed_data(xp)
+    prior = power_prior()
+    prior.update(gauss_prior())
+    prior["gaussian_mass_maximum"] = 80
+    samples = [prior.sample() for _ in range(N_TEST)]
+    expected = [
+        to_numpy(mass.ln_two_component_primary_mass_ratio(dataset, **parameters))
+        for parameters in samples
+    ]
+    gwpopulation.set_backend("jax", enable_x64=False)
+    try:
+        dataset = {key: xp.asarray(value, dtype=xp.float32) for key, value in dataset.items()}
+        for parameters, ln_expected in zip(samples, expected):
+            parameters = {key: float(value) for key, value in parameters.items()}
+            ln_prob = mass.ln_two_component_primary_mass_ratio(dataset, **parameters)
+            assert ln_prob.dtype == xp.float32
+            ln_prob = to_numpy(ln_prob)
+            assert not np.any(np.isnan(ln_prob))
+            finite = np.isfinite(ln_expected)
+            assert np.all(np.isfinite(ln_prob) == finite)
+            np.testing.assert_allclose(
+                ln_prob[finite], ln_expected[finite], rtol=1e-4, atol=1e-3
+            )
+    finally:
+        gwpopulation.set_backend("jax", enable_x64=True)
+        gwpopulation.set_backend("numpy")

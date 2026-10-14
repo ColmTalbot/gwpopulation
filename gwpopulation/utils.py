@@ -130,6 +130,111 @@ def powerlaw(xx, alpha, high, low):
     return prob
 
 
+@apply_conditions(dict(low=(ge, 0), alpha=(ne, 1)))
+def ln_powerlaw(xx, alpha, high, low):
+    r"""
+    Log power-law probability
+
+    .. math::
+        \ln p(x) = \alpha \ln x + \ln\left|\frac{1 + \alpha}{x_\max^{1 + \alpha} - x_\min^{1 + \alpha}}\right|
+
+    The normalisation is computed from :math:`\ln x_\min` and :math:`\ln x_\max`
+    so that it does not overflow for large :math:`|\alpha|`, e.g., in single
+    precision.
+
+    Parameters
+    ----------
+    xx: float, array-like
+        The abscissa values (:math:`x`)
+    alpha: float, array-like
+        The spectral index of the distribution (:math:`\alpha`)
+    high: float, array-like
+        The maximum of the distribution (:math:`x_\max`)
+    low: float, array-like
+        The minimum of the distribution (:math:`x_\min`)
+
+    Returns
+    -------
+    ln_prob: float, array-like
+        The log of the distribution evaluated at `xx`, :code:`-inf` outside
+        :math:`[x_\min, x_\max]`
+
+    """
+    # with numpy, the logs warn where the result is masked below or where the
+    # bounds give no support (low > high, e.g., mass ratio with m1 < mmin)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        ln_high = xp.log(high)
+        ln_low = xp.log(low)
+        width = ln_high - ln_low
+        exponent = 1 + alpha
+        # |high^s - low^s| = max(high^s, low^s) * (1 - exp(-|s| (ln high - ln low)))
+        ln_largest = xp.where(exponent > 0, exponent * ln_high, exponent * ln_low)
+        ln_norm = xp.where(
+            exponent == 0,
+            -xp.log(width),
+            xp.log(xp.abs(exponent))
+            - ln_largest
+            - xp.log(-xp.expm1(-xp.abs(exponent) * width)),
+        )
+        # xlogy keeps x^0 = 1 at x = 0
+        ln_prob = scs.xlogy(alpha, xx) + ln_norm
+    return xp.where((xx <= high) & (xx >= low), ln_prob, -xp.inf)
+
+
+@apply_conditions(dict(sigma=(gt, 0)))
+def ln_truncnorm(xx, mu, sigma, high, low):
+    r"""
+    Log truncated normal probability
+
+    .. math::
+
+        \ln p(x) = -\frac{(\mu - x)^2}{2 \sigma^2} - \frac{1}{2}\ln\left(2\pi\sigma^2\right)
+        - \ln\left(\Phi\left(\frac{x_\max - \mu}{\sigma}\right) - \Phi\left(\frac{x_\min - \mu}{\sigma}\right)\right)
+
+    Parameters
+    ----------
+    xx: float, array-like
+        The abscissa values (:math:`x`)
+    mu: float, array-like
+        The mean of the normal distribution (:math:`\mu`)
+    sigma: float
+        The standard deviation of the distribution (:math:`\sigma`)
+    high: float, array-like
+        The maximum of the distribution (:math:`x_\max`)
+    low: float, array-like
+        The minimum of the distribution (:math:`x_\min`)
+
+    Returns
+    -------
+    ln_prob: float, array-like
+        The log of the distribution evaluated at `xx`, :code:`-inf` outside
+        :math:`[x_\min, x_\max]`
+
+    """
+
+    def logsubexp(log_p, log_q):
+        return log_p + xp.log1p(-xp.exp(log_q - log_p))
+
+    zz = xp.array(xx - mu) / sigma
+    aa = xp.array(low - mu) / sigma
+    bb = xp.array(high - mu) / sigma
+    # a Python float, a numpy scalar would promote single precision inputs
+    log_pdf = -(zz**2) / 2.0 - float(np.log(2.0 * np.pi)) / 2.0 - xp.log(sigma)
+
+    # cf https://github.com/scipy/scipy/blob/v1.15.1/scipy/stats/_continuous_distns.py#L10189
+    log_norm = xp.select(
+        [bb <= 0, aa > 0, bb > 0],
+        [
+            logsubexp(scs.log_ndtr(bb), scs.log_ndtr(aa)),
+            logsubexp(scs.log_ndtr(-aa), scs.log_ndtr(-bb)),
+            xp.log1p(-scs.ndtr(aa) - scs.ndtr(-bb)),
+        ],
+        xp.nan,
+    )
+    log_pdf -= log_norm
+    return xp.where((xx >= low) & (xx <= high), log_pdf, -xp.inf)
+
+
 @apply_conditions(dict(sigma=(gt, 0)))
 def truncnorm(xx, mu, sigma, high, low):
     r"""
@@ -160,27 +265,7 @@ def truncnorm(xx, mu, sigma, high, low):
         The distribution evaluated at `xx`
 
     """
-
-    def logsubexp(log_p, log_q):
-        return log_p + xp.log(1 - xp.exp(log_q - log_p))
-
-    zz = xp.array(xx - mu) / sigma
-    aa = xp.array(low - mu) / sigma
-    bb = xp.array(high - mu) / sigma
-    log_pdf = -(zz**2) / 2.0 - np.log(2.0 * np.pi) / 2.0 - xp.log(sigma)
-
-    # cf https://github.com/scipy/scipy/blob/v1.15.1/scipy/stats/_continuous_distns.py#L10189
-    log_norm = xp.select(
-        [bb <= 0, aa > 0, bb > 0],
-        [
-            logsubexp(scs.log_ndtr(bb), scs.log_ndtr(aa)),
-            logsubexp(scs.log_ndtr(-aa), scs.log_ndtr(-bb)),
-            xp.log1p(-scs.ndtr(aa) - scs.ndtr(-bb)),
-        ],
-        xp.nan,
-    )
-    log_pdf -= log_norm
-    return xp.nan_to_num(xp.exp(log_pdf)) * (xx >= low) * (xx <= high)
+    return xp.nan_to_num(xp.exp(ln_truncnorm(xx, mu=mu, sigma=sigma, high=high, low=low)))
 
 
 def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):

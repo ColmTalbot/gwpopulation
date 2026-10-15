@@ -5,6 +5,7 @@ from scipy.stats import vonmises
 
 import gwpopulation
 from gwpopulation import utils
+from gwpopulation.utils import to_numpy
 
 N_TEST = 100
 
@@ -275,3 +276,47 @@ def test_ln_functions_single_precision_jax():
     finally:
         gwpopulation.set_backend("jax", enable_x64=True)
         gwpopulation.set_backend("numpy")
+
+
+def test_ln_powerlaw_from_logs_matches_ln_powerlaw(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(0.1, 120, 1000)
+    for alpha in [-1, 0] + list(np.random.uniform(-10, 10, N_TEST)):
+        low, high = np.random.uniform(1, 10), np.random.uniform(50, 100)
+        ln_prob = utils.ln_powerlaw_from_logs(
+            xp.log(xx), alpha=alpha, ln_high=np.log(high), ln_low=np.log(low)
+        )
+        expected = utils.ln_powerlaw(xx, alpha=alpha, high=high, low=low)
+        finite = to_numpy(xp.isfinite(expected))
+        assert np.array_equal(to_numpy(xp.isfinite(ln_prob)), finite)
+        np.testing.assert_allclose(
+            to_numpy(ln_prob)[finite], to_numpy(expected)[finite], rtol=1e-10
+        )
+    gwpopulation.set_backend("numpy")
+
+
+def test_ln_powerlaw_from_logs_array_low(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(0.01, 1, 100)
+    low = xp.linspace(0.005, 0.5, 100)
+    for alpha in [-1, 0, 2.5]:
+        _log_matches(
+            utils.ln_powerlaw_from_logs(
+                xp.log(xx), alpha=alpha, ln_high=0.0, ln_low=xp.log(low)
+            ),
+            utils.powerlaw(xx, alpha=alpha, high=1, low=low),
+            xp,
+        )
+    gwpopulation.set_backend("numpy")
+
+
+def test_ln_powerlaw_from_logs_zero_low():
+    gwpopulation.set_backend("numpy")
+    xx = np.linspace(0, 1, 11)
+    with np.errstate(divide="ignore"):
+        ln_xx = np.log(xx)
+    assert np.allclose(
+        utils.ln_powerlaw_from_logs(ln_xx, alpha=0, ln_high=0.0, ln_low=-np.inf), 0
+    )

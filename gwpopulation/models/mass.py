@@ -7,7 +7,13 @@ import inspect
 import numpy as np
 import scipy.special as scs
 
-from ..utils import ln_powerlaw, ln_truncnorm, powerlaw, trapezoid, truncnorm
+from ..utils import (
+    ln_powerlaw_from_logs,
+    ln_truncnorm,
+    powerlaw,
+    trapezoid,
+    truncnorm,
+)
 from .interped import InterpolatedNoBaseModelIdentical
 
 xp = np
@@ -360,11 +366,36 @@ def ln_two_component_single(
     gaussian_mass_maximum: float, optional
         Upper truncation limit of the Gaussian component. (default: 100)
     """
-    ln_p_pow = ln_powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
+    return _ln_two_component_single(
+        mass,
+        xp.log(mass),
+        alpha=alpha,
+        mmin=mmin,
+        mmax=mmax,
+        lam=lam,
+        mpp=mpp,
+        sigpp=sigpp,
+        gaussian_mass_maximum=gaussian_mass_maximum,
+    )
+
+
+def _ln_two_component_single(
+    mass, ln_mass, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum
+):
+    """:func:`ln_two_component_single` given both the mass and its log"""
+    ln_p_pow = ln_powerlaw_from_logs(
+        ln_mass, alpha=-alpha, ln_high=xp.log(mmax), ln_low=xp.log(mmin)
+    )
     ln_p_norm = ln_truncnorm(
         mass, mu=mpp, sigma=sigpp, high=gaussian_mass_maximum, low=mmin
     )
     return xp.logaddexp(xp.log1p(-lam) + ln_p_pow, xp.log(lam) + ln_p_norm)
+
+
+def _dataset_log(dataset, key):
+    """``dataset["ln_<key>"]`` if the dataset has it, else the log of ``dataset[key]``"""
+    ln_key = f"ln_{key}"
+    return dataset[ln_key] if ln_key in dataset else xp.log(dataset[key])
 
 
 def three_component_single(
@@ -485,7 +516,9 @@ def ln_two_component_primary_mass_ratio(
     Parameters
     ----------
     dataset: dict
-        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'.
+        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'. If it also
+        has 'ln_mass_1' and/or 'ln_mass_ratio', these are used instead of
+        taking logs, e.g., to compute them once for a fixed set of samples.
     alpha: float
         Negative power law exponent for more massive black hole.
     mmin: float
@@ -511,8 +544,17 @@ def ln_two_component_primary_mass_ratio(
         sigpp=sigpp,
         gaussian_mass_maximum=gaussian_mass_maximum,
     )
-    ln_p_m1 = ln_two_component_single(dataset["mass_1"], alpha=alpha, **params)
-    ln_p_q = ln_powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
+    ln_mass_1 = _dataset_log(dataset, "mass_1")
+    ln_p_m1 = _ln_two_component_single(
+        dataset["mass_1"], ln_mass_1, alpha=alpha, **params
+    )
+    # q_min = mmin / m1, so ln q_min = ln mmin - ln m1 needs no log of the data
+    ln_p_q = ln_powerlaw_from_logs(
+        _dataset_log(dataset, "mass_ratio"),
+        beta,
+        ln_high=0.0,
+        ln_low=xp.log(mmin) - ln_mass_1,
+    )
     return ln_p_m1 + ln_p_q
 
 

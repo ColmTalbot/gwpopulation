@@ -163,22 +163,73 @@ def ln_powerlaw(xx, alpha, high, low):
     # with numpy, the logs warn where the result is masked below or where the
     # bounds give no support (low > high, e.g., mass ratio with m1 < mmin)
     with np.errstate(divide="ignore", invalid="ignore"):
-        ln_high = xp.log(high)
-        ln_low = xp.log(low)
-        width = ln_high - ln_low
-        exponent = 1 + alpha
-        # |high^s - low^s| = max(high^s, low^s) * (1 - exp(-|s| (ln high - ln low)))
-        ln_largest = xp.where(exponent > 0, exponent * ln_high, exponent * ln_low)
-        ln_norm = xp.where(
-            exponent == 0,
-            -xp.log(width),
-            xp.log(xp.abs(exponent))
-            - ln_largest
-            - xp.log(-xp.expm1(-xp.abs(exponent) * width)),
-        )
+        ln_norm = _ln_powerlaw_norm(alpha, xp.log(high), xp.log(low))
         # xlogy keeps x^0 = 1 at x = 0
         ln_prob = scs.xlogy(alpha, xx) + ln_norm
     return xp.where((xx <= high) & (xx >= low), ln_prob, -xp.inf)
+
+
+def ln_powerlaw_from_logs(ln_xx, alpha, ln_high, ln_low):
+    r"""
+    Log power-law probability, as :func:`ln_powerlaw`, given the logs of the
+    abscissa and of the bounds
+
+    .. math::
+        \ln p(x) = \alpha \ln x + \ln\left|\frac{1 + \alpha}{x_\max^{1 + \alpha} - x_\min^{1 + \alpha}}\right|
+
+    With :math:`\ln x` precomputed, e.g., once per dataset, this needs no
+    logarithm of the data, and bounds that are products of parameters and
+    data, e.g., :math:`q_\min = m_\min / m_1`, become sums.
+
+    Parameters
+    ----------
+    ln_xx: float, array-like
+        The log of the abscissa values (:math:`\ln x`)
+    alpha: float, array-like
+        The spectral index of the distribution (:math:`\alpha`)
+    ln_high: float, array-like
+        The log of the maximum of the distribution (:math:`\ln x_\max`)
+    ln_low: float, array-like
+        The log of the minimum of the distribution (:math:`\ln x_\min`)
+
+    Returns
+    -------
+    ln_prob: float, array-like
+        The log of the distribution evaluated at :math:`x`, :code:`-inf`
+        outside :math:`[x_\min, x_\max]`
+    """
+    with np.errstate(divide="ignore", invalid="ignore"):
+        ln_norm = _ln_powerlaw_norm(alpha, ln_high, ln_low)
+        # x^0 = 1 at x = 0, as xlogy
+        ln_prob = xp.where(xp.asarray(alpha) == 0, 0.0, alpha * ln_xx) + ln_norm
+    return xp.where((ln_xx <= ln_high) & (ln_xx >= ln_low), ln_prob, -xp.inf)
+
+
+def _ln_powerlaw_norm(alpha, ln_high, ln_low):
+    r"""
+    :math:`\ln\left|(1 + \alpha) / (x_\max^{1 + \alpha} - x_\min^{1 + \alpha})\right|`
+    from :math:`\ln x_\min` and :math:`\ln x_\max`, so that it does not
+    overflow for large :math:`|\alpha|`, e.g., in single precision.
+    """
+    width = ln_high - ln_low
+    exponent = 1 + alpha
+    # |high^s - low^s| = max(high^s, low^s) * (1 - exp(-|s| (ln high - ln low)))
+    ln_largest = xp.where(exponent > 0, exponent * ln_high, exponent * ln_low)
+    # As s -> 0 the norm tends to -ln(ln high - ln low), which a tiny |s|
+    # reproduces to O(|s| width): -expm1(-x) = x for small x. This avoids a
+    # separate branch, which would cost a second log wherever the bounds
+    # depend on the data, e.g., the mass ratio.
+    abs_exponent = xp.where(exponent == 0, _TINY_EXPONENT, xp.abs(exponent))
+    return (
+        xp.log(abs_exponent)
+        - ln_largest
+        - xp.log(-xp.expm1(-abs_exponent * width))
+    )
+
+
+# small enough that |s| width is negligible next to one, large enough that it
+# stays a normal number in single precision for any width above ~1e-26
+_TINY_EXPONENT = 1e-12
 
 
 @apply_conditions(dict(sigma=(gt, 0)))
@@ -215,11 +266,12 @@ def ln_truncnorm(xx, mu, sigma, high, low):
     def logsubexp(log_p, log_q):
         return log_p + xp.log1p(-xp.exp(log_q - log_p))
 
-    zz = xp.array(xx - mu) / sigma
-    aa = xp.array(low - mu) / sigma
-    bb = xp.array(high - mu) / sigma
-    # a Python float, a numpy scalar would promote single precision inputs
-    log_pdf = -(zz**2) / 2.0 - float(np.log(2.0 * np.pi)) / 2.0 - xp.log(sigma)
+    # multiplying by 1 / sigma, rather than dividing, saves a division per
+    # element when sigma is a parameter and xx is data
+    inv_sigma = 1 / xp.asarray(sigma)
+    zz = xp.array(xx - mu) * inv_sigma
+    aa = xp.array(low - mu) * inv_sigma
+    bb = xp.array(high - mu) * inv_sigma
 
     # cf https://github.com/scipy/scipy/blob/v1.15.1/scipy/stats/_continuous_distns.py#L10189
     log_norm = xp.select(
@@ -231,7 +283,10 @@ def ln_truncnorm(xx, mu, sigma, high, low):
         ],
         xp.nan,
     )
-    log_pdf -= log_norm
+    # the terms independent of xx are summed first, so they are added once per
+    # element; a Python float, a numpy scalar would promote single precision
+    ln_const = -float(np.log(2.0 * np.pi)) / 2.0 - xp.log(sigma) - log_norm
+    log_pdf = ln_const - zz**2 / 2.0
     return xp.where((xx >= low) & (xx <= high), log_pdf, -xp.inf)
 
 

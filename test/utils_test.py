@@ -320,3 +320,40 @@ def test_ln_powerlaw_from_logs_zero_low():
     assert np.allclose(
         utils.ln_powerlaw_from_logs(ln_xx, alpha=0, ln_high=0.0, ln_low=-np.inf), 0
     )
+
+
+def test_logsumexp_matches_scipy(backend):
+    from scipy.special import logsumexp
+
+    gwpopulation.set_backend(backend)
+    xp = utils.xp
+    values = np.random.default_rng(1).normal(0, 300, (4, 50))
+    values[1] = -np.inf
+    values[2, :10] = -np.inf
+    result = to_numpy(utils.logsumexp(xp.asarray(values), axis=-1))
+    expected = logsumexp(values, axis=-1)
+    assert result[1] == -np.inf
+    finite = np.isfinite(expected)
+    np.testing.assert_allclose(result[finite], expected[finite], rtol=1e-6)
+    gwpopulation.set_backend("numpy")
+
+
+def test_segment_logsumexp_matches_scipy(backend):
+    """Segments whose sums differ by hundreds of e-folds, which a single
+    cumulative sum cannot resolve."""
+    from scipy.special import logsumexp
+
+    gwpopulation.set_backend(backend)
+    xp = utils.xp
+    rng = np.random.default_rng(2)
+    counts = np.array([3, 40, 1, 17])
+    offsets = np.array([500.0, -500.0, 0.0, 200.0])
+    values = np.concatenate(
+        [offset + rng.normal(0, 1, count) for offset, count in zip(offsets, counts)]
+    )
+    result = to_numpy(utils.segment_logsumexp(xp.asarray(values), xp.asarray(counts)))
+    expected = [
+        logsumexp(segment) for segment in np.split(values, np.cumsum(counts)[:-1])
+    ]
+    np.testing.assert_allclose(result, expected, rtol=1e-6)
+    gwpopulation.set_backend("numpy")

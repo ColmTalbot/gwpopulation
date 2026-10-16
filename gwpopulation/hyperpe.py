@@ -50,7 +50,7 @@ from bilby.core.likelihood import Likelihood
 from bilby.core.utils import infer_args_from_function_except_n_args, logger
 from bilby.hyper.model import Model as _BilbyModel
 
-from .utils import get_name, to_number, to_numpy
+from .utils import get_name, logsumexp, segment_logsumexp, to_number, to_numpy
 
 xp = np
 
@@ -196,6 +196,33 @@ class Model(_BilbyModel):
         return ln_function
 
 
+def model_ln_prob(model, data, parameters):
+    """
+    The log probability of a population model: :code:`model.ln_prob` if it
+    has one (e.g., :class:`Model`), else the log of :code:`model.prob`.
+    """
+    if callable(getattr(model, "ln_prob", None)):
+        return model.ln_prob(data, **parameters)
+    return xp.log(model.prob(data, **parameters))
+
+
+def ln_sampling_prior(data):
+    """
+    Pop the sampling prior from :code:`data` and return its log.
+
+    :code:`ln_prior` is used if present, otherwise the log of :code:`prior`,
+    otherwise zero (a sampling prior of one). Passing :code:`ln_prior`
+    avoids prior values that underflow in single precision. The linear
+    prior is returned too, :code:`None` when only :code:`ln_prior` is given.
+    """
+    prior = data.pop("prior", None)
+    if "ln_prior" in data:
+        return data.pop("ln_prior"), prior
+    elif prior is not None:
+        return xp.log(prior), prior
+    return None, None
+
+
 class HyperparameterLikelihood(Likelihood):
     """
     A likelihood for inferring hyperparameter posterior distributions with
@@ -227,9 +254,12 @@ class HyperparameterLikelihood(Likelihood):
             An list of pandas data frames of samples sets of samples.
             Each set may have a different size.
             These can contain a `prior` column containing the original prior
-            values.
+            values, or an `ln_prior` column containing their log, which is
+            preferred if present.
         hyper_prior: `bilby.hyper.model.Model`
             The population model, this can alternatively be a function.
+            The Monte Carlo integrals use its :code:`ln_prob` method if it has
+            one (e.g., :class:`Model`), else the log of :code:`prob`.
         ln_evidences: list, optional
             Log evidences for single runs to ensure proper normalisation
             of the hyperparameter likelihood. If not provided, the original
@@ -256,7 +286,7 @@ class HyperparameterLikelihood(Likelihood):
         self.data = self.resample_posteriors(posteriors, max_samples=max_samples)
 
         if isinstance(hyper_prior, types.FunctionType):
-            hyper_prior = _BilbyModel([hyper_prior])
+            hyper_prior = Model([hyper_prior])
         elif not (
             hasattr(hyper_prior, "parameters")
             and callable(getattr(hyper_prior, "prob"))
@@ -268,11 +298,13 @@ class HyperparameterLikelihood(Likelihood):
         self.hyper_prior = hyper_prior
         super().__init__()
 
-        if "prior" in self.data:
-            self.sampling_prior = self.data.pop("prior")
-        else:
+        self.ln_sampling_prior, self.sampling_prior = ln_sampling_prior(self.data)
+        if self.ln_sampling_prior is None:
             logger.info("No prior values provided, defaulting to 1.")
+            self.ln_sampling_prior = 0.0
             self.sampling_prior = 1
+        elif self.sampling_prior is None:
+            self.sampling_prior = xp.exp(self.ln_sampling_prior)
 
         if ln_evidences is not None:
             self.total_noise_evidence = np.sum(ln_evidences)
@@ -339,16 +371,30 @@ class HyperparameterLikelihood(Likelihood):
     def _compute_per_event_ln_bayes_factors(
         self, parameters, *, return_uncertainty=True
     ):
-        weights = self.hyper_prior.prob(self.data, **parameters) / self.sampling_prior
-        expectation = self._weight_expectation(weights)
+        ln_weights = (
+            model_ln_prob(self.hyper_prior, self.data, parameters)
+            - self.ln_sampling_prior
+        )
+        ln_expectation = self._ln_weight_expectation(ln_weights)
         if return_uncertainty:
-            square_expectation = self._weight_expectation(weights**2)
-            variance = (square_expectation - expectation**2) / (
-                self.samples_per_posterior * expectation**2
-            )
-            return xp.log(expectation), variance
+            # (<w^2> - <w>^2) / (n <w>^2), with the ratio formed in log space
+            ln_square_expectation = self._ln_weight_expectation(2 * ln_weights)
+            variance = (
+                xp.exp(ln_square_expectation - 2 * ln_expectation) - 1
+            ) / self.samples_per_posterior
+            return ln_expectation, variance
         else:
-            return xp.log(expectation)
+            return ln_expectation
+
+    def _ln_weight_expectation(self, ln_weights):
+        """
+        The log of the mean weight for each event, from the log weights.
+        """
+        if self.equal_samples:
+            ln_total = logsumexp(ln_weights, axis=-1)
+        else:
+            ln_total = segment_logsumexp(ln_weights, self.samples_per_posterior)
+        return ln_total - xp.log(self.samples_per_posterior)
 
     def _weight_expectation(self, weights):
         if self.equal_samples:

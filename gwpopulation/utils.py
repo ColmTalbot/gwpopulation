@@ -486,3 +486,77 @@ def trapezoid(y, x=None, dx=1.0, axis=-1):
         return xp.trapz(y, x=x, dx=dx, axis=axis)
     else:
         raise NotImplementedError(f"trapz/trapezoid not implemented for {xp.__name__}")
+
+
+def logsumexp(values, axis=-1):
+    """
+    The log of the sum of the exponentials of the input along an axis,
+    computed without leaving log space.
+
+    Parameters
+    ==========
+    values: array-like
+        The log values to sum.
+    axis: int, optional
+        The axis to sum over.
+
+    Returns
+    =======
+    array-like
+        :math:`\\ln \\sum \\exp(\\text{values})` along :code:`axis`;
+        :code:`-inf` where every value is :code:`-inf`.
+    """
+    shift = xp.max(values, axis=axis, keepdims=True)
+    shift = xp.where(xp.isfinite(shift), shift, 0)
+    total = xp.sum(xp.exp(values - shift), axis=axis)
+    return xp.log(total) + xp.squeeze(shift, axis=axis)
+
+
+def segment_logsumexp(values, counts):
+    """
+    :func:`logsumexp` over consecutive segments of a one-dimensional array,
+    e.g., the samples of each event when events have different numbers of
+    samples.
+
+    Each segment is shifted by its own maximum, so the result does not
+    depend on the values in other segments. With :code:`jax` the segments
+    are gathered into a padded (segments, longest segment) array, which is
+    much faster on GPUs than :code:`jax.ops.segment_max` and
+    :code:`segment_sum` (scatters); otherwise this uses the :code:`reduceat`
+    method of the backend's ufuncs. Backends without :code:`reduceat` fall
+    back to differences of a cumulative sum, which loses precision when the
+    segments' sums differ by many orders of magnitude.
+
+    Parameters
+    ==========
+    values: array-like
+        The log values, segment by segment.
+    counts: array-like
+        The (non-zero) length of each segment.
+
+    Returns
+    =======
+    array-like
+        The :func:`logsumexp` of each segment.
+    """
+    counts = np.asarray(to_numpy(counts), dtype=int)
+    starts = np.concatenate([[0], np.cumsum(counts)[:-1]])
+    if "jax" in xp.__name__:
+        offsets = np.arange(counts.max())
+        valid = offsets < counts[:, None]
+        index = np.where(valid, starts[:, None] + offsets, 0)
+        padded = xp.where(xp.asarray(valid), values[xp.asarray(index)], -xp.inf)
+        return logsumexp(padded, axis=-1)
+    elif hasattr(xp.add, "reduceat"):
+        segment_ids = np.repeat(np.arange(len(counts)), counts)
+        starts = xp.asarray(starts)
+        shift = xp.maximum.reduceat(values, starts)
+        shift = xp.where(xp.isfinite(shift), shift, 0)
+        total = xp.add.reduceat(xp.exp(values - shift[xp.asarray(segment_ids)]), starts)
+    else:
+        shift = xp.max(values)
+        shift = xp.where(xp.isfinite(shift), shift, 0)
+        cumulative = xp.concat([xp.zeros(1), xp.cumsum(xp.exp(values - shift))])
+        ends = xp.asarray(np.cumsum(counts))
+        total = cumulative[ends] - cumulative[xp.asarray(starts)]
+    return xp.log(total) + shift

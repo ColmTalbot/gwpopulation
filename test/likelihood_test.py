@@ -337,3 +337,81 @@ class NullHyperparameterLikelihoodTests(unittest.TestCase):
 
         # Check that it returns -inf
         self.assertEqual(log_lr, np.nan_to_num(-np.inf))
+
+
+class LogSpaceLikelihood(unittest.TestCase):
+    """The per-event Monte Carlo integrals are computed from log weights."""
+
+    def setUp(self):
+        gwpopulation.set_backend("numpy")
+        rng = np.random.default_rng(3)
+        self.sample_lengths = [100, 123, 459, 43, 233]
+        self.posteriors = [
+            pd.DataFrame(dict(a=rng.uniform(0.1, 1, ns), prior=rng.uniform(0.5, 2, ns)))
+            for ns in self.sample_lengths
+        ]
+
+    @staticmethod
+    def model(dataset, b):
+        return dataset["a"] ** b
+
+    def expected(self, posteriors, b):
+        """ln BF and variance from the linear weights."""
+        ln_bfs, variances = [], []
+        for post in posteriors:
+            weights = post["a"].values ** b / post["prior"].values
+            mean = np.mean(weights)
+            ln_bfs.append(np.log(mean))
+            variances.append((np.mean(weights**2) - mean**2) / (len(weights) * mean**2))
+        return np.array(ln_bfs), np.array(variances)
+
+    def check(self, likelihood, posteriors):
+        ln_bfs, variances = likelihood._compute_per_event_ln_bayes_factors(dict(b=2))
+        expected_ln_bfs, expected_variances = self.expected(posteriors, 2)
+        np.testing.assert_allclose(ln_bfs, expected_ln_bfs, rtol=1e-10)
+        np.testing.assert_allclose(variances, expected_variances, rtol=1e-8)
+
+    def test_unequal_samples_match_linear(self):
+        likelihood = HyperparameterLikelihood(self.posteriors, self.model)
+        self.check(likelihood, self.posteriors)
+
+    def test_equal_samples_match_linear(self):
+        posteriors = [post[:40] for post in self.posteriors]
+        likelihood = HyperparameterLikelihood(
+            posteriors, self.model, require_equal_samples=True
+        )
+        self.check(likelihood, posteriors)
+
+    def test_ln_prior_matches_prior(self):
+        posteriors = [
+            pd.DataFrame(dict(a=post["a"], ln_prior=np.log(post["prior"])))
+            for post in self.posteriors
+        ]
+        likelihood = HyperparameterLikelihood(posteriors, self.model)
+        self.check(likelihood, self.posteriors)
+        self.assertNotIn("ln_prior", likelihood.data)
+
+    def test_uses_ln_prob(self):
+        """Weights of exp(-1000) underflow; their log does not."""
+
+        def model(dataset, b):
+            return np.exp(model.ln_prob(dataset, b))
+
+        model.ln_prob = lambda dataset, b: -1000 + b * np.log(dataset["a"])
+        likelihood = HyperparameterLikelihood(self.posteriors, model)
+        ln_bfs = likelihood._compute_per_event_ln_bayes_factors(
+            dict(b=2), return_uncertainty=False
+        )
+        expected_ln_bfs, _ = self.expected(self.posteriors, 2)
+        np.testing.assert_allclose(ln_bfs, expected_ln_bfs - 1000, rtol=1e-10)
+
+    def test_events_on_different_scales(self):
+        """One event's weights are e^500 times another's; each event's mean
+        is unaffected by the others."""
+        posteriors = [post.copy() for post in self.posteriors]
+        posteriors[0]["prior"] *= np.exp(-500)
+        likelihood = HyperparameterLikelihood(posteriors, self.model)
+        ln_bfs, _ = likelihood._compute_per_event_ln_bayes_factors(dict(b=2))
+        expected_ln_bfs, _ = self.expected(self.posteriors, 2)
+        expected_ln_bfs[0] += 500
+        np.testing.assert_allclose(ln_bfs, expected_ln_bfs, rtol=1e-10)

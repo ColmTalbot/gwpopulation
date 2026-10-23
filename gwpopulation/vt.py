@@ -31,6 +31,9 @@ that don't pass the threshold yielding :math:`M` detected sources.
     \frac{p(\theta_i | \Lambda)}{p(\theta_i | \varnothing)}
 
 This model is implemented in the :class:`gwpopulation.vt.ResamplingVT` class.
+The sum is computed in log space, using the population model's log density
+if it provides one, and the draw probability :math:`p(\theta_i | \varnothing)`
+can be given as :code:`prior` or, preferably, its log as :code:`ln_prior`.
 
 A simpler model is to interpolate some expression for
 

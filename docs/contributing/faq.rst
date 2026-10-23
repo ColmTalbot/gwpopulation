@@ -42,8 +42,9 @@ FAQ
         - Does the new backend support all of the functionality needed for :code:`GWPopulation`?
         - If not, how much work would be required to add/support this functionality?
 
-        One crucial capability is double precision support, for example, at the time of writing (June 2024) :code:`MLx` does not support
-        double precision and so is not compatible with :code:`GWPopulation`.
+        One important capability is double precision support. Single precision works with :code:`jax`, but only models that provide
+        a log density avoid underflow there (see `Setting the Backend <../guide/backend.html>`_), so a backend without double precision,
+        for example, :code:`MLx` at the time of writing (June 2024), could only support part of :code:`GWPopulation`.
 
 .. grid::
 

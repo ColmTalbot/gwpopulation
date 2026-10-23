@@ -43,6 +43,23 @@ different syntax documentation for which can be found online.
     for the automatic propagation to work.
 
 If there is a backend that you would like to use that is not currently supported, please open an issue.
+
+Precision
+---------
+
+With :code:`jax`, 64-bit floats are enabled the first time the backend is set.
+For single precision, which can be several times faster on GPUs, especially
+those with limited double-precision throughput, use
+:code:`gwpopulation.set_backend("jax", enable_x64=False)`.
+Arrays keep the precision they were created with, so set it before creating
+any arrays.
+
+Densities below about :code:`1e-38` underflow to zero in single precision,
+so use it with models that provide a log density (see
+`Population models <models.html>`_). The likelihood and selection functions
+form their Monte Carlo sums in log space, and the sampling priors can be given
+as :code:`ln_prior`. A model without a log density still works, but its log
+density is :code:`-inf` wherever the density underflows.
 """
 
 

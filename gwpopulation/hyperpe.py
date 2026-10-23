@@ -18,6 +18,13 @@ The integrals over the per-event parameters :math:`\theta_i` are typically perfo
 
     \hat{{\cal L}}(d_i | \Lambda) = \frac{1}{K} \sum_{k=1}^K \frac{\pi(\theta_k | \Lambda)}{\pi(\theta_k | \varnothing)}.
 
+These sums are computed in log space, from
+:math:`\ln \pi(\theta_k | \Lambda) - \ln \pi(\theta_k | \varnothing)`, so they stay
+finite where the individual terms underflow, e.g., in single precision.
+The population model's log density is used if it provides one (see :class:`Model`),
+and the sampling prior :math:`\pi(\theta_k | \varnothing)` can be given in each
+posterior as :code:`prior` or, preferably, its log as :code:`ln_prior`.
+
 The full approximate log-likelihood is then given by
 
 .. math::

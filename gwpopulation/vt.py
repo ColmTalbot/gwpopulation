@@ -48,7 +48,7 @@ import math
 import numpy as np
 from bilby.hyper.model import Model as _BilbyModel
 
-from .hyperpe import Model, ln_sampling_prior, model_ln_prob
+from .hyperpe import Model, as_ln_model, ln_sampling_prior, model_ln_prob
 from .models.redshift import _Redshift, total_four_volume
 from .utils import logsumexp, to_number, trapezoid
 
@@ -68,7 +68,7 @@ class _BaseVT:
             model = Model(model)
         elif not isinstance(model, _BilbyModel):
             model = Model([model])
-        self.model = model
+        self.model = as_ln_model(model)
 
     def __call__(self, *args, **kwargs):
         raise NotImplementedError

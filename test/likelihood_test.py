@@ -405,6 +405,22 @@ class LogSpaceLikelihood(unittest.TestCase):
         expected_ln_bfs, _ = self.expected(self.posteriors, 2)
         np.testing.assert_allclose(ln_bfs, expected_ln_bfs - 1000, rtol=1e-10)
 
+    def test_bilby_model_uses_ln_prob(self):
+        """A bilby Model has no ln_prob; it is converted so that its
+        components' log probabilities are used."""
+
+        def model(dataset, b):
+            return np.exp(model.ln_prob(dataset, b))
+
+        model.ln_prob = lambda dataset, b: -1000 + b * np.log(dataset["a"])
+        likelihood = HyperparameterLikelihood(self.posteriors, Model([model]))
+        self.assertIsInstance(likelihood.hyper_prior, gwpopulation.hyperpe.Model)
+        ln_bfs = likelihood._compute_per_event_ln_bayes_factors(
+            dict(b=2), return_uncertainty=False
+        )
+        expected_ln_bfs, _ = self.expected(self.posteriors, 2)
+        np.testing.assert_allclose(ln_bfs, expected_ln_bfs - 1000, rtol=1e-10)
+
     def test_events_on_different_scales(self):
         """One event's weights are e^500 times another's; each event's mean
         is unaffected by the others."""

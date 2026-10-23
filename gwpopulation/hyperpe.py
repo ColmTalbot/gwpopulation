@@ -206,6 +206,20 @@ def model_ln_prob(model, data, parameters):
     return xp.log(model.prob(data, **parameters))
 
 
+def as_ln_model(model):
+    """
+    Convert a :code:`bilby.hyper.model.Model` to a :class:`Model` with the
+    same components, so that their log probabilities are used, e.g.,
+    :code:`ln_<name>` functions. Anything else, including subclasses of the
+    :code:`bilby` model, which may change :code:`prob`, is returned unchanged.
+    """
+    if type(model) is not _BilbyModel:
+        return model
+    converted = Model(model.models, cache=model.cache)
+    converted.parameters = model.parameters
+    return converted
+
+
 def ln_sampling_prior(data):
     """
     Pop the sampling prior from :code:`data` and return its log.
@@ -260,6 +274,9 @@ class HyperparameterLikelihood(Likelihood):
             The population model, this can alternatively be a function.
             The Monte Carlo integrals use its :code:`ln_prob` method if it has
             one (e.g., :class:`Model`), else the log of :code:`prob`.
+            A :code:`bilby.hyper.model.Model` is converted to a
+            :class:`Model` with the same components (see
+            :func:`as_ln_model`), so :code:`self.hyper_prior` is a new object.
         ln_evidences: list, optional
             Log evidences for single runs to ensure proper normalisation
             of the hyperparameter likelihood. If not provided, the original
@@ -295,7 +312,7 @@ class HyperparameterLikelihood(Likelihood):
                 "hyper_prior must either be a function, "
                 "or a class with attribute 'parameters' and method 'prob'"
             )
-        self.hyper_prior = hyper_prior
+        self.hyper_prior = as_ln_model(hyper_prior)
         super().__init__()
 
         self.ln_sampling_prior, self.sampling_prior = ln_sampling_prior(self.data)

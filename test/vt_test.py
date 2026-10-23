@@ -27,6 +27,7 @@ def test_initialize_with_bilby_model():
     model = Model([dummy_function, dummy_function])
     evaluator = vt._BaseVT(model=model, data=dict())
     assert evaluator.model.models == [dummy_function, dummy_function]
+    assert isinstance(evaluator.model, gwpopulation.hyperpe.Model)
 
 
 def test_base_cannot_be_called():

@@ -117,6 +117,26 @@ def test_prob_matches_bilby_model():
     )
 
 
+def test_as_ln_model():
+    from bilby.hyper.model import Model as BilbyModel
+
+    from gwpopulation.hyperpe import as_ln_model
+
+    functions = [mass.two_component_primary_mass_ratio, _linear_only]
+    bilby_model = BilbyModel(functions, cache=False)
+    converted = as_ln_model(bilby_model)
+    assert type(converted) is Model
+    assert converted.models == functions
+    assert not converted.cache
+    assert converted.parameters is bilby_model.parameters
+
+    class Subclass(BilbyModel):
+        pass
+
+    for unchanged in [Model(functions), Subclass(functions), _linear_only]:
+        assert as_ln_model(unchanged) is unchanged
+
+
 def test_ln_prob_caching_separate_from_prob():
     dataset = _dataset(np)
     component = _ClassModel()

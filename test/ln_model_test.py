@@ -11,7 +11,7 @@ import pytest
 
 import gwpopulation
 from gwpopulation.hyperpe import Model
-from gwpopulation.models import spin
+from gwpopulation.models import mass, spin
 from gwpopulation.utils import to_numpy
 
 N_TEST = 10
@@ -19,8 +19,21 @@ N_SAMPLES = 2000
 
 # Hyperparameters are drawn uniformly from these ranges with a seeded generator,
 # so that the single precision comparisons are reproducible. The ranges include
-# narrow peaks and steep spin magnitude distributions, so that the densities
-# underflow in single precision.
+# steep power laws, narrow peaks, and steep spin magnitude distributions, so
+# that the densities underflow in single precision.
+LIMITS = dict(mmin=(3, 10), mmax=(40, 100))
+STEEP = dict(alpha=(-30, 30), beta=(-30, 30)) | LIMITS
+BROKEN_STEEP = dict(alpha_1=(-30, 30), alpha_2=(-30, 30), beta=(-30, 30)) | LIMITS
+BROKEN_STEEP["break_fraction"] = (0.05, 0.95)
+PEAK = dict(lam=(0, 1), mpp=(20, 60), sigpp=(1, 10), gaussian_mass_maximum=100)
+TWO_PEAKS = dict(
+    lam=(0, 1),
+    lam_1=(0, 1),
+    mpp_1=(20, 60),
+    mpp_2=(20, 100),
+    sigpp_1=(1, 10),
+    sigpp_2=(1, 10),
+)
 TILT = dict(xi_spin=(0, 1), sigma_spin=(0.1, 4))
 TILTS = dict(
     xi_spin=(0, 1), sigma_1=(0.1, 4), sigma_2=(0.1, 4), mu_1=(-1, 1), mu_2=(-1, 1)
@@ -38,7 +51,33 @@ CHI_EFF = dict(mu_chi_eff=(-1, 1), sigma_chi_eff=(0.02, 0.3))
 CHI_P = dict(mu_chi_p=(0, 1), sigma_chi_p=(0.02, 0.1))
 
 
+def _without(ranges, *keys):
+    return {key: value for key, value in ranges.items() if key not in keys}
+
+
 # points that are outside the support for any of the hyperparameters above
+def _outside_mass_ratio(data, parameters):
+    return (
+        (data["mass_1"] < parameters["mmin"])
+        | (data["mass_1"] > 100)
+        | (data["mass_ratio"] > 1)
+        | (data["mass_2"] < parameters["mmin"])
+    )
+
+
+def _outside_secondary(data, parameters):
+    return (
+        (data["mass_2"] > data["mass_1"])
+        | (data["mass_1"] < parameters["mmin"])
+        | (data["mass_1"] > 100)
+        | (data["mass_2"] < parameters["mmin"])
+    )
+
+
+def _outside_mass(data, parameters):
+    return (data["mass_1"] < parameters["mmin"]) | (data["mass_1"] > 100)
+
+
 def _outside_magnitude(data, parameters):
     return (data["a_1"] > parameters["amax"]) | (data["a_2"] > parameters["amax"])
 
@@ -63,12 +102,90 @@ def _nowhere(data, parameters):
     return np.zeros(data["mass_1"].shape, dtype=bool)
 
 
+class _MassFunction:
+    """A function of the primary mass alone and its log, e.g., ``power_law_mass``"""
+
+    def __init__(self, name):
+        self.function = getattr(mass, name)
+        self.ln_function = getattr(mass, f"ln_{name}")
+
+    def prob(self, data, **parameters):
+        return self.function(data["mass_1"], **parameters)
+
+    def ln_prob(self, data, **parameters):
+        return self.ln_function(data["mass_1"], **parameters)
+
+
+def _mass_function(name):
+    return lambda: _MassFunction(name)
+
+
 def _model(component):
     return lambda: Model([component()], cache=False)
 
 
-# name: (builder of a Model, ranges, outside the support)
+# name: (builder of an object with prob and ln_prob, ranges, outside the support)
 MODELS = dict(
+    power_law_mass=(
+        _mass_function("power_law_mass"),
+        _without(STEEP, "beta"),
+        _outside_mass,
+    ),
+    two_component_single=(
+        _mass_function("two_component_single"),
+        _without(STEEP, "beta") | PEAK,
+        _outside_mass,
+    ),
+    three_component_single=(
+        _mass_function("three_component_single"),
+        _without(STEEP, "beta") | TWO_PEAKS | dict(gaussian_mass_maximum=100),
+        _outside_mass,
+    ),
+    double_power_law_primary_mass=(
+        _mass_function("double_power_law_primary_mass"),
+        _without(BROKEN_STEEP, "beta"),
+        _outside_mass,
+    ),
+    double_power_law_peak_primary_mass=(
+        _mass_function("double_power_law_peak_primary_mass"),
+        _without(BROKEN_STEEP, "beta") | PEAK,
+        _outside_mass,
+    ),
+    power_law_primary_mass_ratio=(
+        _model(lambda: mass.power_law_primary_mass_ratio),
+        STEEP,
+        _outside_mass_ratio,
+    ),
+    power_law_primary_secondary_independent=(
+        _model(lambda: mass.power_law_primary_secondary_independent),
+        STEEP,
+        _outside_secondary,
+    ),
+    power_law_primary_secondary_identical=(
+        _model(lambda: mass.power_law_primary_secondary_identical),
+        _without(STEEP, "beta"),
+        _outside_secondary,
+    ),
+    two_component_primary_mass_ratio=(
+        _model(lambda: mass.two_component_primary_mass_ratio),
+        STEEP | PEAK,
+        _outside_mass_ratio,
+    ),
+    two_component_primary_secondary_independent=(
+        _model(lambda: mass.two_component_primary_secondary_independent),
+        STEEP | PEAK,
+        _outside_secondary,
+    ),
+    two_component_primary_secondary_identical=(
+        _model(lambda: mass.two_component_primary_secondary_identical),
+        _without(STEEP, "beta") | PEAK,
+        _outside_secondary,
+    ),
+    double_power_law_primary_power_law_mass_ratio=(
+        _model(lambda: mass.double_power_law_primary_power_law_mass_ratio),
+        BROKEN_STEEP,
+        _outside_mass_ratio,
+    ),
     iid_spin=(_model(lambda: spin.iid_spin), TILT | MAGNITUDE, _outside_magnitude),
     iid_spin_magnitude_beta=(
         _model(lambda: spin.iid_spin_magnitude_beta),
@@ -171,6 +288,8 @@ def _single(values):
 @pytest.mark.parametrize("name", MODELS)
 def test_ln_function_is_used(name):
     model = MODELS[name][0]()
+    if not isinstance(model, Model):
+        return
     component = model.models[0]
     ln_function = model.ln_function(component)
     if hasattr(component, "ln_prob"):

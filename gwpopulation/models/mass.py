@@ -7,13 +7,7 @@ import inspect
 import numpy as np
 import scipy.special as scs
 
-from ..utils import (
-    ln_powerlaw_from_logs,
-    ln_truncnorm,
-    powerlaw,
-    trapezoid,
-    truncnorm,
-)
+from ..utils import ln_powerlaw_from_logs, ln_truncnorm, powerlaw, trapezoid, truncnorm
 from .interped import InterpolatedNoBaseModelIdentical
 
 xp = np

@@ -381,7 +381,9 @@ def test_ln_two_component_primary_mass_ratio_single_precision_jax():
     ]
     gwpopulation.set_backend("jax", enable_x64=False)
     try:
-        dataset = {key: xp.asarray(value, dtype=xp.float32) for key, value in dataset.items()}
+        dataset = {
+            key: xp.asarray(value, dtype=xp.float32) for key, value in dataset.items()
+        }
         for parameters, ln_expected in zip(samples, expected):
             parameters = {key: float(value) for key, value in parameters.items()}
             ln_prob = mass.ln_two_component_primary_mass_ratio(dataset, **parameters)
@@ -445,7 +447,9 @@ def test_ln_two_component_primary_mass_ratio_log_inputs_single_precision_jax():
     ]
     gwpopulation.set_backend("jax", enable_x64=False)
     try:
-        dataset = {key: xp.asarray(value, dtype=xp.float32) for key, value in dataset.items()}
+        dataset = {
+            key: xp.asarray(value, dtype=xp.float32) for key, value in dataset.items()
+        }
         with_logs = {
             key: xp.asarray(value, dtype=xp.float32) for key, value in with_logs.items()
         }

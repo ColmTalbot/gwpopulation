@@ -220,11 +220,7 @@ def _ln_powerlaw_norm(alpha, ln_high, ln_low):
     # separate branch, which would cost a second log wherever the bounds
     # depend on the data, e.g., the mass ratio.
     abs_exponent = xp.where(exponent == 0, _TINY_EXPONENT, xp.abs(exponent))
-    return (
-        xp.log(abs_exponent)
-        - ln_largest
-        - xp.log(-xp.expm1(-abs_exponent * width))
-    )
+    return xp.log(abs_exponent) - ln_largest - xp.log(-xp.expm1(-abs_exponent * width))
 
 
 # small enough that |s| width is negligible next to one, large enough that it
@@ -320,7 +316,9 @@ def truncnorm(xx, mu, sigma, high, low):
         The distribution evaluated at `xx`
 
     """
-    return xp.nan_to_num(xp.exp(ln_truncnorm(xx, mu=mu, sigma=sigma, high=high, low=low)))
+    return xp.nan_to_num(
+        xp.exp(ln_truncnorm(xx, mu=mu, sigma=sigma, high=high, low=low))
+    )
 
 
 def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):

@@ -83,17 +83,6 @@ used for its log density, where :code:`xp` is the array module, e.g.,
 A function defined elsewhere can be attached instead, e.g.,
 :code:`power_law_mass_model.ln_prob = ln_power_law_mass_model`.
 
-Among the provided models,
-:func:`gwpopulation.models.mass.ln_two_component_single` and
-:func:`gwpopulation.models.mass.ln_two_component_primary_mass_ratio` are the
-log densities of :func:`gwpopulation.models.mass.two_component_single` and
-:func:`gwpopulation.models.mass.two_component_primary_mass_ratio`, built from
-:func:`gwpopulation.utils.ln_powerlaw` and :func:`gwpopulation.utils.ln_truncnorm`.
-:func:`gwpopulation.models.mass.ln_two_component_primary_mass_ratio` uses
-:code:`dataset["ln_mass_1"]` and :code:`dataset["ln_mass_ratio"]` if present,
-so the logs of a fixed set of samples can be computed once, e.g., added as
-columns of the posteriors and injections.
-
 We provide a number of pre-defined models along with standard base models that
 can be extended. See the API documentation for more details on implemented models.
 """

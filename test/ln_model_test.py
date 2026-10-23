@@ -11,7 +11,7 @@ import pytest
 
 import gwpopulation
 from gwpopulation.hyperpe import Model
-from gwpopulation.models import mass, spin
+from gwpopulation.models import mass, redshift, spin
 from gwpopulation.utils import to_numpy
 
 N_TEST = 10
@@ -111,6 +111,10 @@ def _outside_chi_p(data, parameters):
 
 def _outside_chi_eff_chi_p(data, parameters):
     return _outside_chi_eff(data, parameters) | _outside_chi_p(data, parameters)
+
+
+def _outside_redshift(data, parameters):
+    return data["redshift"] > 2.3
 
 
 def _nowhere(data, parameters):
@@ -278,6 +282,16 @@ MODELS = dict(
         _spline_nodes("cos_tilt", -1, 1),
         _nowhere,
     ),
+    PowerLawRedshift=(
+        _model(redshift.PowerLawRedshift),
+        dict(lamb=(-15, 15)),
+        _outside_redshift,
+    ),
+    MadauDickinsonRedshift=(
+        _model(redshift.MadauDickinsonRedshift),
+        dict(gamma=(-15, 15), kappa=(-15, 15), z_peak=(0, 5)),
+        _outside_redshift,
+    ),
 )
 
 # the linear densities of these models do not underflow or overflow in single
@@ -287,6 +301,8 @@ LINEAR_SINGLE_PRECISION = [
     "independent_spin_orientation_gaussian_isotropic",
     "SplineSpinMagnitudeIdentical",
     "SplineSpinTiltIdentical",
+    "PowerLawRedshift",
+    "MadauDickinsonRedshift",
 ]
 
 

@@ -121,6 +121,31 @@ class _Redshift(CosmoMixin):
         )
         return differential_volume / normalisation
 
+    def ln_prob(self, dataset, **parameters):
+        r"""
+        Compute the log of the normalized probability of a merger occurring at
+        the specified redshift, see :func:`probability`.
+
+        Parameters
+        ----------
+        dataset: dict[str, array-like]
+            Dictionary of sample points that contains :code:`redshift`
+            as a key.
+        parameters: dict[str, float]
+            Dictionary of parameters :math:`\Lambda`.
+
+        Returns
+        -------
+        array-like
+            The log of the normalized probability per sample, :code:`-inf`
+            above :code:`self.z_max`
+        """
+        normalisation = self.normalisation(parameters=parameters)
+        ln_differential_volume = self.ln_differential_spacetime_volume(
+            dataset=dataset, bounds=True, **parameters
+        )
+        return ln_differential_volume - xp.log(normalisation)
+
     def psi_of_z(self, redshift, **parameters):
         r"""
         Method encoding the redshift evolution of the merger rate.
@@ -144,6 +169,26 @@ class _Redshift(CosmoMixin):
             :math:`\psi(z | \Lambda)` for in input redshifts.
         """
         raise NotImplementedError
+
+    def ln_psi_of_z(self, redshift, **parameters):
+        r"""
+        The log of :func:`psi_of_z`. Child classes can overwrite this with a
+        version that does not underflow or overflow, e.g., in single
+        precision; by default this is the log of :func:`psi_of_z`.
+
+        Parameters
+        ----------
+        redshift: array-like
+            The redshifts at which to evaluate the model.
+        parameters: dict[str, float]
+            Dictionary of parameters :math:`\Lambda`.
+
+        Returns
+        -------
+        array-like
+            :math:`\ln \psi(z | \Lambda)` for in input redshifts.
+        """
+        return xp.log(self.psi_of_z(redshift=redshift, **parameters))
 
     def dvc_dz(self, redshift, **parameters):
         r"""
@@ -194,6 +239,35 @@ class _Redshift(CosmoMixin):
 
         return differential_volume
 
+    def ln_differential_spacetime_volume(self, dataset, bounds=False, **parameters):
+        r"""
+        Compute the log of the differential spacetime volume, see
+        :func:`differential_spacetime_volume`.
+
+        Parameters
+        ----------
+        dataset: dict
+            Dictionary containing entry "redshift"
+        bounds: bool
+            Whether to return :code:`-inf` above :code:`self.z_max`
+        parameters: dict
+            Dictionary of parameters
+
+        Returns
+        -------
+        ln_differential_volume: (float, array-like)
+            Log of the differential spacetime volume
+        """
+        redshift = dataset["redshift"]
+        ln_differential_volume = self.ln_psi_of_z(redshift=redshift, **parameters)
+        ln_differential_volume -= xp.log1p(redshift)
+        ln_differential_volume += xp.log(self.dvc_dz(redshift=redshift, **parameters))
+        if bounds:
+            ln_differential_volume = xp.where(
+                redshift <= self.z_max, ln_differential_volume, -xp.inf
+            )
+        return ln_differential_volume
+
 
 class PowerLawRedshift(_Redshift):
     base_variable_names = ["lamb"]
@@ -213,6 +287,21 @@ class PowerLawRedshift(_Redshift):
             The spectral index :math:`\lambda`.
         """
         return (1 + redshift) ** parameters["lamb"]
+
+    def ln_psi_of_z(self, redshift, **parameters):
+        r"""
+        The log of :func:`psi_of_z`
+
+        .. math::
+
+            \ln \psi(z|\lambda) = \lambda \ln(1 + z)
+
+        Parameters
+        ----------
+        lamb: float
+            The spectral index :math:`\lambda`.
+        """
+        return parameters["lamb"] * xp.log1p(redshift)
 
 
 class MadauDickinsonRedshift(_Redshift):
@@ -247,6 +336,35 @@ class MadauDickinsonRedshift(_Redshift):
         )
         psi_of_z *= 1 + (1 + z_peak) ** (-kappa)
         return psi_of_z
+
+    def ln_psi_of_z(self, redshift, **parameters):
+        r"""
+        The log of :func:`psi_of_z`
+
+        .. math::
+
+            \ln \psi(z|\gamma, \kappa, z_p) = \gamma \ln(1 + z)
+            - \ln\left(1 + \left(\frac{1 + z}{1 + z_p}\right)^\kappa\right)
+            + \ln\left(1 + (1 + z_p)^{-\kappa}\right)
+
+        Parameters
+        ----------
+        gamma: float
+            Slope of the distribution at low redshift, :math:`\gamma`.
+        kappa: float
+            Slope of the distribution at high redshift, :math:`\kappa`.
+        z_peak: float
+            Redshift at which the distribution peaks, :math:`z_p`.
+        """
+        gamma = parameters["gamma"]
+        kappa = parameters["kappa"]
+        ln_1pz_peak = xp.log1p(parameters["z_peak"])
+        ln_1pz = xp.log1p(redshift)
+        return (
+            gamma * ln_1pz
+            - xp.logaddexp(0.0, kappa * (ln_1pz - ln_1pz_peak))
+            + xp.logaddexp(0.0, -kappa * ln_1pz_peak)
+        )
 
 
 def total_four_volume(lamb, analysis_time, max_redshift=2.3):

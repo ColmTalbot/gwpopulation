@@ -31,6 +31,9 @@ that don't pass the threshold yielding :math:`M` detected sources.
     \frac{p(\theta_i | \Lambda)}{p(\theta_i | \varnothing)}
 
 This model is implemented in the :class:`gwpopulation.vt.ResamplingVT` class.
+The sum is computed in log space, using the population model's log density
+if it provides one, and the draw probability :math:`p(\theta_i | \varnothing)`
+can be given as :code:`prior` or, preferably, its log as :code:`ln_prior`.
 
 A simpler model is to interpolate some expression for
 
@@ -43,11 +46,14 @@ specified :math:`\theta`. This model is implemented in the :class:`gwpopulation.
 Note that the computational cost of this approach scales exponentially with the number of parameters.
 """
 
-import numpy as np
-from bilby.hyper.model import Model
+import math
 
+import numpy as np
+from bilby.hyper.model import Model as _BilbyModel
+
+from .hyperpe import Model, as_ln_model, ln_sampling_prior, model_ln_prob
 from .models.redshift import _Redshift, total_four_volume
-from .utils import to_number, trapezoid
+from .utils import logsumexp, to_number, trapezoid
 
 xp = np
 
@@ -63,9 +69,9 @@ class _BaseVT:
         self.data = {key: xp.asarray(value) for key, value in data.items()}
         if isinstance(model, list):
             model = Model(model)
-        elif not isinstance(model, Model):
+        elif not isinstance(model, _BilbyModel):
             model = Model([model])
-        self.model = model
+        self.model = as_ln_model(model)
 
     def __call__(self, *args, **kwargs):
         raise NotImplementedError
@@ -128,7 +134,13 @@ class ResamplingVT(_BaseVT):
     model: callable
         Population model
     data: dict
-        The found injections and relevant meta data
+        The found injections and relevant meta data: the injected
+        parameters, their draw probability as :code:`prior` or its log as
+        :code:`ln_prior` (preferred if present), and optionally
+        :code:`total_generated` and :code:`analysis_time`.
+        The Monte Carlo sum uses the model's :code:`ln_prob` method if it
+        has one (e.g., :class:`gwpopulation.hyperpe.Model`), else the log of
+        :code:`prob`.
     n_events: int
         The number of events observed
     marginalize_uncertainty: bool (Default: :code:`False`)
@@ -151,7 +163,13 @@ class ResamplingVT(_BaseVT):
     ):
         super(ResamplingVT, self).__init__(model=model, data=data)
         self.n_events = n_events
-        self.total_injections = data.get("total_generated", len(data["prior"]))
+        # a copy, so data["prior"] stays available to other code
+        self.ln_prior, _ = ln_sampling_prior(dict(self.data))
+        if self.ln_prior is None:
+            raise KeyError("ResamplingVT needs the injections' prior or ln_prior")
+        # a float: the variance uses its square, which overflows a 32-bit
+        # integer for realistic injection campaigns
+        self.total_injections = float(data.get("total_generated", len(self.ln_prior)))
         self.analysis_time = data.get("analysis_time", 1)
         self.redshift_model = None
         self.marginalize_uncertainty = marginalize_uncertainty
@@ -249,14 +267,16 @@ class ResamplingVT(_BaseVT):
         var: float
             The variance in the estimate of :math:`P_{\rm det}`.
         """
-        weights = self.model.prob(self.data, **parameters) / self.data["prior"]
-        mu = to_number(xp.sum(weights) / self.total_injections, float)
-        var = to_number(
-            xp.sum(weights**2) / self.total_injections**2
-            - mu**2 / self.total_injections,
-            float,
+        ln_weights = model_ln_prob(self.model, self.data, parameters) - self.ln_prior
+        ln_total = logsumexp(ln_weights, axis=-1)
+        ln_n = math.log(self.total_injections)
+        mu = xp.exp(ln_total - ln_n)
+        # sum(w^2) / N^2 - mu^2 / N, with the ratio formed in log space
+        var = mu**2 * (
+            xp.exp(logsumexp(2 * ln_weights, axis=-1) - 2 * ln_total)
+            - 1 / self.total_injections
         )
-        return mu, var
+        return to_number(mu, float), to_number(var, float)
 
     def surveyed_hypervolume(self, parameters):
         r"""

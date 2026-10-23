@@ -27,6 +27,7 @@ def test_initialize_with_bilby_model():
     model = Model([dummy_function, dummy_function])
     evaluator = vt._BaseVT(model=model, data=dict())
     assert evaluator.model.models == [dummy_function, dummy_function]
+    assert isinstance(evaluator.model, gwpopulation.hyperpe.Model)
 
 
 def test_base_cannot_be_called():
@@ -100,3 +101,44 @@ def test_observed_volume_with_redshift_model(backend):
         )
         < 1e-4
     )
+
+
+def test_resampling_vt_ln_prior_matches_prior(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    data = resampling_data(xp)
+    data["ln_prior"] = xp.log(data.pop("prior"))
+    model = lambda dataset: (
+        xp.exp(-((dataset["a"] - 0.5) ** 2) / 2) / (2 * xp.pi) ** 0.5
+    )
+    evaluator = vt.ResamplingVT(data=data, model=model, n_events=0)
+    expected = get_vt(xp)(dict())
+    np.testing.assert_allclose(
+        [float(value) for value in evaluator(dict())],
+        [float(value) for value in expected],
+        rtol=1e-6,
+    )
+
+
+def test_resampling_vt_uses_ln_prob():
+    """The model and prior both underflow, their ratio does not."""
+    gwpopulation.set_backend("numpy")
+    data = dict(a=np.linspace(0, 1, 1000), ln_prior=np.full(1000, -1000.0))
+
+    def model(dataset):
+        return np.exp(model.ln_prob(dataset))
+
+    model.ln_prob = lambda dataset: -1000 + np.log(2 * dataset["a"])
+    evaluator = vt.ResamplingVT(data=data, model=model, n_events=0)
+    mu, var = evaluator.detection_efficiency(dict())
+    weights = 2 * data["a"]
+    assert abs(mu - np.mean(weights)) < 1e-12
+    assert abs(var - (np.mean(weights**2) - np.mean(weights) ** 2) / 1000) < 1e-12
+
+
+def test_resampling_vt_total_generated_is_float():
+    gwpopulation.set_backend("numpy")
+    data = resampling_data(np)
+    data["total_generated"] = 433157717
+    evaluator = vt.ResamplingVT(data=data, model=lambda dataset: 1, n_events=0)
+    assert isinstance(evaluator.total_injections, float)

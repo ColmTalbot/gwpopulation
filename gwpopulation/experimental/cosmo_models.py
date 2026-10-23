@@ -7,10 +7,11 @@ can be used to add cosmological functionality to a population model.
 """
 
 import numpy as xp
-from bilby.hyper.model import Model
 from wcosmo import z_at_value
 from wcosmo.astropy import WCosmoMixin, available
 from wcosmo.utils import disable_units as wcosmo_disable_units
+
+from ..hyperpe import Model
 
 
 class CosmoMixin:
@@ -119,7 +120,7 @@ class CosmoMixin:
 
 class CosmoModel(Model, CosmoMixin):
     """
-    Modified version of :code:`bilby.hyper.model.Model` that automatically
+    Modified version of :class:`gwpopulation.hyperpe.Model` that automatically
     updates the source-frame quantities given the detector-frame quantities and
     cosmology and disables caching due to the source-frame quantities changing
     every iteration.
@@ -163,3 +164,27 @@ class CosmoModel(Model, CosmoMixin):
         probability /= jacobian
 
         return probability
+
+    def ln_prob(self, data, **kwargs):
+        """
+        Compute the total population log probability for the provided data
+        given the keyword arguments.
+
+        This method augments :func:`gwpopulation.hyperpe.Model.ln_prob` by
+        converting the detector frame samples to source frame samples and
+        subtracting the log of the corresponding Jacobian term.
+
+        Parameters
+        ==========
+        data: dict
+            Dictionary containing the points at which to evaluate the
+            population model.
+        kwargs: dict
+            The population parameters. These cannot include any of
+            :code:`["dataset", "data", "self", "cls"]` unless the
+            :code:`variable_names` attribute is available for the relevant
+            model.
+        """
+
+        data, jacobian = self.detector_frame_to_source_frame(data, **kwargs)
+        return super().ln_prob(data, **kwargs) - xp.log(jacobian)

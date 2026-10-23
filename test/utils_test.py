@@ -5,6 +5,7 @@ from scipy.stats import vonmises
 
 import gwpopulation
 from gwpopulation import utils
+from gwpopulation.utils import to_numpy
 
 N_TEST = 100
 
@@ -186,3 +187,173 @@ def test_trapezoid_matches_scipy(backend):
     gwpop_int = utils.trapezoid(y, x)
     scipy_int = float(trapezoid(y, x))
     assert abs(gwpop_int - scipy_int) < 1e-10
+
+
+def _log_matches(ln_vals, vals, xp):
+    """ln_vals == log(vals) where vals > 0; where vals underflows to zero
+    ln_vals is -inf (outside the support) or below the underflow limit."""
+    ln_vals, vals = utils.to_numpy(ln_vals), utils.to_numpy(vals)
+    positive = vals > 1e-300
+    np.testing.assert_allclose(ln_vals[positive], np.log(vals[positive]), rtol=1e-8)
+    assert np.all(ln_vals[vals == 0] < np.log(1e-300))
+
+
+def test_ln_powerlaw_matches_log_powerlaw(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(0.1, 120, 1000)
+    for alpha in [-1, 0] + list(np.random.uniform(-10, 10, N_TEST)):
+        low, high = np.random.uniform(1, 10), np.random.uniform(50, 100)
+        _log_matches(
+            utils.ln_powerlaw(xx, alpha=alpha, high=high, low=low),
+            utils.powerlaw(xx, alpha=alpha, high=high, low=low),
+            xp,
+        )
+    gwpopulation.set_backend("numpy")
+
+
+def test_ln_powerlaw_array_low(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(0.01, 1, 100)
+    low = xp.linspace(0.005, 0.5, 100)
+    _log_matches(
+        utils.ln_powerlaw(xx, alpha=2.5, high=1, low=low),
+        utils.powerlaw(xx, alpha=2.5, high=1, low=low),
+        xp,
+    )
+    gwpopulation.set_backend("numpy")
+
+
+def test_ln_powerlaw_zero_low():
+    gwpopulation.set_backend("numpy")
+    xx = np.linspace(0, 1, 11)
+    assert np.allclose(utils.ln_powerlaw(xx, alpha=0, high=1, low=0), 0)
+    assert np.allclose(
+        utils.ln_powerlaw(xx[1:], alpha=2, high=1, low=0), np.log(3 * xx[1:] ** 2)
+    )
+
+
+def test_ln_truncnorm_matches_log_truncnorm(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(-20, 20, 1000)
+    for _ in range(N_TEST):
+        mu = np.random.uniform(-10, 10)
+        sigma = np.random.uniform(0.1, 5)
+        low, high = np.sort(np.random.uniform(-15, 15, 2))
+        _log_matches(
+            utils.ln_truncnorm(xx, mu=mu, sigma=sigma, high=high, low=low),
+            utils.truncnorm(xx, mu=mu, sigma=sigma, high=high, low=low),
+            xp,
+        )
+    gwpopulation.set_backend("numpy")
+
+
+def test_ln_functions_single_precision_jax():
+    pytest.importorskip("jax")
+    gwpopulation.set_backend("jax", enable_x64=False)
+    xp = gwpopulation.utils.xp
+    try:
+        xx = xp.linspace(2, 200, 1000, dtype=xp.float32)
+        ln_pow = utils.ln_powerlaw(xx, alpha=-12.0, high=150.0, low=3.0)
+        # far tail of a narrow peak, where the linear density underflows
+        ln_norm = utils.ln_truncnorm(xx, mu=20.0, sigma=0.1, high=150.0, low=3.0)
+        for ln_vals in (ln_pow, ln_norm):
+            assert ln_vals.dtype == xp.float32
+            assert not xp.any(xp.isnan(ln_vals))
+        inside = (xx >= 3) & (xx <= 150)
+        assert xp.all(xp.isfinite(ln_pow[inside]))
+        assert xp.all(xp.isfinite(ln_norm[inside]))
+        assert xp.all(xp.isneginf(ln_norm[~inside]))
+        expected = -((np.asarray(xx, dtype=float) - 20) ** 2) / 2 / 0.01
+        expected -= np.log(0.1) + np.log(2 * np.pi) / 2
+        np.testing.assert_allclose(
+            np.asarray(ln_norm)[np.asarray(inside)],
+            expected[np.asarray(inside)],
+            rtol=1e-5,
+        )
+    finally:
+        gwpopulation.set_backend("jax", enable_x64=True)
+        gwpopulation.set_backend("numpy")
+
+
+def test_ln_powerlaw_from_logs_matches_ln_powerlaw(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(0.1, 120, 1000)
+    for alpha in [-1, 0] + list(np.random.uniform(-10, 10, N_TEST)):
+        low, high = np.random.uniform(1, 10), np.random.uniform(50, 100)
+        ln_prob = utils.ln_powerlaw_from_logs(
+            xp.log(xx), alpha=alpha, ln_high=np.log(high), ln_low=np.log(low)
+        )
+        expected = utils.ln_powerlaw(xx, alpha=alpha, high=high, low=low)
+        finite = to_numpy(xp.isfinite(expected))
+        assert np.array_equal(to_numpy(xp.isfinite(ln_prob)), finite)
+        np.testing.assert_allclose(
+            to_numpy(ln_prob)[finite], to_numpy(expected)[finite], rtol=1e-10
+        )
+    gwpopulation.set_backend("numpy")
+
+
+def test_ln_powerlaw_from_logs_array_low(backend):
+    gwpopulation.set_backend(backend)
+    xp = gwpopulation.utils.xp
+    xx = xp.linspace(0.01, 1, 100)
+    low = xp.linspace(0.005, 0.5, 100)
+    for alpha in [-1, 0, 2.5]:
+        _log_matches(
+            utils.ln_powerlaw_from_logs(
+                xp.log(xx), alpha=alpha, ln_high=0.0, ln_low=xp.log(low)
+            ),
+            utils.powerlaw(xx, alpha=alpha, high=1, low=low),
+            xp,
+        )
+    gwpopulation.set_backend("numpy")
+
+
+def test_ln_powerlaw_from_logs_zero_low():
+    gwpopulation.set_backend("numpy")
+    xx = np.linspace(0, 1, 11)
+    with np.errstate(divide="ignore"):
+        ln_xx = np.log(xx)
+    assert np.allclose(
+        utils.ln_powerlaw_from_logs(ln_xx, alpha=0, ln_high=0.0, ln_low=-np.inf), 0
+    )
+
+
+def test_logsumexp_matches_scipy(backend):
+    from scipy.special import logsumexp
+
+    gwpopulation.set_backend(backend)
+    xp = utils.xp
+    values = np.random.default_rng(1).normal(0, 300, (4, 50))
+    values[1] = -np.inf
+    values[2, :10] = -np.inf
+    result = to_numpy(utils.logsumexp(xp.asarray(values), axis=-1))
+    expected = logsumexp(values, axis=-1)
+    assert result[1] == -np.inf
+    finite = np.isfinite(expected)
+    np.testing.assert_allclose(result[finite], expected[finite], rtol=1e-6)
+    gwpopulation.set_backend("numpy")
+
+
+def test_segment_logsumexp_matches_scipy(backend):
+    """Segments whose sums differ by hundreds of e-folds, which a single
+    cumulative sum cannot resolve."""
+    from scipy.special import logsumexp
+
+    gwpopulation.set_backend(backend)
+    xp = utils.xp
+    rng = np.random.default_rng(2)
+    counts = np.array([3, 40, 1, 17])
+    offsets = np.array([500.0, -500.0, 0.0, 200.0])
+    values = np.concatenate(
+        [offset + rng.normal(0, 1, count) for offset, count in zip(offsets, counts)]
+    )
+    result = to_numpy(utils.segment_logsumexp(xp.asarray(values), xp.asarray(counts)))
+    expected = [
+        logsumexp(segment) for segment in np.split(values, np.cumsum(counts)[:-1])
+    ]
+    np.testing.assert_allclose(result, expected, rtol=1e-6)
+    gwpopulation.set_backend("numpy")

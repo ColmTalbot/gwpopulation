@@ -130,6 +130,162 @@ def powerlaw(xx, alpha, high, low):
     return prob
 
 
+@apply_conditions(dict(low=(ge, 0), alpha=(ne, 1)))
+def ln_powerlaw(xx, alpha, high, low):
+    r"""
+    Log power-law probability
+
+    .. math::
+        \ln p(x) = \alpha \ln x + \ln\left|\frac{1 + \alpha}{x_\max^{1 + \alpha} - x_\min^{1 + \alpha}}\right|
+
+    The normalisation is computed from :math:`\ln x_\min` and :math:`\ln x_\max`
+    so that it does not overflow for large :math:`|\alpha|`, e.g., in single
+    precision.
+
+    Parameters
+    ----------
+    xx: float, array-like
+        The abscissa values (:math:`x`)
+    alpha: float, array-like
+        The spectral index of the distribution (:math:`\alpha`)
+    high: float, array-like
+        The maximum of the distribution (:math:`x_\max`)
+    low: float, array-like
+        The minimum of the distribution (:math:`x_\min`)
+
+    Returns
+    -------
+    ln_prob: float, array-like
+        The log of the distribution evaluated at `xx`, :code:`-inf` outside
+        :math:`[x_\min, x_\max]`
+
+    """
+    # with numpy, the logs warn where the result is masked below or where the
+    # bounds give no support (low > high, e.g., mass ratio with m1 < mmin)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        ln_norm = _ln_powerlaw_norm(alpha, xp.log(high), xp.log(low))
+        # xlogy keeps x^0 = 1 at x = 0
+        ln_prob = scs.xlogy(alpha, xx) + ln_norm
+    return xp.where((xx <= high) & (xx >= low), ln_prob, -xp.inf)
+
+
+def ln_powerlaw_from_logs(ln_xx, alpha, ln_high, ln_low):
+    r"""
+    Log power-law probability, as :func:`ln_powerlaw`, given the logs of the
+    abscissa and of the bounds
+
+    .. math::
+        \ln p(x) = \alpha \ln x + \ln\left|\frac{1 + \alpha}{x_\max^{1 + \alpha} - x_\min^{1 + \alpha}}\right|
+
+    With :math:`\ln x` precomputed, e.g., once per dataset, this needs no
+    logarithm of the data, and bounds that are products of parameters and
+    data, e.g., :math:`q_\min = m_\min / m_1`, become sums.
+
+    Parameters
+    ----------
+    ln_xx: float, array-like
+        The log of the abscissa values (:math:`\ln x`)
+    alpha: float, array-like
+        The spectral index of the distribution (:math:`\alpha`)
+    ln_high: float, array-like
+        The log of the maximum of the distribution (:math:`\ln x_\max`)
+    ln_low: float, array-like
+        The log of the minimum of the distribution (:math:`\ln x_\min`)
+
+    Returns
+    -------
+    ln_prob: float, array-like
+        The log of the distribution evaluated at :math:`x`, :code:`-inf`
+        outside :math:`[x_\min, x_\max]`
+    """
+    with np.errstate(divide="ignore", invalid="ignore"):
+        ln_norm = _ln_powerlaw_norm(alpha, ln_high, ln_low)
+        # x^0 = 1 at x = 0, as xlogy
+        ln_prob = xp.where(xp.asarray(alpha) == 0, 0.0, alpha * ln_xx) + ln_norm
+    return xp.where((ln_xx <= ln_high) & (ln_xx >= ln_low), ln_prob, -xp.inf)
+
+
+def _ln_powerlaw_norm(alpha, ln_high, ln_low):
+    r"""
+    :math:`\ln\left|(1 + \alpha) / (x_\max^{1 + \alpha} - x_\min^{1 + \alpha})\right|`
+    from :math:`\ln x_\min` and :math:`\ln x_\max`, so that it does not
+    overflow for large :math:`|\alpha|`, e.g., in single precision.
+    """
+    width = ln_high - ln_low
+    exponent = 1 + alpha
+    # |high^s - low^s| = max(high^s, low^s) * (1 - exp(-|s| (ln high - ln low)))
+    ln_largest = xp.where(exponent > 0, exponent * ln_high, exponent * ln_low)
+    # As s -> 0 the norm tends to -ln(ln high - ln low), which a tiny |s|
+    # reproduces to O(|s| width): -expm1(-x) = x for small x. This avoids a
+    # separate branch, which would cost a second log wherever the bounds
+    # depend on the data, e.g., the mass ratio.
+    abs_exponent = xp.where(exponent == 0, _TINY_EXPONENT, xp.abs(exponent))
+    return xp.log(abs_exponent) - ln_largest - xp.log(-xp.expm1(-abs_exponent * width))
+
+
+# small enough that |s| width is negligible next to one, large enough that it
+# stays a normal number in single precision for any width above ~1e-26
+_TINY_EXPONENT = 1e-12
+
+
+@apply_conditions(dict(sigma=(gt, 0)))
+def ln_truncnorm(xx, mu, sigma, high, low):
+    r"""
+    Log truncated normal probability
+
+    .. math::
+
+        \ln p(x) = -\frac{(\mu - x)^2}{2 \sigma^2} - \frac{1}{2}\ln\left(2\pi\sigma^2\right)
+        - \ln\left(\Phi\left(\frac{x_\max - \mu}{\sigma}\right) - \Phi\left(\frac{x_\min - \mu}{\sigma}\right)\right)
+
+    Parameters
+    ----------
+    xx: float, array-like
+        The abscissa values (:math:`x`)
+    mu: float, array-like
+        The mean of the normal distribution (:math:`\mu`)
+    sigma: float
+        The standard deviation of the distribution (:math:`\sigma`)
+    high: float, array-like
+        The maximum of the distribution (:math:`x_\max`)
+    low: float, array-like
+        The minimum of the distribution (:math:`x_\min`)
+
+    Returns
+    -------
+    ln_prob: float, array-like
+        The log of the distribution evaluated at `xx`, :code:`-inf` outside
+        :math:`[x_\min, x_\max]`
+
+    """
+
+    def logsubexp(log_p, log_q):
+        return log_p + xp.log1p(-xp.exp(log_q - log_p))
+
+    # multiplying by 1 / sigma, rather than dividing, saves a division per
+    # element when sigma is a parameter and xx is data
+    inv_sigma = 1 / xp.asarray(sigma)
+    zz = xp.array(xx - mu) * inv_sigma
+    aa = xp.array(low - mu) * inv_sigma
+    bb = xp.array(high - mu) * inv_sigma
+
+    # cf https://github.com/scipy/scipy/blob/v1.15.1/scipy/stats/_continuous_distns.py#L10189
+    log_norm = xp.select(
+        [bb <= 0, aa > 0, bb > 0],
+        [
+            logsubexp(scs.log_ndtr(bb), scs.log_ndtr(aa)),
+            logsubexp(scs.log_ndtr(-aa), scs.log_ndtr(-bb)),
+            xp.log1p(-scs.ndtr(aa) - scs.ndtr(-bb)),
+        ],
+        xp.nan,
+    )
+    # the terms independent of xx are summed first, so they are added once per
+    # element; a Python float, a numpy scalar would promote single precision
+    ln_const = -float(np.log(2.0 * np.pi)) / 2.0 - xp.log(sigma) - log_norm
+    log_pdf = ln_const - zz**2 / 2.0
+    return xp.where((xx >= low) & (xx <= high), log_pdf, -xp.inf)
+
+
 @apply_conditions(dict(sigma=(gt, 0)))
 def truncnorm(xx, mu, sigma, high, low):
     r"""
@@ -160,27 +316,9 @@ def truncnorm(xx, mu, sigma, high, low):
         The distribution evaluated at `xx`
 
     """
-
-    def logsubexp(log_p, log_q):
-        return log_p + xp.log(1 - xp.exp(log_q - log_p))
-
-    zz = xp.array(xx - mu) / sigma
-    aa = xp.array(low - mu) / sigma
-    bb = xp.array(high - mu) / sigma
-    log_pdf = -(zz**2) / 2.0 - np.log(2.0 * np.pi) / 2.0 - xp.log(sigma)
-
-    # cf https://github.com/scipy/scipy/blob/v1.15.1/scipy/stats/_continuous_distns.py#L10189
-    log_norm = xp.select(
-        [bb <= 0, aa > 0, bb > 0],
-        [
-            logsubexp(scs.log_ndtr(bb), scs.log_ndtr(aa)),
-            logsubexp(scs.log_ndtr(-aa), scs.log_ndtr(-bb)),
-            xp.log1p(-scs.ndtr(aa) - scs.ndtr(-bb)),
-        ],
-        xp.nan,
+    return xp.nan_to_num(
+        xp.exp(ln_truncnorm(xx, mu=mu, sigma=sigma, high=high, low=low))
     )
-    log_pdf -= log_norm
-    return xp.nan_to_num(xp.exp(log_pdf)) * (xx >= low) * (xx <= high)
 
 
 def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
@@ -346,3 +484,77 @@ def trapezoid(y, x=None, dx=1.0, axis=-1):
         return xp.trapz(y, x=x, dx=dx, axis=axis)
     else:
         raise NotImplementedError(f"trapz/trapezoid not implemented for {xp.__name__}")
+
+
+def logsumexp(values, axis=-1):
+    """
+    The log of the sum of the exponentials of the input along an axis,
+    computed without leaving log space.
+
+    Parameters
+    ==========
+    values: array-like
+        The log values to sum.
+    axis: int, optional
+        The axis to sum over.
+
+    Returns
+    =======
+    array-like
+        :math:`\\ln \\sum \\exp(\\text{values})` along :code:`axis`;
+        :code:`-inf` where every value is :code:`-inf`.
+    """
+    shift = xp.max(values, axis=axis, keepdims=True)
+    shift = xp.where(xp.isfinite(shift), shift, 0)
+    total = xp.sum(xp.exp(values - shift), axis=axis)
+    return xp.log(total) + xp.squeeze(shift, axis=axis)
+
+
+def segment_logsumexp(values, counts):
+    """
+    :func:`logsumexp` over consecutive segments of a one-dimensional array,
+    e.g., the samples of each event when events have different numbers of
+    samples.
+
+    Each segment is shifted by its own maximum, so the result does not
+    depend on the values in other segments. With :code:`jax` the segments
+    are gathered into a padded (segments, longest segment) array, which is
+    much faster on GPUs than :code:`jax.ops.segment_max` and
+    :code:`segment_sum` (scatters); otherwise this uses the :code:`reduceat`
+    method of the backend's ufuncs. Backends without :code:`reduceat` fall
+    back to differences of a cumulative sum, which loses precision when the
+    segments' sums differ by many orders of magnitude.
+
+    Parameters
+    ==========
+    values: array-like
+        The log values, segment by segment.
+    counts: array-like
+        The (non-zero) length of each segment.
+
+    Returns
+    =======
+    array-like
+        The :func:`logsumexp` of each segment.
+    """
+    counts = np.asarray(to_numpy(counts), dtype=int)
+    starts = np.concatenate([[0], np.cumsum(counts)[:-1]])
+    if "jax" in xp.__name__:
+        offsets = np.arange(counts.max())
+        valid = offsets < counts[:, None]
+        index = np.where(valid, starts[:, None] + offsets, 0)
+        padded = xp.where(xp.asarray(valid), values[xp.asarray(index)], -xp.inf)
+        return logsumexp(padded, axis=-1)
+    elif hasattr(xp.add, "reduceat"):
+        segment_ids = np.repeat(np.arange(len(counts)), counts)
+        starts = xp.asarray(starts)
+        shift = xp.maximum.reduceat(values, starts)
+        shift = xp.where(xp.isfinite(shift), shift, 0)
+        total = xp.add.reduceat(xp.exp(values - shift[xp.asarray(segment_ids)]), starts)
+    else:
+        shift = xp.max(values)
+        shift = xp.where(xp.isfinite(shift), shift, 0)
+        cumulative = xp.concat([xp.zeros(1), xp.cumsum(xp.exp(values - shift))])
+        ends = xp.asarray(np.cumsum(counts))
+        total = cumulative[ends] - cumulative[xp.asarray(starts)]
+    return xp.log(total) + shift

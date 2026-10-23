@@ -465,3 +465,25 @@ class TestCosmoModel:
         expected_prob = model_prob / jacobian
 
         np.testing.assert_allclose(prob, expected_prob)
+
+    def test_ln_prob_matches_log_prob(self):
+        """Test ln_prob subtracts the log Jacobian consistently with prob."""
+        disable_units()
+
+        def mass_dependent_model(dataset, alpha):
+            return dataset["mass_1"] ** (-alpha)
+
+        model = CosmoModel(
+            model_functions=[mass_dependent_model], cosmo_model="Planck15"
+        )
+
+        data = {
+            "luminosity_distance": np.array([400.0, 800.0, 1200.0]),
+            "mass_1_detector": np.array([30.0, 40.0, 50.0]),
+        }
+        parameters = {"alpha": 2.35}
+
+        np.testing.assert_allclose(
+            model.ln_prob(data, **parameters),
+            np.log(model.prob(data, **parameters)),
+        )

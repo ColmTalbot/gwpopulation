@@ -7,7 +7,7 @@ import inspect
 import numpy as np
 import scipy.special as scs
 
-from ..utils import powerlaw, trapezoid, truncnorm
+from ..utils import ln_powerlaw_from_logs, ln_truncnorm, powerlaw, trapezoid, truncnorm
 from .interped import InterpolatedNoBaseModelIdentical
 
 xp = np
@@ -28,8 +28,10 @@ __all__ = [
     "power_law_primary_secondary_identical",
     "power_law_mass",
     "two_component_single",
+    "ln_two_component_single",
     "three_component_single",
     "two_component_primary_mass_ratio",
+    "ln_two_component_primary_mass_ratio",
     "two_component_primary_secondary_independent",
     "two_component_primary_secondary_identical",
 ]
@@ -332,6 +334,64 @@ def two_component_single(
     return prob
 
 
+def ln_two_component_single(
+    mass, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
+):
+    r"""
+    Log of :func:`two_component_single`, computed without leaving log space so
+    that it does not underflow far from the peak, e.g., in single precision.
+
+    Parameters
+    ----------
+    mass: array-like
+        Array of mass values (:math:`m`).
+    alpha: float
+        Negative power law exponent for the black hole distribution (:math:`\alpha`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum black hole mass (:math:`m_\max`).
+    lam: float
+        Fraction of black holes in the Gaussian component (:math:`\lambda_m`).
+    mpp: float
+        Mean of the Gaussian component (:math:`\mu_m`).
+    sigpp: float
+        Standard deviation of the Gaussian component (:math:`\sigma_m`).
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
+    """
+    return _ln_two_component_single(
+        mass,
+        xp.log(mass),
+        alpha=alpha,
+        mmin=mmin,
+        mmax=mmax,
+        lam=lam,
+        mpp=mpp,
+        sigpp=sigpp,
+        gaussian_mass_maximum=gaussian_mass_maximum,
+    )
+
+
+def _ln_two_component_single(
+    mass, ln_mass, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum
+):
+    """:func:`ln_two_component_single` given both the mass and its log"""
+    ln_p_pow = ln_powerlaw_from_logs(
+        ln_mass, alpha=-alpha, ln_high=xp.log(mmax), ln_low=xp.log(mmin)
+    )
+    ln_p_norm = ln_truncnorm(
+        mass, mu=mpp, sigma=sigpp, high=gaussian_mass_maximum, low=mmin
+    )
+    return xp.logaddexp(xp.log1p(-lam) + ln_p_pow, xp.log(lam) + ln_p_norm)
+
+
+def _dataset_log(dataset, key):
+    """``dataset["ln_<key>"]`` if the dataset has it, else the log of ``dataset[key]``"""
+    ln_key = f"ln_{key}"
+    return dataset[ln_key] if ln_key in dataset else xp.log(dataset[key])
+
+
 def three_component_single(
     mass,
     alpha,
@@ -437,6 +497,59 @@ def two_component_primary_mass_ratio(
     p_q = powerlaw(dataset["mass_ratio"], beta, 1, mmin / dataset["mass_1"])
     prob = p_m1 * p_q
     return prob
+
+
+def ln_two_component_primary_mass_ratio(
+    dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
+):
+    r"""
+    Log of :func:`two_component_primary_mass_ratio`, computed without leaving
+    log space so that it does not underflow far from the peak, e.g., in single
+    precision.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' and 'mass_ratio'. If it also
+        has 'ln_mass_1' and/or 'ln_mass_ratio', these are used instead of
+        taking logs, e.g., to compute them once for a fixed set of samples.
+    alpha: float
+        Negative power law exponent for more massive black hole.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum black hole mass.
+    beta: float
+        Power law exponent of the mass ratio distribution.
+    lam: float
+        Fraction of black holes in the Gaussian component.
+    mpp: float
+        Mean of the Gaussian component.
+    sigpp: float
+        Standard deviation of the Gaussian component.
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
+    """
+    params = dict(
+        mmin=mmin,
+        mmax=mmax,
+        lam=lam,
+        mpp=mpp,
+        sigpp=sigpp,
+        gaussian_mass_maximum=gaussian_mass_maximum,
+    )
+    ln_mass_1 = _dataset_log(dataset, "mass_1")
+    ln_p_m1 = _ln_two_component_single(
+        dataset["mass_1"], ln_mass_1, alpha=alpha, **params
+    )
+    # q_min = mmin / m1, so ln q_min = ln mmin - ln m1 needs no log of the data
+    ln_p_q = ln_powerlaw_from_logs(
+        _dataset_log(dataset, "mass_ratio"),
+        beta,
+        ln_high=0.0,
+        ln_low=xp.log(mmin) - ln_mass_1,
+    )
+    return ln_p_m1 + ln_p_q
 
 
 def two_component_primary_secondary_independent(

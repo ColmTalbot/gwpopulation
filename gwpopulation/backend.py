@@ -1,6 +1,7 @@
 from importlib import import_module
 
 __backend__ = ""
+_jax_configured = False
 SUPPORTED_BACKENDS = ["numpy", "cupy", "jax"]
 _np_module = dict(numpy="numpy", cupy="cupy", jax="jax.numpy")
 _scipy_module = dict(numpy="scipy", cupy="cupyx.scipy", jax="jax.scipy")
@@ -76,15 +77,24 @@ def modules_to_update():
     return all_with_xp, all_with_scs, others
 
 
-def _configure_jax(xp):
+def _configure_jax(enable_x64=None):
     """
     Configuration requirements for :code:`jax`
 
-    - use 64-bit floats.
+    - use 64-bit floats, unless :code:`enable_x64=False`. With the default
+      :code:`enable_x64=None`, 64-bit floats are only enabled the first time
+      :code:`jax` is configured, so a later :code:`set_backend("jax")`, e.g.,
+      from a downstream package, does not undo an explicit choice.
     """
+    global _jax_configured
+    if enable_x64 is None:
+        if _jax_configured:
+            return
+        enable_x64 = True
     from jax import config
 
-    config.update("jax_enable_x64", True)
+    config.update("jax_enable_x64", enable_x64)
+    _jax_configured = True
 
 
 def _load_numpy_and_scipy(backend):
@@ -95,9 +105,6 @@ def _load_numpy_and_scipy(backend):
         raise ModuleNotFoundError(f"{backend} not installed for gwpopulation")
     except ImportError:
         raise ImportError(f"{backend} installed but not importable for gwpopulation")
-
-    if backend == "jax":
-        _configure_jax(xp)
 
     return xp, scs
 
@@ -111,7 +118,7 @@ def _load_arbitrary(func, backend):
     return getattr(import_module(module), func)
 
 
-def set_backend(backend="numpy"):
+def set_backend(backend="numpy", enable_x64=None):
     """
     Set the backend for :code:`GWPopulation` and plugins.
 
@@ -126,6 +133,12 @@ def set_backend(backend="numpy"):
     ----------
     backend: str
         The backend to use, one of the :code:`SUPPORTED_BACKENDS`.
+    enable_x64: bool, optional
+        For :code:`jax`, whether to enable 64-bit floats.
+        Pass :code:`False` to use single precision; the :code:`ln_*` models
+        are designed for this. By default (:code:`None`), 64-bit floats are
+        enabled the first time the :code:`jax` backend is set and the
+        precision is left unchanged afterwards.
 
     Raises
     ------
@@ -138,9 +151,13 @@ def set_backend(backend="numpy"):
             f"Backend {backend} not supported, should be in {', '.join(SUPPORTED_BACKENDS)}"
         )
     elif backend == __backend__:
+        if backend == "jax":
+            _configure_jax(enable_x64)
         return
 
     xp, scs = _load_numpy_and_scipy(backend)
+    if backend == "jax":
+        _configure_jax(enable_x64)
 
     __backend__ = backend
     all_with_xp, all_with_scs, others = modules_to_update()

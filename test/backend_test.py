@@ -51,3 +51,24 @@ def test_loading_arbitrary():
         func="scipy.linalg.toeplitz", backend="jax"
     )
     assert func == toeplitz
+
+
+def test_set_backend_enable_x64():
+    pytest.importorskip("jax")
+    import jax
+
+    try:
+        gwpopulation.set_backend("jax", enable_x64=False)
+        assert not jax.config.jax_enable_x64
+        # the default leaves an explicit choice alone, including after
+        # switching backend and back
+        gwpopulation.set_backend("jax")
+        assert not jax.config.jax_enable_x64
+        gwpopulation.set_backend("numpy")
+        gwpopulation.set_backend("jax")
+        assert not jax.config.jax_enable_x64
+        gwpopulation.set_backend("jax", enable_x64=True)
+        assert jax.config.jax_enable_x64
+    finally:
+        gwpopulation.set_backend("jax", enable_x64=True)
+        gwpopulation.set_backend("numpy")

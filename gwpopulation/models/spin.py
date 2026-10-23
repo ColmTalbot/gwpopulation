@@ -2,9 +2,19 @@
 Implemented spin models
 """
 
+import math
+
 import numpy as xp
 
-from ..utils import beta_dist, trapezoid, truncnorm, unnormalized_2d_gaussian
+from ..utils import (
+    beta_dist,
+    ln_beta_dist,
+    ln_truncnorm,
+    ln_unnormalized_2d_gaussian,
+    trapezoid,
+    truncnorm,
+    unnormalized_2d_gaussian,
+)
 from .interped import InterpolatedNoBaseModelIdentical
 
 __all__ = [
@@ -12,12 +22,19 @@ __all__ = [
     "SplineSpinMagnitudeIdentical",
     "SplineSpinTiltIdentical",
     "iid_spin",
+    "ln_iid_spin",
     "iid_spin_magnitude_beta",
+    "ln_iid_spin_magnitude_beta",
     "independent_spin_magnitude_beta",
+    "ln_independent_spin_magnitude_beta",
     "iid_spin_orientation_gaussian_isotropic",
+    "ln_iid_spin_orientation_gaussian_isotropic",
     "independent_spin_orientation_gaussian_isotropic",
+    "ln_independent_spin_orientation_gaussian_isotropic",
     "gaussian_chi_eff",
+    "ln_gaussian_chi_eff",
     "gaussian_chi_p",
+    "ln_gaussian_chi_p",
 ]
 
 
@@ -47,6 +64,30 @@ def iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
     return prior
 
 
+def ln_iid_spin(dataset, xi_spin, sigma_spin, amax, alpha_chi, beta_chi):
+    r"""
+    Log of :func:`iid_spin`, computed without leaving log space so that it
+    does not underflow, e.g., in single precision.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays containing 'a_1', 'a_2', 'cos_tilt_1', and
+        'cos_tilt_2'.
+    xi_spin: float
+        Fraction of black holes in preferentially aligned component.
+    sigma_spin: float
+        Width of preferentially aligned component.
+    alpha_chi, beta_chi: float
+        Parameters of Beta distribution for both black holes.
+    amax: float
+        Maximum black hole spin.
+    """
+    return ln_iid_spin_orientation_gaussian_isotropic(
+        dataset, xi_spin, sigma_spin
+    ) + ln_iid_spin_magnitude_beta(dataset, amax, alpha_chi, beta_chi)
+
+
 def iid_spin_magnitude_beta(dataset, amax=1, alpha_chi=1, beta_chi=1):
     """
     Independent and identically distributed beta distributions for both spin magnitudes.
@@ -63,6 +104,24 @@ def iid_spin_magnitude_beta(dataset, amax=1, alpha_chi=1, beta_chi=1):
         Maximum black hole spin.
     """
     return independent_spin_magnitude_beta(
+        dataset, alpha_chi, alpha_chi, beta_chi, beta_chi, amax, amax
+    )
+
+
+def ln_iid_spin_magnitude_beta(dataset, amax=1, alpha_chi=1, beta_chi=1):
+    """
+    Log of :func:`iid_spin_magnitude_beta`.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays containing 'a_1' and 'a_2'.
+    alpha_chi, beta_chi: float
+        Parameters of Beta distribution for both black holes.
+    amax: float
+        Maximum black hole spin.
+    """
+    return ln_independent_spin_magnitude_beta(
         dataset, alpha_chi, alpha_chi, beta_chi, beta_chi, amax, amax
     )
 
@@ -90,6 +149,28 @@ def independent_spin_magnitude_beta(
         dataset["a_1"], alpha_chi_1, beta_chi_1, scale=amax_1
     ) * beta_dist(dataset["a_2"], alpha_chi_2, beta_chi_2, scale=amax_2)
     return prior
+
+
+def ln_independent_spin_magnitude_beta(
+    dataset, alpha_chi_1, alpha_chi_2, beta_chi_1, beta_chi_2, amax_1, amax_2
+):
+    """
+    Log of :func:`independent_spin_magnitude_beta`.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays containing 'a_1' and 'a_2'.
+    alpha_chi_1, beta_chi_1: float
+        Parameters of Beta distribution for more massive black hole.
+    alpha_chi_2, beta_chi_2: float
+        Parameters of Beta distribution for less massive black hole.
+    amax_1, amax_2: float
+        Maximum spin of the more/less massive black hole.
+    """
+    return ln_beta_dist(
+        dataset["a_1"], alpha_chi_1, beta_chi_1, scale=amax_1
+    ) + ln_beta_dist(dataset["a_2"], alpha_chi_2, beta_chi_2, scale=amax_2)
 
 
 def iid_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_spin, mu_spin=1):
@@ -120,6 +201,26 @@ def iid_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_spin, mu_spi
         Mean of the gaussian component (default: cos_tilt = 1).
     """
     return independent_spin_orientation_gaussian_isotropic(
+        dataset, xi_spin, sigma_spin, sigma_spin, mu_spin, mu_spin
+    )
+
+
+def ln_iid_spin_orientation_gaussian_isotropic(dataset, xi_spin, sigma_spin, mu_spin=1):
+    r"""
+    Log of :func:`iid_spin_orientation_gaussian_isotropic`.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'cos_tilt_1' and 'cos_tilt_2'.
+    xi_spin: float
+        Fraction of black holes in gaussian component (:math:`\xi`).
+    sigma_spin: float
+        Width of gaussian component.
+    mu_spin: float
+        Mean of the gaussian component (default: cos_tilt = 1).
+    """
+    return ln_independent_spin_orientation_gaussian_isotropic(
         dataset, xi_spin, sigma_spin, sigma_spin, mu_spin, mu_spin
     )
 
@@ -166,6 +267,40 @@ def independent_spin_orientation_gaussian_isotropic(
     return prior
 
 
+def ln_independent_spin_orientation_gaussian_isotropic(
+    dataset, xi_spin, sigma_1, sigma_2, mu_1=1, mu_2=1
+):
+    r"""
+    Log of :func:`independent_spin_orientation_gaussian_isotropic`, computed
+    without leaving log space so that the Gaussian component does not
+    underflow far from its mean, e.g., in single precision.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'cos_tilt_1' and 'cos_tilt_2'.
+    xi_spin: float
+        Fraction of black holes in gaussian component (:math:`\xi`).
+    mu_1: float
+        Mean of the gaussian component for the more
+        massive black hole (:math:`\mu_1`).
+    mu_2: float
+        Mean of the gaussian component for the less
+        massive black hole (:math:`\mu_2`).
+    sigma_1: float
+        Width of the gaussian component for the more
+        massive black hole (:math:`\sigma_1`).
+    sigma_2: float
+        Width of the gaussian component for the less
+        massive black hole (:math:`\sigma_2`).
+    """
+    ln_gaussian = ln_truncnorm(
+        dataset["cos_tilt_1"], mu=mu_1, sigma=sigma_1, high=1, low=-1
+    ) + ln_truncnorm(dataset["cos_tilt_2"], mu=mu_2, sigma=sigma_2, high=1, low=-1)
+    # as for the linear model, the isotropic component is not truncated
+    return xp.logaddexp(xp.log1p(-xi_spin) - math.log(4), xp.log(xi_spin) + ln_gaussian)
+
+
 def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):
     r"""
     A Gaussian in chi effective distribution
@@ -197,6 +332,29 @@ def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):
     )
 
 
+def ln_gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):
+    r"""
+    Log of :func:`gaussian_chi_eff`, which does not underflow far from the
+    mean, e.g., in single precision.
+
+    Parameters
+    ----------
+    dataset: dict
+        Input data, must contain `chi_eff` (:math:`\chi_{\text{eff}}`)
+    mu_chi_eff: float
+        Mean of the distribution (:math:`\mu_\chi`)
+    sigma_chi_eff: float
+        Standard deviation of the distribution (:math:`\sigma_\chi`)
+
+    Returns
+    -------
+    array-like: The log probability, :code:`-inf` outside :math:`[-1, 1]`
+    """
+    return ln_truncnorm(
+        dataset["chi_eff"], mu=mu_chi_eff, sigma=sigma_chi_eff, low=-1, high=1
+    )
+
+
 def gaussian_chi_p(dataset, mu_chi_p, sigma_chi_p):
     r"""
     A Gaussian distribution in precessing effective spin (chi p)
@@ -222,6 +380,27 @@ def gaussian_chi_p(dataset, mu_chi_p, sigma_chi_p):
     array-like: The probability
     """
     return truncnorm(dataset["chi_p"], mu=mu_chi_p, sigma=sigma_chi_p, low=0, high=1)
+
+
+def ln_gaussian_chi_p(dataset, mu_chi_p, sigma_chi_p):
+    r"""
+    Log of :func:`gaussian_chi_p`, which does not underflow far from the
+    mean, e.g., in single precision.
+
+    Parameters
+    ----------
+    dataset: dict
+        Input data, must contain `chi_p` (:math:`\chi_p`)
+    mu_chi_p: float
+        Mean of the distribution (:math:`\mu_\chi`)
+    sigma_chi_p: float
+        Standard deviation of the distribution (:math:`\sigma_\chi`)
+
+    Returns
+    -------
+    array-like: The log probability, :code:`-inf` outside :math:`[0, 1]`
+    """
+    return ln_truncnorm(dataset["chi_p"], mu=mu_chi_p, sigma=sigma_chi_p, low=0, high=1)
 
 
 class GaussianChiEffChiP(object):
@@ -290,6 +469,51 @@ class GaussianChiEffChiP(object):
         prob *= xp.abs(dataset["chi_eff"]) <= 1
         prob *= (dataset["chi_p"] <= 1) * (dataset["chi_p"] >= 0)
         return prob
+
+    def ln_prob(
+        self, dataset, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance
+    ):
+        """
+        The log of :func:`__call__`: the quadratic form of the Gaussian minus
+        the log of its normalization, which does not underflow far from the
+        mean, e.g., in single precision.
+
+        Parameters
+        ----------
+        dataset: dict
+            Dictionary of numpy arrays for :code:`chi_eff` and :code:`chi_p`.
+        mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance: float
+            As for :func:`__call__`.
+
+        Returns
+        -------
+        array-like
+            The log probability, :code:`-inf` outside the support.
+        """
+        ln_prob = ln_unnormalized_2d_gaussian(
+            dataset["chi_eff"],
+            dataset["chi_p"],
+            mu_chi_eff,
+            mu_chi_p,
+            sigma_chi_eff,
+            sigma_chi_p,
+            spin_covariance,
+        )
+        ln_prob -= xp.log(
+            self._normalization(
+                mu_chi_eff=mu_chi_eff,
+                sigma_chi_eff=sigma_chi_eff,
+                mu_chi_p=mu_chi_p,
+                sigma_chi_p=sigma_chi_p,
+                spin_covariance=spin_covariance,
+            )
+        )
+        in_bounds = (
+            (xp.abs(dataset["chi_eff"]) <= 1)
+            & (dataset["chi_p"] <= 1)
+            & (dataset["chi_p"] >= 0)
+        )
+        return xp.where(in_bounds, ln_prob, -xp.inf)
 
     def _normalization(
         self, mu_chi_eff, sigma_chi_eff, mu_chi_p, sigma_chi_p, spin_covariance

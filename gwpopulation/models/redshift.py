@@ -98,7 +98,7 @@ class _Redshift(CosmoMixin):
         return norm
 
     def probability(self, dataset, **parameters):
-        """
+        r"""
         Compute the normalized probability of a merger occurring at the
         specified redshift.
 

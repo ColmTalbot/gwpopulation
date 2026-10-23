@@ -15,6 +15,8 @@ from gwpopulation.models import mass, redshift, spin
 from gwpopulation.utils import to_numpy
 
 N_TEST = 10
+# gradients are slower to evaluate, so they are tested at fewer draws
+N_GRADIENT_TEST = 3
 N_SAMPLES = 2000
 
 # Hyperparameters are drawn uniformly from these ranges with a seeded generator,
@@ -456,6 +458,65 @@ def test_ln_prob_single_precision(name):
             n_linear_lost += np.sum(finite & ~(prob > 0))
         # the log density is needed: the density underflows or overflows
         assert (n_linear_lost > 0) != (name in LINEAR_SINGLE_PRECISION)
+    finally:
+        gwpopulation.set_backend("jax", enable_x64=True)
+        gwpopulation.set_backend("numpy")
+
+
+@pytest.mark.parametrize("enable_x64", [True, False])
+@pytest.mark.parametrize("name", MODELS)
+def test_ln_prob_gradient(name, enable_x64):
+    """
+    The gradient of the log of the summed density with respect to each
+    hyperparameter is finite, although some samples are outside the support,
+    e.g., for mixtures, where the gradient of :code:`logaddexp(-inf, -inf)`
+    is :code:`nan`. In double precision, it matches the gradient computed
+    from the density wherever that is finite.
+    """
+    jax = pytest.importorskip("jax")
+    from gwpopulation.utils import logsumexp
+
+    builder, ranges, _ = MODELS[name]
+    fixed = {
+        key: value for key, value in ranges.items() if not isinstance(value, tuple)
+    }
+    gwpopulation.set_backend("jax", enable_x64=enable_x64)
+    try:
+        xp = gwpopulation.utils.xp
+        dtype = xp.float64 if enable_x64 else xp.float32
+        dataset = {
+            key: xp.asarray(value, dtype=dtype) for key, value in _dataset().items()
+        }
+        model = builder()
+        draws = [
+            {key: value for key, value in parameters.items() if key not in fixed}
+            for parameters in _draws(name)[:N_GRADIENT_TEST]
+        ]
+        # the first call caches the interpolants of the spline and smoothed models
+        model.ln_prob(dataset, **draws[0], **fixed)
+
+        def ln_total(parameters):
+            return logsumexp(model.ln_prob(dataset, **parameters, **fixed))
+
+        def total(parameters):
+            return xp.log(xp.sum(model.prob(dataset, **parameters, **fixed)))
+
+        ln_gradient = jax.jit(jax.grad(ln_total))
+        gradient = jax.jit(jax.grad(total))
+        for parameters in draws:
+            ln_result = {
+                key: float(value) for key, value in ln_gradient(parameters).items()
+            }
+            for key, value in ln_result.items():
+                assert np.isfinite(value), f"d/d{key} = {value} at {parameters}"
+            if not enable_x64:
+                continue
+            result = {key: float(value) for key, value in gradient(parameters).items()}
+            for key, value in result.items():
+                if np.isfinite(value):
+                    np.testing.assert_allclose(
+                        ln_result[key], value, rtol=1e-8, atol=1e-10, err_msg=key
+                    )
     finally:
         gwpopulation.set_backend("jax", enable_x64=True)
         gwpopulation.set_backend("numpy")

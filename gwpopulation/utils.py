@@ -116,12 +116,16 @@ def ln_beta_dist(xx, alpha, beta, scale=1):
         :math:`[0, x_\max]`
 
     """
+    inside = (xx >= 0) & (xx <= scale)
+    # one, rather than a negative number, above the support keeps the gradient
+    # finite there, e.g., with respect to beta for spin magnitudes above amax
+    scale_minus_xx = xp.where(inside, scale - xx, 1)
     # with numpy, the logs warn where the result is masked below
     with np.errstate(divide="ignore", invalid="ignore"):
         # xlogy keeps x^0 = 1 at x = 0, e.g., alpha = 1 at xx = 0
-        ln_prob = scs.xlogy(alpha - 1, xx) + scs.xlogy(beta - 1, scale - xx)
+        ln_prob = scs.xlogy(alpha - 1, xx) + scs.xlogy(beta - 1, scale_minus_xx)
         ln_prob -= scs.betaln(alpha, beta) + (alpha + beta - 1) * xp.log(scale)
-    return xp.where((xx >= 0) & (xx <= scale), ln_prob, -xp.inf)
+    return xp.where(inside, ln_prob, -xp.inf)
 
 
 @apply_conditions(dict(low=(ge, 0), alpha=(ne, 1)))
@@ -563,6 +567,38 @@ def trapezoid(y, x=None, dx=1.0, axis=-1):
         return xp.trapz(y, x=x, dx=dx, axis=axis)
     else:
         raise NotImplementedError(f"trapz/trapezoid not implemented for {xp.__name__}")
+
+
+def logaddexp(ln_a, ln_b):
+    """
+    :math:`\\ln(e^a + e^b)`, as :code:`xp.logaddexp`, with a finite gradient
+    where both terms are :code:`-inf`.
+
+    The gradient of :code:`jax.numpy.logaddexp(-inf, -inf)` is :code:`nan`,
+    so the gradient of a log-space mixture, e.g., with respect to its mixing
+    fraction, is :code:`nan` wherever a sample is outside the support of
+    every component. With :code:`jax`, both terms are replaced by zero there
+    before calling :code:`xp.logaddexp`, and its result by :code:`-inf`
+    after, so the values are unchanged and the gradient there is zero.
+
+    Parameters
+    ==========
+    ln_a: array-like
+        The log of the first term (:math:`a`).
+    ln_b: array-like
+        The log of the second term (:math:`b`).
+
+    Returns
+    =======
+    array-like
+        :math:`\\ln(e^a + e^b)`.
+    """
+    if "jax" not in xp.__name__:
+        return xp.logaddexp(ln_a, ln_b)
+    both_zero = xp.maximum(ln_a, ln_b) == -xp.inf
+    ln_a = xp.where(both_zero, 0.0, ln_a)
+    ln_b = xp.where(both_zero, 0.0, ln_b)
+    return xp.where(both_zero, -xp.inf, xp.logaddexp(ln_a, ln_b))
 
 
 def logsumexp(values, axis=-1):

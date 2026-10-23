@@ -243,6 +243,18 @@ class GaussianChiEffChiP(object):
             \rho \sigma_{\text{eff}} \sigma_{p} & \sigma^2_{p}
         \end{bmatrix}
 
+    .. note::
+
+        The implementation divides the quadratic form by :math:`1 - \rho`
+        rather than :math:`1 - \rho^2`, so, before truncation, the covariance
+        matrix is :math:`\Sigma / (1 + \rho)`. The correlation coefficient is
+        :math:`\rho`, but the standard deviations are
+        :math:`\sigma_{\text{eff}} / \sqrt{1 + \rho}` and
+        :math:`\sigma_{p} / \sqrt{1 + \rho}`, which equal
+        :math:`\sigma_{\text{eff}}` and :math:`\sigma_{p}` only for
+        :math:`\rho = 0`; e.g., they are twice as large for :math:`\rho = -0.75`.
+        See :func:`gwpopulation.utils.unnormalized_2d_gaussian`.
+
     See `Miller+ <https://arxiv.org/abs/2001.06051>`_ and `Callister+ <https://arxiv.org/abs/2010.14533>`_.
 
     Parameters

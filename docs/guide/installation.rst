@@ -50,7 +50,7 @@ Installation
          Additional backends can also be specified via editable installations using
          :code:`pip install -e .[jax]`.
 
-Supported python versions: 3.10-3.13.
+Supported python versions: 3.11-3.13.
 This will install :code:`gwpopulation` and all required dependencies (e.g., :code:`bilby`)
 if they are not already available in your system.
 

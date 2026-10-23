@@ -363,6 +363,21 @@ def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
                 \rho \sigma_{x} \sigma_{y} & \sigma^{2}_{y}
             \end{bmatrix}
 
+    .. note::
+
+        The quadratic form is divided by :math:`1 - \rho` rather than
+        :math:`1 - \rho^2`,
+
+        .. math::
+            \ln p(x, y) = -\frac{z_x^2 + z_y^2 - 2 \rho z_x z_y}{2 (1 - \rho)},
+            \quad z_x = \frac{x - \mu_x}{\sigma_x},
+            \quad z_y = \frac{y - \mu_y}{\sigma_y},
+
+        so the covariance matrix is :math:`\Sigma / (1 + \rho)`: the
+        correlation coefficient is :math:`\rho`, but the standard deviations
+        are :math:`\sigma_x / \sqrt{1 + \rho}` and
+        :math:`\sigma_y / \sqrt{1 + \rho}`.
+
     Parameters
     ----------
     xx: array-like

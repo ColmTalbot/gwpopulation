@@ -97,6 +97,12 @@ class InterpolatedNoBaseModelIdentical:
         """
         return self.p_x_identical(dataset, **kwargs)
 
+    def ln_prob(self, dataset, **kwargs):
+        """
+        The log of :func:`__call__`, a wrapper to :func:`ln_p_x_identical`
+        """
+        return self.ln_p_x_identical(dataset, **kwargs)
+
     @property
     def variable_names(self):
         """
@@ -157,6 +163,37 @@ class InterpolatedNoBaseModelIdentical:
             dataset[f"{parameter}"] <= x_splines[-1]
         )
         return p_x
+
+    def ln_p_x_unnormed(self, dataset, parameter, x_splines, f_splines, **kwargs):
+        """
+        The log of :func:`p_x_unnormed`, the spline perturbation
+
+        Parameters
+        ==========
+        dataset: dict
+            Dictionary containing the data to evaluate the likelihood at
+        parameter: str
+            The parameter to evaluate the likelihood for
+        x_splines: array-like
+            The positions of the spline nodes
+        f_splines: array-like
+            The values at the spline nodes
+        kwargs: dict, UNUSED
+
+        Returns
+        =======
+        ln_p_x: array-like
+            The log of the unnormalized likelihood of the dataset given the
+            model at the provided points, :code:`-inf` outside the nodes
+        """
+        if self._norm_spline is None:
+            self.setup_interpolant(x_splines, dataset)
+
+        perturbation = self._data_spline[parameter](y=f_splines)
+        in_bounds = (dataset[parameter] >= x_splines[0]) & (
+            dataset[parameter] <= x_splines[-1]
+        )
+        return xp.where(in_bounds, perturbation, -xp.inf)
 
     def norm_p_x(self, f_splines=None, x_splines=None, **kwargs):
         """
@@ -235,6 +272,37 @@ class InterpolatedNoBaseModelIdentical:
         norm = self.norm_p_x(f_splines=f_splines, x_splines=x_splines, **kwargs)
         p_x /= norm ** len(self.parameters)
         return p_x
+
+    def ln_p_x_identical(self, dataset, **kwargs):
+        """
+        The log of :func:`p_x_identical`
+
+        Parameters
+        ==========
+        dataset: dict
+            Dictionary containing the data to evaluate the likelihood at
+        kwargs: dict
+            Dictionary containing the parameters of the model
+
+        Returns
+        =======
+        ln_p_x: array-like
+            The log likelihood of the dataset given the model at the provided
+            points
+        """
+        self.infer_n_nodes(**kwargs)
+
+        f_splines, x_splines = self.extract_spline_points(kwargs)
+
+        ln_p_x = 0.0
+
+        for param in self.parameters:
+            ln_p_x = ln_p_x + self.ln_p_x_unnormed(
+                dataset, param, x_splines=x_splines, f_splines=f_splines, **kwargs
+            )
+
+        norm = self.norm_p_x(f_splines=f_splines, x_splines=x_splines, **kwargs)
+        return ln_p_x - len(self.parameters) * xp.log(norm)
 
     def infer_n_nodes(self, **kwargs):
         """

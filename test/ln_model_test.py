@@ -25,6 +25,10 @@ LIMITS = dict(mmin=(3, 10), mmax=(40, 100))
 STEEP = dict(alpha=(-30, 30), beta=(-30, 30)) | LIMITS
 BROKEN_STEEP = dict(alpha_1=(-30, 30), alpha_2=(-30, 30), beta=(-30, 30)) | LIMITS
 BROKEN_STEEP["break_fraction"] = (0.05, 0.95)
+# the numerical normalization of the smoothed models needs shallower slopes
+POWER = dict(alpha=(-4, 12), beta=(-4, 12)) | LIMITS
+BROKEN = dict(alpha_1=(-4, 12), alpha_2=(-4, 12), beta=(-4, 12)) | LIMITS
+BROKEN["break_fraction"] = (0.05, 0.95)
 PEAK = dict(lam=(0, 1), mpp=(20, 60), sigpp=(1, 10), gaussian_mass_maximum=100)
 TWO_PEAKS = dict(
     lam=(0, 1),
@@ -34,6 +38,10 @@ TWO_PEAKS = dict(
     sigpp_1=(1, 10),
     sigpp_2=(1, 10),
 )
+SMOOTH = dict(delta_m=(0, 10))
+MASS_NODES = {
+    f"mass{ii}": value for ii, value in enumerate(np.geomspace(2, 100, 10))
+} | {f"fmass{ii}": (-2, 2) for ii in range(10)}
 TILT = dict(xi_spin=(0, 1), sigma_spin=(0.1, 4))
 TILTS = dict(
     xi_spin=(0, 1), sigma_1=(0.1, 4), sigma_2=(0.1, 4), mu_1=(-1, 1), mu_2=(-1, 1)
@@ -49,6 +57,13 @@ MAGNITUDES = dict(
 )
 CHI_EFF = dict(mu_chi_eff=(-1, 1), sigma_chi_eff=(0.02, 0.3))
 CHI_P = dict(mu_chi_p=(0, 1), sigma_chi_p=(0.02, 0.1))
+
+
+def _spline_nodes(base, low, high, n_nodes=5):
+    nodes = {
+        f"{base}{ii}": value for ii, value in enumerate(np.linspace(low, high, n_nodes))
+    }
+    return nodes | {f"f{base}{ii}": (-2, 2) for ii in range(n_nodes)}
 
 
 def _without(ranges, *keys):
@@ -186,6 +201,35 @@ MODELS = dict(
         BROKEN_STEEP,
         _outside_mass_ratio,
     ),
+    SinglePeakSmoothedMassDistribution=(
+        _model(mass.SinglePeakSmoothedMassDistribution),
+        POWER | PEAK | SMOOTH,
+        _outside_mass_ratio,
+    ),
+    # narrow peaks below mmax, so that the density underflows above them
+    MultiPeakSmoothedMassDistribution=(
+        _model(mass.MultiPeakSmoothedMassDistribution),
+        POWER
+        | TWO_PEAKS
+        | SMOOTH
+        | dict(mmax=(40, 60), mpp_2=(30, 50), sigpp_1=(1, 3), sigpp_2=(1, 3)),
+        _outside_mass_ratio,
+    ),
+    BrokenPowerLawSmoothedMassDistribution=(
+        _model(mass.BrokenPowerLawSmoothedMassDistribution),
+        BROKEN | SMOOTH,
+        _outside_mass_ratio,
+    ),
+    BrokenPowerLawPeakSmoothedMassDistribution=(
+        _model(mass.BrokenPowerLawPeakSmoothedMassDistribution),
+        BROKEN | PEAK | SMOOTH,
+        _outside_mass_ratio,
+    ),
+    InterpolatedPowerlaw=(
+        _model(mass.InterpolatedPowerlaw),
+        POWER | SMOOTH | MASS_NODES,
+        _outside_mass_ratio,
+    ),
     iid_spin=(_model(lambda: spin.iid_spin), TILT | MAGNITUDE, _outside_magnitude),
     iid_spin_magnitude_beta=(
         _model(lambda: spin.iid_spin_magnitude_beta),
@@ -224,6 +268,16 @@ MODELS = dict(
         CHI_EFF | CHI_P | dict(spin_covariance=(-0.75, 0.75)),
         _outside_chi_eff_chi_p,
     ),
+    SplineSpinMagnitudeIdentical=(
+        _model(spin.SplineSpinMagnitudeIdentical),
+        _spline_nodes("a", 0, 1),
+        _nowhere,
+    ),
+    SplineSpinTiltIdentical=(
+        _model(spin.SplineSpinTiltIdentical),
+        _spline_nodes("cos_tilt", -1, 1),
+        _nowhere,
+    ),
 )
 
 # the linear densities of these models do not underflow or overflow in single
@@ -231,6 +285,8 @@ MODELS = dict(
 LINEAR_SINGLE_PRECISION = [
     "iid_spin_orientation_gaussian_isotropic",
     "independent_spin_orientation_gaussian_isotropic",
+    "SplineSpinMagnitudeIdentical",
+    "SplineSpinTiltIdentical",
 ]
 
 
@@ -238,12 +294,28 @@ def _never(data, parameters, ln_expected):
     return np.zeros(ln_expected.shape, dtype=bool)
 
 
+def _close_to_mmin(data, parameters, ln_expected):
+    """
+    The mass ratio normalization of the smoothed models is computed without
+    logs, and underflows in single precision for primary masses within
+    ~delta_m / 87 of mmin, where the log density is below ~-87.
+    """
+    return data["mass_1"] < parameters["mmin"] + parameters["delta_m"] / 50
+
+
 # Single precision tolerances, where points may be lost (lost), and the log
-# densities above which points are compared (compare_above).
+# densities above which points are compared (compare_above). For the smoothed
+# models, the smoothing is evaluated at m - mmin, so the error close to mmin
+# grows like the square of the log density.
 SINGLE_PRECISION = {
     name: dict(rtol=2e-5, atol=2e-5, lost=_never, compare_above=-np.inf)
     for name in MODELS
 }
+for name in MODELS:
+    if "Smoothed" in name or name == "InterpolatedPowerlaw":
+        SINGLE_PRECISION[name] = dict(
+            rtol=2e-4, atol=2e-4, compare_above=-1000.0, lost=_close_to_mmin
+        )
 
 
 def _dataset():
@@ -342,6 +414,8 @@ def test_ln_prob_single_precision(name):
             key: xp.asarray(value, dtype=xp.float32) for key, value in data.items()
         }
         model = builder()
+        # the first call caches the interpolants of the spline and smoothed models
+        model.ln_prob(dataset, **draws[0])
         jitted = jax.jit(lambda parameters: model.ln_prob(dataset, **parameters))
         settings = SINGLE_PRECISION[name]
         n_linear_lost = 0

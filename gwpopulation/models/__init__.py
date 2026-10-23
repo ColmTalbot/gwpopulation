@@ -83,6 +83,8 @@ used for its log density, where :code:`xp` is the array module, e.g.,
 A function defined elsewhere can be attached instead, e.g.,
 :code:`power_law_mass_model.ln_prob = ln_power_law_mass_model`.
 
+The models in :code:`gwpopulation.models` provide their log densities.
+
 We provide a number of pre-defined models along with standard base models that
 can be extended. See the API documentation for more details on implemented models.
 """

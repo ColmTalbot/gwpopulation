@@ -1061,12 +1061,26 @@ def ln_two_component_primary_secondary_identical(
     )
 
 
+def _smoothing_exponent(masses, mmin, delta_m):
+    """
+    The exponent of the smoothing window, see
+    :func:`BaseSmoothedMassDistribution.smoothing`
+    """
+    shifted_mass = xp.nan_to_num((masses - mmin) / delta_m, nan=0)
+    shifted_mass = xp.clip(shifted_mass, 1e-6, 1 - 1e-6)
+    return 1 / shifted_mass - 1 / (1 - shifted_mass)
+
+
 class BaseSmoothedMassDistribution:
     """
     Generic smoothed mass distribution base class.
 
     Implements the low-mass smoothing and power-law mass ratio
     distribution. Requires p_m1 to be implemented.
+
+    The log density, :func:`ln_prob`, uses :code:`ln_primary_model`, the log
+    of :code:`primary_model` taking the same arguments, if it is set, and
+    otherwise the log of :code:`primary_model`.
 
     Parameters
     ==========
@@ -1077,6 +1091,7 @@ class BaseSmoothedMassDistribution:
     """
 
     primary_model = None
+    ln_primary_model = None
 
     @property
     def variable_names(self):
@@ -1105,22 +1120,48 @@ class BaseSmoothedMassDistribution:
 
     def __call__(self, dataset, *args, **kwargs):
         beta = kwargs.pop("beta")
-        mmin = kwargs.get("mmin", self.mmin)
-        mmax = kwargs.get("mmax", self.mmax)
-        if "jax" not in xp.__name__:
-            if mmin < self.mmin:
-                raise ValueError(
-                    "{self.__class__}: mmin ({mmin}) < self.mmin ({self.mmin})"
-                )
-            if mmax > self.mmax:
-                raise ValueError(
-                    "{self.__class__}: mmax ({mmax}) > self.mmax ({self.mmax})"
-                )
+        mmin = self._check_mass_limits(kwargs)
         delta_m = kwargs.get("delta_m", 0)
         p_m1 = self.p_m1(dataset, **kwargs, **self.kwargs)
         p_q = self.p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
         prob = p_m1 * p_q
         return prob
+
+    def ln_prob(self, dataset, *args, **kwargs):
+        r"""
+        The log of :func:`__call__`.
+
+        The terms for each sample are computed in log space, so that they do
+        not underflow, e.g., in single precision, while the normalizations
+        are computed as for :func:`__call__`. In single precision, the mass
+        ratio normalization underflows for primary masses within
+        :math:`\sim \delta_m / 87` of :code:`mmin`, so the log density is
+        :code:`-inf` there rather than below :math:`\sim -87`.
+        """
+        beta = kwargs.pop("beta")
+        mmin = self._check_mass_limits(kwargs)
+        delta_m = kwargs.get("delta_m", 0)
+        ln_p_m1 = self.ln_p_m1(dataset, **kwargs, **self.kwargs)
+        ln_p_q = self.ln_p_q(dataset, beta=beta, mmin=mmin, delta_m=delta_m)
+        return ln_p_m1 + ln_p_q
+
+    def _check_mass_limits(self, kwargs):
+        """
+        Check that the mass limits are within the normalization grid,
+        which is not possible with :code:`jax`, and return the minimum mass.
+        """
+        mmin = kwargs.get("mmin", self.mmin)
+        mmax = kwargs.get("mmax", self.mmax)
+        if "jax" not in xp.__name__:
+            if mmin < self.mmin:
+                raise ValueError(
+                    f"{self.__class__}: mmin ({mmin}) < self.mmin ({self.mmin})"
+                )
+            if mmax > self.mmax:
+                raise ValueError(
+                    f"{self.__class__}: mmax ({mmax}) > self.mmax ({self.mmax})"
+                )
+        return mmin
 
     def p_m1(self, dataset, **kwargs):
         mmin = kwargs.get("mmin", self.mmin)
@@ -1131,6 +1172,25 @@ class BaseSmoothedMassDistribution:
         )
         norm = self.norm_p_m1(delta_m=delta_m, **kwargs)
         return p_m / norm
+
+    def ln_p_m1(self, dataset, **kwargs):
+        """The log of :func:`p_m1`"""
+        mmin = kwargs.get("mmin", self.mmin)
+        delta_m = kwargs.pop("delta_m", 0)
+        ln_p_m = self._ln_primary_model(dataset["mass_1"], **kwargs)
+        ln_p_m += self.ln_smoothing(
+            dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
+        )
+        norm = self.norm_p_m1(delta_m=delta_m, **kwargs)
+        return ln_p_m - xp.log(norm)
+
+    def _ln_primary_model(self, mass, **kwargs):
+        """:code:`ln_primary_model` if set, else the log of :code:`primary_model`"""
+        ln_primary_model = self.__class__.ln_primary_model
+        if ln_primary_model is not None:
+            return ln_primary_model(mass, **kwargs)
+        with np.errstate(divide="ignore"):
+            return xp.log(self.__class__.primary_model(mass, **kwargs))
 
     def norm_p_m1(self, delta_m, **kwargs):
         """Calculate the normalisation factor for the primary mass"""
@@ -1153,18 +1213,47 @@ class BaseSmoothedMassDistribution:
             mmax=dataset["mass_1"],
             delta_m=delta_m,
         )
-
-        try:
-            if self.cache:
-                p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
-            else:
-                self._cache_q_norms(dataset["mass_1"])
-                p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
-        except (AttributeError, TypeError, ValueError):
-            self._cache_q_norms(dataset["mass_1"])
-            p_q /= self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
-
+        p_q /= self._norm_p_q_at(
+            dataset["mass_1"], beta=beta, mmin=mmin, delta_m=delta_m
+        )
         return xp.nan_to_num(p_q)
+
+    def ln_p_q(self, dataset, beta, mmin, delta_m):
+        """
+        The log of :func:`p_q`, using :code:`dataset["ln_mass_1"]` and
+        :code:`dataset["ln_mass_ratio"]` if present
+        """
+        ln_mass_1 = _dataset_log(dataset, "mass_1")
+        ln_p_q = _ln_mass_ratio_power_law(dataset, ln_mass_1, beta=beta, mmin=mmin)
+        ln_p_q += self.ln_smoothing(
+            dataset["mass_1"] * dataset["mass_ratio"],
+            mmin=mmin,
+            mmax=dataset["mass_1"],
+            delta_m=delta_m,
+        )
+        norm = self._norm_p_q_at(
+            dataset["mass_1"], beta=beta, mmin=mmin, delta_m=delta_m
+        )
+        # the normalization, and so p_q, is zero for primary masses below mmin
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return xp.where(norm > 0, ln_p_q - xp.log(norm), -xp.inf)
+
+    def _norm_p_q_at(self, mass_1, beta, mmin, delta_m):
+        """
+        :func:`norm_p_q` at the given primary masses, caching the
+        interpolation if :code:`self.cache` and the masses have the same shape
+        as the cached ones
+        """
+        if not self.cache:
+            self._cache_q_norms(mass_1)
+        try:
+            norm = self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
+            if norm.shape != mass_1.shape:
+                raise ValueError("Cached mass ratio normalization has the wrong shape")
+        except (AttributeError, TypeError, ValueError):
+            self._cache_q_norms(mass_1)
+            norm = self.norm_p_q(beta=beta, mmin=mmin, delta_m=delta_m)
+        return norm
 
     def norm_p_q(self, beta, mmin, delta_m):
         """Calculate the mass ratio normalisation by linear interpolation"""
@@ -1208,14 +1297,26 @@ class BaseSmoothedMassDistribution:
         See also, https://en.wikipedia.org/wiki/Window_function#Planck-taper_window
         """
         if "jax" in xp.__name__ or delta_m > 0.0:
-            shifted_mass = xp.nan_to_num((masses - mmin) / delta_m, nan=0)
-            shifted_mass = xp.clip(shifted_mass, 1e-6, 1 - 1e-6)
-            exponent = 1 / shifted_mass - 1 / (1 - shifted_mass)
+            exponent = _smoothing_exponent(masses, mmin=mmin, delta_m=delta_m)
             window = scs.expit(-exponent)
             window *= (masses >= mmin) * (masses <= mmax)
             return window
         else:
             return xp.ones(masses.shape)
+
+    @staticmethod
+    def ln_smoothing(masses, mmin, mmax, delta_m):
+        """
+        The log of :func:`smoothing`, a log-sigmoid, which does not underflow
+        close to :code:`mmin`, e.g., in single precision.
+        """
+        if "jax" in xp.__name__ or delta_m > 0.0:
+            exponent = _smoothing_exponent(masses, mmin=mmin, delta_m=delta_m)
+            # ln(expit(-x)) = -ln(1 + e^x)
+            ln_window = -xp.logaddexp(0.0, exponent)
+            return xp.where((masses >= mmin) & (masses <= mmax), ln_window, -xp.inf)
+        else:
+            return xp.zeros(masses.shape)
 
 
 class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
@@ -1253,6 +1354,7 @@ class SinglePeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     """
 
     primary_model = two_component_single
+    ln_primary_model = ln_two_component_single
 
     @property
     def kwargs(self):
@@ -1298,6 +1400,7 @@ class MultiPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     """
 
     primary_model = three_component_single
+    ln_primary_model = ln_three_component_single
 
     @property
     def kwargs(self):
@@ -1330,6 +1433,7 @@ class BrokenPowerLawSmoothedMassDistribution(BaseSmoothedMassDistribution):
     """
 
     primary_model = double_power_law_primary_mass
+    ln_primary_model = ln_double_power_law_primary_mass
 
 
 class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
@@ -1369,6 +1473,7 @@ class BrokenPowerLawPeakSmoothedMassDistribution(BaseSmoothedMassDistribution):
     """
 
     primary_model = double_power_law_peak_primary_mass
+    ln_primary_model = ln_double_power_law_peak_primary_mass
 
     @property
     def kwargs(self):
@@ -1404,6 +1509,7 @@ class InterpolatedPowerlaw(
     """
 
     primary_model = power_law_mass
+    ln_primary_model = ln_power_law_mass
 
     def __init__(
         self,
@@ -1472,6 +1578,25 @@ class InterpolatedPowerlaw(
 
         norm = self.norm_p_m1(delta_m=delta_m, f_splines=f_splines, **kwargs)
         return p_m / norm
+
+    def ln_p_m1(self, dataset, **kwargs):
+        """The log of :func:`p_m1`"""
+        f_splines, m_splines = self.extract_spline_points(kwargs)
+
+        mmin = kwargs.get("mmin", self.mmin)
+        delta_m = kwargs.pop("delta_m", 0)
+        ln_p_m = self._ln_primary_model(
+            dataset["mass_1"], **{key: kwargs[key] for key in ["alpha", "mmin", "mmax"]}
+        )
+        ln_p_m += self.ln_smoothing(
+            dataset["mass_1"], mmin=mmin, mmax=self.mmax, delta_m=delta_m
+        )
+        ln_p_m += self.ln_p_x_unnormed(
+            dataset, "mass_1", m_splines, f_splines, **kwargs
+        )
+
+        norm = self.norm_p_m1(delta_m=delta_m, f_splines=f_splines, **kwargs)
+        return ln_p_m - xp.log(norm)
 
     def norm_p_m1(self, delta_m, f_splines=None, **kwargs):
         mmin = kwargs.get("mmin", self.mmin)

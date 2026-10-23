@@ -12,6 +12,7 @@ from ..utils import (
     ln_powerlaw,
     ln_powerlaw_from_logs,
     ln_truncnorm,
+    logaddexp,
     powerlaw,
     trapezoid,
     truncnorm,
@@ -266,7 +267,7 @@ def ln_double_power_law_peak_primary_mass(
     ln_p_norm = ln_truncnorm(
         mass, mu=mpp, sigma=sigpp, high=gaussian_mass_maximum, low=mmin
     )
-    return xp.logaddexp(xp.log1p(-lam) + ln_p_pow, xp.log(lam) + ln_p_norm)
+    return logaddexp(xp.log1p(-lam) + ln_p_pow, xp.log(lam) + ln_p_norm)
 
 
 def double_power_law_primary_power_law_mass_ratio(
@@ -655,7 +656,7 @@ def _ln_two_component_single(
     ln_p_norm = ln_truncnorm(
         mass, mu=mpp, sigma=sigpp, high=gaussian_mass_maximum, low=mmin
     )
-    return xp.logaddexp(xp.log1p(-lam) + ln_p_pow, xp.log(lam) + ln_p_norm)
+    return logaddexp(xp.log1p(-lam) + ln_p_pow, xp.log(lam) + ln_p_norm)
 
 
 def _dataset_log(dataset, key):
@@ -779,8 +780,8 @@ def ln_three_component_single(
     ln_p_norm2 = ln_truncnorm(
         mass, mu=mpp_2, sigma=sigpp_2, high=gaussian_mass_maximum, low=mmin
     )
-    ln_p_peaks = xp.logaddexp(xp.log(lam_1) + ln_p_norm1, xp.log1p(-lam_1) + ln_p_norm2)
-    return xp.logaddexp(xp.log1p(-lam) + ln_p_pow, xp.log(lam) + ln_p_peaks)
+    ln_p_peaks = logaddexp(xp.log(lam_1) + ln_p_norm1, xp.log1p(-lam_1) + ln_p_norm2)
+    return logaddexp(xp.log1p(-lam) + ln_p_pow, xp.log(lam) + ln_p_peaks)
 
 
 def two_component_primary_mass_ratio(
@@ -1234,9 +1235,10 @@ class BaseSmoothedMassDistribution:
         norm = self._norm_p_q_at(
             dataset["mass_1"], beta=beta, mmin=mmin, delta_m=delta_m
         )
-        # the normalization, and so p_q, is zero for primary masses below mmin
-        with np.errstate(divide="ignore", invalid="ignore"):
-            return xp.where(norm > 0, ln_p_q - xp.log(norm), -xp.inf)
+        # the normalization, and so p_q, is zero for primary masses below mmin;
+        # the log of one there, rather than of zero, keeps the gradient finite
+        positive = norm > 0
+        return xp.where(positive, ln_p_q - xp.log(xp.where(positive, norm, 1)), -xp.inf)
 
     def _norm_p_q_at(self, mass_1, beta, mmin, delta_m):
         """

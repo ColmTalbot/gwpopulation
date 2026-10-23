@@ -11,6 +11,7 @@ from ..utils import (
     ln_beta_dist,
     ln_truncnorm,
     ln_unnormalized_2d_gaussian,
+    logaddexp,
     trapezoid,
     truncnorm,
     unnormalized_2d_gaussian,
@@ -298,7 +299,7 @@ def ln_independent_spin_orientation_gaussian_isotropic(
         dataset["cos_tilt_1"], mu=mu_1, sigma=sigma_1, high=1, low=-1
     ) + ln_truncnorm(dataset["cos_tilt_2"], mu=mu_2, sigma=sigma_2, high=1, low=-1)
     # as for the linear model, the isotropic component is not truncated
-    return xp.logaddexp(xp.log1p(-xi_spin) - math.log(4), xp.log(xi_spin) + ln_gaussian)
+    return logaddexp(xp.log1p(-xi_spin) - math.log(4), xp.log(xi_spin) + ln_gaussian)
 
 
 def gaussian_chi_eff(dataset, mu_chi_eff, sigma_chi_eff):

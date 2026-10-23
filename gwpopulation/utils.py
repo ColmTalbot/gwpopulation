@@ -85,13 +85,43 @@ def beta_dist(xx, alpha, beta, scale=1):
         The distribution evaluated at `xx`
 
     """
-    ln_beta = (alpha - 1) * xp.log(xx) + (beta - 1) * xp.log(scale - xx)
-    ln_beta -= scs.betaln(alpha, beta)
-    ln_beta -= (alpha + beta - 1) * xp.log(scale)
-    prob = xp.exp(ln_beta)
-    prob = xp.nan_to_num(prob)
-    prob *= (xx >= 0) * (xx <= scale)
-    return prob
+    # positional arguments, as the conditions have been checked
+    return xp.nan_to_num(xp.exp(ln_beta_dist(xx, alpha, beta, scale)))
+
+
+@apply_conditions(dict(alpha=(gt, 0), beta=(gt, 0), scale=(gt, 0)))
+def ln_beta_dist(xx, alpha, beta, scale=1):
+    r"""
+    Log beta distribution probability
+
+    .. math::
+        \ln p(x) = (\alpha - 1) \ln x + (\beta - 1) \ln(x_\max - x)
+        - \ln B(\alpha, \beta) - (\alpha + \beta - 1) \ln x_\max
+
+    Parameters
+    ----------
+    xx: float, array-like
+        The abscissa values (:math:`x`)
+    alpha: float
+        The Beta alpha parameter (:math:`\alpha`)
+    beta: float
+        The Beta beta parameter (:math:`\beta`)
+    scale: float, array-like
+        A scale factor for the distribution of the distribution (:math:`x_\max`)
+
+    Returns
+    -------
+    ln_prob: float, array-like
+        The log of the distribution evaluated at `xx`, :code:`-inf` outside
+        :math:`[0, x_\max]`
+
+    """
+    # with numpy, the logs warn where the result is masked below
+    with np.errstate(divide="ignore", invalid="ignore"):
+        # xlogy keeps x^0 = 1 at x = 0, e.g., alpha = 1 at xx = 0
+        ln_prob = scs.xlogy(alpha - 1, xx) + scs.xlogy(beta - 1, scale - xx)
+        ln_prob -= scs.betaln(alpha, beta) + (alpha + beta - 1) * xp.log(scale)
+    return xp.where((xx >= 0) & (xx <= scale), ln_prob, -xp.inf)
 
 
 @apply_conditions(dict(low=(ge, 0), alpha=(ne, 1)))
@@ -355,15 +385,49 @@ def unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
     prob: array-like
         The unnormalized probability distribution (:math:`p(x)`)
     """
+    return xp.exp(
+        ln_unnormalized_2d_gaussian(
+            xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance=covariance
+        )
+    )
+
+
+def ln_unnormalized_2d_gaussian(xx, yy, mu_x, mu_y, sigma_x, sigma_y, covariance):
+    r"""
+    The log of :func:`unnormalized_2d_gaussian`, the quadratic form in its
+    exponent, which does not underflow far from the mean.
+
+    Parameters
+    ==========
+    xx: array-like
+        Input data in first dimension (:math:`x`)
+    yy: array-like
+        Input data in second dimension (:math:`y`)
+    mu_x: float
+        Mean in the first dimension (:math:`\mu_{x}`)
+    sigma_x: float
+        Standard deviation in the first dimension (:math:`\sigma_{x}`)
+    mu_y: float
+        Mean in the second dimension (:math:`\mu_{y}`)
+    sigma_y: float
+        Standard deviation in the second dimension (:math:`\sigma_{y}`)
+    covariance: float
+        The normalized covariance (bounded in [0, 1]) (:math:`\rho`)
+
+    Returns
+    -------
+    ln_prob: array-like
+        The log of the unnormalized probability distribution
+        (:math:`\ln p(x)`)
+    """
     determinant = sigma_x**2 * sigma_y**2 * (1 - covariance)
     residual_x = (mu_x - xx) * sigma_y
     residual_y = (mu_y - yy) * sigma_x
-    prob = xp.exp(
+    return (
         -(residual_x**2 + residual_y**2 - 2 * residual_x * residual_y * covariance)
         / 2
         / determinant
     )
-    return prob
 
 
 def von_mises(xx, mu, kappa):

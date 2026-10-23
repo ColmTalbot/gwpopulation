@@ -3,11 +3,19 @@ Implemented mass models
 """
 
 import inspect
+import math
 
 import numpy as np
 import scipy.special as scs
 
-from ..utils import ln_powerlaw_from_logs, ln_truncnorm, powerlaw, trapezoid, truncnorm
+from ..utils import (
+    ln_powerlaw,
+    ln_powerlaw_from_logs,
+    ln_truncnorm,
+    powerlaw,
+    trapezoid,
+    truncnorm,
+)
 from .interped import InterpolatedNoBaseModelIdentical
 
 xp = np
@@ -20,21 +28,34 @@ __all__ = [
     "BrokenPowerLawPeakSmoothedMassDistribution",
     "InterpolatedPowerlaw",
     "double_power_law_primary_mass",
+    "ln_double_power_law_primary_mass",
     "double_power_law_peak_primary_mass",
+    "ln_double_power_law_peak_primary_mass",
     "double_power_law_primary_power_law_mass_ratio",
+    "ln_double_power_law_primary_power_law_mass_ratio",
     "power_law_primary_mass_ratio",
+    "ln_power_law_primary_mass_ratio",
     "_primary_secondary_general",
     "power_law_primary_secondary_independent",
+    "ln_power_law_primary_secondary_independent",
     "power_law_primary_secondary_identical",
+    "ln_power_law_primary_secondary_identical",
     "power_law_mass",
+    "ln_power_law_mass",
     "two_component_single",
     "ln_two_component_single",
     "three_component_single",
+    "ln_three_component_single",
     "two_component_primary_mass_ratio",
     "ln_two_component_primary_mass_ratio",
     "two_component_primary_secondary_independent",
+    "ln_two_component_primary_secondary_independent",
     "two_component_primary_secondary_identical",
+    "ln_two_component_primary_secondary_identical",
 ]
+
+# a Python float, a numpy scalar would promote single precision
+_LN_2 = math.log(2)
 
 
 def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_fraction):
@@ -71,6 +92,61 @@ def double_power_law_primary_mass(mass, alpha_1, alpha_2, mmin, mmax, break_frac
     high_part = powerlaw(mass, alpha=-alpha_2, low=m_break, high=mmax)
     prob = low_part * (mass < m_break) * correction + high_part * (mass >= m_break)
     return prob / (1 + correction)
+
+
+def ln_double_power_law_primary_mass(
+    mass, alpha_1, alpha_2, mmin, mmax, break_fraction
+):
+    r"""
+    Log of :func:`double_power_law_primary_mass`, computed without leaving log
+    space so that it does not underflow for steep power laws, e.g., in single
+    precision.
+
+    Parameters
+    ----------
+    mass: array-like
+        Mass to evaluate probability at (:math:`m`).
+    alpha_1: float
+        Powerlaw exponent for more massive black hole below break (:math:`\alpha_1`).
+    alpha_2: float
+        Powerlaw exponent for more massive black hole above break (:math:`\alpha_2`).
+    break_fraction: float
+        The fraction between mmin and mmax primary mass distribution breaks (:math:`\delta`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum mass in the powerlaw distributed component (:math:`m_\max`).
+    """
+    return _ln_double_power_law_primary_mass(
+        mass,
+        xp.log(mass),
+        alpha_1=alpha_1,
+        alpha_2=alpha_2,
+        mmin=mmin,
+        mmax=mmax,
+        break_fraction=break_fraction,
+    )
+
+
+def _ln_double_power_law_primary_mass(
+    mass, ln_mass, alpha_1, alpha_2, mmin, mmax, break_fraction
+):
+    """:func:`ln_double_power_law_primary_mass` given both the mass and its log"""
+    m_break = mmin + break_fraction * (mmax - mmin)
+    ln_mmin, ln_break, ln_mmax = xp.log(mmin), xp.log(m_break), xp.log(mmax)
+    ln_correction = ln_powerlaw_from_logs(
+        ln_break, alpha=-alpha_2, ln_high=ln_mmax, ln_low=ln_break
+    ) - ln_powerlaw_from_logs(
+        ln_break, alpha=-alpha_1, ln_high=ln_break, ln_low=ln_mmin
+    )
+    ln_low_part = ln_powerlaw_from_logs(
+        ln_mass, alpha=-alpha_1, ln_high=ln_break, ln_low=ln_mmin
+    )
+    ln_high_part = ln_powerlaw_from_logs(
+        ln_mass, alpha=-alpha_2, ln_high=ln_mmax, ln_low=ln_break
+    )
+    ln_prob = xp.where(mass < m_break, ln_low_part + ln_correction, ln_high_part)
+    return ln_prob - xp.logaddexp(0.0, ln_correction)
 
 
 def double_power_law_peak_primary_mass(
@@ -139,6 +215,60 @@ def double_power_law_peak_primary_mass(
     return prob
 
 
+def ln_double_power_law_peak_primary_mass(
+    mass,
+    alpha_1,
+    alpha_2,
+    mmin,
+    mmax,
+    break_fraction,
+    lam,
+    mpp,
+    sigpp,
+    gaussian_mass_maximum=100,
+):
+    r"""
+    Log of :func:`double_power_law_peak_primary_mass`, computed without
+    leaving log space so that it does not underflow far from the peak, e.g.,
+    in single precision.
+
+    Parameters
+    ----------
+    mass: array-like
+        Mass to evaluate probability at (:math:`m`).
+    alpha_1: float
+        Powerlaw exponent for more massive black hole below break (:math:`\alpha_1`).
+    alpha_2: float
+        Powerlaw exponent for more massive black hole above break (:math:`\alpha_2`).
+    break_fraction:float
+        The fraction between mmin and mmax primary mass distribution breaks (:math:`\delta`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum mass in the powerlaw distributed component (:math:`m_\max`).
+    lam: float
+        Fraction of black holes in the Gaussian component (:math:`\lambda_m`).
+    mpp: float
+        Mean of the Gaussian component (:math:`\mu_m`).
+    sigpp: float
+        Standard deviation of the Gaussian component (:math:`\sigma_m`).
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
+    """
+    ln_p_pow = ln_double_power_law_primary_mass(
+        mass=mass,
+        alpha_1=alpha_1,
+        alpha_2=alpha_2,
+        mmin=mmin,
+        mmax=mmax,
+        break_fraction=break_fraction,
+    )
+    ln_p_norm = ln_truncnorm(
+        mass, mu=mpp, sigma=sigpp, high=gaussian_mass_maximum, low=mmin
+    )
+    return xp.logaddexp(xp.log1p(-lam) + ln_p_pow, xp.log(lam) + ln_p_norm)
+
+
 def double_power_law_primary_power_law_mass_ratio(
     dataset, alpha_1, alpha_2, beta, mmin, mmax, break_fraction
 ):
@@ -186,6 +316,48 @@ def double_power_law_primary_power_law_mass_ratio(
     return prob
 
 
+def ln_double_power_law_primary_power_law_mass_ratio(
+    dataset, alpha_1, alpha_2, beta, mmin, mmax, break_fraction
+):
+    r"""
+    Log of :func:`double_power_law_primary_power_law_mass_ratio`, computed
+    without leaving log space so that it does not underflow for steep power
+    laws, e.g., in single precision.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for `mass_1` (:math:`m_1`) and `mass_ratio`
+        (:math:`q`). If it also has `ln_mass_1` and/or `ln_mass_ratio`, these
+        are used instead of taking logs.
+    alpha_1: float
+        Negative power law exponent for more massive black hole before break (:math:`\alpha_1`).
+    alpha_2: float
+        Negative power law exponent for more massive black hole after break (:math:`\alpha_2`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum black hole mass (:math:`m_\max`).
+    break_fraction: float
+        Break point of the primary mass distribution.
+        This is specified as a fraction of the way between mmin and mmax.
+        E.g., mmin=5, mmax=45, break_fraction=0.5 would have a break at 25
+    beta: float
+        Power law exponent of the mass ratio distribution.
+    """
+    ln_mass_1 = _dataset_log(dataset, "mass_1")
+    ln_p_m1 = _ln_double_power_law_primary_mass(
+        dataset["mass_1"],
+        ln_mass_1,
+        alpha_1=alpha_1,
+        alpha_2=alpha_2,
+        mmin=mmin,
+        mmax=mmax,
+        break_fraction=break_fraction,
+    )
+    return ln_p_m1 + _ln_mass_ratio_power_law(dataset, ln_mass_1, beta=beta, mmin=mmin)
+
+
 def power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
     r"""
     Power law model for two-dimensional mass distribution, modelling primary
@@ -216,8 +388,42 @@ def power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
     )
 
 
+def ln_power_law_primary_mass_ratio(dataset, alpha, beta, mmin, mmax):
+    r"""
+    Log of :func:`power_law_primary_mass_ratio`, which does not overflow or
+    underflow for steep power laws, e.g., in single precision.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' (:math:`m_1`) and 'mass_ratio'
+        (:math:`q`). If it also has 'ln_mass_1' and/or 'ln_mass_ratio', these
+        are used instead of taking logs.
+    alpha: float
+        Negative power law exponent for more massive black hole (:math:`\alpha`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum black hole mass (:math:`m_\max`).
+    beta: float
+        Power law exponent of the mass ratio distribution (:math:`\beta`).
+    """
+    ln_mass_1 = _dataset_log(dataset, "mass_1")
+    ln_p_m1 = ln_powerlaw_from_logs(
+        ln_mass_1, alpha=-alpha, ln_high=xp.log(mmax), ln_low=xp.log(mmin)
+    )
+    return ln_p_m1 + _ln_mass_ratio_power_law(dataset, ln_mass_1, beta=beta, mmin=mmin)
+
+
 def _primary_secondary_general(dataset, p_m1, p_m2):
     return p_m1 * p_m2 * (dataset["mass_1"] >= dataset["mass_2"]) * 2
+
+
+def _ln_primary_secondary_general(dataset, ln_p_m1, ln_p_m2):
+    """Log of :func:`_primary_secondary_general`"""
+    return xp.where(
+        dataset["mass_1"] >= dataset["mass_2"], ln_p_m1 + ln_p_m2 + _LN_2, -xp.inf
+    )
 
 
 def power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):
@@ -249,6 +455,32 @@ def power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):
     return prob
 
 
+def ln_power_law_primary_secondary_independent(dataset, alpha, beta, mmin, mmax):
+    r"""
+    Log of :func:`power_law_primary_secondary_independent`, which does not
+    overflow or underflow for steep power laws, e.g., in single precision.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' (:math:`m_1`) and 'mass_2'
+        (:math:`m_2`). If it also has 'ln_mass_1' and/or 'ln_mass_2', these
+        are used instead of taking logs.
+    alpha: float
+        Negative power law exponent for more massive black hole (:math:`\alpha`).
+    beta: float
+        Negative power law exponent of the secondary mass distribution (:math:`\beta`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum black hole mass (:math:`m_\max`).
+    """
+    bounds = dict(ln_high=xp.log(mmax), ln_low=xp.log(mmin))
+    ln_p_m1 = ln_powerlaw_from_logs(_dataset_log(dataset, "mass_1"), -alpha, **bounds)
+    ln_p_m2 = ln_powerlaw_from_logs(_dataset_log(dataset, "mass_2"), -beta, **bounds)
+    return _ln_primary_secondary_general(dataset, ln_p_m1, ln_p_m2)
+
+
 def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
     r"""
     Power law model for two-dimensional mass distribution, modelling the
@@ -275,6 +507,27 @@ def power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
     )
 
 
+def ln_power_law_primary_secondary_identical(dataset, alpha, mmin, mmax):
+    r"""
+    Log of :func:`power_law_primary_secondary_identical`.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' (:math:`m_1`) and 'mass_2'
+        (:math:`m_2`).
+    alpha: float
+        Negative power law exponent for both black holes (:math:`\alpha`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum black hole mass (:math:`m_\max`).
+    """
+    return ln_power_law_primary_secondary_independent(
+        dataset=dataset, alpha=alpha, beta=alpha, mmin=mmin, mmax=mmax
+    )
+
+
 def power_law_mass(mass, alpha, mmin, mmax):
     r"""
     Power law model for one-dimensional mass distribution.
@@ -294,6 +547,25 @@ def power_law_mass(mass, alpha, mmin, mmax):
         Maximum black hole mass (:math:`m_\max`).
     """
     return powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
+
+
+def ln_power_law_mass(mass, alpha, mmin, mmax):
+    r"""
+    Log of :func:`power_law_mass`, which does not overflow or underflow for
+    steep power laws, e.g., in single precision.
+
+    Parameters
+    ----------
+    mass: array-like
+        Array of mass values (:math:`m`).
+    alpha: float
+        Negative power law exponent for the black hole distribution (:math:`\alpha`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum black hole mass (:math:`m_\max`).
+    """
+    return ln_powerlaw(mass, alpha=-alpha, high=mmax, low=mmin)
 
 
 def two_component_single(
@@ -454,6 +726,63 @@ def three_component_single(
     return prob
 
 
+def ln_three_component_single(
+    mass,
+    alpha,
+    mmin,
+    mmax,
+    lam,
+    lam_1,
+    mpp_1,
+    sigpp_1,
+    mpp_2,
+    sigpp_2,
+    gaussian_mass_maximum=100,
+):
+    r"""
+    Log of :func:`three_component_single`, computed without leaving log space
+    so that it does not underflow far from the peaks, e.g., in single
+    precision.
+
+    Parameters
+    ----------
+    mass: array-like
+        Array of mass values (:math:`m`).
+    alpha: float
+        Negative power law exponent for the black hole distribution (:math:`\alpha`).
+    mmin: float
+        Minimum black hole mass (:math:`m_\min`).
+    mmax: float
+        Maximum black hole mass (:math:`m_\max`).
+    lam: float
+        Fraction of black holes in the Gaussian components (:math:`\lambda_m`).
+    lam_1: float
+        Fraction of black holes in the lower mass Gaussian component (:math:`\hat{\lambda}`).
+    mpp_1: float
+        Mean of the lower mass Gaussian component (:math:`\mu_{m, 1}`).
+    mpp_2: float
+        Mean of the upper mass Gaussian component (:math:`\mu_{m, 2}`).
+    sigpp_1: float
+        Standard deviation of the lower mass Gaussian component (:math:`\sigma_{m, 1}`).
+    sigpp_2: float
+        Standard deviation of the upper mass Gaussian component (:math:`\sigma_{m, 2}`).
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
+        Note that this applies the same value to both.
+    """
+    ln_p_pow = ln_powerlaw_from_logs(
+        xp.log(mass), alpha=-alpha, ln_high=xp.log(mmax), ln_low=xp.log(mmin)
+    )
+    ln_p_norm1 = ln_truncnorm(
+        mass, mu=mpp_1, sigma=sigpp_1, high=gaussian_mass_maximum, low=mmin
+    )
+    ln_p_norm2 = ln_truncnorm(
+        mass, mu=mpp_2, sigma=sigpp_2, high=gaussian_mass_maximum, low=mmin
+    )
+    ln_p_peaks = xp.logaddexp(xp.log(lam_1) + ln_p_norm1, xp.log1p(-lam_1) + ln_p_norm2)
+    return xp.logaddexp(xp.log1p(-lam) + ln_p_pow, xp.log(lam) + ln_p_peaks)
+
+
 def two_component_primary_mass_ratio(
     dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
 ):
@@ -542,14 +871,21 @@ def ln_two_component_primary_mass_ratio(
     ln_p_m1 = _ln_two_component_single(
         dataset["mass_1"], ln_mass_1, alpha=alpha, **params
     )
+    return ln_p_m1 + _ln_mass_ratio_power_law(dataset, ln_mass_1, beta=beta, mmin=mmin)
+
+
+def _ln_mass_ratio_power_law(dataset, ln_mass_1, beta, mmin):
+    r"""
+    The log of the power law in mass ratio on :math:`[m_\min / m_1, 1]`, given
+    the log of the primary mass, using ``dataset["ln_mass_ratio"]`` if present
+    """
     # q_min = mmin / m1, so ln q_min = ln mmin - ln m1 needs no log of the data
-    ln_p_q = ln_powerlaw_from_logs(
+    return ln_powerlaw_from_logs(
         _dataset_log(dataset, "mass_ratio"),
         beta,
         ln_high=0.0,
         ln_low=xp.log(mmin) - ln_mass_1,
     )
-    return ln_p_m1 + ln_p_q
 
 
 def two_component_primary_secondary_independent(
@@ -598,6 +934,53 @@ def two_component_primary_secondary_independent(
     return prob
 
 
+def ln_two_component_primary_secondary_independent(
+    dataset, alpha, beta, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
+):
+    r"""
+    Log of :func:`two_component_primary_secondary_independent`, computed
+    without leaving log space so that it does not underflow far from the peak,
+    e.g., in single precision.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' and 'mass_2'. If it also has
+        'ln_mass_1' and/or 'ln_mass_2', these are used instead of taking logs.
+    alpha: float
+        Negative power law exponent for more massive black hole.
+    beta: float
+        Negative power law exponent of the secondary mass distribution.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum black hole mass.
+    lam: float
+        Fraction of black holes in the Gaussian component.
+    mpp: float
+        Mean of the Gaussian component.
+    sigpp: float
+        Standard deviation of the Gaussian component.
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
+    """
+    params = dict(
+        mmin=mmin,
+        mmax=mmax,
+        lam=lam,
+        mpp=mpp,
+        sigpp=sigpp,
+        gaussian_mass_maximum=gaussian_mass_maximum,
+    )
+    ln_p_m1 = _ln_two_component_single(
+        dataset["mass_1"], _dataset_log(dataset, "mass_1"), alpha=alpha, **params
+    )
+    ln_p_m2 = _ln_two_component_single(
+        dataset["mass_2"], _dataset_log(dataset, "mass_2"), alpha=beta, **params
+    )
+    return _ln_primary_secondary_general(dataset, ln_p_m1, ln_p_m2)
+
+
 def two_component_primary_secondary_identical(
     dataset, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
 ):
@@ -628,6 +1011,44 @@ def two_component_primary_secondary_identical(
         Upper truncation limit of the Gaussian component. (default: 100)
     """
     return two_component_primary_secondary_independent(
+        dataset=dataset,
+        alpha=alpha,
+        beta=alpha,
+        mmin=mmin,
+        mmax=mmax,
+        lam=lam,
+        mpp=mpp,
+        sigpp=sigpp,
+        gaussian_mass_maximum=gaussian_mass_maximum,
+    )
+
+
+def ln_two_component_primary_secondary_identical(
+    dataset, alpha, mmin, mmax, lam, mpp, sigpp, gaussian_mass_maximum=100
+):
+    r"""
+    Log of :func:`two_component_primary_secondary_identical`.
+
+    Parameters
+    ----------
+    dataset: dict
+        Dictionary of numpy arrays for 'mass_1' and 'mass_2'.
+    alpha: float
+        Negative power law exponent for more massive black hole.
+    mmin: float
+        Minimum black hole mass.
+    mmax: float
+        Maximum black hole mass.
+    lam: float
+        Fraction of black holes in the Gaussian component.
+    mpp: float
+        Mean of the Gaussian component.
+    sigpp: float
+        Standard deviation of the Gaussian component.
+    gaussian_mass_maximum: float, optional
+        Upper truncation limit of the Gaussian component. (default: 100)
+    """
+    return ln_two_component_primary_secondary_independent(
         dataset=dataset,
         alpha=alpha,
         beta=alpha,
